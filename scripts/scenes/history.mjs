@@ -101,7 +101,7 @@ export default (ctx) => {
       await openFromSidebar(page, 'POST orders')
       await shot(page, 'history-off')
       await page.locator('.sb-rail-btn[data-panel="collections"]').click()
-      await page.context().close()
+      await ctx.done()
     },
   }
 }

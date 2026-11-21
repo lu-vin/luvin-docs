@@ -144,15 +144,13 @@ workflows:
         outputs:
           orderId: $response.body#/id
 `
-  /** Un workspace en el navegador con la colección "Shop" contra la tienda local. */
+  /** Un workspace con la colección "Shop" contra la tienda local. */
   async function openShopLocal(page, base) {
     writeFileSync(path.join(tmp, 'runner-shop.openapi.yaml'), shopOpenapi(base))
     writeFileSync(path.join(tmp, 'runner-shop.arazzo.yaml'), SHOP_ARAZZO.replace('./shop.openapi.yaml', './runner-shop.openapi.yaml'))
     await page.locator('.welcome-dialog').waitFor()
     await page.locator('.wd-card', { hasText: T.createWs }).click()
     await page.locator('.wd-form input').first().fill('Demo')
-    const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-    if (await inBrowser.count()) await inBrowser.click()
     await page.getByRole('button', { name: T.createWsGo }).click()
     await page.locator('.home').waitFor()
     await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -183,10 +181,10 @@ workflows:
   /** Recorte de una zona, con los límites de la ventana actual. */
   async function cut(page, name, box, pad = 0) {
     await settle(page)
-    const vp = page.viewportSize()
+    const vp = ctx.viewport(page)
     const x = Math.max(0, box.x - pad)
     const y = Math.max(0, box.y - pad)
-    await page.screenshot({ path: path.join(ctx.OUT, `${name}.png`), clip: { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) } })
+    await ctx.capture(page, path.join(ctx.OUT, `${name}.png`), { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) })
     console.log(`  ✓ ${name}`)
   }
   /** Une varias cajas en una. */
@@ -195,7 +193,7 @@ workflows:
     const y = Math.min(...bs.map((b) => b.y))
     return { x, y, width: Math.max(...bs.map((b) => b.x + b.width)) - x, height: Math.max(...bs.map((b) => b.y + b.height)) - y }
   }
-  /** Las listas nativas no se dibujan en Chrome sin ventana: un menú con sus opciones reales debajo (como design.mjs). */
+  /** El menú de una lista nativa es del sistema y no sale en la captura: uno igual con sus opciones reales debajo (como design.mjs). */
   async function showOptions(page, select, highlight) {
     await select.evaluate((el, hl) => {
       document.getElementById('demo-select')?.remove()
@@ -240,6 +238,19 @@ workflows:
   const config = (page) => page.locator('.runner-config').first()
   /** Lleva un elemento al principio de la columna de configuración (tiene su propio scroll). */
   const reveal = (loc, block = 'start') => loc.first().evaluate((el, b) => el.scrollIntoView({ block: b }), block)
+  /** Sube al principio el panel con scroll que contiene al elemento (los resultados crecen y se desplazan solos). */
+  const toTop = (page, selector) =>
+    page.evaluate((s) => {
+      let el = document.querySelector(s)
+      while (el && el !== document.body) {
+        if (el.scrollHeight > el.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(el).overflowY)) {
+          el.scrollTop = 0
+          return
+        }
+        el = el.parentElement
+      }
+      window.scrollTo(0, 0)
+    }, selector)
   /** Espera a que termine lo que corre en el runner. */
   const untilFinished = (page, timeout = 120000) => page.waitForFunction(() => document.querySelector('.runner-results') && !document.querySelector('.runner-progress') && !document.querySelector('.runner-step.pending'), null, { timeout })
   const typeRadio = (page, label) => page.locator('.runner-radio', { hasText: label }).first()
@@ -296,7 +307,10 @@ workflows:
     await page.locator('.runner-shell').waitFor()
     await choose(envSelect(page), 'local')
     await settle(page, 800)
+    // Más alto: la configuración completa (hasta Ajustes) a la vista.
+    await ctx.resize(page, 1280, 1000)
     await shot(page, 'runner-overview')
+    await ctx.resize(page, 1280, 800)
     // El ambiente: se elige sin salir del runner.
     await showOptions(page, envSelect(page), 'local')
     const sel = await envSelect(page).boundingBox()
@@ -308,12 +322,14 @@ workflows:
     await page.locator('.runner-wf-toggle').first().click()
     await settle(page, 500)
     await cut(page, 'runner-workflows-cases', await page.locator('.runner-order').boundingBox(), 10)
-    // La configuración del modo funcional.
+    // La configuración del modo funcional, completa (la página más alta para que entre).
     {
+      await ctx.resize(page, 1280, 1400)
       const b = await config(page).boundingBox()
       const bar = await page.locator('.status-bar, footer').first().boundingBox().catch(() => null)
       const bottom = bar ? Math.min(b.y + b.height, bar.y - 12) : b.y + b.height
       await cut(page, 'runner-workflows-setup', { ...b, height: bottom - b.y }, 10)
+      await ctx.resize(page, 1280, 800)
     }
     // Un archivo de datos: cada fila es una iteración.
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.runner-config .runner-file').click()])
@@ -334,7 +350,7 @@ workflows:
     await untilFinished(page)
     await settle(page, 1200)
     await shot(page, 'runner-workflows-results')
-    await page.context().close()
+    await ctx.done()
   }
 
   // ---------------------------------------------------------------- Runner de requests (tienda local)
@@ -367,7 +383,7 @@ workflows:
       await untilFinished(page)
       await settle(page, 1000)
       await shot(page, 'runner-requests-results')
-      await page.context().close()
+      await ctx.done()
     } finally {
       await shop.close()
     }
@@ -378,7 +394,7 @@ workflows:
     const shop = await startShop()
     try {
       const page = await freshPage()
-      await page.setViewportSize({ width: 1440, height: 1000 })
+      await ctx.resize(page, 1440, 1000)
       await openShopLocal(page, shop.base)
       await addEnv(page, 'production')
       await openWorkflowsRunner(page)
@@ -413,8 +429,10 @@ workflows:
       await dlg.locator('button', { hasText: L('Seguir ejecutando', 'Keep running') }).click()
       await untilFinished(page)
       // Más alta: el veredicto, los números, el gráfico y la tabla con el paso más lento, todo a la vista.
-      await page.setViewportSize({ width: 1440, height: 1300 })
+      await ctx.resize(page, 1440, 1300)
       await settle(page, 1500)
+      await toTop(page, '.runner-results')
+      await settle(page, 400)
       await shot(page, 'runner-perf-results')
       // Un rango del gráfico.
       const chart = await page.locator('.perf-chart-box').boundingBox()
@@ -425,12 +443,14 @@ workflows:
       await page.mouse.up()
       await page.mouse.move(chart.x + chart.width + 40, chart.y - 40)
       await settle(page, 800)
+      await toTop(page, '.runner-results')
+      await settle(page, 400)
       await shot(page, 'runner-perf-range')
-      await page.setViewportSize({ width: 1440, height: 1000 })
+      await ctx.resize(page, 1440, 1000)
       await page.locator('.perf-tabs button').nth(1).click()
       await settle(page, 600)
       await shot(page, 'runner-perf-errors')
-      await page.context().close()
+      await ctx.done()
     } finally {
       await shop.close()
     }
@@ -440,7 +460,7 @@ workflows:
     const shop = await startShop()
     try {
       const page = await freshPage()
-      await page.setViewportSize({ width: 1440, height: 1000 })
+      await ctx.resize(page, 1440, 1000)
       // La tienda local, pero en una ruta que nunca responde.
       await openShopLocal(page, `${shop.base}/hang`)
       await openWorkflowsRunner(page)
@@ -454,7 +474,7 @@ workflows:
       const res = await page.locator('.runner-results').boundingBox()
       const kpis = await page.locator('.perf-kpis').boundingBox()
       await cut(page, 'runner-perf-nodata', { ...res, height: kpis.y + kpis.height - res.y + 8 })
-      await page.context().close()
+      await ctx.done()
     } finally {
       await shop.close()
     }
@@ -572,9 +592,13 @@ workflows:
       await go(page, page.locator('.runner-start'), { click: false, pause: 200 })
       await page.locator('.runner-start').click()
       await page.locator('.runner-results').waitFor()
+      // Los resultados en vivo arriba del todo (el panel crece y se desplaza).
+      await toTop(page, '.runner-results')
       await say(page, C.p7, 300)
       await untilFinished(page)
       await settle(page, 800)
+      await toTop(page, '.runner-results')
+      await settle(page, 300)
       await say(page, C.p8, 300)
       await go(page, page.locator('.perf-verdict'), { click: false, pause: 1800 })
       await go(page, page.locator('.perf-worst'), { click: false, pause: 1800 })
@@ -590,7 +614,8 @@ workflows:
       await page.mouse.up()
       await settle(page, 600)
       await moveTo(page, c.x + c.width * 0.5, c.y - 30)
-      await page.locator('.perf-detail-head').evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'smooth' }))
+      // Termina con el gráfico (y su rango) arriba y el detalle debajo: es el póster del video.
+      await chart.evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'smooth' }))
       await settle(page, 3000)
       await say(page, '', 400)
       await saveClip(page, 'runner-perf', started, from)

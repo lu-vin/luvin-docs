@@ -232,7 +232,7 @@ workflows:
   const fixture = (...names) => names.map((n) => path.join(tmp, n))
 
   // --- Ayudas ---
-  /** Un workspace en el navegador con una colección "Store" y los archivos indicados. */
+  /** Un workspace con una colección "Store" y los archivos indicados. */
   async function openStore(page, names = ['store.arazzo.yaml', 'auth.arazzo.yaml', 'store.openapi.yaml']) {
     await wide(page)
     if (!names.length) {
@@ -240,8 +240,6 @@ workflows:
       await page.locator('.welcome-dialog').waitFor()
       await page.locator('.wd-card', { hasText: T.createWs }).click()
       await page.locator('.wd-form input').first().fill('Demo')
-      const inB = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-      if (await inB.count()) await inB.click()
       await page.getByRole('button', { name: T.createWsGo }).click()
       await page.locator('.home').waitFor()
       await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -253,8 +251,6 @@ workflows:
     await page.locator('.welcome-dialog').waitFor()
     await page.locator('.wd-card', { hasText: T.createWs }).click()
     await page.locator('.wd-form input').first().fill('Demo')
-    const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-    if (await inBrowser.count()) await inBrowser.click()
     await page.getByRole('button', { name: T.createWsGo }).click()
     await page.locator('.home').waitFor()
     await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -283,8 +279,8 @@ workflows:
   const detailBox = async (page) => (await page.locator('.bl-detail-stack, .bl-detail').first().boundingBox())
 
   /**
-   * Las listas nativas (<select>) no se dibujan en Chrome sin ventana: se muestra un menú con sus
-   * opciones reales (los mismos textos y grupos) debajo de la lista, como se ve al abrirla.
+   * El menú de una lista nativa (<select>) es del sistema y no sale en la captura: se muestra uno igual,
+   * con sus opciones reales (los mismos textos y grupos) debajo de la lista, como se ve al abrirla.
    */
   async function showOptions(page, select, highlight) {
     await select.scrollIntoViewIfNeeded().catch(() => {})
@@ -352,14 +348,14 @@ workflows:
   const branch = (page, status) => detail(page).locator('.bl-branch-row', { has: page.locator('strong', { hasText: new RegExp(`^${status}$`) }) }).first()
 
   /** Para las capturas (no los videos): una ventana más grande que la de los videos. */
-  const big = (page) => page.setViewportSize({ width: 1600, height: 1000 })
+  const big = (page) => ctx.resize(page, 1600, 1000)
   /** Recorte de una zona, con los límites de la ventana actual. */
   async function cut(page, name, box, pad = 0) {
     await settle(page)
-    const vp = page.viewportSize()
+    const vp = ctx.viewport(page)
     const x = Math.max(0, box.x - pad)
     const y = Math.max(0, box.y - pad)
-    await page.screenshot({ path: path.join(ctx.OUT, `${name}.png`), clip: { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) } })
+    await ctx.capture(page, path.join(ctx.OUT, `${name}.png`), { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) })
     console.log(`  ✓ ${name}`)
   }
   /** Recorte del panel derecho entero. */
@@ -528,7 +524,7 @@ workflows:
     await clipDetail(page, 'design-call-workflow')
     await page.locator('.bl-toolbar button', { hasText: L('Deshacer', 'Undo') }).click()
     await settle(page, 500)
-    await page.context().close()
+    await ctx.done()
   }
 
   /** Una línea del YAML (CodeMirror solo dibuja las que se ven: se baja hasta encontrarla). */
@@ -648,7 +644,7 @@ workflows:
     await settle(page, 800)
     const body = await page.locator('.ws-center-body').boundingBox()
     await cut(page, 'design-yaml-broken', { ...body, height: 130 })
-    await page.context().close()
+    await ctx.done()
   }
 
   // Pokédex: crear un Arazzo, nombre, pasos nuevos con datos conectados, el origen de un valor.
@@ -713,7 +709,7 @@ workflows:
     await showOptions(page, src)
     await clipDetail(page, 'design-source-options')
     await hideOptions(page)
-    await page.context().close()
+    await ctx.done()
   }
 
   // --------------------------------------------------------------------------------------------
@@ -1042,7 +1038,7 @@ workflows:
     await group.locator('.bl-op-component', { hasText: 'unauthorized' }).first().click()
     await settle(page, 700)
     await clipDetail(page, 'design-reusable-panel')
-    await page.context().close()
+    await ctx.done()
     page = await freshPage()
     await big(page)
     await wide(page)
@@ -1050,7 +1046,7 @@ workflows:
     await design(page, 'registerSighting')
     await select(page, 'awaitConfirmation')
     await clipDetail(page, 'design-messaging-receive')
-    await page.context().close()
+    await ctx.done()
   }
 
   // --- Construir desde requests guardados (sin contrato) ---
@@ -1119,7 +1115,7 @@ workflows:
     await settle(page, 800)
     await deselect(page)
     await clipTop(page, 'design-connections-bar', 380)
-    await page.context().close()
+    await ctx.done()
   }
 
   scenes['clip-design-from-requests'] = async () => {

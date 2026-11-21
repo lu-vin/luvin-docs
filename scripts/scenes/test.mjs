@@ -123,13 +123,11 @@ cases:
   writeFileSync(path.join(tmp, 'orders.arazzo.yaml'), ORDERS_ARAZZO)
   writeFileSync(path.join(tmp, 'orders.cases.yaml'), ORDERS_CASES)
 
-  /** Un workspace en el navegador con la colección "Shop" y el workflow Place an order. */
+  /** Un workspace con la colección "Shop" y el workflow Place an order. */
   async function openOrders(page) {
     await page.locator('.welcome-dialog').waitFor()
     await page.locator('.wd-card', { hasText: T.createWs }).click()
     await page.locator('.wd-form input').first().fill('Demo')
-    const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-    if (await inBrowser.count()) await inBrowser.click()
     await page.getByRole('button', { name: T.createWsGo }).click()
     await page.locator('.home').waitFor()
     await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -218,11 +216,8 @@ cases:
     await settle(page, 1000)
   }
   /** Descarga el reporte HTML de los resultados y lo deja en un archivo. */
-  async function downloadReport(page, name) {
-    const [download] = await Promise.all([page.waitForEvent('download', { timeout: 10000 }), page.locator('.ws-results .rp-head button', { hasText: T.report }).first().click()])
-    const file = path.join(tmp, name)
-    await download.saveAs(file)
-    return file
+  function downloadReport(page, name) {
+    return ctx.download(page, () => page.locator('.ws-results .rp-head button', { hasText: T.report }).first().click(), path.join(tmp, name))
   }
   /** Cases → modo real → elige al ejecutar el primer elemento de cada lista. */
   async function continueLists(page, { cursor = false } = {}) {
@@ -314,20 +309,17 @@ cases:
       await shot(page, 'test-step-response', results)
       // Reporte HTML y JSON
       const file = await downloadReport(page, `orders-report-${ctx.locale}.html`)
-      const [json] = await Promise.all([page.waitForEvent('download'), page.locator('.ws-results .rp-head button', { hasText: 'JSON' }).click()])
-      await json.saveAs(path.join(tmp, `orders-report-${ctx.locale}.json`))
-      const rp = await page.context().newPage()
-      await rp.goto(`file://${file}`)
-      await shot(rp, 'test-report')
-      await rp.locator('h2').nth(1).evaluate((el) => el.scrollIntoView())
-      await shot(rp, 'test-report-cases')
-      await rp.close()
+      await ctx.download(page, () => page.locator('.ws-results .rp-head button', { hasText: 'JSON' }).click(), path.join(tmp, `orders-report-${ctx.locale}.json`))
       // Exportar los casos: el archivo queda para revisarlo
       await tab(page, 'cases').click()
       await page.locator('.ws-view-head .row-menu-btn').click()
-      const [cases] = await Promise.all([page.waitForEvent('download'), page.locator('.row-menu-list button', { hasText: L.exportCases }).click()])
-      await cases.saveAs(path.join(tmp, `orders-exported-${ctx.locale}.yaml`))
-      await page.context().close()
+      await ctx.download(page, () => page.locator('.row-menu-list button', { hasText: L.exportCases }).click(), path.join(tmp, `orders-exported-${ctx.locale}.yaml`))
+      // El reporte, abierto en la ventana (al final: la app se va).
+      await ctx.showFile(page, file)
+      await shot(page, 'test-report')
+      await page.locator('h2').nth(1).evaluate((el) => el.scrollIntoView())
+      await shot(page, 'test-report-cases')
+      await ctx.done()
     },
 
     // ---------------------------------------------------------------- Capturas: la Pokédex
@@ -398,7 +390,7 @@ cases:
       await page.locator('.ws-runbar .segmented button').nth(0).click()
       await settle(page, 500)
       await shot(page, 'test-runbar', page.locator('.ws-runbar'))
-      await page.context().close()
+      await ctx.done()
     },
 
     // ---------------------------------------------------------------- Capturas: PayPal (sin llamar a la API)
@@ -419,7 +411,7 @@ cases:
       for (const g of [L.data, L.security, L.byResponse]) await openGroup(page, g)
       await toTop(group(page, L.security), 10)
       await shot(page, 'test-paypal-cases')
-      await page.context().close()
+      await ctx.done()
     },
 
     // ---------------------------------------------------------------- Videos
@@ -674,7 +666,6 @@ cases:
     async 'clip-test-failure'() {
       const started = Date.now()
       const page = await freshPage({ video: V })
-      await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
       await openOrders(page)
       await importCases(page, path.join(tmp, 'orders.cases.yaml'))
       await page.locator('.callout button.link').click()
@@ -712,10 +703,8 @@ cases:
       await settle(page, 900)
       const from = Date.now()
       await say(page, C.e1, 300)
-      const [download] = await Promise.all([page.waitForEvent('download', { timeout: 10000 }), go(page, page.locator('.ws-results .rp-head button', { hasText: T.report }), { pause: 1200 })])
-      const file = path.join(tmp, `orders-report-video-${ctx.locale}.html`)
-      await download.saveAs(file)
-      await page.goto(`file://${file}`)
+      const file = await ctx.download(page, () => go(page, page.locator('.ws-results .rp-head button', { hasText: T.report }), { pause: 1200 }), path.join(tmp, `orders-report-video-${ctx.locale}.html`))
+      await ctx.showFile(page, file)
       await settle(page, 600)
       await say(page, C.e2, 2000)
       await say(page, C.e3, 300)
@@ -739,8 +728,7 @@ cases:
       const from = Date.now()
       await say(page, C.c1, 300)
       await go(page, page.locator('.ws-view-head .row-menu-btn'), { pause: 700 })
-      const [download] = await Promise.all([page.waitForEvent('download'), go(page, page.locator('.row-menu-list button', { hasText: L.exportCases }), { pause: 900 })])
-      await download.saveAs(path.join(tmp, `orders-exported-video-${ctx.locale}.yaml`))
+      await ctx.download(page, () => go(page, page.locator('.row-menu-list button', { hasText: L.exportCases }), { pause: 900 }), path.join(tmp, `orders-exported-video-${ctx.locale}.yaml`))
       await say(page, C.c2, 300)
       await go(page, page.locator('.ws-view-head .row-menu-btn'), { pause: 700 })
       const [chooser] = await Promise.all([page.waitForEvent('filechooser'), go(page, page.locator('.row-menu-list button', { hasText: L.importCases }), { pause: 300 })])

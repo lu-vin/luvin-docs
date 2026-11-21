@@ -49,7 +49,7 @@ export default (ctx) => {
     await page.locator('.tour-actions button', { hasText: L('Ver las secciones', 'All sections') }).click()
     await page.locator('.tour-sections').waitFor()
     await shot(page, 'tour-sections')
-    await page.context().close()
+    await ctx.done()
   }
 
   scenes['search-actions'] = async () => {
@@ -60,7 +60,7 @@ export default (ctx) => {
     await page.keyboard.press('Meta+k')
     await page.locator('.palette input').waitFor()
     await shot(page, 'search-actions')
-    await page.context().close()
+    await ctx.done()
   }
 
   return scenes

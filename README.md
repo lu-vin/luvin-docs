@@ -98,13 +98,14 @@ La documentación tiene que entenderse sin ayuda. Las reglas con las que se escr
 
 ## Capturas y videos
 
-`npm run media` recorre la app real con Chrome, en inglés y en español, y deja en `public/media/<idioma>/` las capturas (`.webp`) y los videos (`.mp4` con su póster). Necesita:
+`npm run media` recorre la app de escritorio real (Electron), en inglés y en español, y deja en `public/media/<idioma>/` las capturas (`.webp`) y los videos (`.mp4` con su póster). Necesita:
 
-- El repositorio de la app al lado (`../luvin`, o `LUVIN_DIR=/ruta`) con sus dependencias instaladas.
-- Google Chrome (`CHROME_PATH=/ruta` si no está en el lugar de siempre).
+- El repositorio de la app al lado (`../luvin`, o `LUVIN_DIR=/ruta`) con sus dependencias instaladas. `npm run media` compila su interfaz antes de capturar; si corres `capture.mjs` a mano, antes `npm run build` allá.
 - Conexión a internet: usa la PokéAPI real. Para las listas levanta una API local de prueba.
 
-Lo que solo existe en la app de escritorio (mock servers encendidos, las Preferencias con red, proxy y certificados) se captura con `node scripts/capture-desktop.mjs <en|es> <carpeta>` y luego `convert.mjs`. Abre la app de Electron de `../luvin` con un perfil temporal y necesita su `dist/` (`npx vite build` en la app). Las pruebas de rendimiento de las escenas usan solo servidores locales (127.0.0.1), nunca una API pública.
+Mientras captura se abre una ventana de Luvin: no muevas el mouse ni escribas en ella. Cada escena abre la app limpia (datos en una carpeta temporal) y la cierra al terminar.
+
+Los mock servers encendidos y las Preferencias con red, proxy y certificados se capturan con `node scripts/capture-desktop.mjs <en|es> <carpeta>` y luego `convert.mjs`. Las pruebas de rendimiento de las escenas usan solo servidores locales (127.0.0.1), nunca una API pública.
 
 Para rehacer solo una parte: `node scripts/capture.mjs es .media/es requests clip-quick-start` y luego `node scripts/convert.mjs .media/es public/media/es`.
 
