@@ -88,7 +88,7 @@ export default (ctx) => {
   }
   writeFileSync(path.join(tmp, 'shop.postman_collection.json'), JSON.stringify(POSTMAN, null, 2))
 
-  /** Un menú dibujado con las opciones reales de un <select> (el nativo no sale en Chrome sin ventana). */
+  /** Un menú dibujado con las opciones reales de un <select> (el nativo es del sistema y no sale en la captura). */
   async function showOptions(page, select, highlight) {
     await select.scrollIntoViewIfNeeded().catch(() => {})
     await select.evaluate((el, hl) => {
@@ -200,7 +200,7 @@ export default (ctx) => {
       await reqTab(page, L.vars).click()
       await settle(page, 500)
       await shot(page, 'request-vars-runtime')
-      await page.context().close()
+      await ctx.done()
     },
 
     async 'checks-import'() {
@@ -212,7 +212,7 @@ export default (ctx) => {
       await page.locator('.import-dialog input[type="file"][accept]').setInputFiles(path.join(tmp, 'shop.postman_collection.json'))
       await page.locator('.import-result').waitFor()
       await shot(page, 'import-checks-summary', page.locator('.import-dialog'))
-      await page.context().close()
+      await ctx.done()
     },
   }
 }

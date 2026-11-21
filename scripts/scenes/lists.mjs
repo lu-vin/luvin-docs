@@ -6,8 +6,8 @@ export default (ctx) => {
   const { ES, path, freshPage, go, say, saveClip, shot, settle, tab, openShop, untilDone, V } = ctx
 
   /**
-   * El menú de una lista nativa (<select>), que Chrome sin ventana no dibuja: se muestra uno igual, con
-   * sus opciones reales. Se abre hacia arriba, como hace Chrome cuando abajo no hay lugar.
+   * El menú de una lista nativa (<select>) es del sistema y no sale en la captura: se muestra uno igual,
+   * con sus opciones reales. Se abre hacia arriba, como hace Chromium cuando abajo no hay lugar.
    */
   async function showOptions(page, select, highlight) {
     await select.evaluate((el, hl) => {
@@ -57,13 +57,13 @@ export default (ctx) => {
       const m = await page.locator('#demo-select').boundingBox()
       const top = Math.min(r.y, m.y) - 16
       const bottom = d.y + d.height + 12
-      await page.screenshot({ path: path.join(ctx.OUT, 'list-pick-rule.png'), clip: { x: d.x - 12, y: top, width: d.width + 24, height: bottom - top } })
+      await ctx.capture(page, path.join(ctx.OUT, 'list-pick-rule.png'), { x: d.x - 12, y: top, width: d.width + 24, height: bottom - top })
       console.log('  ✓ list-pick-rule')
     }
     await page.evaluate(() => document.getElementById('demo-select')?.remove())
     await dlg.locator('button.primary').click()
     await untilDone(page)
-    await page.context().close()
+    await ctx.done()
   }
 
   const C = ES

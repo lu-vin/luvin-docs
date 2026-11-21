@@ -59,12 +59,6 @@ Your own routes always answer first, whatever the source. See [Create a mock ser
 | The routes | The **Routes** tab of the mock. | Your own routes and the routes of the source. |
 | The Log | The **Log** tab of the mock. | The last calls it received. It is kept in memory only. |
 
-## Desktop app only
-
-A mock server opens a port, and a browser cannot do that. In the browser version you can create mocks and write their routes, but **Start** is disabled. The tab says *Mock servers run in the desktop app: a browser cannot open a port. You can define their routes here.*
-
-![The Shop mock in the browser version: a notice says mock servers run in the desktop app, and the Start button is disabled](/media/en/mocks-web-desktop-only.webp)
-
 ## Mock server or Simulation
 
 Both let you run a workflow without the real API. **Simulation** makes no calls: it builds a response for each step so that the step passes. A mock answers real HTTP calls on your computer with fixed responses, so a step can fail as it would with the API. The full comparison is in [Use a mock with requests and workflows](/mocks/with-workflows/).

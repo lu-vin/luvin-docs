@@ -3,10 +3,12 @@
 //                          node scripts/capture.mjs <en|es> <carpeta de salida> [escena…]
 // Las escenas están al final de este archivo y en scripts/scenes/*.mjs (una por tema: diseño, pruebas…).
 // Necesita el repositorio de la app al lado (../luvin, o LUVIN_DIR=/ruta) con sus dependencias
-// instaladas, y Google Chrome. Usa los ejemplos incluidos, la PokéAPI real y una API local de prueba.
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+// instaladas y su interfaz compilada (npm run build, allá). Abre la app de escritorio (Electron, con
+// luvin/e2e/desktop.mjs), limpia en cada escena: nunca toca los datos de la app instalada. Usa los
+// ejemplos incluidos, la PokéAPI real y una API local de prueba.
+// luvin-architecture: app-architecture/0002 (ADR 0004).
+import { existsSync, mkdirSync, readdirSync, renameSync, writeFileSync } from 'node:fs'
 import { createServer as createHttp } from 'node:http'
-import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -14,27 +16,21 @@ const [localeArg, outArg, ...only] = process.argv.slice(2)
 const locale = localeArg === 'es' ? 'es' : 'en'
 const ES = locale === 'es'
 const here = path.dirname(fileURLToPath(import.meta.url))
-// La app: su servidor (Vite) y el navegador (Playwright) se toman de sus dependencias, no de las de aquí.
+// La app: Electron, Playwright y el arranque de la app de escritorio se toman de su repositorio.
 const root = path.resolve(process.env.LUVIN_DIR ?? path.join(here, '..', '..', 'luvin'))
-if (!existsSync(path.join(root, 'node_modules', 'vite'))) {
+if (!existsSync(path.join(root, 'node_modules', 'electron'))) {
   console.error(`No encontré la app de Luvin con sus dependencias en ${root}. Indica su ruta con LUVIN_DIR=…`)
   process.exit(1)
 }
-const appRequire = createRequire(path.join(root, 'package.json'))
-const { chromium } = appRequire('playwright-core')
-const { createServer } = await import(pathToFileURL(path.join(root, 'node_modules', 'vite', 'dist', 'node', 'index.js')).href)
-const CHROME = [process.env.CHROME_PATH, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find((p) => p && existsSync(p))
-if (!CHROME) {
-  console.error('No encontré Chrome. Indica su ruta con CHROME_PATH=…')
-  process.exit(1)
-}
+const { openApp, requireBuild, noMacWindowButtonsGap, hideScrollbars } = await import(pathToFileURL(path.join(root, 'e2e', 'desktop.mjs')).href)
+requireBuild()
 const OUT = path.resolve(outArg ?? path.join(here, '..', '.media', locale))
 mkdirSync(OUT, { recursive: true })
 const T = ES
-  ? { createWs: 'Crear un workspace', inBrowser: 'En este navegador', createWsGo: 'Crear workspace', newCol: 'Nueva colección', create: 'Crear', importFiles: 'Importar Arazzo', newRequest: 'Nuevo request', imp: 'Importar', prefs: 'Preferencias', more: 'Ver más ejemplos', importPm: 'Importar de Postman', runAnyway: 'Ejecutar igual', report: 'Reporte', del: 'Eliminar contrato' }
-  : { createWs: 'Create a workspace', inBrowser: 'In this browser', createWsGo: 'Create workspace', newCol: 'New collection', create: 'Create', importFiles: 'Import Arazzo', newRequest: 'New request', imp: 'Import', prefs: 'Preferences', more: 'See more examples', importPm: 'Import from Postman', runAnyway: 'Run anyway', report: 'Report', del: 'Delete contract' }
+  ? { createWs: 'Crear un workspace', createWsGo: 'Crear workspace', newCol: 'Nueva colección', create: 'Crear', importFiles: 'Importar Arazzo', newRequest: 'Nuevo request', imp: 'Importar', prefs: 'Preferencias', more: 'Ver más ejemplos', importPm: 'Importar de Postman', runAnyway: 'Ejecutar igual', report: 'Reporte', del: 'Eliminar contrato' }
+  : { createWs: 'Create a workspace', createWsGo: 'Create workspace', newCol: 'New collection', create: 'Create', importFiles: 'Import Arazzo', newRequest: 'New request', imp: 'Import', prefs: 'Preferences', more: 'See more examples', importPm: 'Import from Postman', runAnyway: 'Run anyway', report: 'Report', del: 'Delete contract' }
 
-// --- API local de prueba (una tienda), con CORS para que la app en el navegador pueda llamarla ---
+// --- API local de prueba (una tienda) ---
 const NAMES = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew', 'Kiwi', 'Lemon']
 const PRODUCTS = NAMES.map((name, i) => ({ sku: `SKU-${100 + i}`, name, price: 1.5 + i, stock: 40 - i * 3, category: ['fruit', 'berry', 'citrus'][i % 3] }))
 const api = createHttp((req, res) => {
@@ -46,7 +42,7 @@ const api = createHttp((req, res) => {
   if (req.method === 'GET' && url.startsWith('/products/')) return json(200, PRODUCTS.find((p) => url.endsWith(p.sku)) ?? { sku: 'unknown' })
   return json(201, { id: 'ord-1042', status: 'CREATED' })
 })
-// Un puerto libre cualquiera, así se pueden grabar varias tandas a la vez.
+// Un puerto libre cualquiera.
 await new Promise((ok) => api.listen(0, '127.0.0.1', ok))
 const API = `http://127.0.0.1:${api.address().port}`
 const SHOP_OPENAPI = `openapi: 3.0.3
@@ -129,58 +125,126 @@ mkdirSync(tmp, { recursive: true })
 writeFileSync(path.join(tmp, 'shop.openapi.yaml'), SHOP_OPENAPI)
 writeFileSync(path.join(tmp, 'shop.arazzo.yaml'), SHOP_ARAZZO)
 
-const server = await createServer({ root, logLevel: 'error', server: { port: 0 } })
-await server.listen()
-const url = server.resolvedUrls.local[0]
-const browser = await chromium.launch({ executablePath: CHROME, headless: true })
 const VIEW = { width: 1280, height: 800 }
 
-async function freshPage({ theme = 'light', video } = {}) {
-  const context = await browser.newContext({ viewport: VIEW, deviceScaleFactor: video ? 1 : 2, colorScheme: theme, acceptDownloads: true, ...(video ? { recordVideo: { dir: video, size: VIEW } } : {}) })
-  await context.addInitScript(
-    ([loc, th]) => {
-      localStorage.setItem('luvin.locale', loc)
-      localStorage.setItem('theme', th)
-      localStorage.setItem('tourHint.dismissed', '1')
-      if (!localStorage.getItem('profile')) localStorage.setItem('profile', JSON.stringify({ role: 'developer', purposes: ['journeys'] }))
-    },
-    [locale, theme],
-  )
-  // En los videos se ve un cursor y una leyenda con lo que se está haciendo (la grabación no trae cursor).
-  if (video)
-    await context.addInitScript(() => {
-      const setup = () => {
-        if (document.getElementById('demo-cursor')) return
-        const style = document.createElement('style')
-        style.textContent = `
-          #demo-cursor { position: fixed; left: 0; top: 0; z-index: 2147483647; width: 22px; height: 22px; pointer-events: none; transform: translate(-200px, -200px); }
-          #demo-ring { position: fixed; left: 0; top: 0; z-index: 2147483646; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 3px solid #2f8f3f; pointer-events: none; opacity: 0; }
-          #demo-ring.on { animation: demo-ring 0.45s ease-out; }
-          @keyframes demo-ring { from { opacity: 0.9; transform: scale(0.4); } to { opacity: 0; transform: scale(1.5); } }
-          #demo-caption { position: fixed; left: 50%; bottom: 34px; z-index: 2147483645; transform: translateX(-50%); max-width: 78%; padding: 11px 20px; border-radius: 12px; background: rgba(15, 27, 20, 0.94); color: #fff; font: 600 17px/1.35 Inter, system-ui, sans-serif; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.35); pointer-events: none; opacity: 0; transition: opacity .25s; }
-          #demo-caption.on { opacity: 1; }
-        `
-        document.documentElement.append(style)
-        const cursor = document.createElement('div')
-        cursor.id = 'demo-cursor'
-        cursor.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 2l15 9-6.5 1.8L9.2 19.5z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>'
-        const ring = document.createElement('div')
-        ring.id = 'demo-ring'
-        const caption = document.createElement('div')
-        caption.id = 'demo-caption'
-        document.documentElement.append(ring, cursor, caption)
-        window.addEventListener('mousemove', (e) => { cursor.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 2}px)`; ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px' }, true)
-        window.addEventListener('mousedown', () => { ring.classList.remove('on'); void ring.offsetWidth; ring.classList.add('on') }, true)
-        window.__caption = (text) => { caption.textContent = text; caption.classList.toggle('on', !!text) }
-      }
-      if (document.documentElement) setup()
-      document.addEventListener('DOMContentLoaded', setup)
-    })
-  const page = await context.newPage()
-  page.on('pageerror', (e) => console.log('  PAGEERROR', String(e).slice(0, 200)))
-  await page.goto(url)
+// Lo que la app "descarga" (reporte HTML o JSON, casos exportados) se queda en la página: la app
+// descarga con un <a download> y un blob (lib/browser.ts), y aquí se guarda el blob en vez de dejarlo
+// llegar al sistema (que abriría un diálogo de guardar). Corre antes que la app.
+function catchDownloads() {
+  const blobs = new Map()
+  window.__downloads = []
+  const create = URL.createObjectURL
+  URL.createObjectURL = (blob) => {
+    const url = create.call(URL, blob)
+    blobs.set(url, blob)
+    return url
+  }
+  const click = HTMLAnchorElement.prototype.click
+  HTMLAnchorElement.prototype.click = function () {
+    if (this.download && blobs.has(this.href)) {
+      window.__downloads.push({ name: this.download, blob: blobs.get(this.href) })
+      return
+    }
+    return click.call(this)
+  }
+}
+
+// En los videos se ve un cursor y una leyenda con lo que se está haciendo (la grabación no trae cursor).
+function videoOverlay() {
+  const setup = () => {
+    if (document.getElementById('demo-cursor')) return
+    const style = document.createElement('style')
+    style.textContent = `
+      #demo-cursor { position: fixed; left: 0; top: 0; z-index: 2147483647; width: 22px; height: 22px; pointer-events: none; transform: translate(-200px, -200px); }
+      #demo-ring { position: fixed; left: 0; top: 0; z-index: 2147483646; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 3px solid #2f8f3f; pointer-events: none; opacity: 0; }
+      #demo-ring.on { animation: demo-ring 0.45s ease-out; }
+      @keyframes demo-ring { from { opacity: 0.9; transform: scale(0.4); } to { opacity: 0; transform: scale(1.5); } }
+      #demo-caption { position: fixed; left: 50%; bottom: 34px; z-index: 2147483645; transform: translateX(-50%); max-width: 78%; padding: 11px 20px; border-radius: 12px; background: rgba(15, 27, 20, 0.94); color: #fff; font: 600 17px/1.35 Inter, system-ui, sans-serif; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.35); pointer-events: none; opacity: 0; transition: opacity .25s; }
+      #demo-caption.on { opacity: 1; }
+    `
+    document.documentElement.append(style)
+    const cursor = document.createElement('div')
+    cursor.id = 'demo-cursor'
+    cursor.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 2l15 9-6.5 1.8L9.2 19.5z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+    const ring = document.createElement('div')
+    ring.id = 'demo-ring'
+    const caption = document.createElement('div')
+    caption.id = 'demo-caption'
+    document.documentElement.append(ring, cursor, caption)
+    window.addEventListener('mousemove', (e) => { cursor.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 2}px)`; ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px' }, true)
+    window.addEventListener('mousedown', () => { ring.classList.remove('on'); void ring.offsetWidth; ring.classList.add('on') }, true)
+    window.__caption = (text) => { caption.textContent = text; caption.classList.toggle('on', !!text) }
+  }
+  if (document.documentElement) setup()
+  else document.addEventListener('DOMContentLoaded', setup)
+}
+
+let current // La app abierta (openApp): { page, context, close… }. Una por escena.
+const meta = new WeakMap() // page → { cdp, size, scale, rec, t0 }
+let recordings = 0
+
+/**
+ * La app de escritorio recién abierta, limpia, en el idioma y el tema pedidos: el rol ya elegido, el
+ * aviso del tour cerrado. Con `video`, graba la pantalla desde el principio (la grabación empieza al
+ * resolverse). La página mide `size` px CSS, a 2x para capturas y a 1x para videos.
+ */
+async function freshPage({ theme = 'light', video, size = VIEW } = {}) {
+  if (current) await done()
+  const scale = video ? 1 : 2
+  current = await openApp({
+    lang: ES ? 'es-CL' : 'en-US',
+    width: size.width,
+    height: size.height,
+    scale,
+    colorScheme: theme,
+    storage: { 'luvin.locale': locale, theme, 'tourHint.dismissed': '1', profile: JSON.stringify({ role: 'developer', purposes: ['journeys'] }) },
+    // Sin el espacio vacío de los botones de la ventana de Mac (no salen en la captura) ni barras de scroll.
+    initScripts: [noMacWindowButtonsGap, hideScrollbars, catchDownloads, ...(video ? [videoOverlay] : [])],
+    onPageError: (e) => console.log('  PAGEERROR', String(e).slice(0, 200)),
+  })
+  const page = current.page
+  // La sesión CDP que fijó el tamaño y la densidad: por ella van los cambios de tamaño y las capturas.
+  const m = { cdp: current.cdp, size: { ...size }, scale }
+  if (video) {
+    m.rec = path.join(OUT, `_rec-${++recordings}.webm`)
+    await page.screencast.start({ path: m.rec, size: { ...size } })
+    m.t0 = Date.now()
+  }
+  meta.set(page, m)
   return page
 }
+/** Cierra la app abierta (y borra su carpeta temporal). Cada escena termina así. */
+async function done() {
+  const app = current
+  current = undefined
+  await app?.close()
+}
+/** El tamaño de la página, en px CSS. */
+const viewport = (page) => meta.get(page).size
+/** Cambia el tamaño de la página (como agrandar la ventana), sin cambiar la densidad de píxeles. */
+async function resize(page, width, height) {
+  const m = meta.get(page)
+  await m.cdp.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: m.scale, mobile: false })
+  m.size = { width, height }
+  await page.waitForTimeout(250)
+}
+/** Captura la página entera, o una zona (en px CSS), en píxeles reales (2x en las capturas). */
+async function capture(page, file, box) {
+  const m = meta.get(page)
+  const clip = box ? { x: box.x, y: box.y, width: box.width, height: box.height, scale: m.scale } : undefined
+  const { data } = await m.cdp.send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}) })
+  writeFileSync(file, Buffer.from(data, 'base64'))
+}
+/** Hace `action` (que descarga algo en la app) y guarda lo descargado en `file`. Devuelve la ruta. */
+async function download(page, action, file) {
+  const before = await page.evaluate(() => window.__downloads.length)
+  await action()
+  await page.waitForFunction((n) => window.__downloads.length > n, before, { timeout: 10000 })
+  writeFileSync(file, await page.evaluate(() => window.__downloads.at(-1).blob.text()))
+  return file
+}
+/** Muestra un archivo local (un reporte) en la ventana de la app. Solo al final de una escena: la app se va. */
+const showFile = (page, file) => page.goto(pathToFileURL(file).href)
 
 // --- Videos: mover el cursor como una persona, hacer clic y poner leyendas ---
 let at = { x: 640, y: 420 }
@@ -203,20 +267,29 @@ async function go(page, locator, { click = true, pause = 700, dx = 0, dy = 0 } =
   await moveTo(page, b.x + b.width / 2 + dx, b.y + b.height / 2 + dy)
   await page.waitForTimeout(260)
   if (click) {
-    await page.mouse.down()
-    await page.waitForTimeout(80)
-    await page.mouse.up()
+    // Una lista nativa (<select>) abriría el menú del sistema, que tapa la ventana y no sale en el
+    // video: se marca el clic (el anillo) sin abrirla; la opción se elige aparte.
+    if (await locator.first().evaluate((el) => el.tagName === 'SELECT').catch(() => false)) {
+      await page.evaluate(() => window.dispatchEvent(new MouseEvent('mousedown')))
+    } else {
+      await page.mouse.down()
+      await page.waitForTimeout(80)
+      await page.mouse.up()
+    }
   }
   await page.waitForTimeout(pause)
 }
 const say = (page, text, ms = 900) => page.evaluate((x) => window.__caption?.(x), text).then(() => page.waitForTimeout(ms))
-/** Cierra el contexto y deja el video con su nombre; `from`: segundos del principio que no van (la preparación). */
-async function saveClip(page, name, started, from = 0) {
-  const video = page.video()
-  await page.context().close()
-  const file = path.join(OUT, `${name}.webm`)
-  await video.saveAs(file)
-  writeFileSync(path.join(OUT, `${name}.json`), JSON.stringify({ skip: Math.max(0, from - started) / 1000 }))
+/**
+ * Termina la grabación, la deja con su nombre y cierra la app. `from`: el momento desde el que va el
+ * video (lo anterior es preparación); lo que pasó antes de que empezara la grabación no cuenta.
+ */
+async function saveClip(page, name, _started, from = 0) {
+  const m = meta.get(page)
+  await page.screencast.stop()
+  renameSync(m.rec, path.join(OUT, `${name}.webm`))
+  writeFileSync(path.join(OUT, `${name}.json`), JSON.stringify({ skip: Math.max(0, from - m.t0) / 1000 }))
+  await done()
   console.log(`  ✓ ${name} (video)`)
 }
 const V = path.join(OUT, '_video')
@@ -240,19 +313,30 @@ const C = ES
 const untilDone = (page) => page.waitForFunction(() => !document.querySelector('.lp-dialog') && document.querySelector('.case-nav-item') && !document.querySelector('.case-nav-item .sd-running, .case-nav-item .sd-pending'), null, { timeout: 45000 })
 
 const settle = (page, ms = 600) => page.waitForTimeout(ms)
+/** Una zona de la página recortada a lo que se ve. */
+function within(page, box, pad = 0) {
+  const vp = viewport(page)
+  const x = Math.max(0, box.x - pad)
+  const y = Math.max(0, box.y - pad)
+  return { x, y, width: Math.min(vp.width - x, box.x + box.width + pad - x), height: Math.min(vp.height - y, box.y + box.height + pad - y) }
+}
+/** Captura la página o, con `target`, solo ese elemento. */
 async function shot(page, name, target) {
   await settle(page)
-  const file = path.join(OUT, `${name}.png`)
-  if (target) await target.screenshot({ path: file })
-  else await page.screenshot({ path: file })
+  let box
+  if (target) {
+    await target.first().scrollIntoViewIfNeeded().catch(() => {})
+    box = await target.first().boundingBox()
+    if (!box) throw new Error(`no se ve el elemento de ${name}`)
+    box = within(page, box)
+  }
+  await capture(page, path.join(OUT, `${name}.png`), box)
   console.log(`  ✓ ${name}`)
 }
 /** Recorte de una zona de la pantalla (para ver de cerca un panel o un menú). */
 async function clip(page, name, box, pad = 12) {
   await settle(page)
-  const x = Math.max(0, box.x - pad)
-  const y = Math.max(0, box.y - pad)
-  await page.screenshot({ path: path.join(OUT, `${name}.png`), clip: { x, y, width: Math.min(VIEW.width - x, box.width + pad * 2), height: Math.min(VIEW.height - y, box.height + pad * 2) } })
+  await capture(page, path.join(OUT, `${name}.png`), within(page, box, pad))
   console.log(`  ✓ ${name}`)
 }
 const tab = (page, id) => page.locator(`[role="tab"][data-tab="${id}"]`).first()
@@ -268,13 +352,11 @@ async function openPaypal(page) {
   await page.locator('.wd-example', { hasText: /PayPal/ }).click()
   await page.locator('.tree-step').first().waitFor()
 }
-/** Un workspace en el navegador con la colección "Shop" (la API local de prueba). */
+/** Un workspace (en una carpeta temporal de la app) con la colección "Shop" (la API local de prueba). */
 async function openShop(page) {
   await page.locator('.welcome-dialog').waitFor()
   await page.locator('.wd-card', { hasText: T.createWs }).click()
   await page.locator('.wd-form input').first().fill('Demo')
-  const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-  if (await inBrowser.count()) await inBrowser.click()
   await page.getByRole('button', { name: T.createWsGo }).click()
   await page.locator('.home').waitFor()
   await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -331,7 +413,7 @@ const scenes = {
     const page = await freshPage()
     await page.locator('.welcome-dialog').waitFor()
     await shot(page, 'welcome')
-    await page.context().close()
+    await done()
   },
 
   async pokedex() {
@@ -363,15 +445,10 @@ const scenes = {
     await run(page)
     await shot(page, 'results')
     await shot(page, 'interface')
-    // Reporte HTML: se descarga y se abre para fotografiarlo.
+    // Reporte HTML: se descarga aquí y se fotografía al final de la escena.
+    let report
     try {
-      const [download] = await Promise.all([page.waitForEvent('download', { timeout: 8000 }), page.locator('.ws-results button, .results-panel button', { hasText: T.report }).first().click()])
-      const file = path.join(tmp, `report-${locale}.html`)
-      await download.saveAs(file)
-      const rp = await page.context().newPage()
-      await rp.goto(`file://${file}`)
-      await shot(rp, 'report')
-      await rp.close()
+      report = await download(page, () => page.locator('.ws-results button, .results-panel button', { hasText: T.report }).first().click(), path.join(tmp, `report-${locale}.html`))
     } catch (e) {
       console.log('  ✕ report', String(e.message).split('\n')[0])
     }
@@ -432,7 +509,11 @@ const scenes = {
     await page.locator('.import-sources').waitFor()
     await shot(page, 'import-postman')
     await page.keyboard.press('Escape')
-    await page.context().close()
+    if (report) {
+      await showFile(page, report)
+      await shot(page, 'report')
+    }
+    await done()
   },
 
   async failed() {
@@ -448,7 +529,7 @@ const scenes = {
     await run(page)
     await page.locator('.case-nav-item').first().click()
     await shot(page, 'results-failed')
-    await page.context().close()
+    await done()
   },
 
   async paypal() {
@@ -466,7 +547,7 @@ const scenes = {
     const body = detail.locator('.bl-body, .bl-group', { hasText: /body/i }).first()
     await body.scrollIntoViewIfNeeded().catch(() => {})
     await clip(page, 'step-body', await detail.boundingBox(), 0)
-    await page.context().close()
+    await done()
   },
 
   async requests() {
@@ -485,7 +566,7 @@ const scenes = {
     await shot(page, 'request')
     await page.locator('.rq [role="tab"]', { hasText: /auth|autoriz/i }).first().click()
     await shot(page, 'request-auth')
-    await page.context().close()
+    await done()
   },
 
   async lists() {
@@ -507,7 +588,7 @@ const scenes = {
     await page.locator('.lp-dialog tbody tr').nth(5).click()
     await shot(page, 'list-pick-many')
     await page.locator('.lp-dialog button.primary').click()
-    await page.context().close()
+    await done()
   },
 
   async tour() {
@@ -519,7 +600,7 @@ const scenes = {
     for (let n = 0; n < 3; n++) await page.locator('.tour-card button.primary').click()
     await page.locator('.tour-spot').waitFor({ timeout: 20000 })
     await shot(page, 'tour')
-    await page.context().close()
+    await done()
   },
 }
 
@@ -564,7 +645,7 @@ Object.assign(scenes, {
       await settle(page, 500)
       await shot(page, `auth-${type}`)
     }
-    await page.context().close()
+    await done()
   },
 
   async views() {
@@ -579,7 +660,7 @@ Object.assign(scenes, {
     await tab(page, 'overview').click()
     await settle(page, 900)
     await shot(page, 'overview-tab')
-    await page.context().close()
+    await done()
   },
 
   async extras() {
@@ -591,7 +672,7 @@ Object.assign(scenes, {
     await page.locator('.builder .step-node').first().waitFor()
     await focusStep(page, 'publishSighting')
     await shot(page, 'messaging-step')
-    // La API no responde: el panel de ayuda de conexión, con las cabeceras de CORS.
+    // La API no responde: el panel de ayuda de conexión.
     await page.locator('.sb-rail-btn[data-panel="envs"]').click()
     await page.locator('.tree-list li.active .link.small').first().click()
     const base = page.locator('.ws-view .field-grid .field input').first()
@@ -608,7 +689,7 @@ Object.assign(scenes, {
     await page.addStyleTag({ content: '.results-panel > .rp-head { position: static !important; }' })
     await page.locator('.conn-help').evaluate((el) => el.scrollIntoView({ block: 'center' }))
     await shot(page, 'connection-help', page.locator('.conn-help'))
-    await page.context().close()
+    await done()
     // Reutilizables: un paso de PayPal con parámetros y ramas de error guardados como componentes.
     page = await freshPage()
     await openPaypal(page)
@@ -618,14 +699,12 @@ Object.assign(scenes, {
     await focusStep(page, 'createOrder')
     await page.locator('.bl-reusable').first().scrollIntoViewIfNeeded()
     await clip(page, 'reusables', await page.locator('.bl-detail').boundingBox(), 0)
-    await page.context().close()
+    await done()
     // Un contrato que no cargó: el Arazzo sin su contrato, con la marca ✕ y "Adjuntar".
     page = await freshPage()
     await page.locator('.welcome-dialog').waitFor()
     await page.locator('.wd-card', { hasText: T.createWs }).click()
     await page.locator('.wd-form input').first().fill('Demo')
-    const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-    if (await inBrowser.count()) await inBrowser.click()
     await page.getByRole('button', { name: T.createWsGo }).click()
     await page.locator('.home').waitFor()
     await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -638,7 +717,7 @@ Object.assign(scenes, {
     await settle(page, 900)
     const side = await page.locator('aside').first().boundingBox()
     await clip(page, 'contract-missing', { x: side.x, y: side.y, width: side.width, height: side.height }, 0)
-    await page.context().close()
+    await done()
   },
 })
 
@@ -816,7 +895,7 @@ const sceneDir = path.join(here, 'scenes')
 if (existsSync(sceneDir))
   for (const f of readdirSync(sceneDir).filter((n) => n.endsWith('.mjs')).sort()) {
     const mod = await import(pathToFileURL(path.join(sceneDir, f)).href)
-    Object.assign(scenes, mod.default({ ES, locale, T, OUT, tmp, root, API, VIEW, V, path, writeFileSync, freshPage, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, openShop, focusStep, run, untilDone }))
+    Object.assign(scenes, mod.default({ ES, locale, T, OUT, tmp, root, API, VIEW, V, path, writeFileSync, freshPage, done, viewport, resize, capture, download, showFile, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, openShop, focusStep, run, untilDone }))
   }
 
 console.log(`Capturas (${locale}) → ${OUT}`)
@@ -826,13 +905,9 @@ for (const [name, scene] of Object.entries(scenes)) {
     await scene()
   } catch (e) {
     console.log(`  ✕ escena ${name}: ${String(e.message ?? e).split('\n')[0]}`)
-    for (const ctx of browser.contexts()) {
-      const p = ctx.pages()[0]
-      if (p) await p.screenshot({ path: path.join(OUT, `_fail-${name}.png`) }).catch(() => {})
-      await ctx.close().catch(() => {})
-    }
+    if (current) await capture(current.page, path.join(OUT, `_fail-${name}.png`)).catch(() => {})
+    await done().catch(() => {})
   }
 }
-await browser.close()
-await server.close()
+await done()
 api.close()

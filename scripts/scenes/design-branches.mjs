@@ -148,14 +148,12 @@ workflows:
 
   // --- Ayudas (las mismas ideas que scenes/design.mjs) ---
   const wide = (page, w = 470) => page.evaluate((x) => localStorage.setItem('builder.detailWidth', String(x)), w)
-  /** Un workspace en el navegador con una colección "Catalog" y los archivos indicados. */
+  /** Un workspace con una colección "Catalog" y los archivos indicados. */
   async function openCatalog(page, names = ['catalog.arazzo.yaml', 'catalog.openapi.yaml', 'support.openapi.yaml']) {
     await wide(page)
     await page.locator('.welcome-dialog').waitFor()
     await page.locator('.wd-card', { hasText: T.createWs }).click()
     await page.locator('.wd-form input').first().fill('Demo')
-    const inBrowser = page.locator('.wd-choice-item', { hasText: T.inBrowser })
-    if (await inBrowser.count()) await inBrowser.click()
     await page.getByRole('button', { name: T.createWsGo }).click()
     await page.locator('.home').waitFor()
     await page.locator('.home-action', { hasText: T.newCol }).click()
@@ -175,13 +173,13 @@ workflows:
     await settle(page, 700)
   }
   const node = (page, name) => page.locator('.builder .step-node', { hasText: name }).first()
-  const big = (page) => page.setViewportSize({ width: 1600, height: 1000 })
+  const big = (page) => ctx.resize(page, 1600, 1000)
   async function cut(page, name, box, pad = 0) {
     await settle(page)
-    const vp = page.viewportSize()
+    const vp = ctx.viewport(page)
     const x = Math.max(0, box.x - pad)
     const y = Math.max(0, box.y - pad)
-    await page.screenshot({ path: path.join(ctx.OUT, `${name}.png`), clip: { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) } })
+    await ctx.capture(page, path.join(ctx.OUT, `${name}.png`), { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) })
     console.log(`  ✓ ${name}`)
   }
   async function palette(page, show) {
@@ -218,7 +216,7 @@ workflows:
   /** Las filas "Si falla" de una tarjeta, por su status (404, success…). */
   const actionRow = (page, step, status) => node(page, step).locator('.sn-action', { has: page.locator('.sn-status', { hasText: new RegExp(`^${status}$`) }) }).first()
   /**
-   * Los títulos (title="…") no se dibujan en Chrome sin ventana: se muestra uno igual, con el texto
+   * Los títulos (title="…") son del sistema y no salen en la captura: se muestra uno igual, con el texto
    * real del elemento, junto al cursor (como aparece al dejarlo encima).
    */
   async function showTitle(page, locator, { below = true, dx = 0 } = {}) {
@@ -329,7 +327,7 @@ workflows:
     }
     await bring(page, 'getProduct', 30)
     await cut(page, 'design-branch-done', await page.locator('.bl-main').boundingBox())
-    await page.context().close()
+    await ctx.done()
   }
 
   // Un YAML que no se puede leer: el aviso en Diseño, Ejecutar desactivado y la barra lateral.
@@ -358,7 +356,7 @@ workflows:
       await cut(page, 'design-run-disabled', unionBox(seg, btn, tip), 18)
     }
     await hideTitle(page)
-    await page.context().close()
+    await ctx.done()
     // Un Arazzo que ya llega roto: la barra lateral lo marca y no carga sus workflows.
     page = await freshPage()
     await big(page)
@@ -371,7 +369,7 @@ workflows:
       const contracts = await page.locator('aside .tree-row-wrap, aside li', { hasText: 'support' }).last().boundingBox()
       await cut(page, 'sidebar-broken-arazzo', { ...side, height: contracts.y + contracts.height + 24 - side.y }, 0)
     }
-    await page.context().close()
+    await ctx.done()
   }
 
   // --------------------------------------------------------------------------------------------
