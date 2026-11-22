@@ -109,7 +109,7 @@ Pulsa **Reporte** en el encabezado de los resultados para obtener un reporte HTM
 
 ### ¿Dónde se guardan los secretos?
 
-En los archivos del workspace solo se escriben los nombres de los secretos. Los valores quedan cifrados en tu equipo, con el llavero del sistema en la app de escritorio. Mira [URLs base, variables y secretos](/es/environments/variables-and-secrets/).
+En los archivos del workspace solo se escriben los nombres de los secretos. Los valores quedan cifrados en tu equipo, con el llavero del sistema. Mira [URLs base, variables y secretos](/es/environments/variables-and-secrets/).
 
 ### ¿Soporta OAuth 2.0?
 

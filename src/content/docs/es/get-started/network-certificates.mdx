@@ -1,6 +1,6 @@
 ---
 title: Certificados
-description: Confía en los certificados de tu empresa con un archivo CA, y envía certificados de cliente (mTLS) en formato CRT + KEY o PFX a los hosts que los piden, en la app de escritorio.
+description: Confía en los certificados de tu empresa con un archivo CA, y envía certificados de cliente (mTLS) en formato CRT + KEY o PFX a los hosts que los piden.
 sidebar:
   order: 13
 ---
@@ -109,7 +109,7 @@ Para usar un certificado en `shop.test` y en sus subdominios, agrégalo dos vece
 - Si es incorrecta, los requests a ese host fallan con *La passphrase del certificado de cliente no es correcta (…). Quita el certificado en Preferencias → Certificados y vuelve a agregarlo con la passphrase correcta.* También puedes editar el certificado y escribir la correcta.
 
 <Aside type="caution">
-Si este equipo no puede guardar contraseñas cifradas (Linux sin llavero del sistema), el campo dice *Este equipo no puede guardar contraseñas cifradas (falta el llavero del sistema): no se guardará.* Sin la passphrase, una clave que la tiene no se puede usar.
+Si este equipo no puede guardar contraseñas cifradas, el campo dice *Este equipo no puede guardar contraseñas cifradas (falta el llavero del sistema): no se guardará.* Sin la passphrase, una clave que la tiene no se puede usar.
 </Aside>
 
 ### La lista de certificados

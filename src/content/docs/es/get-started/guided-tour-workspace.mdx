@@ -19,7 +19,7 @@ El workspace es una carpeta en la carpeta de datos de la app en este equipo, com
 | Colección **Pokédex** | Cualquier sección, la primera vez | `pokemon.arazzo.yaml`, `pokeapi.openapi.yaml`, `pokedex-events.asyncapi.yaml` y la documentación de la colección. |
 | Colección **PayPal** | **Contratos y ambientes** | `paypal.arazzo.yaml`, `paypal-orders.openapi.yaml`, `paypal-events.asyncapi.yaml`, el ambiente **Sandbox**, la autorización de sus workflows y su documentación. |
 | Un request a `pokeapi.co/api/v2/pokemon/pikachu` | **Requests** | Una variable y dos comprobaciones, que pone el tour. |
-| El mock **Mock de la PokéAPI** y el ambiente **Mock · Mock de la PokéAPI** | **Mock servers** | El mock responde con los ejemplos del contrato. El ambiente se crea en la app de escritorio. |
+| El mock **Mock de la PokéAPI** y el ambiente **Mock · Mock de la PokéAPI** | **Mock servers** | El mock responde con los ejemplos del contrato. |
 | Ejecuciones de workflows | Cada sección que ejecuta algo | Quedan en el **Historial** de la colección. |
 
 Cada una de estas cosas se crea una sola vez. Cuando vuelves a empezar una sección, el tour encuentra lo que ya está y lo usa.
@@ -43,10 +43,10 @@ El tour cambia algunos ajustes como lo harías tú, y no los devuelve:
 | Ajuste | Lo cambia | Queda en |
 |---|---|---|
 | Modo de ejecución, junto a **Ejecutar** | **Contratos y ambientes** (la primera vez), **Runner y rendimiento**, **Historial y Dev Tools** | **Simulación** |
-| Modo de ejecución | **Mock servers** en la app de escritorio | **API real** |
-| Ambiente activo | **Mock servers** en la app de escritorio | **Mock · Mock de la PokéAPI**, hasta que empiece la siguiente sección |
+| Modo de ejecución | **Mock servers** | **API real** |
+| Ambiente activo | **Mock servers** | **Mock · Mock de la PokéAPI**, hasta que empiece la siguiente sección |
 | Variables y comprobaciones del request de pikachu | **Requests** | La variable `pokemonId` y las dos comprobaciones del tour |
-| El mock | **Mock servers** en la app de escritorio | Encendido, hasta que empiece la siguiente sección |
+| El mock | **Mock servers** | Encendido, hasta que empiece la siguiente sección |
 
 ## Elimina el workspace del tour
 

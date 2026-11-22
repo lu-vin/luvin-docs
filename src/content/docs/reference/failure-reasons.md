@@ -47,7 +47,7 @@ The order of the checks matters. A 401 or 403 is always reported as **Authentica
 | Message | What it means | What to do |
 |---|---|---|
 | **There is no server URL for source "pokeapi". Set it on the parameters screen.** | The environment has no base URL for that contract. | Add the base URL in the environment. See [Base URLs](/environments/base-urls/). |
-| **Could not connect to the API (...). Check the environment URL and that the server is reachable from this computer.** | The desktop app could not reach the server. | Check the URL and your network or VPN. |
+| **Could not connect to the API (...). Check the environment URL and that the server is reachable from this computer.** | Luvin could not reach the server. | Check the URL and your network or VPN. |
 | **The API did not answer within 3000 ms (step timeout).** | The step has a `timeout` and the API was slower. | Raise the `timeout` or check the API. |
 | **The run was cancelled.** | You pressed stop. | Run again. |
 | **Unexpected error while running: ...** | Something unforeseen. The detail follows. | Copy the detail when you ask for help. See [Specification support](/reference/support/). |

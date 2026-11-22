@@ -1,6 +1,6 @@
 ---
 title: Privacy and security
-description: Where your data lives, how secrets are kept and what the desktop app can and cannot reach.
+description: Where your data lives, how secrets are kept and what Luvin can and cannot reach.
 sidebar:
   order: 5
 ---
@@ -29,7 +29,7 @@ Luvin runs on your machine. This page says where each kind of data lives and wha
 | The Log of a mock | Memory. It is emptied when the app reloads. | No. |
 | The Console and the Network lists | Memory. They disappear when you close the app. | No. |
 
-If the operating system keychain is not available, the desktop app does not store secret values, rather than store them in the open. You type them again.
+If the operating system keychain is not available, Luvin does not store secret values, rather than store them in the open. You type them again.
 
 ## What you should still watch
 

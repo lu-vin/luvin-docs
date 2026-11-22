@@ -67,7 +67,7 @@ If there is no notice and you still get `401`, open the failed step and read wha
 | `401` after switching environments, without a notice | The credential points to a secret that is empty here, or the token came from a login request: switching cleared the values saved by requests. | Fill in the secret, or send the login request again in this environment. |
 | The badge of **Credentials** stays amber in the PayPal example | The workflows get their token from their **Authorization** tab, not from the contract's credential. | Nothing to do. Fill `clientId` and `clientSecret` instead. |
 | Secrets are empty on another computer, or in another clone | Values are stored per computer and per copy of the workspace, never in the files. | Type them in **Secrets**. See [Environment files and teams](/environments/files-and-teams/). |
-| Secrets are empty every time you reopen, in the desktop app | The keychain of the operating system is not available, so Luvin cannot store them. | Make the keychain available, or type them each time. |
+| Secrets are empty every time you reopen | The keychain of the operating system is not available, so Luvin cannot store them. | Make the keychain available, or type them each time. |
 | Secrets are empty every time | No workspace is open: an example or loose files keep only the names. | Open or create a workspace. |
 | A secret shows in clear in results | It has fewer than four characters, or the value was typed in a body or input instead of as `{{name}}`. | Use a longer secret, and write `{{name}}` where it goes. See [Variables and secrets](/environments/variables-and-secrets/). |
 

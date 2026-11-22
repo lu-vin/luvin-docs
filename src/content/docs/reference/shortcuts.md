@@ -1,11 +1,11 @@
 ---
 title: Keyboard shortcuts
-description: Every keyboard shortcut Luvin has, on macOS and on Windows and Linux.
+description: Every keyboard shortcut Luvin has, on macOS and on Windows.
 sidebar:
   order: 2
 ---
 
-This page lists the keyboard shortcuts that Luvin has. On macOS the main key is **⌘**. On Windows and Linux it is **Ctrl**.
+This page lists the keyboard shortcuts that Luvin has. On macOS the main key is **⌘**. On Windows it is **Ctrl**.
 
 **Preferences**, in its **Shortcuts** section, lists the main ones in three groups: **General** (run or send, save, search, open Preferences, close dialogs and menus), **Tabs** and **Workflow canvas** (undo and redo).
 
@@ -76,7 +76,7 @@ The history of **Undo** is kept when you go to another tab of the workflow, such
 | **Enter** | The field of **+ If it responds another status…** | The same as **Choose**. |
 | **Esc** | That same field | Cancels it. |
 
-## Tabs (desktop app)
+## Tabs
 
 
 | Shortcut | What it does |

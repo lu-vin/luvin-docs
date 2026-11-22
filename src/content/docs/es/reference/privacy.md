@@ -1,6 +1,6 @@
 ---
 title: Privacidad y seguridad
-description: Dónde viven tus datos, cómo se guardan los secretos y a qué puede y a qué no puede llegar la app de escritorio.
+description: Dónde viven tus datos, cómo se guardan los secretos y a qué puede y a qué no puede llegar Luvin.
 sidebar:
   order: 5
 ---
@@ -29,7 +29,7 @@ Luvin corre en tu equipo. Esta página dice dónde vive cada tipo de dato y qué
 | El Log de un mock | La memoria. Se vacía cuando la app se recarga. | No. |
 | Las listas de Console y de Network | La memoria. Desaparecen cuando cierras la app. | No. |
 
-Si el llavero del sistema operativo no está disponible, la app de escritorio no guarda los valores de los secretos, en vez de guardarlos a la vista. Los vuelves a escribir.
+Si el llavero del sistema operativo no está disponible, Luvin no guarda los valores de los secretos, en vez de guardarlos a la vista. Los vuelves a escribir.
 
 ## Qué conviene seguir cuidando
 

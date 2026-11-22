@@ -78,14 +78,7 @@ Con **Authorization Code** una persona inicia sesión. **PKCE (S256)** viene act
 
 Si el proveedor devuelve un error o un `state` distinto, Luvin no toma el código.
 
-<Tabs>
-  <TabItem label="App de escritorio">
-    En **URL de callback** escribe la que registraste en el proveedor. La app intercepta la redirección, así que esa dirección no necesita existir. El inicio de sesión se abre en su propia ventana, con su propia sesión, separada del resto de la app. El campo es obligatorio: sin él ves *Falta la URL de callback.*
-  </TabItem>
-  <TabItem label="Versión web">
-    Registra en el proveedor la dirección que se muestra bajo el campo: la dirección de la app seguida de `/oauth2/callback`. Si lo dejas vacío, Luvin usa esa dirección. El inicio de sesión se abre en una ventana emergente: permite las ventanas emergentes para la página.
-  </TabItem>
-</Tabs>
+En **URL de callback** escribe la que registraste en el proveedor. Luvin intercepta la redirección, así que esa dirección no necesita existir. El inicio de sesión se abre en su propia ventana, con su propia sesión, separada del resto de la app. El campo es obligatorio: sin él ves *Falta la URL de callback.*
 
 ## El token: obtener, reutilizar, refrescar, borrar
 

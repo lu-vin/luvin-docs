@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-Vas a crear un workspace en una carpeta, subirlo a git, abrirlo como si fueras un compañero y revisar el cambio de un workflow en un pull request. El resultado son workflows que tu equipo guarda, revisa y ejecuta desde un solo repositorio, sin ningún secreto dentro. Necesitas unos 30 minutos, la **app de escritorio**, git instalado, un contrato OpenAPI propio y un repositorio git al que puedas subir cambios. Un segundo computador, o una segunda carpeta, hace de compañero.
+Vas a crear un workspace en una carpeta, subirlo a git, abrirlo como si fueras un compañero y revisar el cambio de un workflow en un pull request. El resultado son workflows que tu equipo guarda, revisa y ejecuta desde un solo repositorio, sin ningún secreto dentro. Necesitas unos 30 minutos, Luvin y git instalados, un contrato OpenAPI propio y un repositorio git al que puedas subir cambios. Un segundo computador, o una segunda carpeta, hace de compañero.
 
 ## 1. Crea el workspace en una carpeta
 
@@ -28,7 +28,7 @@ Mira [URLs base, variables y secretos](/es/environments/variables-and-secrets/).
 
 ## 3. Mira qué hay en el disco
 
-1. Abre el menú **Opciones del workspace** y elige **Mostrar en Finder** (**Mostrar en el explorador** en Windows y Linux).
+1. Abre el menú **Opciones del workspace** y elige **Mostrar en Finder** (**Mostrar en el explorador** en Windows).
 
 La carpeta se ve así:
 
@@ -73,7 +73,7 @@ Luvin no oculta los valores que escribes en la pestaña **Inputs** ni en un caso
 
 ## 4. Haz commit y push
 
-Usa tu cliente de git de siempre, o la pestaña **Terminal** de **Dev Tools**, en la app de escritorio. En la carpeta del workspace:
+Usa tu cliente de git de siempre, o la pestaña **Terminal** de **Dev Tools**. En la carpeta del workspace:
 
 ```bash
 git init
