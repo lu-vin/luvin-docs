@@ -105,7 +105,7 @@ La documentación tiene que entenderse sin ayuda. Las reglas con las que se escr
 
 Mientras captura se abre una ventana de Luvin: no muevas el mouse ni escribas en ella. Cada escena abre la app limpia (datos en una carpeta temporal) y la cierra al terminar.
 
-Los mock servers encendidos y las Preferencias con red, proxy y certificados se capturan con `node scripts/capture-desktop.mjs <en|es> <carpeta>` y luego `convert.mjs`. Las pruebas de rendimiento de las escenas usan solo servidores locales (127.0.0.1), nunca una API pública.
+Los mock servers encendidos y las Preferencias con red, proxy y certificados salen de `scripts/capture-desktop.mjs`; `npm run media` también lo corre. Las pruebas de rendimiento de las escenas usan solo servidores locales (127.0.0.1), nunca una API pública.
 
 Para rehacer solo una parte: `node scripts/capture.mjs es .media/es requests clip-quick-start` y luego `node scripts/convert.mjs .media/es public/media/es`.
 

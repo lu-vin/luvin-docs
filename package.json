@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "media": "npm run build --prefix \"${LUVIN_DIR:-../luvin}\" && node scripts/capture.mjs en .media/en && node scripts/convert.mjs .media/en public/media/en && node scripts/capture.mjs es .media/es && node scripts/convert.mjs .media/es public/media/es",
+    "media": "npm run build --prefix \"${LUVIN_DIR:-../luvin}\" && node scripts/capture.mjs en .media/en && node scripts/capture-desktop.mjs en .media/en && node scripts/convert.mjs .media/en public/media/en && node scripts/capture.mjs es .media/es && node scripts/capture-desktop.mjs es .media/es && node scripts/convert.mjs .media/es public/media/es",
     "verify-recipes": "node scripts/verify-recipes.mjs",
     "deploy": "astro build && wrangler deploy",
     "check-links": "node scripts/check-links.mjs",
