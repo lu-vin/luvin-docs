@@ -5,7 +5,7 @@ sidebar:
   order: 6
 ---
 
-You will create a workspace in a folder, commit it to git, open it as a teammate and review a change to a workflow in a pull request. The result is workflows your team keeps, reviews and runs from one repository, with no secret in it. You need about 30 minutes, the **desktop app**, git installed, an OpenAPI contract of your own and a Git repository you can push to. A second computer, or a second folder, plays the teammate.
+You will create a workspace in a folder, commit it to git, open it as a teammate and review a change to a workflow in a pull request. The result is workflows your team keeps, reviews and runs from one repository, with no secret in it. You need about 30 minutes, Luvin and git installed, an OpenAPI contract of your own and a Git repository you can push to. A second computer, or a second folder, plays the teammate.
 
 ## 1. Create the workspace in a folder
 
@@ -28,7 +28,7 @@ See [Base URLs, variables and secrets](/environments/variables-and-secrets/).
 
 ## 3. See what is on disk
 
-1. Open the **Workspace options** menu and choose **Show in Finder** (**Show in file explorer** on Windows and Linux).
+1. Open the **Workspace options** menu and choose **Show in Finder** (**Show in file explorer** on Windows).
 
 The folder looks like this:
 
@@ -73,7 +73,7 @@ Luvin does not hide the values you type in the **Inputs** tab or in a case: they
 
 ## 4. Commit and push
 
-Use your usual git client, or the **Terminal** tab of **Dev Tools**, in the desktop app. In the folder of the workspace:
+Use your usual git client, or the **Terminal** tab of **Dev Tools**. In the folder of the workspace:
 
 ```bash
 git init

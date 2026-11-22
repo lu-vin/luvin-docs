@@ -19,7 +19,7 @@ The workspace is a folder in the data folder of the app on this computer, like a
 | Collection **Pokédex** | Any section, the first time | `pokemon.arazzo.yaml`, `pokeapi.openapi.yaml`, `pokedex-events.asyncapi.yaml` and the documentation of the collection. |
 | Collection **PayPal** | **Contracts and environments** | `paypal.arazzo.yaml`, `paypal-orders.openapi.yaml`, `paypal-events.asyncapi.yaml`, the environment **Sandbox**, the authorization of its workflows and its documentation. |
 | A request to `pokeapi.co/api/v2/pokemon/pikachu` | **Requests** | A variable and two checks, set by the tour. |
-| Mock **PokéAPI mock** and environment **Mock · PokéAPI mock** | **Mock servers** | The mock answers with the examples of the contract. The environment is created in the desktop app. |
+| Mock **PokéAPI mock** and environment **Mock · PokéAPI mock** | **Mock servers** | The mock answers with the examples of the contract. |
 | Workflow runs | Every section that runs something | They stay in the **History** of the collection. |
 
 Each of these is created once. When you start a section again, the tour finds what is already there and uses it.
@@ -43,10 +43,10 @@ The tour changes some settings the way you would, and does not put them back:
 | Setting | Changed by | Left as |
 |---|---|---|
 | Run mode, next to **Run** | **Contracts and environments** (the first time), **Runner and performance**, **History and Dev Tools** | **Simulation** |
-| Run mode | **Mock servers** in the desktop app | **Real API** |
-| Active environment | **Mock servers** in the desktop app | **Mock · PokéAPI mock**, until the next section starts |
+| Run mode | **Mock servers** | **Real API** |
+| Active environment | **Mock servers** | **Mock · PokéAPI mock**, until the next section starts |
 | Variables and checks of the pikachu request | **Requests** | The variable `pokemonId` and the two checks of the tour |
-| The mock | **Mock servers** in the desktop app | Running, until the next section starts |
+| The mock | **Mock servers** | Running, until the next section starts |
 
 ## Delete the tour workspace
 

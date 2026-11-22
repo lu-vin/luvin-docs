@@ -67,7 +67,7 @@ Si no hay aviso y aun así recibes `401`, abre el paso que falló y lee lo que s
 | `401` después de cambiar de ambiente, sin aviso | La credencial apunta a un secreto que aquí está vacío, o el token venía de un request de login: al cambiar se borraron los valores guardados por los requests. | Completa el secreto, o envía de nuevo el request de login en este ambiente. |
 | La etiqueta de **Credenciales** sigue en ámbar en el ejemplo de PayPal | Los workflows sacan su token de su pestaña **Autorización**, no de la credencial del contrato. | No hay nada que hacer. Completa `clientId` y `clientSecret`. |
 | Los secretos están vacíos en otro equipo, o en otro clon | Los valores se guardan por equipo y por copia del workspace, nunca en los archivos. | Escríbelos en **Secretos**. Mira [Archivos de ambiente y equipos](/es/environments/files-and-teams/). |
-| Los secretos quedan vacíos cada vez que vuelves a abrir, en la app de escritorio | El llavero del sistema operativo no está disponible, así que Luvin no puede guardarlos. | Haz que el llavero esté disponible, o escríbelos cada vez. |
+| Los secretos quedan vacíos cada vez que vuelves a abrir | El llavero del sistema operativo no está disponible, así que Luvin no puede guardarlos. | Haz que el llavero esté disponible, o escríbelos cada vez. |
 | Los secretos quedan vacíos cada vez | No hay un workspace abierto: un ejemplo o archivos sueltos guardan solo los nombres. | Abre o crea un workspace. |
 | Un secreto aparece en claro en los resultados | Tiene menos de cuatro caracteres, o el valor se escribió en un body o un input en vez de como `{{nombre}}`. | Usa un secreto más largo, y escribe `{{nombre}}` donde va. Mira [Variables y secretos](/es/environments/variables-and-secrets/). |
 

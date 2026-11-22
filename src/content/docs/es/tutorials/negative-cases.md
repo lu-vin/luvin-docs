@@ -85,7 +85,7 @@ Desmarca los otros casos y haz clic en **Ejecutar**. Un caso con datos propios s
 ## 7. Exporta el reporte
 
 1. En el encabezado de los resultados, haz clic en **Reporte**.
-2. Tu navegador o la app de escritorio descarga un archivo llamado `report-<título>-<fecha>.html`.
+2. Luvin descarga un archivo llamado `report-<título>-<fecha>.html`.
 
 ![El reporte HTML exportado, abierto en un navegador](/media/es/report.webp)
 

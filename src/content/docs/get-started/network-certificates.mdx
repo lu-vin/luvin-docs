@@ -1,6 +1,6 @@
 ---
 title: Certificates
-description: Trust your company's certificates with a CA file, and send client certificates (mTLS) in CRT + KEY or PFX format to the hosts that require them, in the desktop app.
+description: Trust your company's certificates with a CA file, and send client certificates (mTLS) in CRT + KEY or PFX format to the hosts that require them.
 sidebar:
   order: 13
 ---
@@ -109,7 +109,7 @@ To use one certificate for `shop.test` and its subdomains, add it twice: once wi
 - If it is wrong, requests to that host fail with *The client certificate passphrase is wrong (…). Remove the certificate in Preferences → Certificates and add it again with the right passphrase.* You can also edit the certificate and type the right one.
 
 <Aside type="caution">
-If this computer cannot store encrypted passwords (Linux without a system keychain), the field says *This computer cannot store encrypted passwords (no system keychain): it will not be saved.* Without the passphrase, a key that has one cannot be used.
+If this computer cannot store encrypted passwords, the field says *This computer cannot store encrypted passwords (no system keychain): it will not be saved.* Without the passphrase, a key that has one cannot be used.
 </Aside>
 
 ### The list of certificates

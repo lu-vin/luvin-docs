@@ -31,7 +31,7 @@ sidebar:
 | **Usuario virtual** | En una prueba de rendimiento, un usuario simulado que repite la secuencia por su cuenta, con sus propias variables y cookies. La carga sale de tu equipo. Mira [Rendimiento](/es/runner/performance/). |
 | **Forma de la carga** | Cómo cambia la cantidad de usuarios virtuales durante una prueba de rendimiento: **Fija**, **Subida gradual**, **Pico repentino** o **Pico sostenido**. |
 | **Cuello de botella** | El request o paso de un workflow que es claramente más lento que el resto en una prueba de rendimiento, según su p95. El resultado lo nombra después de **Lo más lento:** y marca su fila como **el más lento**. |
-| **Mock server** | Un servidor en tu equipo que responde como tu API, con los ejemplos del contrato, los ejemplos guardados de los requests o las rutas que escribes. Solo se enciende en la app de escritorio. Mira [Mock servers](/es/mocks/overview/). |
+| **Mock server** | Un servidor en tu equipo que responde como tu API, con los ejemplos del contrato, los ejemplos guardados de los requests o las rutas que escribes. Mira [Mock servers](/es/mocks/overview/). |
 | **Regla para elegir de una lista** | Qué hacer cuando un paso devuelve una lista y un paso posterior usa un elemento, guardado en el paso del Arazzo como `x-luvin-pick`: usar el que dice el diseño, elegir uno al azar, uno distinto en cada vuelta, el que cumpla una condición sobre un campo, o todos. Con una regla, Luvin no pregunta, tampoco en el runner. Mira [Listas](/es/test/lists/). |
 | **Historial** | Los requests que enviaste y las ejecuciones de la colección, incluidas las del runner y las de rendimiento, guardados por colección. Mira [Historial](/es/workspaces/history/). |
 

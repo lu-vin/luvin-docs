@@ -78,14 +78,7 @@ With **Authorization Code** a person signs in. **PKCE (S256)** is on by default:
 
 If the provider returns an error or a different `state`, Luvin does not take the code.
 
-<Tabs>
-  <TabItem label="Desktop app">
-    Type in **Callback URL** the one registered with the provider. The app intercepts the redirect, so that address does not need to exist. The sign-in opens in its own window, with its own session, separate from the rest of the app. The field is required: without it you see *The callback URL is missing.*
-  </TabItem>
-  <TabItem label="Browser version">
-    Register with the provider the address shown under the field: the app's address followed by `/oauth2/callback`. Empty, Luvin uses that address. The sign-in opens in a pop-up: allow pop-ups for the page.
-  </TabItem>
-</Tabs>
+Type in **Callback URL** the one registered with the provider. Luvin intercepts the redirect, so that address does not need to exist. The sign-in opens in its own window, with its own session, separate from the rest of the app. The field is required: without it you see *The callback URL is missing.*
 
 ## The token: get, reuse, refresh, clear
 

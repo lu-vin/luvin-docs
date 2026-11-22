@@ -1,6 +1,6 @@
 ---
 title: Proxy
-description: Envía los requests de la app de escritorio por el proxy del sistema, por las variables HTTP_PROXY o por un proxy propio con autenticación y excepciones, y mira qué requests lo usan.
+description: Envía los requests de Luvin por el proxy del sistema, por las variables HTTP_PROXY o por un proxy propio con autenticación y excepciones, y mira qué requests lo usan.
 sidebar:
   order: 12
 ---
@@ -119,7 +119,7 @@ Con **Respetar HTTP_PROXY, HTTPS_PROXY y NO_PROXY** encendido, Luvin lee:
 - Luvin los envía como autenticación Basic (`Proxy-Authorization`) en cada request que pasa por el proxy.
 - La contraseña se guarda cifrada en este equipo, con los demás secretos de la app, nunca en el archivo de ajustes. Vacía el campo para borrarla.
 - Sin usuario, Luvin no envía un inicio de sesión.
-- Si este equipo no puede guardar contraseñas cifradas (Linux sin llavero del sistema), el campo dice *Este equipo no puede guardar contraseñas cifradas (falta el llavero del sistema): no se guardará.*
+- Si este equipo no puede guardar contraseñas cifradas, el campo dice *Este equipo no puede guardar contraseñas cifradas (falta el llavero del sistema): no se guardará.*
 
 Si el proxy los rechaza, el request falla con *El proxy rechazó el usuario o la contraseña (407). Revísalos en Preferencias → Proxy.*
 

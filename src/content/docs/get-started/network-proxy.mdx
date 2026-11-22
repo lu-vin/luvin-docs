@@ -1,6 +1,6 @@
 ---
 title: Proxy
-description: Send the desktop app's requests through the system proxy, the HTTP_PROXY variables or a custom proxy with authentication and exceptions, and see which requests use it.
+description: Send Luvin's requests through the system proxy, the HTTP_PROXY variables or a custom proxy with authentication and exceptions, and see which requests use it.
 sidebar:
   order: 12
 ---
@@ -119,7 +119,7 @@ With **Respect HTTP_PROXY, HTTPS_PROXY and NO_PROXY** on, Luvin reads:
 - Luvin sends them as Basic authentication (`Proxy-Authorization`) on every request through the proxy.
 - The password is saved encrypted on this computer, with the other secrets of the app, never in the settings file. Empty the field to delete it.
 - Without a username, Luvin does not send a login.
-- If this computer cannot store encrypted passwords (Linux without a system keychain), the field says *This computer cannot store encrypted passwords (no system keychain): it will not be saved.*
+- If this computer cannot store encrypted passwords, the field says *This computer cannot store encrypted passwords (no system keychain): it will not be saved.*
 
 If the proxy rejects them, the request fails with *The proxy rejected the username or password (407). Check them in Preferences → Proxy.*
 

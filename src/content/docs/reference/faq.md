@@ -109,7 +109,7 @@ Press **Report** in the header of the results to get a self-contained HTML repor
 
 ### Where are secrets stored?
 
-Only the names of secrets are written in the workspace files. The values are encrypted on your computer, with the system keychain in the desktop app. See [Base URLs, variables and secrets](/environments/variables-and-secrets/).
+Only the names of secrets are written in the workspace files. The values are encrypted on your computer, with the system keychain. See [Base URLs, variables and secrets](/environments/variables-and-secrets/).
 
 ### Does it support OAuth 2.0?
 

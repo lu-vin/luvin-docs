@@ -85,7 +85,7 @@ Untick the other cases and click **Run**. A custom data case always runs against
 ## 7. Export the report
 
 1. In the header of the results, click **Report**.
-2. Your browser or the desktop app downloads a file named `report-<title>-<date>.html`.
+2. Luvin downloads a file named `report-<title>-<date>.html`.
 
 ![The exported HTML report open in a browser](/media/en/report.webp)
 
