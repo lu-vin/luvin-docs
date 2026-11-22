@@ -8,7 +8,7 @@ sidebar:
 These are the things Luvin does not do yet. Check them before you plan a test, so a missing feature does not surprise you.
 
 - **Messaging steps are simulated.** Luvin does not connect to Kafka, AMQP or MQTT yet; the app says so before running.
-- **Unsigned desktop installers**, tested on macOS. The Windows build has not been tried on Windows yet.
+- **Unsigned desktop installers**, tested on macOS. The Windows build has not been tested yet.
 - **gRPC** needs the `.proto` (no server reflection yet) and client-streaming and bidirectional methods send a single message.
 - **No custom WebSocket headers** (Luvin opens the connection like a browser does). Pass a token in the URL instead, for example `?token={{token}}`.
 - **Workflow steps send payload fields, not files.** A step with a `multipart/form-data` body is sent as multipart: each payload field is a part, a list gives one part per item, and an object is sent as JSON. A step cannot attach a file. Single requests do support files and binary bodies: see [Send a file](/requests/send-files/).

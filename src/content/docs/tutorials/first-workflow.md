@@ -65,7 +65,7 @@ The badge at the top says **Required complete**. See [Inputs](/test/inputs/).
 
 1. Click the **Cases** tab. Luvin generated the cases from your workflow. **Happy path**, the normal run, is ticked.
 2. In the run bar, choose **Simulation**. Simulation calls nothing: Luvin answers with the examples written in the contract.
-3. Click **Run** (or press ⌘ Enter, Ctrl+Enter on Windows and Linux).
+3. Click **Run** (or press ⌘ Enter, Ctrl+Enter on Windows).
 
 The results open at the bottom. The case ends as **Passed**, with a **Sim** badge, and every step shows **Succeeded**. If a dialog titled **Run paused** appears, a list had more than one item: choose one and click **Continue with this item**. See [Simulation](/test/simulation/).
 

@@ -5,7 +5,7 @@ sidebar:
   order: 13
 ---
 
-import { Steps, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 With OAuth 2.0 the API does not take a fixed key. You first ask an authorization server for a short-lived **access token**, then send it. Luvin asks for the token, reuses it while it is valid and renews it when it expires.
 
@@ -119,7 +119,6 @@ Set OAuth 2.0 in the **Authorization** tab of the workflow. With **Authorization
 | The token couldn’t be fetched: … | The provider refused and says why. Check client ID, secret, scope and **Send client credentials in**. |
 | The provider didn’t authorize: … | The person did not approve, or the provider returned an error. |
 | The authorization window was closed before finishing. | Press **Get new token** and finish the sign-in. |
-| The browser blocked the authorization window: allow pop-ups for this page. | Allow pop-ups. |
 | This request uses OAuth 2.0 with Authorization Code: press “Get new token”… | Sign in first from the **Authorization** tab. |
 
 More in [Troubleshooting](/authorization/troubleshooting/).
