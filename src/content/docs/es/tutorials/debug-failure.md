@@ -92,7 +92,7 @@ Aparecen el status y el body. Cambia el parámetro de la ruta a `pikachu` y env�
 
 ## 7. Cuando la API no responde
 
-No toda falla es una respuesta. Si el paso tiene la etiqueta **Red o CORS** y no hay status, la API no respondió. Un panel con el título **No se pudo conectar con la API** aparece sobre los resultados, con la cantidad de casos afectados y los servidores que no respondieron.
+No toda falla es una respuesta. Si el paso tiene la etiqueta **Red** y no hay status, la API no respondió. Un panel con el título **No se pudo conectar con la API** aparece sobre los resultados, con la cantidad de casos afectados y los servidores que no respondieron.
 
 1. Haz clic en **Abrir https://… ↗** para probar la dirección en tu navegador. Si no carga, el problema es el servidor o la dirección.
 2. Haz clic en **Revisar ambiente** y comprueba la URL base.

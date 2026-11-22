@@ -17,7 +17,7 @@ Se juzgan dos cosas por separado. Un **paso** puede ser exitoso, tener una adver
 | **Error devuelto por la API** | La API respondió 400 o más. Se muestra el mensaje de la API, si envió uno. | Lee el mensaje. Revisa los inputs del caso y los datos de los pasos anteriores. |
 | **Autenticación** | La API respondió 401 o 403. | Revisa la credencial del ambiente o del workflow. Mira [Autorización de un workflow](/es/authorization/workflow/). |
 | **Dato no disponible** | Faltaba un valor que el paso necesitaba, así que el request se envió incompleto. | Mira la sección más abajo. |
-| **Red o CORS** | No hubo respuesta de la API: falló la conexión, falta la URL, el paso superó su tiempo o se canceló la ejecución. | Usa la [Ayuda de conexión](/es/dev-tools/connection-help/). |
+| **Red** | No hubo respuesta de la API: falló la conexión, falta la URL, el paso superó su tiempo o se canceló la ejecución. | Usa la [Ayuda de conexión](/es/dev-tools/connection-help/). |
 | **Operación no encontrada** | El paso apunta a una operación que no está en los contratos cargados. | Carga el contrato o corrige el `operationId` en la pestaña YAML. |
 | **No ejecutado** | El paso se omitió por un paso anterior o por una dependencia. | Corrige primero el paso que falló. |
 | **Respuesta fuera de contrato** | El paso cumplió sus criterios, pero la respuesta no coincide con lo que documenta el contrato. Es una **advertencia**, no una falla. | Compara la respuesta con el contrato. Consulta a quien construye la API, o corrige el contrato. |
@@ -106,7 +106,7 @@ Cada caso termina con un veredicto y una frase.
 | **Todos los pasos cumplieron sus criterios.** | Pasó | El camino feliz funcionó. |
 | **El workflow terminó bien, con advertencias en: "a".** | Pasó | Funcionó, pero esos pasos tienen advertencias. |
 | **Falló en el paso "a": ...** | No pasó | Sigue el primer paso que falló y su motivo. |
-| **Falló en el paso "a" ...** cuando el motivo es **Red o CORS** | No concluyente | No hubo respuesta de la API, así que el caso no se puede juzgar. |
+| **Falló en el paso "a" ...** cuando el motivo es **Red** | No concluyente | No hubo respuesta de la API, así que el caso no se puede juzgar. |
 | **"a" rechazó la petición con 400, como se esperaba.** | Pasó | Un caso de rechazo: la API dijo que no. |
 | **"a" aceptó la petición (200) cuando debía rechazarla con 400.** | Advertencia o No pasó | Mira más abajo. |
 | **"a" respondió 500; se esperaba 400.** | Advertencia o No pasó | La API la rechazó con otro status. |
