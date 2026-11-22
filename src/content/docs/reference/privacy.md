@@ -7,10 +7,10 @@ sidebar:
 
 Luvin runs on your machine. This page says where each kind of data lives and what protects it.
 
-- Everything runs **on your machine**, in the browser or the desktop app. There is no backend and no account.
-- **Secrets never go into the workspace files.** Environment files only keep secret names. Values are stored **encrypted on this computer**: with the operating system's keychain in the desktop app, and with WebCrypto in the browser.
+- Everything runs **on your machine**. There is no backend and no account.
+- **Secrets never go into the workspace files.** Environment files only keep secret names. Values are stored **encrypted on this computer**: with the operating system's keychain.
 - Tokens, passwords and API keys are **masked** in results, reports, exports, Dev Tools and every cURL.
-- The desktop app only reads and writes inside folders you chose, and its interface has no direct access to the file system. The terminal opens your own shell, only in a workspace folder or your home folder.
+- Luvin only reads and writes inside folders you chose, and its interface has no direct access to the file system. The terminal opens your own shell, only in a workspace folder or your home folder.
 - Without a workspace, the saved session leaves out credentials and any input whose name looks sensitive (`token`, `password`, `secret`…).
 - **History stays on this device**, in the storage of the app (IndexedDB), never in the workspace files. Environment secrets, credentials and the values a request saves as secret are masked in it. You can turn it off in **Preferences**. See [History](/workspaces/history/).
 - **Mock servers listen only on `127.0.0.1`.** Other computers cannot reach them. From a browser, only a page served from `localhost` or `127.0.0.1` can read their responses, and a call that uses any other host name gets `403`. See [Routes and responses](/mocks/routes/).
@@ -19,10 +19,10 @@ Luvin runs on your machine. This page says where each kind of data lives and wha
 
 | Data | Where | In the files? |
 |---|---|---|
-| Contracts, Arazzo files, cases, requests | The workspace folder (or this browser, for a workspace saved in the browser). | Yes. |
+| Contracts, Arazzo files, cases, requests | The workspace folder. | Yes. |
 | Names of secrets, base URLs, variables | `environments/*.yaml`. | Yes. |
 | Values of secrets and credentials | Encrypted on this computer. | No. |
-| The session without a workspace | The storage of the browser or the app, on this computer. | No. |
+| The session without a workspace | The storage of the app, on this computer. | No. |
 | Preferences such as theme, interface and panel sizes | This computer. | No. |
 | History of requests and runs, with secrets masked | This computer, in the storage of the app (IndexedDB). | No. |
 | Mock servers: name, port, source and own routes | `mocks/*.mock.yaml`. | Yes. |

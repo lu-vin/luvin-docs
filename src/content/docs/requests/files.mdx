@@ -133,7 +133,7 @@ body:
         contentType: image/png
 ```
 
-In the browser version a file has no path on disk, so `path` is saved empty and Luvin asks you to choose the file again. See [Body](/requests/params-headers-body/).
+If the file is no longer at that path (for example on a teammate's computer), Luvin asks you to choose it again. See [Body](/requests/params-headers-body/).
 
 ## Saved examples
 
@@ -172,7 +172,7 @@ Some fields of the `auth` block are secrets: `token`, `password`, `value` (of an
 | You type in the field | In the file | Where the value is |
 |---|---|---|
 | `{{token}}` (a variable) | `token: "{{token}}"` | In your environment. |
-| `s3cr3t` (as-is) | The key is left out | Encrypted on this computer. The desktop app uses the keychain of the operating system; the browser version encrypts it in the browser. |
+| `s3cr3t` (as-is) | The key is left out | Encrypted on this computer, with the keychain of the operating system. |
 
 For example, a Basic Auth request with the password typed as-is is saved with the username only:
 

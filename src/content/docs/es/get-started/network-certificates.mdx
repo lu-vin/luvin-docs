@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 La sección **Certificados** de **Preferencias** tiene dos partes. **Certificados CA** hace que Luvin confíe en servidores firmados por tu empresa, como una API interna o un proxy que inspecciona HTTPS. **Certificados de cliente** deja que Luvin demuestre quién eres ante APIs que piden TLS mutuo (mTLS), comunes en bancos y proveedores de pago.
 
-<Aside type="note" title="Solo en la app de escritorio">
-En el navegador, la sección **Certificados** no aparece: los requests usan los certificados del navegador y del sistema operativo.
-</Aside>
-
 ## Ejemplo: el servidor de staging de una tienda
 
 La API de staging de la tienda, `https://api.shop.test`, tiene un certificado firmado por la autoridad propia de la empresa y pide a cada cliente un certificado. TI te dio tres archivos: `company-ca.pem`, `client.crt` y `client.key`, cuya clave tiene passphrase.

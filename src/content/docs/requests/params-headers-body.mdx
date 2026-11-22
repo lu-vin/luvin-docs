@@ -55,13 +55,13 @@ Luvin adds some headers by itself. They appear at the top of the table as rows y
 | Header | Value | Notes |
 |---|---|---|
 | `Cache-Control` | `no-cache` | Untick it to stop sending it. |
-| `User-Agent` | `Luvin/<version>` | Desktop app only. In the browser, the browser sets it. |
+| `User-Agent` | `Luvin/<version>` | |
 | `Content-Type` | Depends on the body type | Added when the request has a body. |
 | `Content-Length` | Calculated when sent | Only with a body. |
 | `Host` | Taken from the URL | Calculated when sent. |
 | `Accept` | `*/*` | |
-| `Accept-Encoding` | `gzip, deflate, br` | Desktop app only. |
-| `Connection` | `keep-alive` | Desktop app only. |
+| `Accept-Encoding` | `gzip, deflate, br` | |
+| `Connection` | `keep-alive` | |
 | `Authorization` | From the **Authorization** tab, or inherited from the collection | The value is shown masked. |
 | `Cookie` | From the cookie jar, for that domain | Untick it to stop sending it. |
 
@@ -91,7 +91,6 @@ A body is not sent with GET or HEAD. Change the method to POST, PUT, PATCH or DE
 About files:
 
 - In the desktop app, Luvin remembers the path and reads the file when you send. A file larger than 50 MB is not sent.
-- In the browser version, the file is kept only while the app is open. After a reload, Luvin asks you to choose it again.
 
 To upload a file, see [Send a file](/requests/send-files/).
 

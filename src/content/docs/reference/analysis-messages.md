@@ -78,7 +78,6 @@ Every message has a level.
 | **The contract requires the query parameter "x" and the step does not send it.** | Warning | Add the parameter. See [Parameters and body](/design/parameters-and-body/). |
 | **The contract requires a body and the step does not define requestBody.** | Warning | Add a body. |
 | **An "in: querystring" parameter cannot be combined with "in: query" parameters on the same operation.** | Warning | Keep only one kind. |
-| **This step sends cookies: the desktop app sends them, but the browser does not allow it and skips them.** | Info | Use the desktop app to run it. |
 
 ### Criteria, errors and dependencies
 

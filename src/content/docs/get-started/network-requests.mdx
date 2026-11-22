@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 The **Requests** group, in **Preferences** → **General**, says how every request goes out: how long Luvin waits, how large a response can be, whether it trusts the server's certificate, whether it follows redirects and whether it keeps cookies. The defaults work for most APIs. Change them when an API is slow, sends large files, uses a test certificate or redirects you.
 
-<Aside type="note" title="Desktop app only">
-These settings apply to the desktop app. In the browser, the group says *Desktop app only: in the browser, requests use the browser settings.* and only **Automatic cookies** can be changed.
-</Aside>
-
 ## The settings
 
 | Setting | Default | Range | What it does |
@@ -111,7 +107,6 @@ On, Luvin stores the cookies that responses set and sends them on later requests
 
 - If the request has its own `Cookie` header, Luvin does not add the stored ones.
 - The runner has its own options: **Start with the saved cookies** and **Save cookies after the run**. With **Automatic cookies** off, a run uses no cookies.
-- This is the only setting of the group that also works in the browser.
 
 See [Cookies and saved examples](/requests/cookies-and-examples/) and [Headers that Luvin adds](/requests/auto-headers/).
 

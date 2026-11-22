@@ -7,9 +7,7 @@ sidebar:
 
 import { Aside, Badge } from '@astrojs/starlight/components';
 
-<Badge text="Solo en escritorio" variant="caution" />
-
-Usa **NTLM Auth** cuando un servidor Windows o de intranet (por ejemplo IIS con autenticación de Windows) pide NTLM. El intercambio tiene tres mensajes y deben viajar por la misma conexión. Los navegadores no lo permiten, así que solo la app de escritorio puede hacerlo.
+Usa **NTLM Auth** cuando un servidor Windows o de intranet (por ejemplo IIS con autenticación de Windows) pide NTLM. El intercambio tiene tres mensajes y viajan por la misma conexión.
 
 ## Ejemplo
 
@@ -28,7 +26,6 @@ Un request `GET https://intranet.example.com/api/orders` a un servidor que respo
 
 ## Límites
 
-- **Solo la app de escritorio.** En la versión web la opción dice *NTLM Auth · solo en escritorio*, y al enviar ves *NTLM necesita la app de escritorio: el intercambio tiene que ocurrir en la misma conexión y el navegador no lo permite.*
 - Es NTLM versión 2.
 - Funciona en requests, en la colección y en un workflow, siempre desde la app de escritorio.
 

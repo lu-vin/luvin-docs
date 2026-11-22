@@ -16,44 +16,12 @@ Busca tu problema en la lista, lee qué lo causa y sigue los pasos. Cada secció
 | Un contrato tiene una ✕ en la barra lateral | [Un contrato muestra ✕](#un-contrato-muestra-) |
 | Un workflow muestra errores después de eliminar un contrato | [Errores después de eliminar un contrato](#errores-después-de-eliminar-un-contrato) |
 | Un secreto no tiene valor en otro equipo | [Faltan los secretos en otro equipo](#faltan-los-secretos-en-otro-equipo) |
-| Un paso necesita cookies y el navegador las omite | [Las cookies no se envían](#las-cookies-no-se-envían-en-el-navegador) |
-| gRPC o NTLM no funcionan | [gRPC y NTLM necesitan la app de escritorio](#grpc-y-ntlm-necesitan-la-app-de-escritorio) |
 
 ## La API no responde
 
-Cuando los casos no obtienen respuesta, se abre en los resultados un panel con el título **No se pudo conectar con la API**. Dice cuántos casos no obtuvieron respuesta y de qué dirección. Suele ser una de tres causas.
+Cuando los casos no obtienen respuesta, se abre en los resultados un panel con el título **No se pudo conectar con la API**. Dice cuántos casos no obtuvieron respuesta y de qué dirección.
 
-<Steps>
-
-1. **La URL es incorrecta o el servidor está apagado.** El panel tiene un enlace por cada dirección, **Abrir …**. Ábrelo en otra pestaña. Si no carga, el problema no es Luvin. Revisa la URL base en el ambiente (haz clic en **Revisar ambiente**).
-2. **La página es https y la API es http.** El navegador bloquea esas llamadas. Este punto solo aparece cuando corresponde. Usa la API por https, o abre Luvin en http.
-3. **La API no permite llamadas desde esta página (CORS).** Si la URL abre bien, esta es la causa más probable.
-
-</Steps>
-
-### Qué es CORS
-
-CORS es una regla del navegador. Una página web puede llamar a una API de otra dirección solo si esa API dice que lo permite. En la versión de navegador, Luvin es una página web, así que la regla se aplica a todas las llamadas. La app de escritorio envía los requests ella misma, así que ahí CORS no aplica.
-
-### Soluciona CORS
-
-<Steps>
-
-1. En el panel, busca el bloque de código bajo **¿La API permite llamadas desde esta página (CORS)?**
-2. Haz clic en **Copiar headers**.
-3. Envíaselos a quien administra la API y pide que la API responda con estos headers.
-
-</Steps>
-
-El bloque lista lo que necesitan los requests que fallaron. Por ejemplo, si Luvin está abierto en `http://localhost:5173` y un paso envía `POST` con un header `Authorization`, dice:
-
-```text
-Access-Control-Allow-Origin: http://localhost:5173
-Access-Control-Allow-Methods: POST, OPTIONS
-Access-Control-Allow-Headers: Authorization
-```
-
-`Accept`, `Accept-Language` y `Content-Language` nunca aparecen en la lista: el navegador los envía sin pedir permiso.
+**La URL es incorrecta o el servidor está apagado.** El panel tiene un enlace por cada dirección, **Abrir …**. Si no carga, el problema no es Luvin: revisa la URL base en el ambiente (haz clic en **Revisar ambiente**), que el servidor esté encendido y que tu equipo llegue a él (VPN, proxy, firewall). Si la API necesita un proxy o un certificado de cliente, configúralos en [Preferencias → Red](/es/get-started/network/).
 
 ### Otras salidas
 
@@ -61,11 +29,9 @@ Access-Control-Allow-Headers: Authorization
 |---|---|
 | **Probar en simulación** | Ejecuta los casos sin llamar a la API |
 | **Revisar ambiente** | Abre el ambiente, para revisar las URL |
-| El consejo de cURL | Copia un paso como cURL y pruébalo en tu terminal, donde CORS no aplica |
+| El consejo de cURL | Copia un paso como cURL y pruébalo en tu terminal, para ver el error tal cual |
 
-La solución más directa es usar la app de escritorio. Consulta [Instalar y abrir Luvin](/es/get-started/install/).
-
-![El panel que aparece cuando la API no responde, con las cabeceras de CORS exactas](/media/es/connection-help.webp)
+![El panel que aparece cuando la API no responde](/media/es/connection-help.webp)
 
 ## La app no abre
 
@@ -110,7 +76,7 @@ Si ya no quieres esos pasos, elimínalos. Un contrato que no tiene archivo y que
 
 ## Faltan los secretos en otro equipo
 
-Los secretos nunca están en los archivos del workspace. Los archivos de ambiente solo guardan los nombres de los secretos. Los valores se guardan cifrados en el equipo donde los escribiste, con el llavero del sistema operativo en la app de escritorio y con WebCrypto en el navegador.
+Los secretos nunca están en los archivos del workspace. Los archivos de ambiente solo guardan los nombres de los secretos. Los valores se guardan cifrados en el equipo donde los escribiste, con el llavero del sistema operativo.
 
 Por eso, cuando copias un workspace a otro equipo, o lo clonas desde git, sus secretos no tienen valor ahí.
 
@@ -122,21 +88,6 @@ Por eso, cuando copias un workspace a otro equipo, o lo clonas desde git, sus se
 </Steps>
 
 Comparte los valores con tu equipo por un canal seguro, no a través de los archivos.
-
-## Las cookies no se envían en el navegador
-
-Los navegadores no pueden enviar cookies desde una página web. Si un paso usa un parámetro de cookie o una API key puesta en una cookie, la versión de navegador la omite. Los resultados lo explican: **Este paso necesita las cookies … que el navegador no permite enviar: pruébalo en la app de escritorio.**
-
-Abre el mismo workspace en la app de escritorio. Ahí Luvin envía las cookies, guarda las que ponen tus APIs y las muestra en **Cookies**. En el navegador, el propio navegador maneja las cookies y Luvin no puede leerlas.
-
-## gRPC y NTLM necesitan la app de escritorio
-
-Los navegadores no pueden abrir conexiones gRPC, y NTLM necesita un intercambio por una sola conexión, que los navegadores no permiten. En la versión de navegador:
-
-- Un request gRPC muestra **gRPC necesita la app de escritorio** y, al crearlo, lleva la etiqueta **Solo escritorio**.
-- La autorización NTLM indica que necesita la app de escritorio.
-
-Abre el workspace en la app de escritorio para usarlos. Consulta [Limitaciones](/es/reference/limitations/) para la lista completa.
 
 ## Relacionado
 

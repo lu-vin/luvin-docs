@@ -18,7 +18,7 @@ Luvin prueba una cadena de llamadas a APIs, llamada **workflow**, donde cada lla
 - **No es una herramienta de automatización ni de orquestación.** Luvin sirve para diseñar, depurar y demostrar workflows de APIs. No ejecuta integraciones en producción.
 - **No es un runner de CI.** Su runner ejecuta workflows y requests dentro de la app, en tu equipo. Lo que llevas a tu pipeline son los archivos Arazzo que escribe, con cualquier runner de Arazzo.
 - **No reemplaza a tu cliente de APIs.** Luvin envía requests sueltos para ayudarte a depurar un paso. Conserva tu cliente de APIs para los requests sueltos y usa Luvin para la cadena.
-- **No es un servicio en la nube.** Todo corre en tu equipo, en el navegador o en la app de escritorio. No hay backend ni cuenta.
+- **No es un servicio en la nube.** Todo corre en tu equipo. No hay backend ni cuenta.
 - **Todavía no se conecta a brokers de mensajería.** Los pasos de mensajería se simulan. Mira [Limitaciones conocidas](/es/reference/limitations/).
 
 ### ¿Necesito una cuenta?
@@ -27,7 +27,7 @@ No. Luvin no tiene backend ni cuenta. Lo abres y trabajas. Mira [Privacidad y se
 
 ### ¿Mis datos se envían a algún lado?
 
-No. Todo corre en tu equipo, en el navegador o en la app de escritorio. El único tráfico son los requests que ejecutas contra tus propias APIs y los contratos que decides descargar desde una URL. Mira [Privacidad y seguridad](/es/reference/privacy/).
+No. Todo corre en tu equipo. El único tráfico son los requests que ejecutas contra tus propias APIs y los contratos que decides descargar desde una URL. Mira [Privacidad y seguridad](/es/reference/privacy/).
 
 ### ¿Qué es Arazzo?
 
@@ -85,10 +85,6 @@ Luvin no pudo juzgarlo: la API no respondió, o el workflow se detuvo antes del 
 
 No se cumplió un [criterio de éxito](/es/reference/criteria/) del paso, por ejemplo un dato con otro valor. Abre el paso: el motivo dice qué se esperaba y qué llegó. Sin criterios, cualquier 2xx pasa.
 
-### ¿Por qué la API no responde en el navegador?
-
-En el navegador, la API que pruebas debe permitir CORS desde el origen de la app. Luvin muestra los headers exactos que hay que agregar. La app de escritorio no tiene la restricción de CORS. Mira [Ayuda de conexión](/es/dev-tools/connection-help/).
-
 ### ¿Una ejecución real cambia datos en mi API?
 
 Puede hacerlo. Los pasos con POST, PUT, PATCH o DELETE envían requests reales al ambiente, y Luvin te pide confirmar antes de ejecutarlos. Elige un ambiente de pruebas o usa Simulación. Mira [Ejecutar](/es/test/run/).
@@ -99,7 +95,7 @@ Sí, con el runner. Ejecuta los workflows elegidos en orden, una o varias vuelta
 
 ### ¿Puedo probar sin la API real?
 
-Sí, de dos formas. **Simulación** responde con los ejemplos del contrato, sin red. Un [mock server](/es/mocks/overview/) responde en tu equipo como tu API, así los requests y los workflows van por la red sin tocar la real. Los mock servers solo se encienden en la app de escritorio.
+Sí, de dos formas. **Simulación** responde con los ejemplos del contrato, sin red. Un [mock server](/es/mocks/overview/) responde en tu equipo como tu API, así los requests y los workflows van por la red sin tocar la real.
 
 ### ¿Luvin hace pruebas de carga o de rendimiento?
 
@@ -126,10 +122,6 @@ Todavía no. Los pasos de AsyncAPI funcionan, pero siempre se simulan con los ej
 ### ¿Puedo ejecutarlo en CI?
 
 Luvin es una herramienta para diseñar, depurar y mostrar workflows. No es un runner de CI. Los archivos Arazzo que escribe se pueden llevar a una herramienta que ejecute Arazzo en CI, como Redocly Respect. Mira [Limitaciones conocidas](/es/reference/limitations/).
-
-### ¿Uso la app de escritorio o el navegador?
-
-Usa la app de escritorio si necesitas cookies, no tener límites de CORS, carpetas reales, el llavero del sistema, gRPC, mock servers o una terminal. El navegador sirve para una prueba rápida. Mira [Instalar y abrir Luvin](/es/get-started/install/).
 
 ### ¿Cómo genero datos aleatorios, como un email nuevo en cada ejecución?
 

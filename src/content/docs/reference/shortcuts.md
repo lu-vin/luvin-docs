@@ -7,7 +7,7 @@ sidebar:
 
 This page lists the keyboard shortcuts that Luvin has. On macOS the main key is **⌘**. On Windows and Linux it is **Ctrl**.
 
-**Preferences**, in its **Shortcuts** section, lists the main ones in three groups: **General** (run or send, save, search, open Preferences, close dialogs and menus), **Tabs** (only in the desktop app) and **Workflow canvas** (undo and redo).
+**Preferences**, in its **Shortcuts** section, lists the main ones in three groups: **General** (run or send, save, search, open Preferences, close dialogs and menus), **Tabs** and **Workflow canvas** (undo and redo).
 
 ## The ones to learn first
 
@@ -78,7 +78,6 @@ The history of **Undo** is kept when you go to another tab of the workflow, such
 
 ## Tabs (desktop app)
 
-These work only in the desktop app.
 
 | Shortcut | What it does |
 |---|---|

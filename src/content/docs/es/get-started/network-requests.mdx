@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 El grupo **Requests**, en **Preferencias** → **General**, dice cómo sale cada request: cuánto espera Luvin, qué tan grande puede ser una respuesta, si confía en el certificado del servidor, si sigue las redirecciones y si guarda cookies. Los valores por defecto sirven para la mayoría de las APIs. Cámbialos cuando una API es lenta, envía archivos grandes, usa un certificado de pruebas o te redirige.
 
-<Aside type="note" title="Solo en la app de escritorio">
-Estos ajustes valen para la app de escritorio. En el navegador, el grupo dice *Solo en la app de escritorio: en el navegador los requests salen con la configuración del navegador.* y solo se puede cambiar **Cookies automáticas**.
-</Aside>
-
 ## Los ajustes
 
 | Ajuste | Por defecto | Rango | Qué hace |
@@ -111,7 +107,6 @@ Encendido, Luvin guarda las cookies que ponen las respuestas y las envía en los
 
 - Si el request tiene su propio header `Cookie`, Luvin no agrega las guardadas.
 - El runner tiene sus propias opciones: **Empezar con las cookies guardadas** y **Guardar las cookies al terminar**. Con **Cookies automáticas** apagado, una corrida no usa cookies.
-- Es el único ajuste del grupo que también funciona en el navegador.
 
 Mira [Cookies y ejemplos guardados](/es/requests/cookies-and-examples/) y [Los headers que agrega Luvin](/es/requests/auto-headers/).
 

@@ -67,7 +67,7 @@ Notas:
 - Un campo de **Texto** acepta `{{variables}}` y generadores. Uno de **Archivo** no.
 - Si cambias **Archivo** de nuevo a **Texto**, Luvin olvida el archivo elegido.
 - Una fila de **Archivo** sin archivo elegido no se envía. Desmarca una fila para dejarla fuera sin borrarla. La ✕ (**Quitar fila**) la borra.
-- El `Content-Type` del archivo sale de su extensión: `json`, `xml`, `txt`, `csv`, `html`, `pdf`, `zip`, `png`, `jpg`, `jpeg`, `gif`, `webp` o `svg`. Con otra extensión, la versión del navegador usa el tipo que informa el navegador, y la app de escritorio envía `application/octet-stream`.
+- El `Content-Type` del archivo sale de su extensión: `json`, `xml`, `txt`, `csv`, `html`, `pdf`, `zip`, `png`, `jpg`, `jpeg`, `gif`, `webp` o `svg`. Con otra extensión, Luvin envía `application/octet-stream`.
 
 ## Envía un archivo como el body completo (Archivo / binario)
 
@@ -96,25 +96,14 @@ curl -X POST 'https://api.shop.test/avatars' \
   -F 'avatar=@/Users/ana/pics/ana.png'
 ```
 
-En la versión del navegador no se conoce la ruta, así que el comando usa el nombre del archivo: `avatar=@ana.png`. Consulta [Importar y copiar cURL](/es/requests/curl/).
+Consulta [Importar y copiar cURL](/es/requests/curl/).
 
-## App de escritorio y navegador
+## Cómo se lee el archivo
 
-<Tabs>
-  <TabItem label="App de escritorio">
+Luvin guarda la ruta del archivo y lo lee cada vez que envías. Si editas el archivo, el siguiente **Enviar** usa el contenido nuevo.
 
-  Luvin guarda la ruta del archivo y lo lee cada vez que envías. Si editas el archivo, el siguiente **Enviar** usa el contenido nuevo.
-
-  - Un archivo de más de 50 MB no se envía.
-  - Luvin solo lee archivos que elegiste con **Elegir archivo**, o que están dentro de un workspace abierto.
-
-  </TabItem>
-  <TabItem label="Navegador">
-
-  Una página no puede volver a leer una ruta, así que el archivo queda en memoria mientras la app está abierta. Después de recargar la página, elígelo de nuevo.
-
-  </TabItem>
-</Tabs>
+- Un archivo de más de 50 MB no se envía.
+- Luvin solo lee archivos que elegiste con **Elegir archivo**, o que están dentro de un workspace abierto.
 
 ## Cuando falla
 
@@ -122,7 +111,7 @@ El área de la respuesta dice el motivo, y no se envía nada.
 
 | Mensaje | Qué hacer |
 |---|---|
-| **Vuelve a elegir «ana.png»** | Luvin no puede leer el archivo. En el navegador, pasa después de recargar. En la app de escritorio, pasa cuando el request vino de otro computador o de un compañero: la ruta nunca se eligió aquí. Haz clic en **Elegir archivo** y elígelo. |
+| **Vuelve a elegir «ana.png»** | Luvin no puede leer el archivo: el request vino de otro computador o de un compañero, así que la ruta nunca se eligió aquí. Haz clic en **Elegir archivo** y elígelo. |
 | **«ana.png» ya no está en esa ubicación** | El archivo se movió o se borró. Haz clic en **Cambiar archivo** y elígelo. |
 | **«ana.png» pesa más de 50 MB** | Usa un archivo más pequeño. |
 

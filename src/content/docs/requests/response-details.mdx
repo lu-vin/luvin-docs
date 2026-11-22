@@ -30,7 +30,7 @@ The rest of the page explains each part.
 |---|---|
 | **No response yet** | You have not sent the request. Press **Send** (⌘/Ctrl + Enter). |
 | **Sending…** with a spinner | The request is on its way. |
-| **The request couldn’t complete** | The API did not answer, and the reason is below. In the browser version, the API must allow CORS. The desktop app has no such limit. |
+| **The request couldn’t complete** | The API did not answer, and the reason is below. |
 
 When a call fails this way, a fold-out **Sent request** under the message shows the URL and the headers that were sent. See [Connection help](/dev-tools/connection-help/).
 
@@ -66,7 +66,6 @@ Notes under the phases tell you when they apply:
 
 - **Connection reused: no DNS, TCP or SSL this time.** The request used a connection that was already open, so those phases are 0.
 - **Followed N redirect(s); times are from the last one.**
-- In the browser, a server may not share its detailed timing with the page (`Timing-Allow-Origin`). The card says so. The desktop app measures every phase.
 
 If Luvin has no phases, you see only the total time.
 

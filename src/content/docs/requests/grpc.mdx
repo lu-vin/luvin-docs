@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 A gRPC request calls one method of a gRPC service. You give Luvin the `.proto` file that describes the service, choose the method and write the message as JSON.
 
-:::caution[Desktop app only]
-Browsers cannot open gRPC connections. In the browser version, the **gRPC** option is marked **Desktop only**, and a gRPC request shows *gRPC needs the desktop app*. Open the workspace in the desktop app to call the service.
-:::
-
 ## Example
 
 A call to the method `SayHello` of the service `helloworld.Greeter`, with the message `{"name": "Ana"}` and a token as metadata, is saved like this:

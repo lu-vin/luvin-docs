@@ -30,24 +30,22 @@ Luvin remembers every setting on this computer. It does not save them in your wo
 |---|---|
 | **General** | **Requests**, **Application**, **Workspaces** and **History** (see below). |
 | **Theme** | **System**, **Light** or **Dark**. **System** follows the macOS or Windows appearance and switches on its own. |
-| **Shortcuts** | The keyboard shortcuts, in groups: **General**, **Tabs** (desktop app only) and **Workflow canvas**. The full list is in [Keyboard shortcuts](/reference/shortcuts/). |
-| **Certificates** | CA certificates and client certificates. Desktop app only. |
-| **Proxy** | System proxy, environment variables and a custom proxy. Desktop app only. |
+| **Shortcuts** | The keyboard shortcuts, in groups: **General**, **Tabs** and **Workflow canvas**. The full list is in [Keyboard shortcuts](/reference/shortcuts/). |
+| **Certificates** | CA certificates and client certificates. |
+| **Proxy** | System proxy, environment variables and a custom proxy. |
 | **About** | The version of Luvin, **Privacy** and the **Guided tour**, with **Start the tour**. |
-
-In the browser, **Certificates** and **Proxy** do not appear: the browser handles them.
 
 ## General
 
 ### Requests
 
-How requests go out: **Request timeout**, **Max response size**, **SSL certificate verification**, **Follow redirects**, **Max redirects** and **Automatic cookies**. They work in the desktop app. In the browser this group says *Desktop app only: in the browser, requests use the browser settings.* and only **Automatic cookies** can be changed. Each one, with its default, is explained in [Network settings](/get-started/network/).
+How requests go out: **Request timeout**, **Max response size**, **SSL certificate verification**, **Follow redirects**, **Max redirects** and **Automatic cookies**. Each one, with its default, is explained in [Network settings](/get-started/network/).
 
 ### Application
 
 | Setting | Options | What it does |
 |---|---|---|
-| **Language** | **Español**, **English** | Changes every label of the app. The first time, Luvin follows the language of your browser. |
+| **Language** | **Español**, **English** | Changes every label of the app. The first time, Luvin follows the language of your system. |
 | **Interface** | **Full (development)**, **Simple (product)** | How much technical detail Luvin shows. |
 | **Your role** | **Product Manager / Owner**, **Business or partners**, **QA / Testing**, **Development**, **Architecture**, **Other** | Also sets the interface, as the next table shows. Empty (**—**) until you choose one. |
 
@@ -68,7 +66,7 @@ The welcome screen offers the same choice the first time. See [A tour of the int
 
 ### Workspaces
 
-Desktop app only. **Location for new workspaces** says where new workspaces are suggested: `Documents/Luvin` until you click **Choose…** and pick another folder. **Reset** goes back to the default.
+**Location for new workspaces** says where new workspaces are suggested: `Documents/Luvin` until you click **Choose…** and pick another folder. **Reset** goes back to the default.
 
 ### History
 
@@ -85,7 +83,7 @@ The sun or moon icon next to the gear, in the status bar, changes the theme in o
 
 ## About
 
-**Privacy** says where your data lives. In the browser: *Everything runs in your browser. Your session is saved only on this device, without credentials.* In the desktop app: *Everything runs on your computer. Requests go out from the app, never through a server of ours. Your session is saved without credentials.* With a workspace open: *Every change is saved in the workspace files automatically. Secrets and credentials are encrypted on this computer, never in the files.* See [The guided tour](/get-started/guided-tour/) for **Start the tour**.
+**Privacy** says where your data lives: *Everything runs on your computer. Requests go out from the app, never through a server of ours. Your session is saved without credentials.* With a workspace open: *Every change is saved in the workspace files automatically. Secrets and credentials are encrypted on this computer, never in the files.* See [The guided tour](/get-started/guided-tour/) for **Start the tour**.
 
 ## Example: a product manager opens Pokemon card
 

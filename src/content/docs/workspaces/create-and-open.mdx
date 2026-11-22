@@ -1,6 +1,6 @@
 ---
 title: Create and open a workspace
-description: Create a workspace on disk or in the browser, open an existing one, come back to the last one, and rename, switch or close it.
+description: Create a workspace in a folder, open an existing one, come back to the last one, and rename, switch or close it.
 sidebar:
   order: 2
 ---
@@ -11,18 +11,9 @@ Every session starts on the welcome screen: you create a workspace, open one, or
 
 ![The welcome screen with the options to try the example, create a workspace and take the guided tour](/media/en/welcome.webp)
 
-## Where a workspace can live
+## Where a workspace lives
 
-| Place | What it is | Where |
-|---|---|---|
-| **A folder on disk** | Real files: `luvin.yaml` and one subfolder per collection. You can open them in any editor and keep them in git. | Desktop app, and Chrome or Edge in the browser |
-| **In this browser** | No files on disk. Luvin saves the workspace inside the browser, on this computer. | Any browser |
-
-In the desktop app the workspace always goes into a folder. The first suggestion is `Documents/Luvin`, and Luvin remembers the last folder you used.
-
-<Aside type="caution" title="In this browser is not a folder">
-A workspace saved in the browser cannot be committed to git or opened in a file explorer. If you clear the site data of the browser, it is gone. Choose a folder on disk when you can.
-</Aside>
+A workspace is a folder on disk: real files, `luvin.yaml` and one subfolder per collection. You can open them in any editor and keep them in git. The first suggestion is `Documents/Luvin`, and Luvin remembers the last folder you used.
 
 ## Create a workspace
 
@@ -30,10 +21,7 @@ A workspace saved in the browser cannot be committed to git or opened in a file 
 
 1. On the welcome screen, click **Create a workspace**.
 2. Type the **Workspace name**. The first value is **My workspace**. For example: `Shop tests`.
-3. Choose where to save it.
-   - In the browser with folder access (Chrome or Edge), pick **In a folder on disk** or **In this browser**.
-   - In the desktop app there is nothing to choose: the place comes already filled in.
-4. Read the line **Will be created at**. It shows the full path, for example `/Users/ana/Documents/Luvin/shop-tests`. The last part is the folder name, taken from the name you typed.
+3. Read the line **Will be created at**. It shows the full path, for example `/Users/ana/Documents/Luvin/shop-tests`. The last part is the folder name, taken from the name you typed.
 5. To change it, click **Change location**. Then click **Change…** (or **Choose folder…**) to pick another folder, and edit the **Folder name** if you want.
 6. Click **Create workspace**.
 
@@ -49,22 +37,13 @@ name: Shop tests
 collections: []
 ```
 
-With **In this browser**, the line says **Saved in this browser, with no files on disk.** and there is no path to edit.
 
 ## Open a workspace
 
 <Steps>
 
 1. On the welcome screen, click **Open a workspace**.
-2. Pick the folder, or the saved workspace:
-   <Tabs>
-   <TabItem label="Desktop app">
-   A folder dialog opens. Pick a folder that has a `luvin.yaml`.
-   </TabItem>
-   <TabItem label="Browser">
-   Click **Open a folder on disk** (Chrome and Edge), or click one of the workspaces listed as **In this browser**. If none is saved and the browser cannot open folders, you see **There are no workspaces saved in this browser.**
-   </TabItem>
-   </Tabs>
+2. A folder dialog opens. Pick a folder that has a `luvin.yaml`.
 
 </Steps>
 
@@ -83,8 +62,6 @@ Luvin remembers the last workspace you opened. The welcome screen shows it first
 Luvin remembers only the last one. To go back to an older workspace, use **Open a workspace**.
 </Aside>
 
-In the browser, Chrome or Edge may ask again for permission to the folder. If the permission is not given, Luvin says **The browser did not allow opening that folder. Try again or open it again.**
-
 ## Switch, rename and close
 
 The name of the workspace is at the top left of the window. Click it to open the menu **Workspace options**. Below the name you see where it is.
@@ -92,7 +69,7 @@ The name of the workspace is at the top left of the window. Click it to open the
 | Menu item | What it does |
 |---|---|
 | **Rename workspace** | The name becomes a text box. Type the new name and press Enter. Escape cancels. Only the name in `luvin.yaml` changes. The folder keeps its name. |
-| **Show in Finder** (**Show in file explorer** on Windows and Linux) | Opens the folder in your file manager. <Badge text="Desktop only" variant="caution" /> |
+| **Show in Finder** (**Show in file explorer** on Windows and Linux) | Opens the folder in your file manager. |
 | **Close and switch workspace** | Saves, closes the workspace and goes back to the welcome screen. Open or create another there. |
 | **Delete workspace…** | Deletes the whole workspace. Asks you to confirm. |
 
@@ -108,11 +85,7 @@ The house icon next to the name opens **Home** of the current workspace.
 
 ### What Delete workspace does
 
-| Where it lives | What happens |
-|---|---|
-| Desktop app | The folder goes to the Trash (**Move to Trash**) with all its collections. You can restore it from there. Its secrets on this computer are deleted. |
-| A folder chosen from the browser | The folder is deleted with all its collections and its secrets. This cannot be undone. |
-| In this browser | The collections and secrets are deleted from the browser. This cannot be undone. |
+The folder goes to the Trash (**Move to Trash**) with all its collections. You can restore it from there. Its secrets on this computer are deleted.
 
 ## Related
 

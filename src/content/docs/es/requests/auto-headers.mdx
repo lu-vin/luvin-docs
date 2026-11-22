@@ -38,8 +38,8 @@ La versión de `User-Agent` es la de tu Luvin. Estas filas van encima de las tuy
 
 El valor de `Authorization` va enmascarado: `Bearer ••••••`. Con OAuth 2.0 dice **El token se obtiene al enviar** hasta que Luvin tiene un token. En los tipos que firman el request, como Digest o AWS Signature, muestra `…` y **Luvin la calcula al enviar (Digest)**. Consulta [Autorización](/es/authorization/overview/).
 
-<Aside type="note" title="En el navegador">
-Un navegador no deja que una página fije `User-Agent`, `Accept-Encoding` ni `Connection`. En la versión del navegador, esas filas dicen **Lo pone el navegador**. `Content-Length` y `Host` siempre se calculan al enviar.
+<Aside type="note">
+`Content-Length` y `Host` siempre se calculan al enviar.
 </Aside>
 
 ## Desactiva uno

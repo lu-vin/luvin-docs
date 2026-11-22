@@ -19,11 +19,11 @@ All sections work on the **Pokédex** collection of the workspace **Pokédex (to
 | **Design a workflow** | The cases of **Battle matchup**, after **Type explorer** | **Real API** |
 | **Contracts and environments** | The cases of **Capture order** (PayPal) | **Simulation** |
 | **Requests** | One request to `pokeapi.co` | The real PokéAPI |
-| **Mock servers** | The cases of **Pokemon card** | The mock, in the desktop app. **Simulation**, in the browser |
+| **Mock servers** | The cases of **Pokemon card** | The mock |
 | **Runner and performance** | The workflows of `pokemon.arazzo.yaml`, in the runner | **Simulated** |
 | **History and Dev Tools** | The cases of **Pokemon card** | **Simulation** |
 
-Each step that runs something chooses its mode first, so a section never inherits the mode another one left. The tour leaves the last mode it chose selected: after **Contracts and environments**, **Mock servers** in the browser, **Runner and performance** or **History and Dev Tools**, the switch next to **Run** reads **Simulation**.
+Each step that runs something chooses its mode first, so a section never inherits the mode another one left. The tour leaves the last mode it chose selected: after **Contracts and environments**, **Runner and performance** or **History and Dev Tools**, the switch next to **Run** reads **Simulation**.
 
 ## 1. Workflows
 
@@ -99,10 +99,10 @@ A server that answers with the examples of the contract, and the workflow runnin
 | Step | Card | What the tour does | What it highlights |
 |---|---|---|---|
 | 1 | **A mock server from the contract** | The first time, creates the mock **PokéAPI mock** from `pokeapi.openapi.yaml`. Then switches the sidebar to the **Mock servers** panel and opens it. | The mock and its routes. |
-| 2 | **Running, on your machine** | Desktop app: starts the mock, if it is not running. Browser: nothing. | The mock. |
-| 3 | **The workflow, against the mock** | Desktop app: clicks **Create mock environment**, opens **Pokemon card** on **Cases**, chooses **Real API** and presses **Run**. Browser: opens **Pokemon card** on **Cases**, chooses **Simulation** and presses **Run**. | The results. |
+| 2 | **Running, on your machine** | Starts the mock, if it is not running. | The mock. |
+| 3 | **The workflow, against the mock** | Clicks **Create mock environment**, opens **Pokemon card** on **Cases**, chooses **Real API** and presses **Run**. | The results. |
 
-**What it runs.** In the desktop app, the mock listens on 127.0.0.1, so it only answers on your computer, and the workflow calls it over the network with the environment **Mock · PokéAPI mock**. The browser cannot start a mock, so the cards explain it and the workflow runs in **Simulation**, which also answers with the examples of the contract.
+**What it runs.** The mock listens on 127.0.0.1, so it only answers on your computer, and the workflow calls it over the network with the environment **Mock · PokéAPI mock**.
 
 The next section you start stops the mock and selects your usual environment again. The mock and its environment stay in the workspace.
 

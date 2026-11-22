@@ -1,13 +1,13 @@
 ---
 title: Terminal
-description: Usa tu propia shell dentro de Luvin, en la carpeta de tu workspace o colección. Solo en la app de escritorio.
+description: Usa tu propia shell dentro de Luvin, en la carpeta de tu workspace o colección.
 sidebar:
   order: 4
 ---
 
 import { Badge, Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-La pestaña **Terminal** abre la shell de tu sistema dentro de Luvin, para que ejecutes `git`, `curl` o cualquier comando sin salir de la app. Existe solo en la app de escritorio. En el navegador, la pestaña no está.
+La pestaña **Terminal** abre la shell de tu sistema dentro de Luvin, para que ejecutes `git`, `curl` o cualquier comando sin salir de la app.
 
 ## Ejemplo: ver qué cambió
 
@@ -18,7 +18,6 @@ git status
 git diff pokemon.arazzo.yaml
 ```
 
-<Badge text="Solo escritorio" variant="caution" />
 
 ## Abrir una terminal
 
@@ -47,7 +46,7 @@ La sesión se abre en la carpeta del workspace abierto.
 Dev Tools se abre en la pestaña **Terminal** con una sesión nueva en esa carpeta. El menú **Opciones de las colecciones** de la barra lateral tiene la misma acción para la carpeta del workspace.
 
 <Aside type="note" title="Dónde puede empezar una sesión">
-Una terminal empieza en la carpeta de un workspace de la app de escritorio, o en la carpeta de una colección dentro de él. Para cualquier otro lugar, empieza en tu carpeta personal. La versión de navegador no tiene terminal, y un workspace guardado en el navegador no tiene una carpeta que abrir.
+Una terminal empieza en la carpeta del workspace abierto, o en la carpeta de una colección dentro de él. Para cualquier otro lugar, empieza en tu carpeta personal.
 </Aside>
 
 La shell es la de tu sistema: la de tu variable `SHELL` (`/bin/zsh` si no hay) en macOS y Linux, y PowerShell en Windows. Empieza como shell de inicio de sesión, así que se carga tu perfil y tu prompt de siempre.
@@ -72,7 +71,6 @@ Si la terminal no puede empezar, el panel dice **No se pudo abrir la terminal**,
 
 ## Límites
 
-- **Solo app de escritorio.** No hay terminal en la versión de navegador.
 - **No en la interfaz Simple.** Las acciones **Abrir en terminal** quedan deshabilitadas con **no en modo simple**. Mira [Dev Tools](/es/dev-tools/overview/).
 - **Tus permisos.** Es una shell normal: un comando puede hacer lo que tú puedes hacer. Luvin no limita lo que escribes.
 - **Carpetas.** Solo la carpeta de un workspace, una de sus colecciones o tu carpeta personal. Así la terminal no arranca en otros lugares.

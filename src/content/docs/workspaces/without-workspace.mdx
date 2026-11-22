@@ -25,10 +25,9 @@ The workflows appear in the sidebar. Run **Pokemon card** against the **Real API
 
 On the welcome screen, at the bottom, click **Open files without a workspace**.
 
-- **Desktop app:** a folder dialog opens. Luvin loads every YAML and JSON file in the folder and its subfolders, as one collection.
-- **Browser:** a file picker opens. Pick your OpenAPI or AsyncAPI contracts, your Arazzo files if you have any, and the files their `$ref` point to.
+A folder dialog opens. Luvin loads every YAML and JSON file in the folder and its subfolders, as one collection.
 
-If you closed the welcome screen with **I’ll explore on my own**, the screen **No collection is open** has the same options: **Open folder** (desktop app), **Open files** and **Show the welcome**.
+If you closed the welcome screen with **I’ll explore on my own**, the screen **No collection is open** has the same options: **Open folder** and **Show the welcome**.
 
 You can also drop `.yaml`, `.yml` or `.json` files on the window. The window says **Drop the files to open them.**
 
@@ -43,7 +42,7 @@ The Pokédex and PayPal examples are not a session. They open as collections of 
 | | With a workspace | Without a workspace |
 |---|---|---|
 | Where changes go | Into files, automatically. | Nowhere on disk. The editors show **Not saved**. |
-| Arazzo edits | Saved by the automatic saving. | Saved only when you save the file from the **YAML** tab. The desktop app writes it over its file if you opened a folder, or asks where to save it. The browser downloads it. |
+| Arazzo edits | Saved by the automatic saving. | Saved only when you save the file from the **YAML** tab: Luvin writes it over its file. |
 | Secrets | Stored encrypted on this computer. | Not saved. You type them again. |
 | Several collections | Yes. | One, made of the files you opened. |
 
@@ -67,7 +66,7 @@ The session leaves out:
 - Saved requests, the authorization of workflows, the results of runs and the Dev Tools log.
 
 <Aside type="caution">
-The session lives in the browser or app storage of this computer, not in a folder you can see. If you clear the site data of your browser, it goes away. To keep your work for real, [create a workspace](/workspaces/create-and-open/).
+The session lives in the storage of the app on this computer, not in a folder you can see. To keep your work for real, [create a workspace](/workspaces/create-and-open/).
 </Aside>
 
 ## Continue or discard

@@ -19,11 +19,11 @@ Todas las secciones trabajan sobre la colección **Pokédex** del workspace **Po
 | **Diseñar un workflow** | Los casos de **Battle matchup**, después de **Type explorer** | **API real** |
 | **Contratos y ambientes** | Los casos de **Capture order** (PayPal) | **Simulación** |
 | **Requests** | Un request a `pokeapi.co` | La PokéAPI real |
-| **Mock servers** | Los casos de **Pokemon card** | El mock, en la app de escritorio. **Simulación**, en el navegador |
+| **Mock servers** | Los casos de **Pokemon card** | El mock |
 | **Runner y rendimiento** | Los workflows de `pokemon.arazzo.yaml`, en el runner | **Simulado** |
 | **Historial y Dev Tools** | Los casos de **Pokemon card** | **Simulación** |
 
-Cada paso que ejecuta algo elige antes su modo, así que una sección nunca hereda el modo que dejó otra. El tour deja elegido el último modo que usó: después de **Contratos y ambientes**, **Mock servers** en el navegador, **Runner y rendimiento** o **Historial y Dev Tools**, el selector junto a **Ejecutar** dice **Simulación**.
+Cada paso que ejecuta algo elige antes su modo, así que una sección nunca hereda el modo que dejó otra. El tour deja elegido el último modo que usó: después de **Contratos y ambientes**, **Runner y rendimiento** o **Historial y Dev Tools**, el selector junto a **Ejecutar** dice **Simulación**.
 
 ## 1. Workflows
 
@@ -99,10 +99,10 @@ Un servidor que responde con los ejemplos del contrato, y el workflow corriendo 
 | Paso | Tarjeta | Qué hace el tour | Qué resalta |
 |---|---|---|---|
 | 1 | **Un mock server desde el contrato** | La primera vez, crea el mock **Mock de la PokéAPI** desde `pokeapi.openapi.yaml`. Luego cambia la barra lateral al panel **Mock servers** y lo abre. | El mock y sus rutas. |
-| 2 | **Encendido, en tu equipo** | App de escritorio: enciende el mock, si no está encendido. Navegador: nada. | El mock. |
-| 3 | **El workflow, contra el mock** | App de escritorio: hace clic en **Crear ambiente del mock**, abre **Pokemon card** en **Casos**, elige **API real** y pulsa **Ejecutar**. Navegador: abre **Pokemon card** en **Casos**, elige **Simulación** y pulsa **Ejecutar**. | Los resultados. |
+| 2 | **Encendido, en tu equipo** | Enciende el mock, si no está encendido. | El mock. |
+| 3 | **El workflow, contra el mock** | Hace clic en **Crear ambiente del mock**, abre **Pokemon card** en **Casos**, elige **API real** y pulsa **Ejecutar**. | Los resultados. |
 
-**Qué ejecuta.** En la app de escritorio, el mock escucha en 127.0.0.1, así que solo responde en tu equipo, y el workflow lo llama por la red con el ambiente **Mock · Mock de la PokéAPI**. El navegador no puede encender un mock, así que las tarjetas lo explican y el workflow se ejecuta en **Simulación**, que también responde con los ejemplos del contrato.
+**Qué ejecuta.** El mock escucha en 127.0.0.1, así que solo responde en tu equipo, y el workflow lo llama por la red con el ambiente **Mock · Mock de la PokéAPI**.
 
 La siguiente sección que empieces apaga el mock y vuelve a elegir tu ambiente de siempre. El mock y su ambiente quedan en el workspace.
 

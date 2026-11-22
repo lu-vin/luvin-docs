@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 Un proxy es un servidor por el que pasan tus requests camino a la API. Muchas empresas lo exigen para salir a internet. La sección **Proxy** de **Preferencias** dice qué proxy usa Luvin: el de tu sistema operativo, el de las variables de entorno `HTTP_PROXY`, o uno que escribes tú.
 
-<Aside type="note" title="Solo en la app de escritorio">
-En el navegador, la sección **Proxy** no aparece: los requests usan el proxy del navegador.
-</Aside>
-
 ## Ejemplo: el proxy de la empresa, salvo para los servidores internos
 
 El proxy de tu empresa es `proxy.empresa.com:8080` y pide usuario y contraseña. Los servidores de pruebas de la tienda, bajo `shop.internal`, se tienen que alcanzar directo.

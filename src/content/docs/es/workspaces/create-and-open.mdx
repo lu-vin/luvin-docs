@@ -1,6 +1,6 @@
 ---
 title: Crear y abrir un workspace
-description: Crea un workspace en el disco o en el navegador, abre uno existente, vuelve al último y renómbralo, cámbialo o ciérralo.
+description: Crea un workspace en una carpeta, abre uno existente, vuelve al último y renómbralo, cámbialo o ciérralo.
 sidebar:
   order: 2
 ---
@@ -11,18 +11,9 @@ Cada sesión empieza en la pantalla de bienvenida: creas un workspace, abres uno
 
 ![La pantalla de bienvenida con las opciones para probar el ejemplo, crear un workspace y hacer el tour guiado](/media/es/welcome.webp)
 
-## Dónde puede vivir un workspace
+## Dónde vive un workspace
 
-| Lugar | Qué es | Dónde |
-|---|---|---|
-| **En una carpeta del disco** | Archivos reales: `luvin.yaml` y una subcarpeta por colección. Los abres con cualquier editor y los llevas en git. | App de escritorio, y Chrome o Edge en el navegador |
-| **En este navegador** | Sin archivos en el disco. Luvin guarda el workspace dentro del navegador, en este computador. | Cualquier navegador |
-
-En la app de escritorio el workspace siempre va en una carpeta. La primera sugerencia es `Documentos/Luvin`, y Luvin recuerda la última carpeta que usaste.
-
-<Aside type="caution" title="En este navegador no es una carpeta">
-Un workspace guardado en el navegador no se puede subir a git ni abrir en el explorador de archivos. Si borras los datos del sitio, desaparece. Elige una carpeta del disco cuando puedas.
-</Aside>
+Un workspace es una carpeta del disco: archivos reales, `luvin.yaml` y una subcarpeta por colección. Los abres con cualquier editor y los llevas en git. La primera sugerencia es `Documentos/Luvin`, y Luvin recuerda la última carpeta que usaste.
 
 ## Crear un workspace
 
@@ -30,10 +21,7 @@ Un workspace guardado en el navegador no se puede subir a git ni abrir en el exp
 
 1. En la pantalla de bienvenida, haz clic en **Crear un workspace**.
 2. Escribe el **Nombre del workspace**. El primer valor es **Mi workspace**. Por ejemplo: `Pruebas de la tienda`.
-3. Elige dónde guardarlo.
-   - En el navegador con acceso a carpetas (Chrome o Edge), elige **En una carpeta del disco** o **En este navegador**.
-   - En la app de escritorio no hay nada que elegir: el lugar ya viene completo.
-4. Lee la línea **Se creará en**. Muestra la ruta completa, por ejemplo `/Users/ana/Documents/Luvin/pruebas-de-la-tienda`. La última parte es el nombre de la carpeta, tomado del nombre que escribiste.
+3. Lee la línea **Se creará en**. Muestra la ruta completa, por ejemplo `/Users/ana/Documents/Luvin/pruebas-de-la-tienda`. La última parte es el nombre de la carpeta, tomado del nombre que escribiste.
 5. Para cambiarla, haz clic en **Cambiar ubicación**. Luego haz clic en **Cambiar…** (o **Elegir carpeta…**) para elegir otra carpeta, y edita el **Nombre de la carpeta** si quieres.
 6. Haz clic en **Crear workspace**.
 
@@ -49,22 +37,13 @@ name: Pruebas de la tienda
 collections: []
 ```
 
-Con **En este navegador**, la línea dice **Se guardará en este navegador, sin archivos en disco.** y no hay ruta que editar.
 
 ## Abrir un workspace
 
 <Steps>
 
 1. En la pantalla de bienvenida, haz clic en **Abrir un workspace**.
-2. Elige la carpeta o el workspace guardado:
-   <Tabs>
-   <TabItem label="App de escritorio">
-   Se abre un diálogo de carpetas. Elige una carpeta que tenga un `luvin.yaml`.
-   </TabItem>
-   <TabItem label="Navegador">
-   Haz clic en **Abrir una carpeta del disco** (Chrome y Edge), o en uno de los workspaces marcados **En este navegador**. Si no hay ninguno guardado y el navegador no puede abrir carpetas, ves **No hay workspaces guardados en este navegador.**
-   </TabItem>
-   </Tabs>
+2. Se abre un diálogo de carpetas. Elige una carpeta que tenga un `luvin.yaml`.
 
 </Steps>
 
@@ -83,8 +62,6 @@ Luvin recuerda el último workspace que abriste. La pantalla de bienvenida lo mu
 Luvin recuerda solo el último. Para volver a uno más antiguo, usa **Abrir un workspace**.
 </Aside>
 
-En el navegador, Chrome o Edge pueden pedir de nuevo permiso para la carpeta. Si no lo das, Luvin dice **El navegador no dio permiso para abrir esa carpeta. Vuelve a intentarlo o ábrela de nuevo.**
-
 ## Cambiar, renombrar y cerrar
 
 El nombre del workspace está arriba a la izquierda de la ventana. Haz clic en él para abrir el menú **Opciones del workspace**. Debajo del nombre ves dónde está.
@@ -92,7 +69,7 @@ El nombre del workspace está arriba a la izquierda de la ventana. Haz clic en �
 | Opción del menú | Qué hace |
 |---|---|
 | **Renombrar workspace** | El nombre se vuelve un cuadro de texto. Escribe el nuevo nombre y presiona Enter. Escape cancela. Solo cambia el nombre en `luvin.yaml`. La carpeta conserva su nombre. |
-| **Mostrar en Finder** (**Mostrar en el explorador** en Windows y Linux) | Abre la carpeta en tu explorador de archivos. <Badge text="Solo escritorio" variant="caution" /> |
+| **Mostrar en Finder** (**Mostrar en el explorador** en Windows y Linux) | Abre la carpeta en tu explorador de archivos. |
 | **Cerrar y cambiar de workspace** | Guarda, cierra el workspace y vuelve a la pantalla de bienvenida. Ahí abres o creas otro. |
 | **Eliminar workspace…** | Elimina todo el workspace. Pide confirmación. |
 
@@ -108,11 +85,7 @@ El ícono de casa junto al nombre abre el **Inicio** del workspace actual.
 
 ### Qué hace Eliminar workspace
 
-| Dónde vive | Qué pasa |
-|---|---|
-| App de escritorio | La carpeta va a la Papelera (**Mover a la Papelera**) con todas sus colecciones. Puedes recuperarla desde ahí. Se borran sus secretos de este equipo. |
-| Una carpeta elegida desde el navegador | Se borra la carpeta con todas sus colecciones y sus secretos. No se puede deshacer. |
-| En este navegador | Se borran las colecciones y los secretos del navegador. No se puede deshacer. |
+La carpeta va a la Papelera (**Mover a la Papelera**) con todas sus colecciones. Puedes recuperarla desde ahí. Se borran sus secretos de este equipo.
 
 ## Relacionado
 

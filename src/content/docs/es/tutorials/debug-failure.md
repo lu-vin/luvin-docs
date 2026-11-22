@@ -96,7 +96,7 @@ No toda falla es una respuesta. Si el paso tiene la etiqueta **Red o CORS** y no
 
 1. Haz clic en **Abrir https://… ↗** para probar la dirección en tu navegador. Si no carga, el problema es el servidor o la dirección.
 2. Haz clic en **Revisar ambiente** y comprueba la URL base.
-3. En la versión de navegador, si la dirección carga en otra pestaña, la causa probable es CORS: haz clic en **Copiar headers** y envíalos a quien administra la API. La app de escritorio no tiene la restricción de CORS.
+3. Si la dirección carga pero la ejecución sigue fallando, revisa [Preferencias → Red](/es/get-started/network/): un proxy, un certificado de cliente o el tiempo máximo de espera.
 4. Haz clic en **Probar en simulación** para seguir trabajando mientras se arregla.
 
 Mira [Ayuda de conexión](/es/dev-tools/connection-help/).

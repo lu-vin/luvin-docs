@@ -31,7 +31,7 @@ sidebar:
 | **Virtual user** | In a performance test, a simulated user that repeats the sequence on its own, with its own variables and cookies. The load comes from your computer. See [Performance](/runner/performance/). |
 | **Load profile** | How the number of virtual users changes during a performance test: **Fixed**, **Ramp up**, **Spike** or **Peak**. |
 | **Bottleneck** | The request or workflow step that is clearly slower than the rest in a performance test, by its p95. The result names it after **Slowest:** and marks its row **slowest**. |
-| **Mock server** | A server on your computer that answers like your API, from the contract examples, the saved examples of the requests or routes you write. It starts only in the desktop app. See [Mock servers](/mocks/overview/). |
+| **Mock server** | A server on your computer that answers like your API, from the contract examples, the saved examples of the requests or routes you write. See [Mock servers](/mocks/overview/). |
 | **Pick rule** | What to do when a step returns a list and a later step uses one item, saved in the Arazzo step as `x-luvin-pick`: use the item in the design, pick one at random, a different one each iteration, the one where a field meets a condition, or all of them. With a rule, Luvin does not ask, also in the runner. See [Lists](/test/lists/). |
 | **History** | The requests you sent and the runs of the collection, including runner and performance runs, kept per collection. See [History](/workspaces/history/). |
 

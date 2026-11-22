@@ -1,6 +1,6 @@
 ---
 title: Solución de problemas de autorización
-description: Qué revisar cuando la API responde 401 o 403, un token vence, la ventana de inicio de sesión no se abre o la versión web falla.
+description: Qué revisar cuando la API responde 401 o 403, un token vence, la ventana de inicio de sesión no se abre.
 sidebar:
   order: 31
 ---
@@ -43,16 +43,9 @@ Empieza por mirar qué se envió de verdad: abre **Request enviado** en la respu
 
 ## La ventana de inicio de sesión no se abre
 
-- App de escritorio: **URL de callback** es obligatoria. Sin ella ves *Falta la URL de callback.* Completa también **URL de autorización**.
-- Versión web: ves *El navegador bloqueó la ventana de autorización: permite las ventanas emergentes para esta página.* Permite las ventanas emergentes y pulsa **Obtener token nuevo** otra vez.
+- **URL de callback** es obligatoria. Sin ella ves *Falta la URL de callback.* Completa también **URL de autorización**.
 - Si cerraste la ventana: *Se cerró la ventana de autorización antes de terminar.* Empieza de nuevo.
 - *El proveedor no autorizó:* seguido de un motivo significa que la persona no aprobó, o que el callback o el cliente no coinciden con lo registrado en el proveedor.
-
-## Problemas en la versión web
-
-- **CORS.** El navegador bloquea una llamada cuando la API no permite el origen de la página. Lo mismo vale para la **URL del token**: si el proveedor no permite CORS, el token no se puede pedir desde el navegador. La app de escritorio no tiene ese límite. Mira [Limitaciones](/es/reference/limitations/).
-- **Headers legibles.** **Digest Auth** necesita leer el header `WWW-Authenticate` de la primera respuesta. Un servidor que no lo expone al navegador no sirve con Digest desde el navegador.
-- **NTLM.** Solo escritorio: *NTLM necesita la app de escritorio…*
 
 ## Nada funciona
 

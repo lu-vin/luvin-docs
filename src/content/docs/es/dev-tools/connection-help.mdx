@@ -1,17 +1,17 @@
 ---
 title: Ayuda de conexión
-description: El panel que aparece cuando la API no responde, qué revisa y los headers CORS que te entrega.
+description: El panel que aparece cuando la API no responde, qué revisa y qué puedes hacer después.
 sidebar:
   order: 5
 ---
 
 import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Cuando una ejecución contra la **API real** no recibe respuesta de la API, Luvin muestra un panel llamado **No se pudo conectar con la API**. Te dice qué revisar, en orden, y te da los headers exactos que debes pedirle a quienes administran la API. No tienes que abrirlo: aparece solo sobre los resultados.
+Cuando una ejecución contra la **API real** no recibe respuesta de la API, Luvin muestra un panel llamado **No se pudo conectar con la API**. Te dice qué revisar y qué puedes hacer después. No tienes que abrirlo: aparece solo sobre los resultados.
 
 ## Cuándo aparece
 
-El panel aparece cuando un paso no pudo conectarse: el servidor no respondió, la dirección no existe o el navegador bloqueó la llamada. No aparece cuando la API responde con un error como 401 o 500. Eso son resultados, y los lees en los [resultados](/es/test/results/).
+El panel aparece cuando un paso no pudo conectarse: el servidor no respondió, la dirección no existe o tu equipo no llega a ella. No aparece cuando la API responde con un error como 401 o 500. Eso son resultados, y los lees en los [resultados](/es/test/results/).
 
 La primera línea dice cuántos casos están afectados y qué servidores no respondieron:
 
@@ -21,50 +21,13 @@ La primera línea dice cuántos casos están afectados y qué servidores no resp
 
 Haz clic en la **×** (**Cerrar**) para ocultar el panel.
 
-![El panel "No se pudo llegar a la API", con las cabeceras de CORS que hay que pedir y los botones para probar en simulación o revisar el ambiente](/media/es/connection-help.webp)
+![El panel "No se pudo conectar con la API", con el enlace para abrir la dirección y los botones para probar en simulación o revisar el ambiente](/media/es/connection-help.webp)
 
 ## Qué revisa
 
-El panel es una lista corta. Los ítems que ves dependen de dónde ejecutas Luvin.
-
-| Ítem | App de escritorio | Navegador |
-|---|---|---|
-| **¿La URL es correcta y el servidor está encendido?** | Sí | Sí |
-| **La página es https y la API es http** | No | Solo si corresponde |
-| **¿La API permite llamadas desde esta página (CORS)?** | No | Sí |
-
 ### ¿La URL es correcta y el servidor está encendido?
 
-Abre la dirección en otra pestaña: si no carga, el problema no es Luvin. El panel da un enlace por servidor, **Abrir https://api.shop.test ↗**. Si la dirección está mal, corrígela en el ambiente (mira más abajo).
-
-### La página es https y la API es http
-
-Una página abierta por `https` no puede llamar a una API por `http` simple. El navegador lo bloquea. Usa la API por `https`, o abre Luvin por `http`. La app de escritorio no tiene este límite.
-
-### ¿La API permite llamadas desde esta página (CORS)?
-
-Un navegador solo deja que una página llame a otra dirección si esa dirección lo permite. Ese permiso se llama **CORS**. Cuando la API no lo permite, el navegador bloquea la llamada y Luvin no puede ver por qué, así que informa "sin respuesta".
-
-Si la dirección abre bien en otra pestaña, lo más probable es CORS. El panel muestra los headers con los que debe responder la API, ya completados con la dirección de la página y con tus requests:
-
-```text
-Access-Control-Allow-Origin: http://localhost:5173
-Access-Control-Allow-Methods: GET, POST, OPTIONS
-Access-Control-Allow-Headers: Authorization, Content-Type
-```
-
-| Header | Qué es | De dónde sale el valor |
-|---|---|---|
-| `Access-Control-Allow-Origin` | La dirección que puede llamar a la API. | La dirección donde está abierto Luvin. |
-| `Access-Control-Allow-Methods` | Los métodos HTTP permitidos, siempre con `OPTIONS`. | Los métodos de los requests que fallaron. |
-| `Access-Control-Allow-Headers` | Los headers que envían los requests. | Los headers de los requests que fallaron, salvo los tres que el navegador envía sin pedir permiso: `Accept`, `Accept-Language` y `Content-Language`. Se omite si no hay ninguno. |
-
-<Steps>
-
-1. Haz clic en **Copiar headers**. El botón muestra **✓ Copiado**.
-2. Envíalos a quienes administran la API y pídeles que respondan con esos headers.
-
-</Steps>
+Abre la dirección: si no carga, el problema no es Luvin. El panel da un enlace por servidor, **Abrir https://api.shop.test ↗**. Si la dirección está mal, corrígela en el ambiente (mira más abajo).
 
 ## Qué puedes hacer desde el panel
 
@@ -73,10 +36,10 @@ Access-Control-Allow-Headers: Authorization, Content-Type
 | **Probar en simulación** | Ejecuta de nuevo este workflow en **Simulación**, sin red. Sirve para seguir trabajando mientras arreglan la API. |
 | **Revisar ambiente** | Abre el ambiente activo, para revisar la URL base. |
 
-Al final, el panel te recuerda que puedes copiar un paso como cURL y probarlo en tu terminal, donde CORS no aplica. Mira [Network](/es/dev-tools/network/).
+Al final, el panel te recuerda que puedes copiar un paso como cURL y probarlo en tu terminal, para ver el error tal cual. Mira [Network](/es/dev-tools/network/).
 
-<Aside type="tip" title="La salida fácil">
-La app de escritorio envía los requests ella misma, así que CORS no aplica. Si no puedes cambiar la API, usa la app de escritorio. Mira [Instalar](/es/get-started/install/).
+<Aside type="tip">
+Si a la API solo se llega por un proxy o pide un certificado de cliente, configúralos en [Preferencias → Red](/es/get-started/network/).
 </Aside>
 
 ## Relacionado

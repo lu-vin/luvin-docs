@@ -16,7 +16,7 @@ La Pokédex se abre en modo **API real**. PayPal se abre en **Simulación**, por
 
 ## Pokédex
 
-La Pokédex usa la [PokéAPI](https://pokeapi.co), una API pública de solo lectura. No necesita credenciales y permite llamadas desde el navegador, así que corre de verdad desde el primer minuto. El contrato `pokeapi.openapi.yaml` es una PokéAPI reducida con seis operaciones. El ambiente es `local`, con el servidor del contrato.
+La Pokédex usa la [PokéAPI](https://pokeapi.co), una API pública de solo lectura. No necesita credenciales, así que corre de verdad desde el primer minuto. El contrato `pokeapi.openapi.yaml` es una PokéAPI reducida con seis operaciones. El ambiente es `local`, con el servidor del contrato.
 
 | Workflow | Qué muestra |
 |---|---|

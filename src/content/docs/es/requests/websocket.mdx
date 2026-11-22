@@ -99,7 +99,7 @@ El registro conserva las últimas 1.000 líneas. Vive en memoria: no se guarda c
 
 ## Límites
 
-- **Sin headers propios.** Los navegadores no permiten headers propios en un WebSocket, y Luvin se conecta de la misma forma en la app de escritorio. Pon lo que el servidor necesita en la URL, por ejemplo `wss://api.example.com/stream?token={{token}}`.
+- **Sin headers propios.** Luvin abre la conexión como lo hace un navegador, sin headers propios. Pon lo que el servidor necesita en la URL, por ejemplo `wss://api.example.com/stream?token={{token}}`.
 - **Sin pestaña de autorización.** Por el mismo motivo, envía el token en la URL o en el primer mensaje, como lo espere el servidor.
 - **Sin subprotocolos.** La conexión se abre sin uno.
 - **Mensajes de texto.** Lo que envías se envía como texto. Un mensaje binario que llega se muestra como texto.
