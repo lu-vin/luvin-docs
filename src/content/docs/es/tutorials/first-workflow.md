@@ -65,7 +65,7 @@ La insignia de arriba dice **Obligatorios completos**. Mira [Inputs](/es/test/in
 
 1. Haz clic en la pestaña **Casos**. Luvin generó los casos a partir de tu workflow. **Camino feliz**, la ejecución normal, está marcado.
 2. En la barra de ejecución, elige **Simulación**. La simulación no llama a nada: Luvin responde con los ejemplos escritos en el contrato.
-3. Haz clic en **Ejecutar** (o pulsa ⌘ Enter, Ctrl+Enter en Windows y Linux).
+3. Haz clic en **Ejecutar** (o pulsa ⌘ Enter, Ctrl+Enter en Windows).
 
 Los resultados se abren abajo. El caso termina como **Pasó**, con la etiqueta **Sim**, y cada paso muestra **Exitoso**. Si aparece un diálogo con el título **Ejecución en pausa**, una lista tenía más de un elemento: elige uno y haz clic en **Continuar con este elemento**. Mira [Simulación](/es/test/simulation/).
 
