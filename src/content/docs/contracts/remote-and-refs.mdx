@@ -64,7 +64,7 @@ If the download fails, the row stays ✕ and its tooltip tells why:
 
 | Message | What it means | What to do |
 |---|---|---|
-| *Could not download: the server does not allow CORS or is unreachable. Download it and upload it manually.* | The server did not answer, or it does not allow Luvin to read the file (CORS). | Download the file with your browser and use **Attach**, or import it into the collection. |
+| *Could not download: the server does not allow CORS or is unreachable. Download it and upload it manually.* | The server did not answer, or the address is wrong. | Download the file with your browser and use **Attach**, or import it into the collection. |
 | *Could not download: HTTP 404* (or another code) | The server answered with an error. | Check the address in the workflow file. A `401` or `403` means the server wants credentials: download the file yourself. |
 | *Could not read as YAML or JSON:* and a reason, or *"pokeapi.openapi.yaml" does not look like an OpenAPI document.* | The address answered something that is not a contract of that kind, such as a web page. | Use the address of the raw file. |
 

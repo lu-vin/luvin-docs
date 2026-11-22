@@ -67,7 +67,7 @@ Notes:
 - A **Text** field accepts `{{variables}}` and generators. A **File** field does not.
 - Change **File** back to **Text** and Luvin forgets the chosen file.
 - A **File** row with no file chosen is not sent. Untick a row to leave it out without deleting it. The ✕ (**Remove row**) deletes it.
-- The `Content-Type` of the file comes from its extension: `json`, `xml`, `txt`, `csv`, `html`, `pdf`, `zip`, `png`, `jpg`, `jpeg`, `gif`, `webp` or `svg`. For another extension, the browser version uses the type the browser reports, and the desktop app sends `application/octet-stream`.
+- The `Content-Type` of the file comes from its extension: `json`, `xml`, `txt`, `csv`, `html`, `pdf`, `zip`, `png`, `jpg`, `jpeg`, `gif`, `webp` or `svg`. For another extension, Luvin sends `application/octet-stream`.
 
 ## Send a file as the whole body (File / Binary)
 
@@ -96,25 +96,14 @@ curl -X POST 'https://api.shop.test/avatars' \
   -F 'avatar=@/Users/ana/pics/ana.png'
 ```
 
-In the browser version the path is not known, so the command uses the name of the file: `avatar=@ana.png`. See [Copy as cURL](/requests/curl/).
+See [Copy as cURL](/requests/curl/).
 
-## Desktop app and browser
+## How the file is read
 
-<Tabs>
-  <TabItem label="Desktop app">
+Luvin keeps the path of the file and reads it each time you send. If you edit the file, the next **Send** uses the new content.
 
-  Luvin keeps the path of the file and reads it each time you send. If you edit the file, the next **Send** uses the new content.
-
-  - A file larger than 50 MB is not sent.
-  - Luvin only reads files that you chose with **Choose file**, or that are inside an open workspace.
-
-  </TabItem>
-  <TabItem label="Browser">
-
-  A page cannot read a path again, so the file stays in memory while the app is open. After you reload the page, choose it again.
-
-  </TabItem>
-</Tabs>
+- A file larger than 50 MB is not sent.
+- Luvin only reads files that you chose with **Choose file**, or that are inside an open workspace.
 
 ## When it fails
 
@@ -122,7 +111,7 @@ The response area says why, and nothing is sent.
 
 | Message | What to do |
 |---|---|
-| **Choose “ana.png” again** | Luvin cannot read the file. In the browser, it happens after a reload. In the desktop app, it happens when the request came from another computer or from a teammate: the path was never chosen here. Click **Choose file** and pick it. |
+| **Choose “ana.png” again** | Luvin cannot read the file: the request came from another computer or from a teammate, so the path was never chosen here. Click **Choose file** and pick it. |
 | **“ana.png” is no longer at that location** | The file was moved or deleted. Click **Change file** and pick it. |
 | **“ana.png” is larger than 50 MB** | Use a smaller file. |
 

@@ -44,7 +44,7 @@ If there is no notice and you still get `401`, open the failed step and read wha
 | A request still reaches the real API with a mock environment | Its URL is written in full, without a variable. | Use `{{baseUrl}}` or the contract's base URL in the URL. |
 | *There is no server URL for source "shop". Set it on the parameters screen.* | The base URL of that contract is empty in this environment. | Fill it in **Base URLs**. |
 | **Try it out** says *The environment has no URL for “shop” and the contract defines no servers* | Same cause. | Fill it in, or use **Simulated**. |
-| *Could not connect to the API (…). Check the environment URL and that the server is reachable from this computer.* | The address is wrong, the server is down, or the mock is stopped. | Open the base URL in a browser. In the browser version, **Review environment** in [Connection help](/dev-tools/connection-help/) opens the environment. |
+| *Could not connect to the API (…). Check the environment URL and that the server is reachable from this computer.* | The address is wrong, the server is down, or the mock is stopped. | Open the base URL in a browser. **Review environment** in [Connection help](/dev-tools/connection-help/) opens the environment. |
 
 ## Variables
 
@@ -68,7 +68,7 @@ If there is no notice and you still get `401`, open the failed step and read wha
 | The badge of **Credentials** stays amber in the PayPal example | The workflows get their token from their **Authorization** tab, not from the contract's credential. | Nothing to do. Fill `clientId` and `clientSecret` instead. |
 | Secrets are empty on another computer, or in another clone | Values are stored per computer and per copy of the workspace, never in the files. | Type them in **Secrets**. See [Environment files and teams](/environments/files-and-teams/). |
 | Secrets are empty every time you reopen, in the desktop app | The keychain of the operating system is not available, so Luvin cannot store them. | Make the keychain available, or type them each time. |
-| Secrets are empty every time, in the browser | No workspace is open: an example or loose files keep only the names. | Open or create a workspace. |
+| Secrets are empty every time | No workspace is open: an example or loose files keep only the names. | Open or create a workspace. |
 | A secret shows in clear in results | It has fewer than four characters, or the value was typed in a body or input instead of as `{{name}}`. | Use a longer secret, and write `{{name}}` where it goes. See [Variables and secrets](/environments/variables-and-secrets/). |
 
 ## The environments themselves

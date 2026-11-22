@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 The **Certificates** section of **Preferences** has two parts. **CA certificates** makes Luvin trust servers signed by your company, such as an internal API or a proxy that inspects HTTPS. **Client certificates** lets Luvin prove who you are to APIs that require mutual TLS (mTLS), common in banks and payment providers.
 
-<Aside type="note" title="Desktop app only">
-In the browser, the **Certificates** section does not appear: requests use the certificates of the browser and the operating system.
-</Aside>
-
 ## Example: the staging server of a shop
 
 The staging API of the shop, `https://api.shop.test`, has a certificate signed by the company's own authority and asks every caller for a client certificate. IT gave you three files: `company-ca.pem`, `client.crt` and `client.key`, whose key has a passphrase.

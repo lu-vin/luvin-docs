@@ -25,10 +25,9 @@ Los workflows aparecen en la barra lateral. Ejecuta **Pokemon card** con **API r
 
 En la pantalla de bienvenida, abajo, haz clic en **Abrir archivos sin workspace**.
 
-- **App de escritorio:** se abre un diálogo de carpetas. Luvin carga todos los YAML y JSON de la carpeta y sus subcarpetas, como una sola colección.
-- **Navegador:** se abre un selector de archivos. Elige tus contratos OpenAPI o AsyncAPI, tus Arazzo si ya tienes, y los archivos a los que apuntan sus `$ref`.
+Se abre un diálogo de carpetas. Luvin carga todos los YAML y JSON de la carpeta y sus subcarpetas, como una sola colección.
 
-Si cerraste la bienvenida con **Prefiero explorar por mi cuenta**, la pantalla **No hay ninguna colección abierta** tiene las mismas opciones: **Abrir carpeta** (app de escritorio), **Abrir archivos** y **Ver la bienvenida**.
+Si cerraste la bienvenida con **Prefiero explorar por mi cuenta**, la pantalla **No hay ninguna colección abierta** tiene las mismas opciones: **Abrir carpeta** y **Ver la bienvenida**.
 
 También puedes soltar archivos `.yaml`, `.yml` o `.json` sobre la ventana. La ventana dice **Suelta los archivos para abrirlos.**
 
@@ -43,7 +42,7 @@ Los ejemplos de la Pokédex y de PayPal no son una sesión. Se abren como colecc
 | | Con workspace | Sin workspace |
 |---|---|---|
 | Adónde van los cambios | A archivos, automáticamente. | A ninguna parte del disco. Los editores muestran **Sin guardar**. |
-| Ediciones del Arazzo | Las guarda el guardado automático. | Solo se guardan cuando guardas el archivo desde la pestaña **YAML**. La app de escritorio lo escribe sobre su archivo si abriste una carpeta, o te pregunta dónde guardarlo. El navegador lo descarga. |
+| Ediciones del Arazzo | Las guarda el guardado automático. | Solo se guardan cuando guardas el archivo desde la pestaña **YAML**: Luvin lo escribe sobre su archivo. |
 | Secretos | Se guardan cifrados en este equipo. | No se guardan. Los escribes de nuevo. |
 | Varias colecciones | Sí. | Una, formada por los archivos que abriste. |
 
@@ -67,7 +66,7 @@ La sesión deja fuera:
 - Los requests guardados, la autorización de los workflows, los resultados de las ejecuciones y el registro de Dev Tools.
 
 <Aside type="caution">
-La sesión vive en el almacenamiento del navegador o de la app de este computador, no en una carpeta que puedas ver. Si borras los datos del sitio en tu navegador, desaparece. Para conservar tu trabajo de verdad, [crea un workspace](/es/workspaces/create-and-open/).
+La sesión vive en el almacenamiento de la app en este computador, no en una carpeta que puedas ver. Para conservar tu trabajo de verdad, [crea un workspace](/es/workspaces/create-and-open/).
 </Aside>
 
 ## Continuar o descartar

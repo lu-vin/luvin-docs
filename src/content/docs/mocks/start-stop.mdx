@@ -96,7 +96,6 @@ After a reload, Luvin also stops any mock that was left running, so none answers
 
 | What you see | Why, and what to do |
 |---|---|
-| **Start** is disabled. | You are in the browser version. Open the collection in the desktop app. |
 | Calls to `http://localhost:4010` fail, but `http://127.0.0.1:4010` works. | The mock listens only on `127.0.0.1`, and on some systems `localhost` goes to the IPv6 address. Use the URL that **Copy URL** gives. |
 | Your requests still go to the old port. | The mock environment keeps the old URL. Press **Update environment**. |
 | The mock stopped while you were working. | You changed collection, reloaded or quit. Start it again. |

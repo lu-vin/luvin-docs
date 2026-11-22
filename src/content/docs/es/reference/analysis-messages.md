@@ -78,7 +78,6 @@ Cada mensaje tiene un nivel.
 | **El contrato exige el parámetro query "x" y el paso no lo envía.** | Advertencia | Agrega el parámetro. Mira [Parámetros y body](/es/design/parameters-and-body/). |
 | **El contrato exige un body y el paso no define requestBody.** | Advertencia | Agrega un body. |
 | **Un parámetro "in: querystring" no puede combinarse con parámetros "in: query" en la misma operación.** | Advertencia | Deja solo un tipo. |
-| **Este paso envía cookies: la app de escritorio las envía, pero el navegador no lo permite y ahí se omiten.** | Info | Usa la app de escritorio para ejecutarlo. |
 
 ### Criterios, errores y dependencias
 

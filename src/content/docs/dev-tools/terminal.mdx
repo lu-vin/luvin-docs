@@ -1,13 +1,13 @@
 ---
 title: Terminal
-description: Use your own shell inside Luvin, in the folder of your workspace or collection. Desktop app only.
+description: Use your own shell inside Luvin, in the folder of your workspace or collection.
 sidebar:
   order: 4
 ---
 
 import { Badge, Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The **Terminal** tab opens your system shell inside Luvin, so you can run `git`, `curl` or any command without leaving the app. It exists only in the desktop app. In the browser, the tab is not there.
+The **Terminal** tab opens your system shell inside Luvin, so you can run `git`, `curl` or any command without leaving the app.
 
 ## Example: see what changed
 
@@ -18,7 +18,6 @@ git status
 git diff pokemon.arazzo.yaml
 ```
 
-<Badge text="Desktop only" variant="caution" />
 
 ## Open a terminal
 
@@ -47,7 +46,7 @@ The session opens in the folder of the open workspace.
 Dev Tools opens on the **Terminal** tab with a new session in that folder. The menu **Collection options** of the sidebar has the same action for the workspace folder.
 
 <Aside type="note" title="Where a session can start">
-A terminal starts in the folder of a workspace of the desktop app, or in a collection folder inside it. For any other place, it starts in your home folder. The browser version has no terminal, and a workspace saved in the browser has no folder to open.
+A terminal starts in the folder of the open workspace, or in a collection folder inside it. For any other place, it starts in your home folder.
 </Aside>
 
 The shell is the one of your system: the one in your `SHELL` variable (`/bin/zsh` if there is none) on macOS and Linux, and PowerShell on Windows. It starts as a login shell, so your usual profile and prompt load.
@@ -72,7 +71,6 @@ If the terminal cannot start, the panel says **Couldn’t open the terminal**, s
 
 ## Limits
 
-- **Desktop app only.** There is no terminal in the browser version.
 - **Not in the Simple interface.** The **Open in Terminal** actions are disabled with **not in simple mode**. See [Dev Tools](/dev-tools/overview/).
 - **Your permissions.** It is a normal shell: a command can do what you can do. Luvin does not limit what you type.
 - **Folders.** Only a workspace folder, one of its collections, or your home folder. This keeps the terminal away from other places when it opens.

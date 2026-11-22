@@ -1,6 +1,6 @@
 ---
 title: Authorization troubleshooting
-description: What to check when the API answers 401 or 403, a token expires, the sign-in window does not open or the browser version fails.
+description: What to check when the API answers 401 or 403, a token expires or the sign-in window does not open.
 sidebar:
   order: 31
 ---
@@ -43,16 +43,9 @@ Start by looking at what was really sent: open **Sent request** in the response 
 
 ## The sign-in window does not open
 
-- Desktop app: **Callback URL** is required. Without it you see *The callback URL is missing.* Fill in **Authorization URL** too.
-- Browser version: you see *The browser blocked the authorization window: allow pop-ups for this page.* Allow pop-ups for the page and press **Get new token** again.
+- **Callback URL** is required. Without it you see *The callback URL is missing.* Fill in **Authorization URL** too.
 - If you closed the window: *The authorization window was closed before finishing.* Start again.
 - *The provider didn’t authorize:* followed by a reason means the person did not approve, or the callback or client does not match what is registered with the provider.
-
-## Problems in the browser version
-
-- **CORS.** The browser blocks a call when the API does not allow the origin of the page. The same applies to the **Access token URL**: if the provider does not allow CORS, the token cannot be requested from the browser. The desktop app has no such limit. See [Limitations](/reference/limitations/).
-- **Readable headers.** **Digest Auth** needs to read the `WWW-Authenticate` header of the first answer. A server that does not expose it to the browser cannot be used with Digest from the browser.
-- **NTLM.** Desktop only: *NTLM needs the desktop app…*
 
 ## Nothing helps
 

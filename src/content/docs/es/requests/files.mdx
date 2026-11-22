@@ -133,7 +133,7 @@ body:
         contentType: image/png
 ```
 
-En la versión de navegador un archivo no tiene ruta en el disco, así que `path` se guarda vacío y Luvin te pide elegir el archivo otra vez. Mira [Body](/es/requests/params-headers-body/).
+Si el archivo ya no está en esa ruta (por ejemplo, en el equipo de un compañero), Luvin te pide elegirlo otra vez. Mira [Body](/es/requests/params-headers-body/).
 
 ## Ejemplos guardados
 
@@ -172,7 +172,7 @@ Algunos campos del bloque `auth` son secretos: `token`, `password`, `value` (de 
 | Escribes en el campo | En el archivo | Dónde queda el valor |
 |---|---|---|
 | `{{token}}` (una variable) | `token: "{{token}}"` | En tu ambiente. |
-| `s3cr3t` (tal cual) | La clave se omite | Cifrado en este equipo. La app de escritorio usa el llavero del sistema operativo; la versión de navegador lo cifra en el navegador. |
+| `s3cr3t` (tal cual) | La clave se omite | Cifrado en este equipo, con el llavero del sistema operativo. |
 
 Por ejemplo, un request con Basic Auth y la contraseña escrita tal cual se guarda solo con el usuario:
 

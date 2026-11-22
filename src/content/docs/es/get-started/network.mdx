@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 Los ajustes de red dicen cómo envía Luvin los requests: cuánto espera, qué tan grande puede ser una respuesta, en qué certificados confía, si sigue las redirecciones y por qué proxy sale. Cámbialos cuando tu empresa usa un proxy, cuando una API pide un certificado de cliente (mTLS), cuando un servidor de pruebas tiene un certificado autofirmado, o cuando una API es lenta o responde con un archivo grande.
 
-<Aside type="note" title="Solo en la app de escritorio">
-Todo lo de esta página vale para la app de escritorio, salvo **Cookies automáticas**. En el navegador, los requests salen con la configuración del navegador: el grupo **Requests** dice *Solo en la app de escritorio: en el navegador los requests salen con la configuración del navegador.*, sus opciones quedan desactivadas, y **Certificados** y **Proxy** no aparecen.
-</Aside>
-
 ## Dónde están
 
 Todos están en **Preferencias**. Ábrelas con el ícono de engranaje, abajo a la izquierda, o con ⌘, (Ctrl+,). Mira [Preferencias](/es/get-started/preferences/).

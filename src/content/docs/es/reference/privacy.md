@@ -7,10 +7,10 @@ sidebar:
 
 Luvin corre en tu equipo. Esta página dice dónde vive cada tipo de dato y qué lo protege.
 
-- Todo corre **en tu equipo**, en el navegador o en la app de escritorio. No hay backend ni cuenta.
-- **Los secretos nunca van a los archivos del workspace.** Los archivos de ambiente solo guardan los nombres de los secretos. Los valores quedan **cifrados en este equipo**: con el llavero del sistema operativo en la app de escritorio y con WebCrypto en el navegador.
+- Todo corre **en tu equipo**. No hay backend ni cuenta.
+- **Los secretos nunca van a los archivos del workspace.** Los archivos de ambiente solo guardan los nombres de los secretos. Los valores quedan **cifrados en este equipo**: con el llavero del sistema operativo.
 - Los tokens, contraseñas y API keys van **tapados** en resultados, reportes, exportaciones, Dev Tools y cada cURL.
-- La app de escritorio solo lee y escribe dentro de las carpetas que elegiste, y su interfaz no tiene acceso directo al sistema de archivos. La terminal abre tu propio shell, solo en una carpeta del workspace o en tu carpeta personal.
+- Luvin solo lee y escribe dentro de las carpetas que elegiste, y su interfaz no tiene acceso directo al sistema de archivos. La terminal abre tu propio shell, solo en una carpeta del workspace o en tu carpeta personal.
 - Sin workspace, la sesión guardada deja fuera las credenciales y cualquier input cuyo nombre parezca sensible (`token`, `password`, `secret`…).
 - **El historial queda en este equipo**, en el almacenamiento de la app (IndexedDB), nunca en los archivos del workspace. Los secretos del ambiente, las credenciales y los valores que un request guarda como secretos van tapados en él. Puedes apagarlo en **Preferencias**. Mira [Historial](/es/workspaces/history/).
 - **Los mock servers escuchan solo en `127.0.0.1`.** Los demás equipos no pueden llegar a ellos. Desde un navegador, solo una página servida desde `localhost` o `127.0.0.1` puede leer sus respuestas, y una llamada que usa cualquier otro nombre de host recibe `403`. Mira [Rutas y respuestas](/es/mocks/routes/).
@@ -19,10 +19,10 @@ Luvin corre en tu equipo. Esta página dice dónde vive cada tipo de dato y qué
 
 | Dato | Dónde | ¿En los archivos? |
 |---|---|---|
-| Contratos, archivos Arazzo, casos, requests | La carpeta del workspace (o este navegador, en un workspace guardado en el navegador). | Sí. |
+| Contratos, archivos Arazzo, casos, requests | La carpeta del workspace. | Sí. |
 | Nombres de secretos, URLs base, variables | `environments/*.yaml`. | Sí. |
 | Valores de secretos y credenciales | Cifrados en este equipo. | No. |
-| La sesión sin workspace | El almacenamiento del navegador o de la app, en este equipo. | No. |
+| La sesión sin workspace | El almacenamiento de la app, en este equipo. | No. |
 | Preferencias como el tema, la interfaz y el tamaño de los paneles | Este equipo. | No. |
 | Historial de requests y ejecuciones, con los secretos tapados | Este equipo, en el almacenamiento de la app (IndexedDB). | No. |
 | Mock servers: nombre, puerto, fuente y rutas propias | `mocks/*.mock.yaml`. | Sí. |

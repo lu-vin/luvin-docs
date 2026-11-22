@@ -7,9 +7,7 @@ sidebar:
 
 import { Aside, Badge } from '@astrojs/starlight/components';
 
-<Badge text="Desktop only" variant="caution" />
-
-Use **NTLM Auth** when a Windows or intranet server (for example IIS with Windows authentication) asks for NTLM. The handshake has three messages and they must travel on the same connection. Browsers do not allow that, so only the desktop app can do it.
+Use **NTLM Auth** when a Windows or intranet server (for example IIS with Windows authentication) asks for NTLM. The handshake has three messages and they travel on the same connection.
 
 ## Example
 
@@ -28,7 +26,6 @@ A request `GET https://intranet.example.com/api/orders` to a server that answers
 
 ## Limits
 
-- **Desktop app only.** In the browser version the option reads *NTLM Auth · desktop only*, and sending shows *NTLM needs the desktop app: the handshake must happen on one connection, which browsers don’t allow.*
 - It is NTLM version 2.
 - It works in requests, in the collection and in a workflow, always from the desktop app.
 

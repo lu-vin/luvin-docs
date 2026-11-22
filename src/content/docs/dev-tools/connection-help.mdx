@@ -1,17 +1,17 @@
 ---
 title: Connection help
-description: The panel that appears when the API does not answer, what it checks and the CORS headers it gives you.
+description: The panel that appears when the API does not answer, what it checks and what you can do next.
 sidebar:
   order: 5
 ---
 
 import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-When a run against the **Real API** gets no answer from the API, Luvin shows a panel called **Could not reach the API**. It tells you what to check, in order, and gives you the exact headers to ask the API owners for. You do not have to open it: it appears by itself above the results.
+When a run against the **Real API** gets no answer from the API, Luvin shows a panel called **Could not reach the API**. It tells you what to check and what you can do next. You do not have to open it: it appears by itself above the results.
 
 ## When it appears
 
-The panel appears when a step could not connect: the server did not answer, the address does not exist, or the browser blocked the call. It does not appear when the API answers with an error such as 401 or 500. Those are results, and you read them in the [results](/test/results/).
+The panel appears when a step could not connect: the server did not answer, the address does not exist, or your computer cannot reach it. It does not appear when the API answers with an error such as 401 or 500. Those are results, and you read them in the [results](/test/results/).
 
 The first line says how many cases are affected and which servers did not answer:
 
@@ -21,50 +21,13 @@ The first line says how many cases are affected and which servers did not answer
 
 Click **×** (**Close**) to hide the panel.
 
-![The "Could not reach the API" panel, with the CORS headers to ask for and the buttons to try in simulation or review the environment](/media/en/connection-help.webp)
+![The "Could not reach the API" panel, with the link to open the address and the buttons to try in simulation or review the environment](/media/en/connection-help.webp)
 
 ## What it checks
 
-The panel is a short list. Which items you see depend on where you run Luvin.
-
-| Item | Desktop app | Browser |
-|---|---|---|
-| **Is the URL right and the server up?** | Yes | Yes |
-| **The page is https and the API is http** | No | Only if it applies |
-| **Does the API allow calls from this page (CORS)?** | No | Yes |
-
 ### Is the URL right and the server up?
 
-Open the address in another tab: if it does not load, the problem is not Luvin. The panel gives one link per server, **Open https://api.shop.test ↗**. If the address is wrong, fix it in the environment (see below).
-
-### The page is https and the API is http
-
-A page opened over `https` cannot call an API over plain `http`. The browser blocks it. Use the API over `https`, or open Luvin over `http`. The desktop app has no such limit.
-
-### Does the API allow calls from this page (CORS)?
-
-A browser only lets a page call another address if that address allows it. That permission is called **CORS**. When the API does not allow it, the browser blocks the call and Luvin cannot see why, so it reports "no response".
-
-If the address opens fine in another tab, the cause is most likely CORS. The panel shows the headers that the API must answer with, already filled in with the address of the page and your requests:
-
-```text
-Access-Control-Allow-Origin: http://localhost:5173
-Access-Control-Allow-Methods: GET, POST, OPTIONS
-Access-Control-Allow-Headers: Authorization, Content-Type
-```
-
-| Header | What it is | Where the value comes from |
-|---|---|---|
-| `Access-Control-Allow-Origin` | The address allowed to call the API. | The address where Luvin is open. |
-| `Access-Control-Allow-Methods` | The HTTP methods allowed, always with `OPTIONS`. | The methods of the requests that failed. |
-| `Access-Control-Allow-Headers` | The headers the requests send. | The headers of the failed requests, except the three the browser sends without asking: `Accept`, `Accept-Language` and `Content-Language`. Left out when there are none. |
-
-<Steps>
-
-1. Click **Copy headers**. The button shows **✓ Copied**.
-2. Send them to the people who run the API, and ask them to answer with those headers.
-
-</Steps>
+Open the address: if it does not load, the problem is not Luvin. The panel gives one link per server, **Open https://api.shop.test ↗**. If the address is wrong, fix it in the environment (see below).
 
 ## What you can do from the panel
 
@@ -73,10 +36,10 @@ Access-Control-Allow-Headers: Authorization, Content-Type
 | **Try in simulation** | Runs this workflow again in **Simulation**, with no network. Use it to keep working while the API is fixed. |
 | **Review environment** | Opens the active environment, to check the base URL. |
 
-At the bottom, the panel reminds you that you can copy a step as cURL and try it in your terminal, where CORS does not apply. See [Network](/dev-tools/network/).
+At the bottom, the panel reminds you that you can copy a step as cURL and try it in your terminal, to see the raw error. See [Network](/dev-tools/network/).
 
-<Aside type="tip" title="The easy way out">
-The desktop app sends the requests itself, so CORS does not apply. If you cannot change the API, use the desktop app. See [Install](/get-started/install/).
+<Aside type="tip">
+If the API is only reachable through a proxy or asks for a client certificate, set them in [Preferences → Network](/get-started/network/).
 </Aside>
 
 ## Related

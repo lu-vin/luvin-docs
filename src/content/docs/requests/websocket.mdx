@@ -99,7 +99,7 @@ The log keeps the latest 1,000 lines. It lives in memory: it is not saved with t
 
 ## Limits
 
-- **No custom headers.** Browsers do not allow custom headers on a WebSocket, and Luvin connects the same way in the desktop app. Put what the server needs in the URL, for example `wss://api.example.com/stream?token={{token}}`.
+- **No custom headers.** Luvin opens the connection like a browser does, without custom headers. Put what the server needs in the URL, for example `wss://api.example.com/stream?token={{token}}`.
 - **No Authorization tab.** For the same reason, send the token in the URL or in the first message, as the server expects.
 - **No subprotocols.** The connection is opened without one.
 - **Text messages.** What you send is sent as text. A binary message that arrives is shown as text.

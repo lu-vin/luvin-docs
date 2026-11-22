@@ -53,10 +53,6 @@ El segundo request lleva `username`, `realm`, `nonce`, `uri`, `qop`, `nc`, `cnon
 - Cuando el servidor ofrece varias opciones de `qop`, Luvin prefiere `auth` y luego `auth-int`.
 - Funciona en requests, en la colección y en un workflow.
 
-<Aside type="caution" title="En la versión web">
-Luvin tiene que leer el header `WWW-Authenticate` de la primera respuesta. Un servidor que no permite que el navegador lo lea (CORS) no sirve con Digest desde el navegador. La app de escritorio no tiene ese límite.
-</Aside>
-
 ## Secretos
 
 **Contraseña** es un secreto: escrita tal cual se guarda cifrada en tu equipo. **Usuario** va al archivo. Mira [Secretos](/es/authorization/secrets/).

@@ -44,7 +44,7 @@ Si no hay aviso y aun así recibes `401`, abre el paso que falló y lee lo que s
 | Un request sigue llegando a la API real con un ambiente de mock | Su URL está escrita completa, sin variable. | Usa `{{baseUrl}}` o la URL base del contrato en la URL. |
 | *No hay URL de servidor para la fuente "shop". Defínela en la pantalla de parámetros.* | La URL base de ese contrato está vacía en este ambiente. | Complétala en **URLs base**. |
 | **Try it out** dice *El ambiente no tiene URL para «shop» ni el contrato define servers* | La misma causa. | Complétala, o usa **Simulado**. |
-| *No se pudo conectar con la API (…). Verifica la URL del ambiente y que el servidor sea accesible desde este equipo.* | La dirección está mal, el servidor está caído o el mock está apagado. | Abre la URL base en un navegador. En la versión de navegador, **Revisar ambiente** en la [Ayuda de conexión](/es/dev-tools/connection-help/) abre el ambiente. |
+| *No se pudo conectar con la API (…). Verifica la URL del ambiente y que el servidor sea accesible desde este equipo.* | La dirección está mal, el servidor está caído o el mock está apagado. | Abre la URL base en un navegador. **Revisar ambiente** en la [Ayuda de conexión](/es/dev-tools/connection-help/) abre el ambiente. |
 
 ## Variables
 
@@ -68,7 +68,7 @@ Si no hay aviso y aun así recibes `401`, abre el paso que falló y lee lo que s
 | La etiqueta de **Credenciales** sigue en ámbar en el ejemplo de PayPal | Los workflows sacan su token de su pestaña **Autorización**, no de la credencial del contrato. | No hay nada que hacer. Completa `clientId` y `clientSecret`. |
 | Los secretos están vacíos en otro equipo, o en otro clon | Los valores se guardan por equipo y por copia del workspace, nunca en los archivos. | Escríbelos en **Secretos**. Mira [Archivos de ambiente y equipos](/es/environments/files-and-teams/). |
 | Los secretos quedan vacíos cada vez que vuelves a abrir, en la app de escritorio | El llavero del sistema operativo no está disponible, así que Luvin no puede guardarlos. | Haz que el llavero esté disponible, o escríbelos cada vez. |
-| Los secretos quedan vacíos cada vez, en el navegador | No hay un workspace abierto: un ejemplo o archivos sueltos guardan solo los nombres. | Abre o crea un workspace. |
+| Los secretos quedan vacíos cada vez | No hay un workspace abierto: un ejemplo o archivos sueltos guardan solo los nombres. | Abre o crea un workspace. |
 | Un secreto aparece en claro en los resultados | Tiene menos de cuatro caracteres, o el valor se escribió en un body o un input en vez de como `{{nombre}}`. | Usa un secreto más largo, y escribe `{{nombre}}` donde va. Mira [Variables y secretos](/es/environments/variables-and-secrets/). |
 
 ## Los ambientes mismos

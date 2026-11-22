@@ -96,7 +96,7 @@ Not every failure is an answer. If the step has **Network or CORS** as its label
 
 1. Click **Open https://… ↗** to try the address in your browser. If it does not load, the problem is the server or the address.
 2. Click **Review environment** and check the base URL.
-3. In the browser version, if the address loads in another tab, the cause is probably CORS: click **Copy headers** and send them to whoever runs the API. The desktop app has no CORS restriction.
+3. If the address loads but the run still fails, check [Preferences → Network](/get-started/network/): a proxy, a client certificate or the request timeout.
 4. Click **Try in simulation** to keep working while it is fixed.
 
 See [Connection help](/dev-tools/connection-help/).

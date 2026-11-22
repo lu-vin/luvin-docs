@@ -38,8 +38,8 @@ The version in `User-Agent` is the version of your Luvin. These rows sit above y
 
 The value of `Authorization` is masked: `Bearer ••••••`. For OAuth 2.0 it says **Token is fetched when sending** until Luvin has a token. For types that sign the request, such as Digest or AWS Signature, it shows `…` and **Luvin calculates it when sending (Digest)**. See [Authorization](/authorization/overview/).
 
-<Aside type="note" title="In the browser">
-A browser does not let a page set `User-Agent`, `Accept-Encoding` or `Connection`. In the browser version, those rows say **Set by the browser**. `Content-Length` and `Host` are always calculated when sending.
+<Aside type="note">
+`Content-Length` and `Host` are always calculated when sending.
 </Aside>
 
 ## Turn one off

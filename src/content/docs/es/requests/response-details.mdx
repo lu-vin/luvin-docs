@@ -30,7 +30,7 @@ El resto de la página explica cada parte.
 |---|---|
 | **Todavía no hay respuesta** | Aún no enviaste el request. Pulsa **Enviar** (⌘/Ctrl + Enter). |
 | **Enviando…** con un indicador de carga | El request va en camino. |
-| **No se pudo completar el request** | La API no respondió, y debajo va el motivo. En la versión del navegador, la API debe permitir CORS. La app de escritorio no tiene esa limitación. |
+| **No se pudo completar el request** | La API no respondió, y debajo va el motivo. |
 
 Cuando una llamada falla así, un desplegable **Request enviado** bajo el mensaje muestra la URL y los headers que se enviaron. Mira [Ayuda de conexión](/es/dev-tools/connection-help/).
 
@@ -66,7 +66,6 @@ Unas notas bajo las fases te avisan cuando corresponden:
 
 - **Conexión reutilizada: esta vez no hubo DNS, TCP ni SSL.** El request usó una conexión que ya estaba abierta, así que esas fases valen 0.
 - **Siguió N redirección(es); los tiempos son de la última.**
-- En el navegador, un servidor puede no compartir sus tiempos detallados con la página (`Timing-Allow-Origin`). La tarjeta lo dice. La app de escritorio mide cada fase.
 
 Si Luvin no tiene las fases, solo ves el tiempo total.
 

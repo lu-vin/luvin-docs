@@ -76,7 +76,6 @@ Luvin is for designing, debugging and demonstrating processes that span several 
 <Aside type="caution" title="Know these limits before you plan a test">
 - **A pass in Simulation is not a pass against your API.** Simulation answers with the contract's examples. To prove the API, run with **Real API**.
 - **Messaging steps are always simulated.** AsyncAPI `send` and `receive` steps answer from the contract, even when you run against the real API. Luvin does not connect to Kafka, AMQP or MQTT yet, so it cannot prove an asynchronous integration end to end.
-- **In the browser, the API must allow CORS.** The desktop app has no such limit and adds gRPC and NTLM.
 
 See every [known limitation](/reference/limitations/).
 </Aside>

@@ -37,7 +37,7 @@ What Luvin does for you:
 
 - **The server comes from the active environment.** The base URL of the environment is the first one in **Servers**, labelled *“name” environment (Luvin)*. Change the active environment and the call goes to another server.
 - **The credentials come from the environment too.** For the API key, bearer and basic schemes of the contract, Luvin fills Swagger UI's **Authorize** with the values you set in the environment, so you do not type them. See [Variables and secrets](/environments/variables-and-secrets/).
-- **The call goes out from Luvin, not from the preview.** In the desktop app there is no CORS restriction. In the browser version the API must allow CORS.
+- **The call goes out from Luvin, not from the preview.** It uses the proxy and certificates of [Preferences → Network](/get-started/network/).
 - **Secrets are hidden.** The cURL command that Swagger UI shows hides the values of the environment secrets with `••••`.
 
 This call is always against the real API. Nothing is simulated here.

@@ -76,7 +76,6 @@ Luvin sirve para diseñar, depurar y demostrar procesos que pasan por varias API
 <Aside type="caution" title="Conoce estos límites antes de planear una prueba">
 - **Pasar en Simulación no es pasar contra tu API.** La simulación responde con los ejemplos del contrato. Para probar la API, ejecuta con **API real**.
 - **Los pasos de mensajería siempre se simulan.** Los pasos `send` y `receive` de AsyncAPI responden desde el contrato, incluso cuando ejecutas contra la API real. Luvin todavía no se conecta a Kafka, AMQP ni MQTT, así que no puede demostrar una integración asíncrona de punta a punta.
-- **En el navegador, la API tiene que permitir CORS.** La app de escritorio no tiene ese límite y suma gRPC y NTLM.
 
 Consulta todas las [limitaciones conocidas](/es/reference/limitations/).
 </Aside>

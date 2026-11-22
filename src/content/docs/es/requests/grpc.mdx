@@ -9,10 +9,6 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 Un request gRPC llama a un método de un servicio gRPC. Le das a Luvin el archivo `.proto` que describe el servicio, eliges el método y escribes el mensaje como JSON.
 
-:::caution[Solo en la app de escritorio]
-Los navegadores no pueden abrir conexiones gRPC. En la versión de navegador, la opción **gRPC** está marcada como **Solo escritorio**, y un request gRPC muestra *gRPC necesita la app de escritorio*. Abre el workspace en la app de escritorio para llamar al servicio.
-:::
-
 ## Ejemplo
 
 Una llamada al método `SayHello` del servicio `helloworld.Greeter`, con el mensaje `{"name": "Ana"}` y un token como metadata, se guarda así:

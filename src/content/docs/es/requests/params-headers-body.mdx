@@ -55,13 +55,13 @@ Luvin agrega algunos headers por sí mismo. Aparecen arriba de la tabla como fil
 | Header | Valor | Notas |
 |---|---|---|
 | `Cache-Control` | `no-cache` | Desmárcalo para dejar de enviarlo. |
-| `User-Agent` | `Luvin/<versión>` | Solo en la app de escritorio. En el navegador lo pone el navegador. |
+| `User-Agent` | `Luvin/<versión>` | |
 | `Content-Type` | Depende del tipo de body | Se agrega cuando el request tiene body. |
 | `Content-Length` | Se calcula al enviar | Solo con body. |
 | `Host` | Sale de la URL | Se calcula al enviar. |
 | `Accept` | `*/*` | |
-| `Accept-Encoding` | `gzip, deflate, br` | Solo en la app de escritorio. |
-| `Connection` | `keep-alive` | Solo en la app de escritorio. |
+| `Accept-Encoding` | `gzip, deflate, br` | |
+| `Connection` | `keep-alive` | |
 | `Authorization` | De la pestaña **Autorización**, o heredado de la colección | El valor se muestra tapado. |
 | `Cookie` | Del almacén de cookies, para ese dominio | Desmárcalo para dejar de enviarlo. |
 
@@ -91,7 +91,6 @@ Con GET o HEAD no se envía body. Cambia el método a POST, PUT, PATCH o DELETE 
 Sobre los archivos:
 
 - En la app de escritorio, Luvin recuerda la ruta y lee el archivo cuando envías. Un archivo de más de 50 MB no se envía.
-- En la versión de navegador, el archivo se conserva solo mientras la app está abierta. Después de recargar, Luvin te pide que lo elijas de nuevo.
 
 Para subir un archivo, mira [Envía un archivo](/es/requests/send-files/).
 

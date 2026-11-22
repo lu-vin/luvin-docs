@@ -81,7 +81,6 @@ Si `pokeapi` hubiera mostrado ✕, el problema habría estado en el archivo, no 
 | Un paso termina **Exitoso con advertencias**, *Respuesta fuera de contrato* | La respuesta difiere del schema. | Lee la pestaña **Contrato** del paso. Mira [¿La respuesta cumple el contrato?](/es/contracts/response-check/) |
 | *El código N no está documentado en el contrato de …* | La API respondió un status que la operación no lista. | Documéntalo, con su schema y un ejemplo. |
 | *No se pudo validar contra el schema del contrato:* | Faltan archivos que el schema referencia, o el schema tiene algo que Luvin no puede compilar. | Agrega los archivos `$ref` que faltan y después revisa el schema. |
-| **Try it out** falla en la versión de navegador | La API no permite CORS. | Usa la app de escritorio, o permite el origen de Luvin en la API. Mira [Solución de problemas](/es/get-started/troubleshooting/). |
 
 ## Simulación y mocks
 

@@ -81,7 +81,6 @@ If `pokeapi` had shown ✕, the problem would have been the file, not the operat
 | A step ends **Succeeded with warnings**, *Response out of contract* | The response differs from the schema. | Read the **Contract** tab of the step. See [Does the response match the contract?](/contracts/response-check/) |
 | *Status N is not documented in the contract of …* | The API answered a status the operation does not list. | Document it, with its schema and an example. |
 | *Could not validate against the contract schema:* | Files the schema references are missing, or the schema has something Luvin cannot compile. | Add the missing `$ref` files, then check the schema. |
-| **Try it out** fails in the browser version | The API does not allow CORS. | Use the desktop app, or allow the origin of Luvin in the API. See [Troubleshooting](/get-started/troubleshooting/). |
 
 ## Simulation and mocks
 

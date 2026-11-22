@@ -16,44 +16,12 @@ Find your problem in the list, read what causes it and follow the steps. Each se
 | A contract has a ✕ in the sidebar | [A contract shows ✕](#a-contract-shows-) |
 | A workflow shows errors after you deleted a contract | [Errors after deleting a contract](#errors-after-deleting-a-contract) |
 | A secret has no value on another computer | [Secrets are missing on another computer](#secrets-are-missing-on-another-computer) |
-| A step needs cookies and the browser skips them | [Cookies are not sent](#cookies-are-not-sent-in-the-browser) |
-| gRPC or NTLM do not work | [gRPC and NTLM need the desktop app](#grpc-and-ntlm-need-the-desktop-app) |
 
 ## The API does not answer
 
-When cases get no response, a panel titled **Could not reach the API** opens in the results. It says how many cases got no response and from which address. It is usually one of three causes.
+When cases get no response, a panel titled **Could not reach the API** opens in the results. It says how many cases got no response and from which address.
 
-<Steps>
-
-1. **The URL is wrong or the server is down.** The panel has a link for each address, **Open …**. Open it in another tab. If it does not load, the problem is not Luvin. Check the base URL in the environment (click **Review environment**).
-2. **The page is https and the API is http.** The browser blocks those calls. This item only appears when it applies. Use the API over https, or open Luvin over http.
-3. **The API does not allow calls from this page (CORS).** If the URL opens fine, this is the most likely cause.
-
-</Steps>
-
-### What CORS is
-
-CORS is a browser rule. A web page may call an API on another address only if that API says it allows it. In the browser version, Luvin is a web page, so the rule applies to every call. The desktop app sends the requests itself, so CORS does not apply there.
-
-### Fix CORS
-
-<Steps>
-
-1. In the panel, find the code block under **Does the API allow calls from this page (CORS)?**
-2. Click **Copy headers**.
-3. Send them to whoever manages the API, and ask that the API answers with these headers.
-
-</Steps>
-
-The block lists what the failed requests need. For example, if Luvin is open at `http://localhost:5173` and a step sends `POST` with an `Authorization` header, it reads:
-
-```text
-Access-Control-Allow-Origin: http://localhost:5173
-Access-Control-Allow-Methods: POST, OPTIONS
-Access-Control-Allow-Headers: Authorization
-```
-
-`Accept`, `Accept-Language` and `Content-Language` are never listed: the browser sends them without asking.
+**The URL is wrong or the server is down.** The panel has a link for each address, **Open …**. If it does not load, the problem is not Luvin: check the base URL in the environment (click **Review environment**), that the server is running and that your computer can reach it (VPN, proxy, firewall). If the API needs a proxy or a client certificate, set them in [Preferences → Network](/get-started/network/).
 
 ### Other ways out
 
@@ -61,11 +29,9 @@ Access-Control-Allow-Headers: Authorization
 |---|---|
 | **Try in simulation** | Runs the cases without calling the API |
 | **Review environment** | Opens the environment, to check the URLs |
-| The cURL tip | Copy a step as cURL and try it in your terminal, where CORS does not apply |
+| The cURL tip | Copy a step as cURL and try it in your terminal, to see the raw error |
 
-The simplest fix is to use the desktop app. See [Install and open Luvin](/get-started/install/).
-
-![The panel that appears when the API does not answer, with the exact CORS headers](/media/en/connection-help.webp)
+![The panel that appears when the API does not answer](/media/en/connection-help.webp)
 
 ## The app will not open
 
@@ -110,7 +76,7 @@ If you do not want those steps any more, delete them. A contract that has no fil
 
 ## Secrets are missing on another computer
 
-Secrets are never in the workspace files. The environment files only keep the names of the secrets. The values are stored encrypted on the computer where you typed them, using the operating system's keychain in the desktop app and WebCrypto in the browser.
+Secrets are never in the workspace files. The environment files only keep the names of the secrets. The values are stored encrypted on the computer where you typed them, using the operating system's keychain.
 
 So when you copy a workspace to another computer, or clone it from git, its secrets have no value there.
 
@@ -122,21 +88,6 @@ So when you copy a workspace to another computer, or clone it from git, its secr
 </Steps>
 
 Share the values with your team through a safe channel, not through the files.
-
-## Cookies are not sent in the browser
-
-Browsers cannot send cookies from a web page. If a step uses a cookie parameter or an API key placed in a cookie, the browser version skips it. The results explain it: **This step needs the cookies … which the browser cannot send: try it in the desktop app.**
-
-Open the same workspace in the desktop app. There Luvin sends the cookies, keeps the ones your APIs set and shows them under **Cookies**. In the browser, the browser handles cookies itself and Luvin cannot read them.
-
-## gRPC and NTLM need the desktop app
-
-Browsers cannot open gRPC connections, and NTLM needs a handshake over a single connection, which browsers do not allow. In the browser version:
-
-- A gRPC request shows **gRPC needs the desktop app** and is tagged **Desktop only** when you create it.
-- NTLM authorization shows that it needs the desktop app.
-
-Open the workspace in the desktop app to use them. See [Limitations](/reference/limitations/) for the full list.
 
 ## Related
 

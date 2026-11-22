@@ -14,7 +14,6 @@ Luvin works with **Arazzo 1.0 and 1.1**, **OpenAPI 3.x** and **AsyncAPI 2.x and 
 | Steps with `workflowId` (sub-workflows) | Supported, of this file or of another Arazzo file (`$sourceDescriptions.<source>.<workflowId>`, source of `type: arazzo`) |
 | Path, query and header parameters | Supported |
 | `in: querystring` parameters (1.1) | Supported |
-| Cookie parameters and `in: cookie` API keys | Desktop app only. Browsers cannot send cookies; the result explains it |
 | `requestBody` with `payload` and `replacements` | Supported (JSON Pointer, JSONPath and XPath on XML payloads) |
 | `requestBody` content types in workflow steps | JSON, `application/x-www-form-urlencoded`, `multipart/form-data` (payload fields only, no files) and plain text |
 | `successCriteria`: simple, regex and JSONPath | Supported (jsonpath-plus syntax) |

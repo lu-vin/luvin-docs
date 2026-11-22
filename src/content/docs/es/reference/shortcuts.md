@@ -7,7 +7,7 @@ sidebar:
 
 Esta página lista los atajos de teclado que tiene Luvin. En macOS la tecla principal es **⌘**. En Windows y Linux es **Ctrl**.
 
-**Preferencias**, en su sección **Atajos**, lista los principales en tres grupos: **General** (ejecutar o enviar, guardar, buscar, abrir Preferencias, cerrar diálogos y menús), **Pestañas** (solo en la app de escritorio) y **Canvas de un workflow** (deshacer y rehacer).
+**Preferencias**, en su sección **Atajos**, lista los principales en tres grupos: **General** (ejecutar o enviar, guardar, buscar, abrir Preferencias, cerrar diálogos y menús), **Pestañas** y **Canvas de un workflow** (deshacer y rehacer).
 
 ## Los primeros que conviene aprender
 
@@ -78,7 +78,6 @@ El historial de **Deshacer** se conserva cuando vas a otra pestaña del workflow
 
 ## Pestañas (app de escritorio)
 
-Estos funcionan solo en la app de escritorio.
 
 | Atajo | Qué hace |
 |---|---|

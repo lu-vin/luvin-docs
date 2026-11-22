@@ -37,7 +37,7 @@ Lo que hace Luvin por ti:
 
 - **El servidor sale del ambiente activo.** La URL base del ambiente es la primera de **Servers**, con el nombre *Ambiente «nombre» (Luvin)*. Cambia el ambiente activo y la llamada va a otro servidor.
 - **Las credenciales también salen del ambiente.** Para los esquemas API key, bearer y basic del contrato, Luvin completa el **Authorize** de Swagger UI con los valores que definiste en el ambiente, así no tienes que escribirlos. Mira [Variables y secretos](/es/environments/variables-and-secrets/).
-- **La llamada sale de Luvin, no de la vista previa.** En la app de escritorio no hay restricción de CORS. En la versión de navegador la API debe permitir CORS.
+- **La llamada sale de Luvin, no de la vista previa.** Usa el proxy y los certificados de [Preferencias → Red](/es/get-started/network/).
 - **Los secretos quedan ocultos.** El comando cURL que muestra Swagger UI oculta con `••••` los valores de los secretos del ambiente.
 
 Esta llamada es siempre contra la API real. Aquí no se simula nada.
