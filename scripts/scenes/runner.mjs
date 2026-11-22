@@ -308,7 +308,7 @@ workflows:
     await choose(envSelect(page), 'local')
     await settle(page, 800)
     // Más alto: la configuración completa (hasta Ajustes) a la vista.
-    await ctx.resize(page, 1280, 1000)
+    await ctx.resize(page, 1280, 1300)
     await shot(page, 'runner-overview')
     await ctx.resize(page, 1280, 800)
     // El ambiente: se elige sin salir del runner.
