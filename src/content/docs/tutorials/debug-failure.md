@@ -92,7 +92,7 @@ The status and the body appear. Change the path parameter to `pikachu` and send 
 
 ## 7. When the API does not answer
 
-Not every failure is an answer. If the step has **Network or CORS** as its label and there is no status, the API did not respond. A panel titled **Could not reach the API** appears above the results, with the number of cases affected and the servers that did not answer.
+Not every failure is an answer. If the step has **Network** as its label and there is no status, the API did not respond. A panel titled **Could not reach the API** appears above the results, with the number of cases affected and the servers that did not answer.
 
 1. Click **Open https://… ↗** to try the address in your browser. If it does not load, the problem is the server or the address.
 2. Click **Review environment** and check the base URL.

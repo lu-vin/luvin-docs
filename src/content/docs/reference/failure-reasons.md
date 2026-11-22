@@ -17,7 +17,7 @@ Two things are judged separately. A **step** can be successful, have a warning, 
 | **Error returned by the API** | The API answered 400 or more. The message of the API, if it sent one, is shown. | Read the message. Check the inputs of the case and the data of the earlier steps. |
 | **Authentication** | The API answered 401 or 403. | Check the credential of the environment or of the workflow. See [Authorization of a workflow](/authorization/workflow/). |
 | **Data not available** | A value the step needed was missing, so the request was sent incomplete. | See the section below. |
-| **Network or CORS** | There was no answer from the API: the connection failed, the URL is missing, the step timed out or the run was cancelled. | Use [Connection help](/dev-tools/connection-help/). |
+| **Network** | There was no answer from the API: the connection failed, the URL is missing, the step timed out or the run was cancelled. | Use [Connection help](/dev-tools/connection-help/). |
 | **Operation not found** | The step points to an operation that is not in the loaded contracts. | Load the contract or fix the `operationId` in the YAML tab. |
 | **Not run** | The step was skipped because of an earlier step or a dependency. | Fix the step that failed first. |
 | **Response out of contract** | The step met its criteria, but the response does not match what the contract documents. It is a **warning**, not a failure. | Compare the response with the contract. Ask who builds the API, or fix the contract. |
@@ -106,7 +106,7 @@ Each case ends with a verdict and a sentence.
 | **Every step met its criteria.** | Passed | The happy path worked. |
 | **The workflow finished successfully, with warnings in: "a".** | Passed | It worked, but those steps have warnings. |
 | **Failed at step "a": ...** | Failed | The first failed step and its reason follow. |
-| **Failed at step "a" ...** when the reason is **Network or CORS** | Inconclusive | No answer from the API, so the case cannot be judged. |
+| **Failed at step "a" ...** when the reason is **Network** | Inconclusive | No answer from the API, so the case cannot be judged. |
 | **"a" rejected the request with 400, as expected.** | Passed | A rejection case: the API said no. |
 | **"a" accepted the request (200) when it should have rejected it with 400.** | Warning or Failed | See below. |
 | **"a" responded 500; 400 was expected.** | Warning or Failed | The API rejected it with another status. |
