@@ -31,7 +31,7 @@ La colección nueva tiene los ambientes `Shop local` y `Shop staging`, en `envir
 <Tabs>
 <TabItem label="Postman">
 
-Haz clic en **Elegir archivos .json** y elige la colección exportada (v2.0 o v2.1) junto con sus archivos de ambiente. También puedes soltarlos todos sobre el diálogo. Un archivo de globals exportado de Postman se lee como un ambiente más.
+Haz clic en **Elegir archivos .json** y elige la colección exportada (v2.0 o v2.1) junto con sus archivos de ambiente. También puedes soltarlos todos sobre el diálogo. Un archivo de globals exportado de Postman pasa a ser un [ambiente global](/es/environments/variable-levels/) del workspace, no un ambiente de la colección.
 
 Si eliges varias colecciones a la vez, cada una recibe todos los ambientes que elegiste.
 
@@ -55,9 +55,12 @@ O haz clic en **Elegir .json** y elige el archivo que exporta Bruno. Sus ambient
 | Una variable desactivada | No se importa. |
 | Una variable con un nombre que Luvin no acepta, como `my var` | No se importa. El resumen dice *La variable «my var» tiene un nombre no válido y se omitió.* |
 | El mismo nombre dos veces en un ambiente | Se queda el primero. |
-| Una variable de la colección | Se agrega a cada ambiente que no la define. |
+| Una variable de la colección (`variable` de Postman, `vars:pre-request` de la colección en Bruno) | Una [variable de la colección](/es/environments/variable-levels/): igual en todos los ambientes de la colección. |
+| Una variable de la colección de Postman de tipo secret | Un secreto en cada ambiente que no la define, porque una variable de colección no puede ser secreta. El resumen lo avisa. Si con la colección no vino ningún ambiente, Luvin crea uno llamado `local` para ellas. |
+| Una variable de un archivo de globals de Postman | Una variable del ambiente global del workspace con el nombre de ese archivo. Si ya hay uno con ese nombre, solo se agregan las variables que le faltan: no se pisa ningún valor. |
+| `vars:pre-request` de un request de Bruno | Una [variable de ese request](/es/environments/variable-levels/): solo vale ahí. |
 
-Si con la colección no vino ningún ambiente, Luvin crea uno llamado `local` con las variables de la colección.
+El resumen dice adónde va cada variable, por ejemplo *1 variable(s) de la colección: valen en todos sus ambientes*. Las colecciones que importaste antes conservan sus variables donde estaban.
 
 Una variable llamada `baseUrl` sigue siendo una variable, no una [URL base](/es/environments/base-urls/). Funciona igual en `{{baseUrl}}/customers`. Los ambientes importados no tienen color: ponles uno si quieres. Mira [Crear, renombrar, colorear y eliminar](/es/environments/manage/).
 

@@ -61,6 +61,8 @@ Capitals become lowercase, accents are removed and anything that is not a letter
 
 If a file has a name that does not match, such as `prod.yaml` for the environment `production`, Luvin keeps writing to `prod.yaml`. When you rename the environment in the app, it moves to the file of its new name.
 
+Global environments, collection variables and request variables live in hidden `.luvin/` folders: `.luvin/environments/` at the root of the workspace, and `.luvin/variables.yaml` and `.luvin/request-variables.yaml` in each collection. They are committed like any other file and never hold secret values. See [Where a variable lives](/environments/variable-levels/).
+
 ## The format of the file
 
 | Key | What it holds |

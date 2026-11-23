@@ -92,7 +92,7 @@ const sidebar = [
   section('Environments', 'Ambientes', 'environments', [
     ['Start here', 'Empieza aquí', ['overview', 'manage']],
     ['What an environment holds', 'Qué guarda un ambiente', ['base-urls', 'variables-and-secrets', 'credentials']],
-    ['Use variables', 'Usar variables', ['use-variables', 'suggestions']],
+    ['Use variables', 'Usar variables', ['use-variables', 'variable-levels', 'suggestions']],
     ['Dynamic variables', 'Variables dinámicas', ['dynamic-variables', 'generators', 'postman-variables']],
     ['Files, teams and problems', 'Archivos, equipos y problemas', ['files-and-teams', 'import', 'mock-environments', 'troubleshooting']],
   ]),

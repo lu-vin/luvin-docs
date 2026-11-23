@@ -1,0 +1,107 @@
+---
+title: Dónde vive una variable
+description: Los cuatro lugares donde puede vivir una variable (ambiente global, ambiente de la colección, colección, request), cuál gana cuando un nombre está en varios, y cómo crearlas, moverlas y verlas desde la tarjeta de la variable y el panel Variables.
+sidebar:
+  order: 7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Una `{{variable}}` puede vivir en cuatro lugares, como en Bruno. Si pones cada valor donde corresponde, lo escribes una sola vez: un valor que cambia por ambiente va en un ambiente, uno que es igual en todos lados va en la colección, y uno que solo usa un request se queda en ese request.
+
+| Nivel | Para valores que… | Ejemplo | ¿Puede ser secreto? |
+|---|---|---|---|
+| **Ambiente global** | comparten todas las colecciones del workspace, y cambian por ambiente | `authHost` = `auth.intg.empresa.com` en el global `intg` | Sí |
+| **Ambiente de la colección** | usa esta colección, y cambian por ambiente | `baseUrl`, `clientSecret` | Sí |
+| **Variable de la colección** | son iguales en todos los ambientes de la colección | `apiVersion` = `v2` | No |
+| **Variable del request** | usa un solo request | `orderId` = `ORD-1001` | No |
+
+Los secretos solo viven en los ambientes, globales o de la colección. Su valor se guarda cifrado en tu computadora, nunca en los archivos. Consulta [Variables y secretos](/es/environments/variables-and-secrets/).
+
+## Ejemplo: un workspace de pagos
+
+El workspace **Pagos** tiene dos colecciones, `checkout` y `refunds`, y las pruebas en `intg` y en `prod`.
+
+<Steps>
+
+1. Las dos colecciones piden un token al mismo servidor. En el panel **Ambientes**, en **Ambientes globales**, haz clic en **+**, ponle de nombre `intg` y agrega `authHost` = `auth.intg.empresa.com`. Agrega un global `prod` con su propio `authHost`.
+2. `checkout` usa la versión `v2` de la API en todos sus ambientes. En su resumen, en **Variables de la colección**, agrega `apiVersion` = `v2`.
+3. El request **Crear orden** envía `POST {{baseUrl}}/{{apiVersion}}/orders/{{orderId}}`. Pasa el mouse por `{{orderId}}`, escribe `ORD-1001` en la tarjeta y queda como variable solo de ese request.
+4. Elige `prod` en el ambiente de la colección: el ambiente global también pasa a `prod`, así que `authHost` toma el valor de `prod`.
+
+</Steps>
+
+## Cuál valor gana
+
+Cuando un nombre está en varios lugares, gana el más específico. Del que gana al que pierde:
+
+| Orden | Dónde | Dura |
+|---|---|---|
+| 1 | Valores guardados de una respuesta (la pestaña **Variables** de un request) | Hasta que cambias de ambiente |
+| 2 | Variables del request | Solo en ese request |
+| 3 | El ambiente activo de la colección (sus variables, secretos y URLs base) | Siempre |
+| 4 | Variables de la colección | Siempre |
+| 5 | El ambiente global activo | Siempre |
+
+En el [runner](/es/runner/open-and-environment/) y en las pruebas de carga, la fila de datos y los valores que se guardan durante la corrida van encima de todos estos. Los pasos de un workflow usan los niveles 1, 3, 4 y 5: no son requests guardados, así que no tienen variables de request.
+
+Por ejemplo, `timeout` vale `5000` en el global `intg`, `3000` en la colección y `30000` en el request **Reporte lento**. **Crear orden** envía `3000`. **Reporte lento** envía `30000`.
+
+## Crear una variable desde su tarjeta
+
+Pasa el mouse por un `{{nombre}}` en rojo en cualquier campo (URL, params, headers, body…) para abrir su tarjeta.
+
+- **En un request**, escribe el valor: la variable ya existe, como variable del request. La tarjeta muestra **R Request** arriba a la derecha.
+- **Agregar a** la lleva a otro nivel. La lista muestra una letra por nivel: **E** el ambiente de la colección, **E** con candado como secreto ahí, **C** la colección, **G** el ambiente global y **G** con candado como secreto ahí.
+- Si todavía no hay ambiente global, elegir **G** crea uno con el nombre del ambiente activo de la colección.
+- **Variables en el request →** abre el panel Variables en esa variable.
+
+Fuera de un request, por ejemplo en un workflow, presiona **Enter** para crearla en el ambiente activo de la colección. El aviso bajo la URL, **Crear en «intg»**, crea de una vez en el ambiente de la colección todas las variables que le faltan al request.
+
+## El panel Variables
+
+Haz clic en **{ }** en la barra de pestañas para abrir el panel **Variables** a la derecha de cualquier vista.
+
+- **Variables del request**, arriba, son las del request abierto. Escribe en la fila vacía para agregar una, y pasa el mouse por una fila para ver **−** y quitarla.
+- **Todas las variables**, debajo, muestra cada nivel con su letra, del que gana al que pierde: valores guardados, el ambiente de la colección (con sus URLs base y sus secretos), las variables de la colección y el ambiente global.
+- Cada valor se edita ahí mismo. Los secretos se ven ocultos; el ojo los muestra.
+- Una variable tapada por un nivel más alto se ve atenuada y tachada. Al pasar el mouse dice, por ejemplo, *tapada por: Ambiente de la colección (intg)*.
+- Sin ambiente global, el panel dice **Sin ambiente global. Crear uno**.
+
+## Ambientes globales
+
+Los ambientes globales son del workspace: todas sus colecciones usan el activo. Se manejan en el panel **Ambientes**, en **Ambientes globales**, arriba de los de la colección: **+** agrega uno, un clic lo elige (otro clic: ninguno), doble clic lo renombra y el menú de la fila lo elimina.
+
+El selector de arriba a la derecha muestra los dos ambientes activos en una sola píldora: el de la colección, con un ícono de base de datos, y el global, con un globo (**Sin global** cuando no hay). Cada mitad abre su propia lista.
+
+Cuando eliges un ambiente de la colección, también se elige el ambiente global con el mismo nombre, si existe. Si no hay uno con ese nombre, el global queda como estaba. Siempre puedes elegir el global aparte.
+
+## Dónde se guardan
+
+Los ambientes de la colección siguen en `environments/`, como antes. Los demás niveles viven en carpetas ocultas `.luvin/`, que git comparte como cualquier otro archivo:
+
+```text
+pagos/                             ← el workspace
+├─ luvin.yaml
+├─ .luvin/environments/intg.yaml   ← ambientes globales
+└─ checkout/                       ← una colección
+   ├─ environments/intg.yaml       ← ambientes de la colección
+   └─ .luvin/
+      ├─ variables.yaml            ← variables de la colección
+      └─ request-variables.yaml    ← las variables de cada request, por su id
+```
+
+Finder y el explorador de archivos ocultan las carpetas que empiezan con punto. Tu editor y git las muestran.
+
+<Aside type="note" title="Compañeros con una versión anterior de Luvin">
+Una versión anterior no lee `.luvin/`, así que no ve estos niveles: un `{{nombre}}` definido ahí se ve en rojo. Tampoco los borra. Cuando tu compañero actualiza, aparecen.
+</Aside>
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Usar variables" href="/es/environments/use-variables/" />
+  <LinkCard title="Variables y secretos" href="/es/environments/variables-and-secrets/" />
+  <LinkCard title="Importar ambientes" href="/es/environments/import/" />
+  <LinkCard title="Archivos de ambiente y equipos" href="/es/environments/files-and-teams/" />
+</CardGrid>
