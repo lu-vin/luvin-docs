@@ -61,6 +61,8 @@ Las mayúsculas pasan a minúsculas, se quitan los acentos y todo lo que no es l
 
 Si un archivo tiene un nombre que no coincide, como `prod.yaml` para el ambiente `production`, Luvin sigue escribiendo en `prod.yaml`. Cuando renombras el ambiente en la app, pasa al archivo de su nombre nuevo.
 
+Los ambientes globales, las variables de la colección y las variables de request viven en carpetas ocultas `.luvin/`: `.luvin/environments/` en la raíz del workspace, y `.luvin/variables.yaml` y `.luvin/request-variables.yaml` en cada colección. Se suben a git como cualquier otro archivo y nunca guardan valores secretos. Consulta [Dónde vive una variable](/es/environments/variable-levels/).
+
 ## El formato del archivo
 
 | Clave | Qué guarda |

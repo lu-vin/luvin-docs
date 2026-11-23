@@ -1,0 +1,107 @@
+---
+title: Where a variable lives
+description: The four places a variable can live (global environment, collection environment, collection, request), which one wins when a name is in several, and how to create, move and see them from the variable card and the Variables panel.
+sidebar:
+  order: 7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+A `{{variable}}` can live in four places, as in Bruno. Put each value where it belongs and you write it once: a value that changes per environment goes in an environment, a value that is the same everywhere goes in the collection, and a value only one request needs stays in that request.
+
+| Level | For values that… | Example | Can be secret |
+|---|---|---|---|
+| **Global environment** | every collection of the workspace shares, and change per environment | `authHost` = `auth.intg.company.com` in the global `intg` | Yes |
+| **Collection environment** | this collection uses, and change per environment | `baseUrl`, `clientSecret` | Yes |
+| **Collection variable** | are the same in all the collection's environments | `apiVersion` = `v2` | No |
+| **Request variable** | only one request uses | `orderId` = `ORD-1001` | No |
+
+Secrets only live in environments, global or of the collection. Their values are stored encrypted on your computer, never in the files. See [Variables and secrets](/environments/variables-and-secrets/).
+
+## Example: a payments workspace
+
+The workspace **Payments** has two collections, `checkout` and `refunds`, and you test them in `intg` and `prod`.
+
+<Steps>
+
+1. Both collections ask the same server for a token. In the **Environments** panel, under **Global environments**, click **+**, name it `intg`, and add `authHost` = `auth.intg.company.com`. Add a global `prod` with its own `authHost`.
+2. `checkout` uses version `v2` of the API in all its environments. In its overview, under **Collection variables**, add `apiVersion` = `v2`.
+3. The request **Create order** sends `POST {{baseUrl}}/{{apiVersion}}/orders/{{orderId}}`. Point at `{{orderId}}`, type `ORD-1001` in the card, and it becomes a variable of that request only.
+4. Choose `prod` in the collection environment: the global environment switches to `prod` too, so `authHost` takes the `prod` value.
+
+</Steps>
+
+## Which value wins
+
+When a name is in several places, the most specific one wins. From the one that wins to the one that loses:
+
+| Order | Where | Lasts |
+|---|---|---|
+| 1 | Values saved from a response (a request's **Variables** tab) | Until you switch environments |
+| 2 | Request variables | Only in that request |
+| 3 | The active collection environment (its variables, secrets and base URLs) | Always |
+| 4 | Collection variables | Always |
+| 5 | The active global environment | Always |
+
+In the [runner](/runner/open-and-environment/) and in load tests, the data row and the values saved during the run come on top of all of these. Workflow steps use levels 1, 3, 4 and 5: they are not saved requests, so they have no request variables.
+
+For example, `timeout` is `5000` in the global `intg`, `3000` in the collection, and `30000` in the request **Slow report**. **Create order** sends `3000`. **Slow report** sends `30000`.
+
+## Create a variable from its card
+
+Point at a red `{{name}}` in any field (URL, params, headers, body…) to open its card.
+
+- **In a request**, type the value: the variable already exists, as a request variable. The card shows **R Request** at the top right.
+- **Add to** moves it to another level. The list shows a letter per level: **E** the collection environment, **E** with a lock as a secret there, **C** the collection, **G** the global environment and **G** with a lock as a secret there.
+- If there is no global environment yet, choosing **G** creates one named like the active collection environment.
+- **Variables in request →** opens the Variables panel on that variable.
+
+Outside a request, for example in a workflow, press **Enter** to create it in the active collection environment. The strip under the URL, **Create in “intg”**, creates every missing variable of the request at once in the collection environment.
+
+## The Variables panel
+
+Click **{ }** in the tab bar to open the **Variables** panel on the right of any view.
+
+- **Request variables**, on top, are the ones of the open request. Type in the empty row to add one, and point at a row to see **−** and remove it.
+- **All variables**, below, shows each level with its letter, from the one that wins to the one that loses: saved values, the collection environment (with its base URLs and secrets), the collection variables and the global environment.
+- Every value is edited right there. Secrets are masked; the eye shows them.
+- A variable hidden by a higher level is dimmed and crossed out. Point at it to read, for example, *hidden by: Collection environment (intg)*.
+- With no global environment, the panel says **No global environment. Create one**.
+
+## Global environments
+
+Global environments belong to the workspace: every collection uses the active one. You manage them in the **Environments** panel, under **Global environments**, above the collection's environments: **+** adds one, a click chooses it (click again for none), a double click renames it, and the row menu deletes it.
+
+The picker at the top right shows both active environments in one pill: the collection's, with a database icon, and the global one, with a globe (**No global** when there is none). Each half opens its own list.
+
+When you choose a collection environment, the global environment with the same name is chosen too, if there is one. If there is none with that name, the global one stays as it was. You can always choose the global one apart.
+
+## Where they are saved
+
+Collection environments stay in `environments/` as before. The other levels live in hidden `.luvin/` folders, which git shares like any other file:
+
+```text
+payments/                          ← the workspace
+├─ luvin.yaml
+├─ .luvin/environments/intg.yaml   ← global environments
+└─ checkout/                       ← a collection
+   ├─ environments/intg.yaml       ← collection environments
+   └─ .luvin/
+      ├─ variables.yaml            ← collection variables
+      └─ request-variables.yaml    ← each request's variables, by its id
+```
+
+Finder and the file explorer hide folders that start with a dot. Your editor and git show them.
+
+<Aside type="note" title="Teammates with an older version of Luvin">
+An older version does not read `.luvin/`, so it does not see these levels: a `{{name}}` defined there shows in red. It does not erase them either. When your teammate updates, they appear.
+</Aside>
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Use variables" href="/environments/use-variables/" />
+  <LinkCard title="Variables and secrets" href="/environments/variables-and-secrets/" />
+  <LinkCard title="Import environments" href="/environments/import/" />
+  <LinkCard title="Environment files and teams" href="/environments/files-and-teams/" />
+</CardGrid>

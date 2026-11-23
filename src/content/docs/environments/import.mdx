@@ -31,7 +31,7 @@ The new collection has the environments `Shop local` and `Shop staging`, in `env
 <Tabs>
 <TabItem label="Postman">
 
-Click **Choose .json files** and pick the exported collection (v2.0 or v2.1) together with its environment files. You can also drop them all on the dialog. A globals file exported from Postman is read like one more environment.
+Click **Choose .json files** and pick the exported collection (v2.0 or v2.1) together with its environment files. You can also drop them all on the dialog. A globals file exported from Postman becomes a [global environment](/environments/variable-levels/) of the workspace, not an environment of the collection.
 
 If you choose several collections at once, each of them gets every environment you chose.
 
@@ -55,9 +55,12 @@ Or click **Choose .json** and pick the file Bruno exports. Its environments come
 | A disabled variable | Not imported. |
 | A variable with a name Luvin does not accept, such as `my var` | Not imported. The summary says *The variable “my var” has an invalid name and was skipped.* |
 | The same name twice in one environment | The first one is kept. |
-| A collection variable | Added to every environment that does not define it. |
+| A collection variable (Postman `variable`, Bruno `vars:pre-request` of the collection) | A [collection variable](/environments/variable-levels/): the same in all the collection's environments. |
+| A Postman collection variable of type secret | A secret in every environment that does not define it, because a collection variable cannot be secret. The summary says so. If no environment came with the collection, Luvin creates one called `local` for them. |
+| A variable of a Postman globals file | A variable of the workspace global environment with that file's name. If one with that name exists, only the variables it lacks are added: no value is overwritten. |
+| A Bruno request's `vars:pre-request` | A [variable of that request](/environments/variable-levels/): it only applies there. |
 
-If no environment came with the collection, Luvin creates one called `local` with the collection variables.
+The summary lists where the variables go, for example *1 collection variable(s): they apply in all its environments*. Collections you imported before keep their variables where they were.
 
 A variable named `baseUrl` stays a variable, not a [base URL](/environments/base-urls/). It works the same in `{{baseUrl}}/customers`. Imported environments have no color: give them one if you want. See [Create, rename, color and delete](/environments/manage/).
 
