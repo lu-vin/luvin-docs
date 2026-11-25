@@ -5,7 +5,7 @@
 import { createServer as createHttp } from 'node:http'
 
 export default (ctx) => {
-  const { ES, T, tmp, V, path, writeFileSync, freshPage, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex } = ctx
+  const { ES, T, tmp, V, path, writeFileSync, freshPage, moveTo, go, say, saveClip, shot, settle, openPokedex } = ctx
   const L = (es, en) => (ES ? es : en)
 
   // Textos de la interfaz (src/i18n/locales/{en,es}/ui.ts).
@@ -178,21 +178,6 @@ workflows:
     await settle(page, 600)
   }
 
-  /** Recorte de una zona, con los límites de la ventana actual. */
-  async function cut(page, name, box, pad = 0) {
-    await settle(page)
-    const vp = ctx.viewport(page)
-    const x = Math.max(0, box.x - pad)
-    const y = Math.max(0, box.y - pad)
-    await ctx.capture(page, path.join(ctx.OUT, `${name}.png`), { x, y, width: Math.min(vp.width - x, box.width + pad * 2), height: Math.min(vp.height - y, box.height + pad * 2) })
-    console.log(`  ✓ ${name}`)
-  }
-  /** Une varias cajas en una. */
-  const union = (...bs) => {
-    const x = Math.min(...bs.map((b) => b.x))
-    const y = Math.min(...bs.map((b) => b.y))
-    return { x, y, width: Math.max(...bs.map((b) => b.x + b.width)) - x, height: Math.max(...bs.map((b) => b.y + b.height)) - y }
-  }
   /** El menú de una lista nativa es del sistema y no sale en la captura: uno igual con sus opciones reales debajo (como design.mjs). */
   async function showOptions(page, select, highlight) {
     await select.evaluate((el, hl) => {
@@ -226,8 +211,9 @@ workflows:
   }
   /** Otro ambiente (copia del activo), desde la pastilla del ambiente arriba a la derecha → Configurar ambiente…; queda activo. */
   async function addEnv(page, name) {
-    await page.locator('.app-env').click()
-    await page.locator('.context-menu button').last().click()
+    // La mitad izquierda de la pastilla: el ambiente de la colección; su última opción, Configurar ambiente.
+    await page.locator('.app-env-coll').click()
+    await page.locator('.context-menu [role="menuitem"]').last().click()
     await page.locator('.env-add').click()
     await page.locator('.env-name-input').fill(name)
     await page.keyboard.press('Enter')
@@ -300,48 +286,33 @@ workflows:
     await addEnv(page, 'staging')
     // El ⋯ del archivo Arazzo con "Ejecutar workflows (runner)".
     await fileMenu(page)
-    const side = await page.locator('aside').first().boundingBox()
-    const menu = await page.locator('.row-menu-list').boundingBox()
-    await cut(page, 'runner-open-menu', { x: side.x, y: Math.max(side.y, menu.y - 110), width: Math.max(side.width, menu.x + menu.width - side.x + 10), height: menu.height + 150 })
+    await shot(page, 'runner-open-menu')
     await page.locator('.row-menu-list button', { hasText: U.runWorkflows }).click()
     await page.locator('.runner-shell').waitFor()
     await choose(envSelect(page), 'local')
     await settle(page, 800)
-    // Más alto: la configuración completa (hasta Ajustes) a la vista.
-    await ctx.resize(page, 1280, 1300)
     await shot(page, 'runner-overview')
-    await ctx.resize(page, 1280, 800)
     // El ambiente: se elige sin salir del runner.
     await showOptions(page, envSelect(page), 'local')
-    const sel = await envSelect(page).boundingBox()
-    const opts = await page.locator('#demo-select').boundingBox()
-    const envLabel = await page.locator('.runner-env').boundingBox()
-    await cut(page, 'runner-environment', union(envLabel, opts), 14)
+    await shot(page, 'runner-environment')
     await hideOptions(page)
     // Los casos de un workflow: cuáles van, y si van contra la API real o simulados.
     await page.locator('.runner-wf-toggle').first().click()
     await settle(page, 500)
-    await cut(page, 'runner-workflows-cases', await page.locator('.runner-order').boundingBox(), 10)
-    // La configuración del modo funcional, completa (la página más alta para que entre).
-    {
-      await ctx.resize(page, 1280, 1400)
-      const b = await config(page).boundingBox()
-      const bar = await page.locator('.status-bar, footer').first().boundingBox().catch(() => null)
-      const bottom = bar ? Math.min(b.y + b.height, bar.y - 12) : b.y + b.height
-      await cut(page, 'runner-workflows-setup', { ...b, height: bottom - b.y }, 10)
-      await ctx.resize(page, 1280, 800)
-    }
+    await shot(page, 'runner-workflows-cases')
+    await page.locator('.runner-wf-toggle').first().click()
+    await settle(page, 300)
+    // La configuración del modo funcional: la columna baja hasta sus ajustes.
+    await reveal(config(page).locator('h4').last(), 'center')
+    await shot(page, 'runner-workflows-setup')
+    await reveal(config(page).locator('h4').first())
     // Un archivo de datos: cada fila es una iteración.
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.locator('.runner-config .runner-file').click()])
     await chooser.setFiles(path.join(tmp, 'pokemon-data.csv'))
     await page.locator('.runner-config .runner-data strong').waitFor()
-    const dataHead = config(page).locator('h4').nth(2)
-    await reveal(dataHead, 'center')
+    await reveal(config(page).locator('.runner-data'), 'center')
     await settle(page, 400)
-    const fill = config(page).locator('p.muted.small', { hasText: /pokemon/ }).first()
-    const cfg = await config(page).boundingBox()
-    const db = union(await dataHead.boundingBox(), await fill.boundingBox())
-    await cut(page, 'runner-data-file', { x: cfg.x, y: db.y, width: cfg.width, height: db.height }, 14)
+    await shot(page, 'runner-data-file')
     // Con el CSV: solo la ficha y el explorador de tipos (pocas llamadas a la PokéAPI).
     const rows = page.locator('.runner-list > li:not(.runner-cases)')
     for (const i of [2, 3]) await rows.nth(i).locator('input[type="checkbox"]').first().uncheck()
@@ -378,7 +349,7 @@ workflows:
       await config(page).locator('.runner-delay input[type="number"]').fill('200')
       await reveal(config(page).locator('h4').last(), 'center')
       await settle(page, 400)
-      await cut(page, 'runner-requests-settings', await config(page).boundingBox(), 10)
+      await shot(page, 'runner-requests-settings')
       await page.locator('.runner-start').click()
       await untilFinished(page)
       await settle(page, 1000)
@@ -394,7 +365,6 @@ workflows:
     const shop = await startShop()
     try {
       const page = await freshPage()
-      await ctx.resize(page, 1440, 1000)
       await openShopLocal(page, shop.base)
       await addEnv(page, 'production')
       await openWorkflowsRunner(page)
@@ -404,15 +374,15 @@ workflows:
       const lc = page.locator('.load-config')
       await reveal(lc)
       await settle(page, 400)
-      const card = await page.locator('.perf-preview-card').boundingBox()
-      await cut(page, 'runner-perf-setup', union(await lc.boundingBox().then((b) => ({ ...b, height: 10 })), card), 12)
+      await shot(page, 'runner-perf-setup')
       await setPassIf(page, { avg: 500, p95: 1000, errors: 1 })
       await page.evaluate(() => document.activeElement?.blur())
       await reveal(page.locator('.perf-pass'), 'center')
-      await cut(page, 'runner-perf-criteria', await page.locator('.perf-pass').boundingBox(), 8)
+      await shot(page, 'runner-perf-criteria')
       // "production" parece producción: hay que escribir su nombre.
       await confirmLoad(page, 'production')
-      await cut(page, 'runner-perf-confirm', await page.locator('.runner-config .runner-startbar').boundingBox(), 6)
+      await reveal(page.locator('.runner-config .runner-startbar'), 'end')
+      await shot(page, 'runner-perf-confirm')
       // La prueba de verdad va al ambiente "local" (la misma tienda en 127.0.0.1).
       await choose(envSelect(page), 'local')
       await settle(page, 500)
@@ -425,16 +395,17 @@ workflows:
       const dlg = page.locator('[role="dialog"]').last()
       await dlg.waitFor()
       await settle(page, 400)
-      await cut(page, 'runner-close-busy', await dlg.boundingBox(), 16)
+      await shot(page, 'runner-close-busy')
       await dlg.locator('button', { hasText: L('Seguir ejecutando', 'Keep running') }).click()
       await untilFinished(page)
-      // Más alta: el veredicto, los números, el gráfico y la tabla con el paso más lento, todo a la vista.
-      await ctx.resize(page, 1440, 1300)
+      // El veredicto y los números arriba; el gráfico y la tabla, bajando.
       await settle(page, 1500)
       await toTop(page, '.runner-results')
       await settle(page, 400)
       await shot(page, 'runner-perf-results')
       // Un rango del gráfico.
+      await page.locator('.perf-chart-box').evaluate((el) => el.scrollIntoView({ block: 'center' }))
+      await settle(page, 300)
       const chart = await page.locator('.perf-chart-box').boundingBox()
       const y = chart.y + chart.height * 0.45
       await page.mouse.move(chart.x + chart.width * 0.35, y)
@@ -443,10 +414,8 @@ workflows:
       await page.mouse.up()
       await page.mouse.move(chart.x + chart.width + 40, chart.y - 40)
       await settle(page, 800)
-      await toTop(page, '.runner-results')
-      await settle(page, 400)
       await shot(page, 'runner-perf-range')
-      await ctx.resize(page, 1440, 1000)
+      await toTop(page, '.runner-results')
       await page.locator('.perf-tabs button').nth(1).click()
       await settle(page, 600)
       await shot(page, 'runner-perf-errors')
@@ -460,7 +429,6 @@ workflows:
     const shop = await startShop()
     try {
       const page = await freshPage()
-      await ctx.resize(page, 1440, 1000)
       // La tienda local, pero en una ruta que nunca responde.
       await openShopLocal(page, `${shop.base}/hang`)
       await openWorkflowsRunner(page)
@@ -471,9 +439,7 @@ workflows:
       await page.locator('.runner-start').click()
       await untilFinished(page, 60000)
       await settle(page, 1000)
-      const res = await page.locator('.runner-results').boundingBox()
-      const kpis = await page.locator('.perf-kpis').boundingBox()
-      await cut(page, 'runner-perf-nodata', { ...res, height: kpis.y + kpis.height - res.y + 8 })
+      await shot(page, 'runner-perf-nodata')
       await ctx.done()
     } finally {
       await shop.close()

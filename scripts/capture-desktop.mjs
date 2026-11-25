@@ -189,19 +189,14 @@ const size = await page.evaluate(() => [innerWidth, innerHeight, devicePixelRati
 console.log(`  ventana ${size[0]}×${size[1]} @${size[2]}x`)
 
 const settle = (ms = 600) => page.waitForTimeout(ms)
+/**
+ * Captura la ventana entera de la app. Las capturas de las docs siempre muestran la ventana completa:
+ * `target` solo se lleva a la vista antes de capturar.
+ */
 async function shot(name, target) {
+  if (target) await target.first().scrollIntoViewIfNeeded().catch(() => {})
   await settle()
-  const file = path.join(OUT, `${name}.png`)
-  if (target) await target.screenshot({ path: file })
-  else await page.screenshot({ path: file })
-  console.log(`  ✓ ${name}`)
-}
-/** Recorte de una zona de la ventana (para ver de cerca un panel o un menú). */
-async function clip(name, box, pad = 12) {
-  await settle()
-  const x = Math.max(0, box.x - pad)
-  const y = Math.max(0, box.y - pad)
-  await page.screenshot({ path: path.join(OUT, `${name}.png`), clip: { x, y, width: Math.min(VIEW.width - x, box.width + pad * 2), height: Math.min(VIEW.height - y, box.height + pad * 2) } })
+  await page.screenshot({ path: path.join(OUT, `${name}.png`) })
   console.log(`  ✓ ${name}`)
 }
 
@@ -287,13 +282,8 @@ const scenes = {
     await row.hover()
     await row.locator('.row-menu-btn').click()
     await settle(300)
-    const side = await page.locator('aside').first().boundingBox()
-    const rowBox = await row.boundingBox()
-    const menu = await page.locator('.row-menu-list').boundingBox()
-    // Desde arriba de la barra: se ven los íconos de los paneles (el de mocks con su punto verde).
-    const top = side.y
-    const bottom = Math.min(VIEW.height, Math.max(menu.y + menu.height, rowBox.y + rowBox.height) + 24)
-    await clip('mocks-sidebar-menu', { x: side.x, y: top, width: Math.max(side.width, menu.x + menu.width - side.x + 10), height: bottom - top }, 0)
+    // Se ven los íconos de los paneles (el de mocks con su punto verde) y el menú abierto.
+    await shot('mocks-sidebar-menu')
     await page.keyboard.press('Escape')
     await page.mouse.click(VIEW.width - 40, VIEW.height - 120)
     await settle(300)

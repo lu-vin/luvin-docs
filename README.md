@@ -103,6 +103,8 @@ La documentación tiene que entenderse sin ayuda. Las reglas con las que se escr
 - El repositorio de la app al lado (`../luvin`, o `LUVIN_DIR=/ruta`) con sus dependencias instaladas. `npm run media` compila su interfaz antes de capturar; si corres `capture.mjs` a mano, antes `npm run build` allá.
 - Conexión a internet: usa la PokéAPI real. Para las listas levanta una API local de prueba.
 
+Las capturas y los videos muestran siempre la ventana completa de la app, nunca un recorte de una zona: para señalar algo se usa el cursor o una leyenda.
+
 Mientras captura se abre una ventana de Luvin: no muevas el mouse ni escribas en ella. Cada escena abre la app limpia (datos en una carpeta temporal) y la cierra al terminar.
 
 Los mock servers encendidos y las Preferencias con red, proxy y certificados salen de `scripts/capture-desktop.mjs`; `npm run media` también lo corre. Las pruebas de rendimiento de las escenas usan solo servidores locales (127.0.0.1), nunca una API pública.

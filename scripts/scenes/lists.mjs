@@ -1,9 +1,9 @@
 // Escenas de las listas: un paso devuelve una lista y la ejecución pausa una vez para elegir con qué
 // elemento sigue (list-pick, captura y video) y la regla para las próximas veces (list-pick-rule).
-// Rehacen list-pick con la interfaz de ahora; las claves `lists` y `clip-list-pick` de capture.mjs son
-// las anteriores. Usan la colección "Shop" de capture.mjs (la API local de prueba).
+// La escena `lists` de capture.mjs hace list-pick-many. Usan la colección "Shop" de capture.mjs (la API
+// local de prueba).
 export default (ctx) => {
-  const { ES, path, freshPage, go, say, saveClip, shot, settle, tab, openShop, untilDone, V } = ctx
+  const { ES, freshPage, go, say, saveClip, shot, settle, tab, openShop, untilDone, V } = ctx
 
   /**
    * El menú de una lista nativa (<select>) es del sistema y no sale en la captura: se muestra uno igual,
@@ -51,15 +51,7 @@ export default (ctx) => {
     await rule.scrollIntoViewIfNeeded()
     await showOptions(page, rule, ES ? 'El que cumpla…' : 'The one where…')
     await settle(page, 400)
-    {
-      const d = await dlg.boundingBox()
-      const r = await dlg.locator('.lp-rule').boundingBox()
-      const m = await page.locator('#demo-select').boundingBox()
-      const top = Math.min(r.y, m.y) - 16
-      const bottom = d.y + d.height + 12
-      await ctx.capture(page, path.join(ctx.OUT, 'list-pick-rule.png'), { x: d.x - 12, y: top, width: d.width + 24, height: bottom - top })
-      console.log('  ✓ list-pick-rule')
-    }
+    await shot(page, 'list-pick-rule')
     await page.evaluate(() => document.getElementById('demo-select')?.remove())
     await dlg.locator('button.primary').click()
     await untilDone(page)

@@ -2,7 +2,7 @@
 // Todo contra la API local de prueba de capture.mjs (la tienda "Shop"): unos requests, dos ejecuciones
 // de workflows y una prueba de rendimiento corta (3 usuarios, 5 segundos), siempre en 127.0.0.1.
 export default (ctx) => {
-  const { ES, T, API, freshPage, shot, clip, settle, tab, openShop, run } = ctx
+  const { ES, T, API, freshPage, shot, settle, tab, openShop, run } = ctx
 
   // Textos de la interfaz que las escenas buscan (los mismos de src/i18n/locales/{en,es}/ui.ts).
   const L = ES
@@ -76,12 +76,9 @@ export default (ctx) => {
       await page.locator('.sb-rail-btn[data-panel="history"]').click()
       await page.locator('.tree-history').waitFor()
       await settle(page, 400)
-      // La sección Historial de la barra lateral.
-      const side = await page.locator('aside').first().boundingBox()
-      const hist = await page.locator('.tree-section', { has: page.locator('.tree-history') }).first().boundingBox()
-      const top = hist.y + 2
-      await page.mouse.move(900, 500)
-      await clip(page, 'history-sidebar', { x: side.x, y: top, width: side.width, height: hist.y + hist.height - top + 4 }, 0)
+      // La sección Historial de la barra lateral (el cursor, en un lugar vacío: sin tooltips del gráfico).
+      await page.mouse.move(200, 760)
+      await shot(page, 'history-sidebar')
       // Las entradas se abren desde ese mismo panel; al final se vuelve al de colecciones.
       await openFromSidebar(page, 'GET SKU-103')
       await shot(page, 'history-request')
