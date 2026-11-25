@@ -3,7 +3,7 @@
 // propia contra la API local de prueba de capture.mjs, que acepta cualquier pedido: así se ven de
 // verdad los veredictos de advertencia y de falla.
 export default (ctx) => {
-  const { ES, T, tmp, API, V, path, writeFileSync, freshPage, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, focusStep, run, untilDone } = ctx
+  const { ES, T, tmp, API, V, path, writeFileSync, freshPage, go, say, saveClip, shot, settle, tab, openPokedex, openPaypal, focusStep, run, untilDone } = ctx
 
   // Textos de la interfaz que las escenas buscan (los mismos de src/i18n/locales/{en,es}/ui.ts).
   const L = ES
@@ -244,9 +244,8 @@ cases:
       await email.press('Meta+a')
       await email.pressSequentially('{{$randomE', { delay: 30 })
       await settle(page, 600)
-      const fieldBox = await inputField(page, 'email').boundingBox()
-      const sug = await page.locator('.tpl-suggest').boundingBox()
-      if (sug) await clip(page, 'test-inputs-generators', { x: fieldBox.x, y: fieldBox.y, width: Math.max(fieldBox.width, sug.x + sug.width - fieldBox.x), height: sug.y + sug.height - fieldBox.y })
+      await page.locator('.tpl-suggest').waitFor()
+      await shot(page, 'test-inputs-generators')
       await email.press('Meta+a')
       await email.pressSequentially('{{$randomEmail}}', { delay: 5 })
       await email.press('Escape')
@@ -404,9 +403,7 @@ cases:
       await page.locator('.ws-run').click()
       await page.locator('.ws-strip.warn').waitFor()
       await settle(page, 400)
-      const bar = await page.locator('.ws-runbar').boundingBox()
-      const strip = await page.locator('.ws-strip.warn').boundingBox()
-      await clip(page, 'test-run-confirm', { x: bar.x, y: bar.y, width: bar.width, height: strip.y + strip.height - bar.y }, 0)
+      await shot(page, 'test-run-confirm')
       await page.locator('.ws-strip.warn button.link').click()
       for (const g of [L.data, L.security, L.byResponse]) await openGroup(page, g)
       await toTop(group(page, L.security), 10)
@@ -434,7 +431,7 @@ cases:
       await say(page, C.o4, 2400)
       await say(page, C.o5, 300)
       await go(page, page.locator('.ws-runbar .segmented button').nth(0), { pause: 500 })
-      await go(page, page.locator('.app-env'), { click: false, pause: 1400 })
+      await go(page, page.locator('.app-env-coll'), { click: false, pause: 1400 })
       await go(page, page.locator('.ws-run'), { pause: 300 })
       await page.locator('.lp-dialog').waitFor({ timeout: 25000 })
       await say(page, C.o6, 1800)

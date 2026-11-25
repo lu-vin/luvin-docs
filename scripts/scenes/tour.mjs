@@ -16,12 +16,14 @@ export default (ctx) => {
   /** "Siguiente" en la tarjeta del tour; si una ejecución contra la PokéAPI pregunta por una lista, sigue con lo propuesto. */
   async function next(page) {
     const before = await page.locator('.tour-progress span').first().textContent()
-    await page.locator('.tour-card button.primary').click()
+    // Un paso que ejecuta contra la PokéAPI deja el botón deshabilitado un rato («Preparando…»).
+    await page.locator('.tour-card button.primary').click({ timeout: 90000 })
     for (let i = 0; i < 150; i++) {
       await settle(page, 300)
       const pick = page.locator('.lp-dialog button.primary')
       if (await pick.count()) {
-        await pick.click()
+        // El diálogo puede estar cerrándose: si ya no se deja hacer clic, se sigue esperando.
+        await pick.click({ timeout: 3000 }).catch(() => {})
         continue
       }
       const now = await page.locator('.tour-progress span').first().textContent()

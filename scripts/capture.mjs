@@ -228,11 +228,13 @@ async function resize(page, width, height) {
   m.size = { width, height }
   await page.waitForTimeout(250)
 }
-/** Captura la página entera, o una zona (en px CSS), en píxeles reales (2x en las capturas). */
-async function capture(page, file, box) {
+/**
+ * Captura la ventana entera de la app, en píxeles reales (2x en las capturas). Las capturas y los videos
+ * de las docs siempre muestran la ventana completa: si una escena pasa una zona, se ignora.
+ */
+async function capture(page, file, _box) {
   const m = meta.get(page)
-  const clip = box ? { x: box.x, y: box.y, width: box.width, height: box.height, scale: m.scale } : undefined
-  const { data } = await m.cdp.send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}) })
+  const { data } = await m.cdp.send('Page.captureScreenshot', { format: 'png' })
   writeFileSync(file, Buffer.from(data, 'base64'))
 }
 /** Hace `action` (que descarga algo en la app) y guarda lo descargado en `file`. Devuelve la ruta. */
@@ -320,7 +322,7 @@ function within(page, box, pad = 0) {
   const y = Math.max(0, box.y - pad)
   return { x, y, width: Math.min(vp.width - x, box.x + box.width + pad - x), height: Math.min(vp.height - y, box.y + box.height + pad - y) }
 }
-/** Captura la página o, con `target`, solo ese elemento. */
+/** Captura la ventana entera; con `target`, antes lleva ese elemento a la vista. */
 async function shot(page, name, target) {
   await settle(page)
   let box
@@ -333,7 +335,7 @@ async function shot(page, name, target) {
   await capture(page, path.join(OUT, `${name}.png`), box)
   console.log(`  ✓ ${name}`)
 }
-/** Recorte de una zona de la pantalla (para ver de cerca un panel o un menú). */
+/** Antes recortaba una zona; ahora captura la ventana entera, como todas las capturas. */
 async function clip(page, name, box, pad = 12) {
   await settle(page)
   await capture(page, path.join(OUT, `${name}.png`), within(page, box, pad))
@@ -490,10 +492,6 @@ const scenes = {
     const menu = await page.locator('.row-menu-list').boundingBox()
     await clip(page, 'sidebar-menu', { x: side.x, y: menu.y - 170, width: Math.max(side.width, menu.x + menu.width - side.x + 10), height: 300 }, 0)
     await page.keyboard.press('Escape')
-    // Resumen de la colección
-    await page.locator('.tree-collection.current').click()
-    await page.locator('.collection-overview').waitFor()
-    await shot(page, 'collection-overview')
     // Inicio del workspace
     await page.locator('.ws-home-tab button').first().click()
     await shot(page, 'home')
@@ -577,7 +575,6 @@ const scenes = {
     await run(page, { wait: false })
     await page.locator('.lp-dialog').waitFor({ timeout: 15000 })
     await page.locator('.lp-dialog tbody tr').nth(3).click()
-    await shot(page, 'list-pick')
     await page.locator('.lp-dialog button.primary').click()
     await page.locator('.ws-results .step-result').first().waitFor()
     await page.locator('[data-journey="orderProducts"]').click()
@@ -591,39 +588,16 @@ const scenes = {
     await done()
   },
 
-  async tour() {
-    const page = await freshPage()
-    await page.locator('.welcome-dialog').waitFor()
-    await page.locator('.wd-card', { hasText: 'Tour' }).click()
-    await page.locator('.tour-card').waitFor()
-    await page.locator('[data-journey="pokemonCard"]').waitFor({ timeout: 15000 })
-    for (let n = 0; n < 3; n++) await page.locator('.tour-card button.primary').click()
-    await page.locator('.tour-spot').waitFor({ timeout: 20000 })
-    await shot(page, 'tour')
-    await done()
-  },
 }
 
 // --- Capturas que pidieron las páginas: ayuda de conexión, contrato sin cargar, mensajería, reutilizables ---
 Object.assign(scenes, {
   async auth() {
-    // Autorización: la de la colección (Bearer), y los campos de OAuth 2.0 y AWS Signature v4 en un request.
+    // Autorización de un request: los campos de OAuth 2.0, AWS Signature v4 y API Key. La de la colección
+    // está en la escena `collection`.
     const page = await freshPage()
     await openPokedex(page)
-    await page.locator('.tree-collection.current').click()
-    await page.locator('.collection-overview').waitFor()
     const typeOf = (scope) => page.locator(`${scope} select`).filter({ has: page.locator('option[value="awsv4"]') }).first()
-    await typeOf('.co-auth').selectOption('bearer')
-    await settle(page, 500)
-    await page.locator('.co-auth').scrollIntoViewIfNeeded()
-    await shot(page, 'collection-auth', page.locator('.co-auth'))
-    await typeOf('.co-auth').selectOption('none')
-    // La documentación de la colección: generada desde los Arazzo y lista para editar.
-    await page.locator('.home-docs button', { hasText: ES ? 'Editar' : 'Edit' }).first().click()
-    await page.locator('.home-docs button', { hasText: ES ? 'Generar' : 'Generate' }).first().click()
-    await settle(page, 600)
-    await shot(page, 'collection-docs-edit')
-    await page.locator('.home-docs button', { hasText: ES ? 'Cancelar' : 'Cancel' }).first().click().catch(() => {})
     // Un request: los campos de dos tipos de autorización.
     await page.locator('.tree-add', { hasText: T.newRequest }).click()
     await page.locator('.nr-dialog').waitFor()
@@ -721,6 +695,127 @@ Object.assign(scenes, {
   },
 })
 
+// --- La colección (sus pestañas), los ambientes globales, la tarjeta de una variable y abrir una carpeta ---
+/** Deja sin scroll horizontal lo que se haya corrido al llevar un elemento a la vista (la ventana entera, siempre). */
+const unscroll = (page) =>
+  page.evaluate(() => {
+    for (const el of [document.scrollingElement, ...document.querySelectorAll('body *')]) if (el && el.scrollLeft > 0 && !el.closest?.('.cm-editor')) el.scrollLeft = 0
+  })
+/** Una pestaña de la vista de la colección. */
+const coTab = (page, id) => page.locator(`.collection-overview [role="tab"][data-tab="${id}"]`).first()
+Object.assign(scenes, {
+  async collection() {
+    // La colección "Shop": Resumen, Autorización (Bearer), Variables (apiVersion = v2) y la documentación.
+    const page = await freshPage()
+    await openShop(page)
+    await page.locator('.tree-collection.current').click()
+    await page.locator('.collection-overview').waitFor()
+    // La documentación: una colección nueva no tiene; se abre el panel y se genera desde los Arazzo.
+    await page.locator('.home-docs-rail').click()
+    await page.locator('.home-docs-empty button').last().click()
+    await page.locator('.home-docs-edit textarea').waitFor()
+    await settle(page, 600)
+    await shot(page, 'collection-docs-edit')
+    await page.locator('.home-docs-edit button.primary').click()
+    await page.locator('.home-docs-body').waitFor()
+    await settle(page, 900)
+    await shot(page, 'collection-overview')
+    await coTab(page, 'auth').click()
+    const type = page.locator('#collection-auth select').filter({ has: page.locator('option[value="awsv4"]') }).first()
+    await type.selectOption('bearer')
+    await settle(page, 500)
+    await shot(page, 'collection-auth')
+    await type.selectOption('none')
+    await coTab(page, 'variables').click()
+    await page.locator('#collection-variables .add-case').click()
+    const row = page.locator('#collection-variables .co-vars-table tbody tr').last()
+    await row.locator('input').nth(0).fill('apiVersion')
+    await row.locator('input').nth(1).fill('v2')
+    await page.evaluate(() => document.activeElement?.blur?.())
+    await settle(page, 600)
+    await shot(page, 'collection-variables')
+    await coTab(page, 'overview').click()
+    // Un ambiente global, desde la mitad derecha de la pastilla: el primero se llama como el de la colección.
+    await page.locator('.app-env-glob').click()
+    await page.locator('.context-menu [role="menuitem"]').first().click()
+    await settle(page, 600)
+    if (await page.locator('.ws-vars-toggle.active').count()) await page.locator('.ws-vars-toggle').click()
+    await settle(page, 400)
+    // La pastilla de dos mitades, con el menú del ambiente global abierto.
+    await page.locator('.app-env-glob').click()
+    await page.locator('.context-menu').waitFor()
+    await shot(page, 'env-pill-split')
+    await page.keyboard.press('Escape')
+    await settle(page, 300)
+    // El panel Ambientes de la barra lateral: los globales, los de la colección y las variables de la colección.
+    await page.locator('.sb-rail-btn[data-panel="envs"]').click()
+    await page.locator('.tree-globals').waitFor()
+    await page.mouse.move(900, 500)
+    await shot(page, 'sidebar-envs-globals')
+    await page.locator('.sb-rail-btn[data-panel="collections"]').click()
+    await done()
+  },
+
+  async 'request-body'() {
+    // El body JSON de un login: una variable que no existe (su tarjeta) y los comentarios con Beautify.
+    const page = await freshPage()
+    await openShop(page)
+    await page.locator('.tree-add', { hasText: T.newRequest }).click()
+    await page.locator('.nr-dialog').waitFor()
+    await page.locator('.nr-curl-btn[data-kind="curl"]').click()
+    await page.locator('.nr-curl textarea').fill(`curl -X POST '${API}/login' -H 'content-type: application/json' --data '{"email": "{{loginEmail}}", "password": "demo-password"}'`)
+    await page.locator('.nr-dialog').getByRole('button', { name: T.imp }).click()
+    await page.locator('.rq').waitFor()
+    await page.locator('.rq-req-tabs [role="tab"][data-tab="body"]').first().click()
+    const editor = page.locator('.rq-body .cm-content').first()
+    await editor.waitFor()
+    await editor.click()
+    await page.keyboard.press('Meta+a')
+    await page.keyboard.insertText('{\n  "email": "{{loginEmail}}",\n  "password": "demo-password"\n}')
+    await settle(page, 600)
+    const mark = page.locator('.rq-body .cm-tpl[data-tpl-name="loginEmail"]').first()
+    await mark.waitFor()
+    await page.mouse.move(900, 600)
+    await unscroll(page)
+    await settle(page, 300)
+    const at = await mark.boundingBox()
+    await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2, { steps: 4 })
+    await page.locator('.tpl-card').waitFor()
+    await settle(page, 500)
+    await shot(page, 'var-card-missing')
+    // Comentarios en el body, y una coma que falta: Beautify no cambia nada y lo dice.
+    await page.mouse.move(900, 120)
+    await page.keyboard.press('Escape')
+    await editor.click()
+    await page.keyboard.press('Meta+a')
+    await page.keyboard.insertText('{\n  // the test customer of the shop\n  "customerId": 42,\n  "items": [\n    { "sku": "TSHIRT-M", "qty": 2 } /* add more later */\n  ]\n  "note": "gift"\n}')
+    await settle(page, 400)
+    await page.locator('.rq-beautify').click()
+    await page.locator('.rq-beautify-err').waitFor()
+    await page.mouse.move(900, 120)
+    await unscroll(page)
+    await shot(page, 'json-body-comments')
+    await done()
+  },
+
+  async 'open-folder'() {
+    // Abrir una carpeta que no es un workspace: tiene un Arazzo y su contrato, pero no luvin.yaml.
+    const page = await freshPage()
+    await page.locator('.welcome-dialog').waitFor()
+    const folder = path.join(current.home, ES ? 'pruebas' : 'tests')
+    mkdirSync(folder, { recursive: true })
+    writeFileSync(path.join(folder, 'shop.openapi.yaml'), SHOP_OPENAPI)
+    writeFileSync(path.join(folder, 'shop.arazzo.yaml'), SHOP_ARAZZO)
+    // Sin diálogo nativo: la app de prueba toma la carpeta "elegida" de este archivo (electron/main.mjs).
+    writeFileSync(path.join(current.home, 'next-pick.txt'), folder)
+    await page.locator('.wd-card', { hasText: ES ? 'Abrir un workspace' : 'Open a workspace' }).click()
+    await page.locator('.wd-pick').waitFor()
+    await settle(page, 600)
+    await shot(page, 'open-folder-not-workspace')
+    await done()
+  },
+})
+
 // ---------------------------------------------------------------------------------------------
 Object.assign(scenes, {
   async 'clip-quick-start'() {
@@ -810,31 +905,6 @@ Object.assign(scenes, {
     await saveClip(page, 'run-cases', started, from)
   },
 
-  async 'clip-list-pick'() {
-    const started = Date.now()
-    const page = await freshPage({ video: V })
-    await openShop(page)
-    await page.locator('[data-journey="viewProduct"]').click()
-    await tab(page, 'cases').click()
-    await settle(page, 900)
-    const from = Date.now()
-    await say(page, C.l1)
-    await go(page, page.locator('.ws-run'), { pause: 300 })
-    await page.locator('.lp-dialog').waitFor({ timeout: 15000 })
-    await say(page, C.l2, 2400)
-    await say(page, C.l3, 400)
-    await go(page, page.locator('.lp-dialog thead th.used').first(), { click: false, pause: 1800 })
-    await go(page, page.locator('.lp-dialog tbody tr').nth(3).locator('td').nth(2), { pause: 1300 })
-    await say(page, C.l4, 400)
-    await go(page, page.locator('.lp-dialog button.primary'), { pause: 300 })
-    await untilDone(page)
-    await say(page, C.l5, 500)
-    await go(page, page.locator('.note.n-pick').first(), { click: false, pause: 2800 })
-    await say(page, C.l6, 500)
-    await go(page, page.locator('.ws-results .step-result .step-head').nth(1), { pause: 3200 })
-    await say(page, '', 400)
-    await saveClip(page, 'list-pick', started, from)
-  },
 
   async 'clip-request-from-curl'() {
     const started = Date.now()
@@ -869,7 +939,7 @@ Object.assign(scenes, {
     const from = Date.now()
     // El ambiente activo es la pastilla de arriba a la derecha: su menú lleva a la configuración.
     await say(page, C.e1)
-    await go(page, page.locator('.app-env'), { pause: 700 })
+    await go(page, page.locator('.app-env-coll'), { pause: 700 })
     await go(page, page.locator('.context-menu [role="menuitem"]', { hasText: ES ? 'Configurar ambiente' : 'Configure environment' }), { pause: 1800 })
     await say(page, C.e2, 500)
     await go(page, page.locator('.env-add'), { pause: 500 })
@@ -883,7 +953,7 @@ Object.assign(scenes, {
     await base.pressSequentially('https://staging.example.com/api/v2', { delay: 28 })
     await settle(page, 1500)
     await say(page, C.e4, 500)
-    await go(page, page.locator('.app-env'), { pause: 1200 })
+    await go(page, page.locator('.app-env-coll'), { pause: 1200 })
     await go(page, page.locator('.context-menu [role="menuitem"]').first(), { pause: 2400 })
     await say(page, '', 400)
     await saveClip(page, 'environments', started, from)
@@ -894,7 +964,11 @@ Object.assign(scenes, {
 const sceneDir = path.join(here, 'scenes')
 if (existsSync(sceneDir))
   for (const f of readdirSync(sceneDir).filter((n) => n.endsWith('.mjs')).sort()) {
-    const mod = await import(pathToFileURL(path.join(sceneDir, f)).href)
+    // Un archivo de escenas que no carga (a medio escribir) no frena a los demás.
+    const mod = await import(pathToFileURL(path.join(sceneDir, f)).href).catch((e) => {
+      console.log(`  ✕ ${f} no carga: ${String(e.message ?? e).split('\n')[0]}`)
+    })
+    if (!mod?.default) continue
     Object.assign(scenes, mod.default({ ES, locale, T, OUT, tmp, root, API, VIEW, V, path, writeFileSync, freshPage, done, viewport, resize, capture, download, showFile, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, openShop, focusStep, run, untilDone }))
   }
 

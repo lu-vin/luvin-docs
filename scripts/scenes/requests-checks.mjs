@@ -1,92 +1,14 @@
 // Escenas de las variables y comprobaciones de un request (después de la respuesta, sin scripts):
-// capturas request-vars*, request-checks, response-checks-* e import-checks-summary, en los dos idiomas.
+// capturas request-vars*, request-checks y response-checks-*, en los dos idiomas.
+// La importación de una colección de Postman con scripts está en scripts.mjs (import-scripts-summary).
 // Los requests van a la API local de prueba de capture.mjs (la tienda "Shop").
 export default (ctx) => {
-  const { ES, T, API, tmp, path, writeFileSync, freshPage, shot, clip, settle, openShop } = ctx
+  const { ES, T, API, freshPage, shot, settle, openShop } = ctx
 
   // Textos de la interfaz que las escenas buscan (los mismos de src/i18n/locales/{en,es}/ui.ts).
   const L = ES
     ? { vars: 'Variables', checks: 'Comprobaciones', addVar: 'Variable', addCheck: 'Comprobación', gt: 'es mayor que', home: 'Inicio' }
     : { vars: 'Variables', checks: 'Checks', addVar: 'Variable', addCheck: 'Check', gt: 'is greater than', home: 'Home' }
-
-  // Una colección de Postman inventada, con tests y variables en sus scripts: Luvin convierte lo común
-  // (pm.test, pm.expect, pm.environment.set) y avisa de lo que no puede convertir.
-  const POSTMAN = {
-    info: { name: 'Shop API', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
-    variable: [{ key: 'baseUrl', value: 'https://shop.example.com' }],
-    item: [
-      {
-        name: 'Products',
-        item: [
-          {
-            name: 'List products',
-            request: { method: 'GET', url: { raw: '{{baseUrl}}/products' } },
-            event: [
-              {
-                listen: 'test',
-                script: {
-                  exec: [
-                    'const data = pm.response.json();',
-                    'pm.test("Status 200", function () {',
-                    '  pm.response.to.have.status(200);',
-                    '});',
-                    'pm.test("Has products", function () {',
-                    '  pm.expect(data.items).to.be.an("array");',
-                    '  pm.expect(data.total).to.be.above(0);',
-                    '});',
-                    'pm.environment.set("sku", data.items[0].sku);',
-                  ],
-                },
-              },
-            ],
-          },
-          {
-            name: 'Product detail',
-            request: { method: 'GET', url: { raw: '{{baseUrl}}/products/{{sku}}' } },
-            event: [
-              {
-                listen: 'test',
-                script: {
-                  exec: [
-                    'const data = pm.response.json();',
-                    'pm.test("Same product", () => {',
-                    '  pm.expect(data.sku).to.eql(pm.environment.get("sku"));',
-                    '  pm.expect(pm.response.responseTime).to.be.below(800);',
-                    '});',
-                  ],
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: 'Create order',
-        request: {
-          method: 'POST',
-          header: [{ key: 'Content-Type', value: 'application/json' }],
-          url: { raw: '{{baseUrl}}/orders' },
-          body: { mode: 'raw', raw: '{"customer":"Ana","lines":[{"sku":"{{sku}}","qty":1}]}', options: { raw: { language: 'json' } } },
-        },
-        event: [
-          { listen: 'prerequest', script: { exec: ['pm.environment.set("ts", Date.now());'] } },
-          {
-            listen: 'test',
-            script: {
-              exec: [
-                'pm.test("Created", function () {',
-                '  pm.response.to.have.status(201);',
-                '  pm.expect(pm.response.json().status).to.eql("CREATED");',
-                '});',
-                'pm.environment.set("orderId", pm.response.json().id);',
-              ],
-            },
-          },
-        ],
-      },
-    ],
-  }
-  writeFileSync(path.join(tmp, 'shop.postman_collection.json'), JSON.stringify(POSTMAN, null, 2))
 
   /** Un menú dibujado con las opciones reales de un <select> (el nativo es del sistema y no sale en la captura). */
   async function showOptions(page, select, highlight) {
@@ -186,9 +108,10 @@ export default (ctx) => {
       // Enviar: el resumen junto al status y la pestaña de la respuesta.
       await send(page)
       await page.locator('.rq-checks-chip').waitFor()
-      await page.mouse.move(900, 120)
-      const meta = await page.locator('.rq-res-meta').first().boundingBox()
-      await clip(page, 'response-checks-chip', { x: meta.x, y: meta.y, width: Math.min(560, meta.width), height: meta.height }, 6)
+      // El cursor señala el resumen de las comprobaciones, junto al status.
+      const chip = await page.locator('.rq-checks-chip').boundingBox()
+      await page.mouse.move(chip.x + chip.width / 2, chip.y + chip.height / 2)
+      await shot(page, 'response-checks-chip')
       await page.locator('.rq-checks-chip').click()
       // Más alta la respuesta, para ver todas las comprobaciones (y luego se deja como estaba).
       await tallRequest(page, -330)
@@ -200,18 +123,6 @@ export default (ctx) => {
       await reqTab(page, L.vars).click()
       await settle(page, 500)
       await shot(page, 'request-vars-runtime')
-      await ctx.done()
-    },
-
-    async 'checks-import'() {
-      const page = await freshPage()
-      await openShop(page)
-      await page.locator('.ws-home-tab button').first().click()
-      await page.locator('.home-action', { hasText: T.importPm }).click()
-      await page.locator('.import-sources').waitFor()
-      await page.locator('.import-dialog input[type="file"][accept]').setInputFiles(path.join(tmp, 'shop.postman_collection.json'))
-      await page.locator('.import-result').waitFor()
-      await shot(page, 'import-checks-summary', page.locator('.import-dialog'))
       await ctx.done()
     },
   }
