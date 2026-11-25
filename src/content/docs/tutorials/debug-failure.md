@@ -1,6 +1,6 @@
 ---
 title: Find out why a case failed
-description: Read the verdict and its reason, open the failed step, check the request in Dev Tools, repeat it in a terminal with cURL and fix the input.
+description: Read the verdict and its reason, see the failure on the canvas, check the request in Dev Tools, repeat it in a terminal with cURL, try another value in a pause and fix the input.
 sidebar:
   order: 5
 ---
@@ -41,6 +41,16 @@ Under the detail, each step is a card. The failed one is already open.
 5. Click **Response** to see what the API answered.
 
 The steps after it say **Not run**, because the workflow stopped. See [Read a step result](/test/step-results/).
+
+### The same failure on the canvas
+
+1. Click the **Design** tab. The canvas shows the run: the card of `getPokemon` is red and says **✕ 404 → ends**, its 404 route says **taken**, and the other steps say **did not run**.
+2. Click the card of `getPokemon` and open the **Response** tab of its panel.
+3. Under **Why it failed**, `$statusCode == 200` says **was 404**. Under **What it received**, `idOrName` is `"missingno"`.
+
+![The canvas after the failed run: the card of getPokemon says ✕ 404 → ends, and its Response tab says why it failed and that idOrName was "missingno"](/media/en/test-canvas-failed-response.webp)
+
+The diagram tells you the same as the results, without leaving the workflow. See [Results on the canvas](/test/run-on-canvas/).
 
 ### When the label is "Criterion not met"
 
@@ -84,7 +94,7 @@ The terminal also answers 404. So the workflow is correct and the data is wrong.
 
 You can call one operation without the rest of the workflow.
 
-1. In **Design**, click the step `getPokemon`.
+1. In the sidebar, under **Pokemon card**, click its first step, the `GET` of `getPokemon`. A tab opens with the step.
 2. Click **▶ Try alone**. A tab opens with the operation.
 3. Choose **Real API**, check the environment and click **Send**.
 
@@ -101,7 +111,18 @@ Not every failure is an answer. If the step has **Network** as its label and the
 
 See [Connection help](/dev-tools/connection-help/).
 
-## 8. Fix the input and run again
+## 8. Try another value without changing the input
+
+Before you change the input, check that another value works, from the same step.
+
+1. In the **Design** tab, click the card of `getPokemon` and press **F9**. The card shows **⏸ pause**.
+2. Click **Run**. The run stops before `getPokemon`, and the bar at the bottom of the canvas says **⏸ Paused before step 1**.
+3. In the panel, under **Receives**, `idOrName` says `missingno`. Type `pikachu` and click **▷ Continue**.
+4. If the run pauses to choose from a list, click **Continue with this item** each time.
+
+The case ends as **Passed**, and the chip of `idOrName` says `= "pikachu" ✎`. The **Inputs** tab still says `missingno`: the value you typed applied only to that run. Press **F9** on the card again to remove the pause. See [Debug a workflow](/test/debug/).
+
+## 9. Fix the input and run again
 
 1. Click the **Inputs** tab and type `pikachu` in `pokemon`.
 2. Click the **Cases** tab and click **Run**.
@@ -114,11 +135,14 @@ If the run pauses with **Run paused**, click **Continue with this item** each ti
 - The label of a failed step tells the kind of problem: the API returned an error, a criterion was not met, there was no response, and so on.
 - **See in the response** highlights the field that differs.
 - Dev Tools **Network** shows the exact request, and **Copy as cURL** repeats it in a terminal.
+- In the **Design** tab, the canvas shows the failed step in red, and its **Response** tab says why it failed.
+- A pause (**F9**) lets you try another value in one step without changing the inputs.
 - **▶ Try alone** tests one operation without the rest of the workflow.
 - The connection panel helps when the API does not answer.
 
 ## Next
 
 - [Prove your API rejects bad data](/tutorials/negative-cases/)
+- [Debug a workflow](/test/debug/)
 - [Network](/dev-tools/network/)
 - [Why a step or a case failed](/reference/failure-reasons/)

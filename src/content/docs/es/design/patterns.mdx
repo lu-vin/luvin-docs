@@ -1,0 +1,160 @@
+---
+title: Patrones de Arazzo estándar
+description: Agrega desde ＋ Paso un paso que recorre todas las páginas, espera a que termine un trabajo o inicia sesión y da su token a los pasos siguientes, escrito como Arazzo normal.
+sidebar:
+  order: 6.5
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Hay cadenas que se repiten en casi todas las APIs: leer una lista página por página, esperar a que termine un trabajo, iniciar sesión y usar el token. Arazzo las puede expresar, pero hay que saber cómo. **＋ Paso** las tiene listas en **Patrones · Arazzo estándar**. Eliges el patrón y la operación, y Luvin escribe el paso con sus rutas, sus criterios y sus outputs. Todo es Arazzo estándar, sin extensiones.
+
+## Ejemplo: espera a que termine una exportación
+
+La API de una tienda empieza una exportación y te da su `id`. `GET /exports/{id}` responde `"status": "pending"` hasta que el archivo está listo, y después `"status": "done"`.
+
+<Steps>
+1. Elige el paso que empieza la exportación y haz clic en **＋ Paso**.
+2. En **Patrones · Arazzo estándar**, haz clic en **Esperar hasta que termine**. Una barra dice **Esperar hasta que termine · elige a qué operación aplicarlo**.
+3. Haz clic en `GET /exports/{id}`.
+</Steps>
+
+Un aviso sobre el lienzo dice **«Consulta la exportación» pasa cuando «status» dice «done» y reintenta cada 2 s, hasta 10 veces, mientras diga «pending».**
+
+<Tabs>
+<TabItem label="En el lienzo">
+
+La tarjeta nueva tiene dos criterios de éxito: `$statusCode == 200` y `$response.body#/status == "done"`. Su sección **Si falla** tiene una fila azul, **reintenta hasta 10 · cada 2 s**, con un lazo sobre la misma tarjeta.
+
+</TabItem>
+<TabItem label="En el YAML">
+
+```yaml title="Lo que escribe Luvin" {5,7,9-14}
+- stepId: getExport
+  operationId: $sourceDescriptions.shop.getExport
+  successCriteria:
+    - condition: $statusCode == 200
+    - condition: $response.body#/status == "done"
+  outputs:
+    status: $response.body#/status
+  onFailure:
+    - name: mientrasPendiente
+      type: retry
+      retryAfter: 2
+      retryLimit: 10
+      criteria:
+        - condition: $response.body#/status == "pending"
+```
+
+</TabItem>
+</Tabs>
+
+![El aviso del patrón y la tarjeta de getExport: el criterio status == "done" y, en Si falla, la fila azul que reintenta mientras status sea "pending"](/media/es/design-pattern-poll.webp)
+
+## Agrega un patrón
+
+<Steps>
+1. Haz clic en **＋ Paso**, o presiona **/**. Si hay un paso elegido, el paso nuevo va justo después; si no, al final del camino feliz.
+2. En **Patrones · Arazzo estándar**, haz clic en el patrón. También puedes escribir parte de su nombre y presionar Enter.
+3. La lista ahora muestra solo operaciones HTTP y los requests de la colección. Haz clic en aquella a la que se aplica.
+</Steps>
+
+![La búsqueda de ＋ Paso después de elegir Esperar hasta que termine: la barra elige a qué operación aplicarlo, con ← Otros pasos, y las operaciones del contrato store](/media/es/design-patterns-menu.webp)
+
+Para volver a la lista completa, haz clic en **← Otros pasos**.
+
+El paso nuevo se completa como cualquier otro, y después el patrón agrega lo suyo. Un aviso dice qué escribió. **↶ Deshacer** lo quita.
+
+Los patrones no se ofrecen cuando agregas un paso nuevo para una ruta. Lee [Un paso nuevo para una ruta](/es/design/branch-new-step/).
+
+| Patrón | Qué dice en la lista | Lee |
+|---|---|---|
+| **Recorrer todas las páginas** | repite el paso mientras haya página siguiente | [Recorrer todas las páginas](#recorrer-todas-las-páginas) |
+| **Esperar hasta que termine** | reintenta mientras el estado diga «pending» | [Esperar hasta que termine](#esperar-hasta-que-termine) |
+| **Iniciar sesión y usar el token** | los pasos de esa API usan su token | [Iniciar sesión y usar el token](#iniciar-sesión-y-usar-el-token) |
+
+## Recorrer todas las páginas
+
+El paso se vuelve a llamar mientras la respuesta tenga una página siguiente.
+
+Luvin busca el campo de la página siguiente entre los campos de primer nivel de la respuesta: `next`, `nextCursor`, `next_cursor`, `nextPageToken`, `next_page_token`, `cursor` o `nextPage`. Si la operación tiene un parámetro de query para el cursor (`cursor`, `next`, `pageToken`, `page_token`, `after`, `starting_after`, `nextToken`, `continuation` o `nextCursor`), cada vuelta lo manda con el valor que dio la anterior. La primera vuelta va sin él.
+
+Para `GET /products` de una tienda que responde `nextCursor` y recibe `cursor`:
+
+```yaml title="Lo que escribe Luvin" {4-6,9-10,11-16}
+- stepId: listProducts
+  operationId: $sourceDescriptions.shop.listProducts
+  parameters:
+    - name: cursor
+      in: query
+      value: $steps.listProducts.outputs.nextCursor
+  successCriteria:
+    - condition: $statusCode == 200
+  outputs:
+    nextCursor: $response.body#/nextCursor
+  onSuccess:
+    - name: siguientePagina
+      type: goto
+      stepId: listProducts
+      criteria:
+        - condition: $response.body#/nextCursor != null
+```
+
+El aviso dice **«Lista los productos» repite mientras «nextCursor» tenga valor, y cada vuelta manda «cursor» con la página que dio la anterior. Si la API llama distinto a la página siguiente, cámbialo en sus rutas.**
+
+En la tarjeta, la ruta es una fila verde en **Si pasa y se cumple**, con una flecha que vuelve al mismo paso.
+
+### Cuándo para
+
+- Cuando el campo de la página siguiente está vacío o no viene, la condición no se cumple y el workflow sigue con el paso siguiente.
+- El runner corta cualquier bucle a las 200 ejecuciones de un workflow. Una condición sobre el body es la forma normal de recorrer páginas en Arazzo, así que **Por revisar** no la marca.
+
+<Aside type="caution" title="APIs que paginan por desplazamiento">
+Algunas APIs paginan con un desplazamiento: `skip` y `limit`, y un `total` para comparar, como DummyJSON. Las condiciones de Arazzo no pueden sumar, así que este patrón no puede escribir ese bucle. Con una API así, Luvin no encuentra un campo de página siguiente, escribe la condición sobre `next` y el bucle para después de la primera página. El aviso nombra el campo que usó. Lee [Recorre una lista por páginas](/es/recipes/pagination-query/) para leer una página concreta con `skip` y `limit`.
+
+Si la API da un campo de página siguiente pero no recibe un parámetro de cursor, cada vuelta manda el mismo request. Revisa el parámetro en la pestaña **Datos** del paso.
+</Aside>
+
+## Esperar hasta que termine
+
+El paso pasa cuando el trabajo terminó, y reintenta mientras no.
+
+Luvin mira los campos de primer nivel de la respuesta:
+
+| La respuesta tiene | Criterio de éxito que se agrega | Reintenta mientras |
+|---|---|---|
+| `status` o `state` | `$response.body#/status == "done"` | `$response.body#/status == "pending"` |
+| Ni `status` ni `state`, pero un campo de sí o no llamado `completed`, `done`, `finished`, `ready`, `isComplete` o `isDone` | `$response.body#/completed == true` | `$response.body#/completed == false` |
+
+El reintento espera 2 segundos y prueba hasta 10 veces. El campo también se vuelve un output del paso.
+
+Con el campo de sí o no, el aviso dice, por ejemplo, **«Consulta la tarea» pasa cuando «completed» es true y reintenta cada 2 s, hasta 10 veces, mientras sea false.**
+
+Si tu API usa otras palabras en lugar de `done` y `pending`, o quieres otra espera u otra cantidad de intentos, cámbialas en la [pestaña YAML](/es/design/arazzo-editor/). El editor de rutas solo escribe rutas por status, así que no cambies esta ruta con su lápiz.
+
+<Aside type="note">
+Después de los 10 intentos, si el estado sigue diciendo `pending`, el paso falla y el workflow sigue sus otras rutas, o falla. Un estado que no es ni `done` ni `pending`, como `failed`, hace fallar el paso sin reintentar.
+</Aside>
+
+## Iniciar sesión y usar el token
+
+Elige la operación del login. Luvin agrega el paso y reconoce qué campo de su respuesta es el token. Desde ahí, los pasos de la misma API que vienen después usan ese token como su autorización, igual que si eliges el token en el panel del paso. Un aviso dice cuántos pasos lo usan ahora, con **Deshacer**.
+
+Si Luvin no reconoce el campo del token, el paso se agrega igual y el aviso dice **«Iniciar sesión» se agregó, pero Luvin no reconoce cuál de sus campos es el token: elígelo en su panel, en «Autorización».**
+
+Lee [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
+
+## Patrones con requests de la colección
+
+Los patrones también funcionan con los requests de la colección, sin contrato. Haz clic en el patrón y luego en un request de **Requests de la colección**. Luvin agrega el request como paso, igual que [Armar desde requests guardados](/es/design/from-requests/), y le aplica el patrón.
+
+Los campos salen de lo que Luvin sabe de la respuesta del request: sus ejemplos guardados o su última respuesta. Si Luvin todavía no conoce la respuesta, usa `next` o `status`, y el aviso nombra el campo. Envía el request una vez, o cambia el campo en la pestaña YAML.
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Agregar pasos" href="/es/design/add-steps/" />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="Por revisar" href="/es/design/review/" />
+  <LinkCard title="Recorre una lista por páginas" href="/es/recipes/pagination-query/" />
+</CardGrid>

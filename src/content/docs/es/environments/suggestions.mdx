@@ -16,7 +16,7 @@ Abre el ejemplo de PayPal, después un workflow, y su pestaña **Autorización**
 <Steps>
 
 1. Mira los dos campos. Mientras no los completes en el ambiente, los dos nombres están en ámbar: existen en `Sandbox` pero están vacíos.
-2. Pasa el mouse sobre `{{clientId}}`. Se abre una tarjeta con **variable**, el nombre, un campo de valor vacío y *Valor en el ambiente «Sandbox»*.
+2. Pasa el mouse sobre `{{clientId}}`. Se abre una tarjeta con el nombre, **E Ambiente** arriba a la derecha (vive en el ambiente) y un campo de valor vacío.
 3. Pega tu client ID en el campo de la tarjeta. El nombre se pone verde, y el valor queda guardado en `Sandbox`, como si lo hubieras escrito en el ambiente.
 4. Borra **Client ID** y escribe `{{cl`. La lista muestra `clientId` con su valor, y `clientSecret` marcado como **secreto**, con su valor oculto como `••••••`.
 5. Pulsa **Enter**. `{{clientId}}` vuelve a estar en el campo.
@@ -41,13 +41,13 @@ Cada fila tiene un tipo, el nombre y un detalle:
 
 | Tipo | Qué es | Detalle |
 |---|---|---|
-| **variable** | Una variable del ambiente activo, o un valor guardado por un request | Su valor, cortado a 40 caracteres, o *(vacía)* |
-| **secreto** | Un secreto del ambiente activo, o un valor guardado marcado como secreto | `••••••`, o *(vacía)* |
+| **variable** | Una variable de este request, del ambiente activo, de la colección o del ambiente global, o un valor guardado por un request | Su valor, cortado a 40 caracteres, o *(vacía)* |
+| **secreto** | Un secreto del ambiente activo o del ambiente global, o un valor guardado marcado como secreto | `••••••`, o *(vacía)* |
 | **URL base** | Una URL base del ambiente activo, del contrato o tuya | La dirección |
 | **dinámica** | Una variable dinámica compatible con Postman, como `$randomEmail` | Qué produce, y un ejemplo: *Email · ej. Valentina.Gutierrez42@yahoo.com* |
 | **generador** | Uno de los generadores propios de Luvin, como `email` o `numero:8` | Qué produce |
 
-Primero van los nombres del ambiente activo, después las variables dinámicas, después los generadores. Un generador que tiene el mismo nombre que una variable no aparece, porque manda la variable. Se ven hasta 60 filas a la vez: escribe más letras para encontrar el resto. Escribe `{{$` para ver solo las variables dinámicas.
+Primero van tus variables, después las variables dinámicas, después los generadores. Un generador que tiene el mismo nombre que una variable no aparece, porque manda la variable. Se ven hasta 60 filas a la vez: escribe más letras para encontrar el resto. Escribe `{{$` para ver solo las variables dinámicas.
 
 ![Escribiendo en el input email: las sugerencias muestran las variables dinámicas con un ejemplo de cada una](/media/es/test-inputs-generators.webp)
 
@@ -57,14 +57,14 @@ Cada `{{nombre}}` de un campo tiene un color:
 
 | Color | Qué significa | Qué pasa al enviar |
 |---|---|---|
-| Verde | La variable existe en el ambiente activo y tiene valor. | Se reemplaza por el valor. |
+| Verde | La variable existe y tiene valor. | Se reemplaza por el valor. |
 | Ámbar | La variable existe pero está vacía. | Se reemplaza por nada. |
 | Morado | Un generador o una variable dinámica. | Se reemplaza por un valor nuevo. |
-| Rojo | Ninguna variable, URL base ni generador se llama así en el ambiente activo. | Sale tal como está escrito, con `{{nombre}}` incluido. |
+| Rojo, con borde punteado | Ninguna variable, URL base ni generador se llama así: ni en el request, ni en el ambiente activo, ni en la colección, ni en el ambiente global. | Sale tal como está escrito, con `{{nombre}}` incluido. |
 
 El color sigue al ambiente activo. Un nombre que está verde en `staging` puede estar rojo en `local` si `local` no lo tiene. Cambia de ambiente y los colores cambian al instante.
 
-En un request, Luvin además te avisa antes de enviarlo. Cuando la URL, los params marcados, las variables de ruta, los headers marcados, el body o la autorización (en GraphQL, también la query y sus variables) usan un nombre en rojo, una franja amarilla bajo la barra de la URL dice, por ejemplo: *`{{apiKey}}` no existe en el ambiente «local»: se enviará tal cual.* **Abrir el ambiente** lo abre para que agregues la variable. Un valor guardado por un request cuenta como conocido. En los workflows no hay franja: el campo muestra el nombre en rojo.
+En un request, Luvin además te avisa antes de enviarlo. Cuando la URL, los params marcados, las variables de ruta, los headers marcados, el body o la autorización (en GraphQL, también la query y sus variables) usan un nombre en rojo, una franja amarilla bajo la barra de la URL dice, por ejemplo: *`{{apiKey}}` no existe en el ambiente «local»: se enviará tal cual.* **Crear en «local»** crea de una vez todos los nombres que faltan, vacíos, en ese ambiente, y lo abre en el primero. Los nombres que parecen credenciales, como `password`, `token` o `apiKey`, se crean como secretos. Un valor guardado por un request cuenta como conocido. En los workflows no hay franja: el campo muestra el nombre en rojo.
 
 Los campos que ocultan lo que escribes, como una contraseña, no se pintan. Un campo secreto de la pestaña **Autorización** muestra su texto, con colores, en cuanto tiene un `{{nombre}}`.
 
@@ -72,31 +72,49 @@ Los campos que ocultan lo que escribes, como una contraseña, no se pintan. Un c
 
 Pasa el mouse sobre un nombre pintado, o pon el cursor dentro de él, y se abre una tarjeta debajo. Flota sobre la página, así que nada se mueve.
 
+Arriba a la derecha, la tarjeta dice dónde vive la variable, con una letra como en el panel Variables: **R Request**, **E Ambiente**, **C Colección**, **G Global**, o **↺ Guardada** para un valor guardado de una respuesta. Un secreto dice **Secreto** o **Secreto global**, y una URL base dice **URL base**.
+
 | El nombre es | La tarjeta muestra |
 |---|---|
-| Una variable o una URL base | Su tipo y su valor, en un campo que puedes editar. Abajo: *Valor en el ambiente «staging»* y **Abrir ambiente**. |
+| Una variable o una URL base | Su valor, en un campo que puedes editar. Abajo, un enlace a donde vive: **Abrir ambiente** o **Abrir la colección**. |
 | Un secreto | Lo mismo, con el valor oculto. |
+| Un valor guardado de una respuesta | Su valor, que la tarjeta no edita. Si ninguna respuesta lo llenó todavía: *Se llena al enviar «Iniciar sesión».*, con **Abrir «Iniciar sesión»**. |
 | Un generador o una variable dinámica | *⚡ se genera al ejecutar*. |
-| Desconocido | *no existe en «staging»*, con **Crear variable** y **Crear secreto**. |
+| Desconocido | Un campo para escribir su valor. Mira [Crear una variable que falta](#crear-una-variable-que-falta). |
 
-Lo que escribes en la tarjeta va directo al ambiente activo. Si es un valor guardado por un request (**Guardadas ahora**), cambia ese valor guardado. **Crear variable** y **Crear secreto** agregan uno vacío con ese nombre al ambiente activo. El nombre se pone ámbar; escribe su valor en la tarjeta y se pone verde.
+Lo que escribes en la tarjeta cambia la variable donde vive: en el request, en el ambiente activo, en la colección o en el ambiente global.
 
-<Aside type="caution" title="Cambia el ambiente, no el campo">
-Editar un valor en la tarjeta lo cambia para todos los requests y workflows que usan ese nombre en este ambiente. Para usar un valor distinto en un solo lugar, escribe el valor en el campo en vez de la variable.
+El último enlace de la tarjeta, **Variables en el request →** en un request o **Variables →** en otros lugares, abre el [panel Variables](/es/environments/variable-levels/#el-panel-variables) en esa variable.
+
+<Aside type="caution" title="Cambia la variable, no el campo">
+Editar un valor en la tarjeta lo cambia para todos los requests y workflows que usan esa variable. Para usar un valor distinto en un solo lugar, escribe el valor en el campo en vez de la variable.
 </Aside>
+
+### Crear una variable que falta
+
+La tarjeta de un nombre desconocido tiene un campo de valor vacío y funciona como la de Postman:
+
+- **En un request**, el campo dice **Valor (queda en este request)**. Escribe el valor: la variable existe apenas escribes, como variable de este request.
+- **En otros lugares**, por ejemplo en un workflow, el campo dice **Valor en «staging» (Enter para crearla)**. Pulsa **Enter** para crearla en el ambiente activo. Un nombre que parece una credencial, como `clientSecret`, se crea como secreto.
+- **Agregar a** la crea, con el valor que escribiste, en el nivel que elijas: el ambiente de la colección, como variable o como secreto, la colección o el ambiente global. Si ahí ya hay una variable con ese nombre, cambia su valor.
+
+![La tarjeta de {{loginEmail}}, un nombre que todavía no existe, en el body de un request: el campo Valor (queda en este request) y Agregar a](/media/es/var-card-missing.webp)
+
+Dónde poner cada valor está en [Dónde vive una variable](/es/environments/variable-levels/).
 
 ## Campos con sugerencias
 
 Las sugerencias, los colores y la tarjeta funcionan en:
 
 - La URL de un request, sus params, headers, variables de ruta y campos de formulario.
+- El editor del body de un request (JSON, XML, Texto y SPARQL), la query y las variables de un request GraphQL, y los mensajes de un WebSocket.
 - Todos los campos de la pestaña **Autorización**, de un request, de la colección o de un workflow.
 - Los **Inputs** y los datos de cada caso.
 - El valor de un parámetro de un paso, en la pestaña **Diseño**.
 - Los campos de **Try it out**.
 - Las URLs base y las credenciales del ambiente.
 
-El editor del body de un request y el editor YAML de un archivo Arazzo no sugieren ni pintan nombres. Un `{{nombre}}` que escribas ahí igual se reemplaza al salir.
+El editor YAML de un archivo Arazzo y el mensaje de un request gRPC no sugieren ni pintan nombres. Un `{{nombre}}` que escribas en el YAML igual se reemplaza al salir. El mensaje gRPC se envía tal como está escrito.
 
 ## Relacionado
 

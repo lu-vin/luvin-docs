@@ -9,7 +9,9 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 
 The **Authorization** tab of a workflow decides how each API the workflow calls is authorized: with the credentials of the contract, with OAuth 2.0, with an API key and so on. Use it when pasting a token in the environment is not enough, for example when the token expires and must be requested again.
 
-Arazzo has no concept of authorization. This is a Luvin setting and the Arazzo file is not modified.
+Arazzo has no concept of authorization. These settings belong to Luvin and do not modify the Arazzo file. The one exception is **Token from a step of this workflow**: the token of a login step is written in the steps that use it.
+
+If the API has its own login call, a login step can give its token to the other steps. See [Pass the login token to the next steps](/authorization/token-from-login/).
 
 ![The Authorization tab of a workflow, with one card per API](/media/en/workflow-auth.webp)
 
@@ -32,6 +34,15 @@ apis:
 
 A setting for one workflow goes under a second key, `journeys`, by Arazzo file and workflow id (`file.arazzo.yaml#workflowId`). If you rename the Arazzo file in Luvin, they follow it. The file is written only when you configure something.
 
+A step set to **None** in its own **Authorization** tab goes under a third key, `noAuth`, because Arazzo cannot say it. The file then starts with `version: 3`:
+
+```yaml title="flow-auth.yaml"
+version: 3
+noAuth:
+  shop.arazzo.yaml#placeOrder:
+    - login
+```
+
 ## Open the tab
 
 <Steps>
@@ -41,7 +52,7 @@ A setting for one workflow goes under a second key, `journeys`, by Arazzo file a
 
 </Steps>
 
-You see one card per HTTP API the workflow calls. A workflow with none shows *This workflow doesn’t call HTTP APIs.* Each card shows what is used now and where it was set, for example **In use: OAuth 2.0 · set for every workflow**. The other origins are *set in this workflow*, *inherited from the collection* and *environment credentials*.
+You see one card per HTTP API the workflow calls. The contracts that Luvin generates from your saved requests count as one API per base URL: one card, named after the variable (`baseUrl`) or the host, even when Luvin had to split the requests into several generated contracts. Pointing at the card lists them, and what you choose applies to all of them. A workflow with no HTTP API shows *This workflow doesn’t call HTTP APIs.* Each card shows what is used now and where it was set, for example **In use: OAuth 2.0 · set for every workflow**. The other origins are *set in this workflow*, *inherited from the collection* and *environment credentials*.
 
 ## Two levels: all workflows or this one
 
@@ -54,6 +65,8 @@ Each card has a switch.
 
 The most specific wins: **This workflow only**, then **All workflows**, then the credentials of the contract. The card opens on the level that decides today.
 
+Above both levels is the step itself. A step that takes a token from another step, or is set to **None**, in its own **Authorization** tab in **Design**, ignores this card. See [Where a step gets its authorization](/authorization/token-from-login/#where-a-step-gets-its-authorization).
+
 ## The types
 
 Under **All workflows**, in **Type**:
@@ -65,7 +78,9 @@ Under **All workflows**, in **Type**:
 | **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** | Luvin applies it on every step of that API. Same fields as in a request. |
 | **No Auth** | The calls go without authorization. |
 
-Under **This workflow only**, the first option is **Same as all workflows** (the default), then the same types and **No Auth**. **Edit for all workflows** switches the card to the other level.
+Under **This workflow only**, the first option is **Same as all workflows** (the default), then the same types, **No Auth** and **Token from a step of this workflow**. That last one passes the token of a login step to every step of this API: see [Set it once for the whole API](/authorization/token-from-login/#set-it-once-for-the-whole-api). **Edit for all workflows** switches the card to the other level.
+
+![The card of an API on This workflow only, with the type Token from a step of this workflow and the login token chosen](/media/en/auth-token-tab.webp)
 
 ## Set it up
 
@@ -89,12 +104,13 @@ On the card, **Get new token** does the same for one API. With **Client Credenti
 ## Good to know
 
 - With any option other than **From the contract**, the steps of that API stop using the contract's credentials.
-- Cases that test a call *without credentials* still go without authorization.
+- Cases that test a call *without credentials* still go without authorization. They expect the rejection from the first protected step that is not the login.
 - It applies against the real API. In [simulation](/test/simulation/) no call leaves your computer.
 - A secret typed as-is is not written to `flow-auth.yaml`: it is stored encrypted on your computer. Use `{{clientSecret}}` to share the setup.
 
 ## Related
 
+- [Pass the login token to the next steps](/authorization/token-from-login/)
 - [OAuth 2.0](/authorization/oauth2/)
 - [Where authorization applies](/authorization/where-it-applies/)
 - [Secrets](/authorization/secrets/)

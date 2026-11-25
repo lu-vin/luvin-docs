@@ -47,6 +47,10 @@ Yes. The interface, the messages and the HTML report are in English and Spanish.
 
 Yes. Drag saved requests onto the canvas instead of contract operations. You can create requests from scratch, import a cURL command, or import a Postman or Bruno collection. See [Build from saved requests](/design/from-requests/) and [Bring your own files and requests](/get-started/import/).
 
+### Does Luvin run my Postman or Bruno scripts?
+
+Yes. Pre-request and post-response scripts come over whole when you import, and run as in Postman or Bruno, with the same `pm.*` and `bru.*` API, once you trust the collection. They run when you send a request, in the runner and in load tests, but not in workflow steps. See [Scripts](/requests/scripts/).
+
 ### Do I have to write YAML?
 
 No. You design on the canvas and Luvin writes the Arazzo file. See [Design a workflow](/design/overview/).

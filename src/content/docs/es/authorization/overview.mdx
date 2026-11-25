@@ -26,7 +26,7 @@ Los tres usan los mismos tipos y los mismos campos. Solo cambia el lugar.
 | Lugar | Qué cubre | Dónde se configura |
 |---|---|---|
 | Un request | Ese request | Pestaña **Autorización** del request |
-| La colección | Todos los requests con **Heredar de la colección** | Tarjeta **Autorización** del resumen de la colección |
+| La colección | Todos los requests con **Heredar de la colección** | Pestaña **Autorización** del resumen de la colección |
 | Un workflow | Los pasos de un workflow, API por API | Pestaña **Autorización** del workflow |
 | El ambiente | Las credenciales que pide el contrato, que los pasos de un workflow usan por defecto | Sección **Credenciales** del ambiente |
 
@@ -59,9 +59,10 @@ Detalles y recorrido de clics: [Dónde se aplica la autorización](/es/authoriza
 
 **En un paso de un workflow**, de lo más específico a lo menos:
 
-1. **Solo este workflow**, si lo configuraste para esa API.
-2. **Todos los workflows**, si lo configuraste para esa API. Si dice **Heredar de la colección**, se usa la autorización de la colección.
-3. Las credenciales del contrato, tomadas del ambiente activo.
+1. El paso mismo, en su pestaña **Autorización** de **Diseño**: el token de un paso anterior, como un login, o **Ninguna**. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
+2. **Solo este workflow**, si lo configuraste para esa API.
+3. **Todos los workflows**, si lo configuraste para esa API. Si dice **Heredar de la colección**, se usa la autorización de la colección.
+4. Las credenciales del contrato, tomadas del ambiente activo.
 
 Un caso que prueba una llamada *sin credenciales* siempre va sin autorización, configures lo que configures.
 

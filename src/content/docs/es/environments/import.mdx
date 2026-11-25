@@ -79,11 +79,11 @@ Los requests que usan `{{$guid}}`, `{{$randomEmail}}` u otra variable dinámica 
 
 </Steps>
 
-Los scripts de Postman que guardan variables, como `pm.environment.set("token", …)`, se convierten en valores guardados del request, no en variables del ambiente. Se guardan en memoria mientras la colección está abierta, hasta que cambias de ambiente. Mira [Trae tus propios archivos y requests](/es/get-started/import/).
+Los scripts de Postman y Bruno llegan con la colección y corren cuando confías en ella. Cuando un script guarda una variable, como `pm.environment.set("token", …)`, cambia el **valor actual** de esa variable en este equipo. El archivo del ambiente no cambia. Mira [Las variables que guarda un script](/es/requests/scripts/#las-variables-que-guarda-un-script).
 
 ## Lo que conviene saber
 
-- Importar siempre crea una colección nueva. Para agregar un ambiente de Postman a una colección que ya tienes, crea el ambiente en Luvin y copia los valores.
+- Importar crea una colección nueva, o reemplaza el contenido de una que se llama igual, ambientes incluidos. Mira [Cuando la colección ya existe](/es/get-started/import/#cuando-la-colección-ya-existe). Para agregar solo un ambiente de Postman a una colección que ya tienes, crea el ambiente en Luvin y copia los valores.
 - Si eliges solo archivos de ambiente, Luvin dice **Eso son solo ambientes: elige también la colección.**
 - Necesitas un workspace abierto para importar. Mira [Crear y abrir un workspace](/es/workspaces/create-and-open/).
 

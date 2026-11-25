@@ -1,30 +1,30 @@
 ---
 title: Reutilizables
-description: Guarda una acción de error o un parámetro una vez, aplícalo en otros pasos, desvincúlalo de un paso o elimínalo.
+description: Guarda una ruta de error o un parámetro una vez, aplícalo en otros pasos, edítalo, desvincúlalo de un paso o bórralo.
 sidebar:
   order: 8
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Un reutilizable es una acción de error o un parámetro que defines una vez y usas en varios pasos. Lo cambias en un solo lugar y cambian todos los pasos que lo usan. Úsalos para lo que se repite: «ante un 401, termina el workflow», o un header que necesita toda llamada.
+Un reutilizable es una ruta de error o un parámetro que defines una vez y usas en varios pasos. Lo cambias en un solo lugar y cambian todos los pasos que lo usan. Úsalos para lo que se repite: «si responde 401, terminar el workflow», o un header que necesita cada llamada.
 
-En el archivo Arazzo, los reutilizables viven en una sección llamada `components`. El ejemplo de PayPal los usa. Sus acciones de error `unauthorized` (terminar el workflow ante un 401) y `notApproved` (terminar ante un 422) las usan varios pasos. Sus parámetros `requestId` (el header `PayPal-Request-Id`) y `fullResponse` (el header `Prefer`) los usan los pasos que crean o capturan un pedido.
+En el archivo Arazzo, los reutilizables viven en una sección llamada `components`. El ejemplo de PayPal los usa. Sus acciones de error `unauthorized` (terminar el workflow con un 401) y `notApproved` (terminar con un 422) las usan varios pasos. Sus parámetros `requestId` (el header `PayPal-Request-Id`) y `fullResponse` (el header `Prefer`) los usan los pasos que crean o capturan un pedido.
 
 <Aside type="note">
-Los reutilizables pertenecen al archivo, no a un solo workflow. Un reutilizable guardado en un workflow se puede aplicar en cualquier otro workflow del mismo archivo.
+Los reutilizables son del archivo, no de un workflow. Un reutilizable guardado en un workflow se puede aplicar en cualquier otro workflow del mismo archivo.
 </Aside>
-
-![El panel del paso createOrder del ejemplo de PayPal: sus headers usan los reutilizables PayPal-Request-Id y Prefer, marcados con ♻](/media/es/reusables.webp)
 
 ## Ejemplo: PayPal
 
-El archivo de PayPal define sus reutilizables una sola vez, en `components`. **Create order** los aplica con `reference`.
+El archivo de PayPal define sus reutilizables una vez, en `components`. Luego **Create order** los aplica con `reference`.
 
 <Tabs>
   <TabItem label="En la app">
 
-En el panel del paso `createOrder`, los headers `PayPal-Request-Id` y `Prefer` muestran una insignia ♻ y **Desvincular**. Bajo **Si responde con error**, las filas **400** y **401** muestran ♻ `invalidRequest` y ♻ `unauthorized`.
+En la tarjeta de `createOrder`, los parámetros dicen ♻ `PayPal-Request-Id` y ♻ `Prefer`, y las rutas de **Si falla** empiezan con ♻. En el panel del paso, la pestaña **Datos** muestra los dos headers con una marca ♻ y **Desvincular**. La pestaña **Éxito y rutas** muestra las rutas de **400** y **401** con ♻ `invalidRequest` y ♻ `unauthorized`.
+
+![La pestaña Datos de createOrder en el ejemplo de PayPal: sus headers usan los reutilizables PayPal-Request-Id y Prefer, marcados con ♻](/media/es/reusables.webp)
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -50,92 +50,102 @@ components:
   </TabItem>
 </Tabs>
 
-## Guarda una acción de error como reutilizable
+## Dónde están
 
-Necesitas un paso que ya tenga una acción definida para un error. Consulta [Éxito y errores](/es/design/success-and-errors/).
+Los reutilizables del archivo están en el panel de **Inicio**.
+
+<Steps>
+1. En el lienzo, haz clic en **Inicio**, el botón verde de arriba.
+2. Ve a **Reutilizables**, al final del panel. La sección solo aparece cuando el archivo tiene al menos uno.
+</Steps>
+
+La sección dice **Definidos una vez en el archivo. Haz clic para editarlos o arrástralos a un paso para aplicarlos.** Cada fila muestra el nombre, qué hace y cuántos pasos lo usan, por ejemplo **3 usos**.
+
+![El panel de Inicio de Create order en el ejemplo de PayPal: la sección Reutilizables con las rutas de error y los parámetros del archivo](/media/es/design-reusables-start.webp)
+
+## Guardar una ruta de error como reutilizable
+
+Necesitas un paso con una ruta para un status, por ejemplo «si responde 404, terminar el workflow». Lee [Agregar o cambiar una ruta](/es/design/branch-menu/).
 
 <Steps>
 1. En la pestaña **Diseño**, haz clic en el paso.
-2. Bajo **Si responde con error**, busca el estado que tiene la acción, por ejemplo **404**.
-3. Haz clic en ♻ (**Guardar como reutilizable**) en esa fila.
+2. Abre la pestaña **Éxito y rutas**.
+3. En **Rutas**, busca la ruta de ese status y haz clic en **Guardar como reutilizable**.
 4. Escribe un nombre. La caja sugiere uno, por ejemplo `on404`.
-5. Haz clic en **Guardar**. **Cancelar** cierra la caja.
+5. Haz clic en **Guardar**.
 </Steps>
 
-El paso sigue funcionando igual. La fila ahora muestra una insignia ♻ con el nombre y un enlace **Desvincular**. Si el nombre ya existe, Luvin agrega un número (`on4042`). Se conservan letras, números, `-` y `_`; todo lo demás se quita.
+El paso sigue funcionando igual. La ruta ahora muestra una marca ♻ con el nombre y un enlace **Desvincular**. Si el nombre ya existe, Luvin agrega un número (`on4042`). Se conservan letras, números, `-` y `_`; lo demás se quita.
 
-## Guarda un parámetro como reutilizable
+Solo se pueden guardar así las rutas «si falla» de un solo status.
+
+## Guardar un parámetro como reutilizable
 
 <Steps>
-1. Haz clic en el paso.
-2. Bajo **Parámetros**, busca un parámetro que tenga un valor, por ejemplo un header fijo.
+1. Haz clic en el paso y quédate en la pestaña **Datos**.
+2. En **Recibe**, busca un parámetro que tenga valor, por ejemplo un header fijo.
 3. Haz clic en ♻ (**Guardar como reutilizable**) en su fila.
-4. Escribe un nombre y haz clic en **Guardar**.
+4. Escribe un nombre y haz clic en **Guardar**. **Cancelar** cierra la caja.
 </Steps>
 
-El botón no aparece en un parámetro sin valor, ni en uno que viene de los inputs del workflow. La fila ahora muestra una insignia ♻ con el nombre del parámetro y **Desvincular**.
+El botón no aparece en un parámetro sin valor, ni en un input de un paso que llama a otro workflow. La fila ahora muestra una marca ♻ con el nombre del parámetro y **Desvincular**.
 
-## Aplica un reutilizable en otro paso
-
-Los reutilizables del archivo están en el grupo **Reutilizables** de la paleta **Operaciones**. El grupo solo aparece cuando el archivo tiene al menos uno. Cada fila muestra su nombre, qué hace y cuántos pasos lo usan, por ejemplo **1 uso(s)**.
-
-Puedes aplicar uno de tres maneras:
+## Aplicar un reutilizable en otro paso
 
 | Cómo | Qué pasa |
 |---|---|
-| En el panel del paso, abre la lista de acciones de un estado de error y elige **Reutilizables** › ♻ nombre | El paso usa el reutilizable para ese estado. La lista solo ofrece los reutilizables que manejan ese estado. |
-| Arrastra la fila de la paleta sobre la tarjeta de un paso | El reutilizable se agrega a ese paso. |
-| Haz clic en el paso y luego en **+** de la fila del reutilizable | Lo mismo, sobre el paso seleccionado. El botón está apagado mientras no haya un paso seleccionado. |
-
-![El grupo Reutilizables de la paleta de PayPal: las acciones de error y los parámetros del archivo, cada uno con lo que hace y cuántos pasos lo usan](/media/es/design-reusables-palette.webp)
+| Arrastra su fila desde el panel de **Inicio** hasta la tarjeta de un paso | El reutilizable se agrega a ese paso. |
+| Abre el reutilizable, haz clic en un paso del lienzo y luego en **Aplicar a «paso»** | Lo mismo, en ese paso. Sin un paso elegido, el panel dice **Elige un paso en el lienzo para aplicárselo (o arrástralo sobre la tarjeta).** |
+| En el editor de rutas de un paso, en **O aplica un reutilizable:**, haz clic en ♻ nombre | El paso usa el reutilizable para ese status. El editor solo ofrece los reutilizables que manejan el status que escribiste. Lee [Agregar o cambiar una ruta](/es/design/branch-menu/). |
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-reusables.webp" src="/media/es/design-reusables.mp4"></video>
 
-## Edita un reutilizable
+## Editar un reutilizable
 
 <Steps>
-1. Haz clic en su fila de la paleta, o en la insignia ♻ de un paso.
-2. Cámbialo en el panel. Arriba hay una etiqueta, **acción de error** o **parámetro**, y el **Nombre del reutilizable**.
+1. Haz clic en su fila del panel de **Inicio**, o en la marca ♻ de un parámetro en la pestaña **Datos** de un paso.
+2. Cámbialo en el panel. Arriba hay una etiqueta, ♻ **acción de error** o ♻ **parámetro**, y el nombre del reutilizable, que puedes editar.
 3. Para volver al paso, haz clic en **← Volver al paso**.
 </Steps>
 
 | Reutilizable | Qué puedes cambiar |
 |---|---|
-| Acción de error | **Si responde** (el código de estado) y **Entonces** (**Terminar el workflow**, **Reintentar (hasta 3 veces)** o **Ir a «paso»**). Con reintento, dos campos más: `retryLimit` y `retryAfter (s)`. |
+| Acción de error | **Si responde** (el código de status) y **Entonces**: **Terminar el workflow**, **Reintentar (hasta 3 veces)** o **Ir a «paso»**. Con reintentar, dos campos más: `retryLimit` y `retryAfter (s)`. |
 | Parámetro | **Nombre del parámetro**, `in` (path, query, header o cookie) y **Valor**. |
 
-Cada cambio se aplica a todos los pasos que lo usan. La sección **Se usa en** los lista. Si renombras el reutilizable, Luvin actualiza todos los pasos que lo usan.
+Cada cambio se aplica a todos los pasos que lo usan. La sección **Se usa en** los lista, con su workflow. Si cambias el nombre del reutilizable, Luvin actualiza todos los pasos que lo usan.
 
-![El panel del reutilizable unauthorized: acción de error, Si responde 401, Entonces Terminar el workflow, y Se usa en con cinco pasos](/media/es/design-reusable-panel.webp)
+![El panel del reutilizable unauthorized: acción de error, Si responde 401, Entonces Terminar el workflow y Se usa en con cinco pasos](/media/es/design-reusable-panel.webp)
 
-## Desvincúlalo de un paso
+## Desvincularlo de un paso
 
 Desvincula cuando un paso necesita un comportamiento distinto y los demás no.
 
 <Steps>
 1. Haz clic en el paso.
-2. Haz clic en **Desvincular**, junto a la insignia ♻.
+2. Haz clic en **Desvincular** junto a la marca ♻: en la pestaña **Datos** si es un parámetro, o en **Rutas** de **Éxito y rutas** si es una ruta de error.
 </Steps>
 
-El paso se queda con su propia copia de la acción o del parámetro, y el reutilizable sigue en el archivo. Una acción que se llamaba `unauthorized` vuelve al nombre de su estado, por ejemplo `on401`. Elegir otra acción en la lista del error también la desvincula.
+El paso se queda con su propia copia de la ruta o del parámetro, y el reutilizable sigue en el archivo. Una ruta que se llamaba `unauthorized` vuelve al nombre de su status, por ejemplo `on401`.
 
-## Elimina un reutilizable
+## Borrar un reutilizable
 
 <Steps>
-1. Haz clic en el reutilizable de la paleta para abrir su panel.
+1. Haz clic en el reutilizable en el panel de **Inicio** para abrirlo.
 2. Haz clic en la papelera de arriba.
 </Steps>
 
-La papelera está apagada mientras algún paso lo use. Su texto de ayuda dice **Se usa en 2 paso(s): quítalo de ahí primero**. Desvincúlalo de cada paso primero, o elige otra acción ahí. Cuando ningún paso lo usa, la papelera lo elimina del archivo.
+La papelera está desactivada mientras algún paso lo use. Su ayuda dice **Se usa en 2 paso(s): quítalo de ahí primero**. Desvincúlalo antes de cada paso. Cuando ningún paso lo usa, la papelera lo borra del archivo.
 
 <Aside type="tip">
-Si eliminas un reutilizable por error, haz clic en **Deshacer** sobre el lienzo. Consulta [Organizar un workflow](/es/design/organize/).
+Si borras un reutilizable por error, haz clic en ↶ (**Deshacer**) en la barra de herramientas del lienzo. Lee [Organizar un workflow](/es/design/organize/).
 </Aside>
 
 ## Relacionado
 
 <CardGrid>
   <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" />
   <LinkCard title="Parámetros y body" href="/es/design/parameters-and-body/" />
   <LinkCard title="La pestaña YAML" href="/es/design/arazzo-editor/" />
 </CardGrid>

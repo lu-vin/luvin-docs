@@ -16,11 +16,13 @@ Ejecutar un workflow corre sus casos seleccionados, uno tras otro, y le da un ve
 El ejemplo de la Pokédex no necesita credenciales, así que puedes ejecutarlo de inmediato.
 
 <Steps>
-1. Abre **Pokemon card**. En la pestaña **Casos**, sus dos casos están marcados.
+1. Abre **Pokemon card** y haz clic en la pestaña **Casos**. Sus dos casos están marcados.
 2. En la barra de ejecución, elige **Simulación**. El botón dice **Ejecutar 2 casos**.
 3. Pulsa **Ejecutar**. Los resultados se abren abajo: *Ejecutando caso 2 de 2*, y luego un veredicto por caso.
 4. Cambia a **API real** y pulsa **Ejecutar** otra vez. La ejecución se pausa para que elijas de una lista. Mira [Elige un elemento de una lista](/es/test/lists/).
 </Steps>
+
+Si ejecutas desde la pestaña **Diseño**, el resultado se dibuja en el lienzo: la tarjeta de cada paso dice cómo terminó, y una barra abajo lista los casos. Mira [Resultados en el lienzo](/es/test/run-on-canvas/).
 
 ## La barra de ejecución
 
@@ -35,7 +37,7 @@ La barra de ejecución está arriba de un workflow abierto, sobre sus pestañas.
 
 ![La barra de ejecución de Pokemon card: API real o Simulación, y Ejecutar 3 casos](/media/es/test-runbar.webp)
 
-El ambiente no está en la barra de ejecución. El activo siempre se ve arriba a la derecha de la ventana, de su color, o en el verde de Luvin si no tiene: es el que aporta las URLs base, las variables y las credenciales. Ábrelo para cambiarlo. **Configurar ambiente…**, al final de su lista, lo abre. Mira [Ambientes](/es/environments/overview/).
+El ambiente no está en la barra de ejecución. El activo siempre se ve arriba a la derecha de la ventana, en la mitad izquierda de la pastilla, la del ícono de base de datos: el ambiente de la colección, de su color, o en el verde de Luvin si no tiene. Es el que aporta las URLs base, las variables y las credenciales. Haz clic en esa mitad para cambiarlo. **Configurar ambiente…**, al final de su lista, lo abre. La mitad derecha, con un globo, es el ambiente global. Mira [Ambientes](/es/environments/overview/).
 
 Antes de pulsar **Ejecutar**, la línea de arriba de la pestaña **Casos** dice qué va a pasar: cuántos casos están seleccionados, cuántos van contra la API real, cuántos se simulan y cuántos no se ejecutarán. Mira [Casos](/es/test/cases/#la-pestaña-casos).
 
@@ -45,11 +47,13 @@ Antes de pulsar **Ejecutar**, la línea de arriba de la pestaña **Casos** dice 
 1. Abre el workflow.
 2. En la pestaña **Casos**, marca los casos que quieres. Mira [Casos](/es/test/cases/).
 3. En la barra de ejecución, elige **API real** o **Simulación**.
-4. Revisa el ambiente arriba a la derecha de la ventana. Ábrelo para elegir otro.
+4. Revisa el ambiente arriba a la derecha de la ventana, en la mitad izquierda de la pastilla. Haz clic en ella para elegir otro.
 5. Pulsa **Ejecutar**. También puedes pulsar ⌘ + Enter en macOS, o Ctrl + Enter en Windows.
 </Steps>
 
 Los resultados se abren abajo. Mientras la ejecución avanza muestran qué caso corre, por ejemplo *Ejecutando caso 2 de 5*, y cada caso recibe su veredicto al terminar.
+
+En la pestaña **Diseño** los resultados no se abren abajo: el lienzo pasa a **Ejecución** y muestra el resultado en cada paso, con una barra de resultado sobre el lienzo. **Resultados ▴**, en esa barra, abre los resultados completos. Mira [Resultados en el lienzo](/es/test/run-on-canvas/).
 
 ## Ejecuta un caso
 
@@ -84,9 +88,19 @@ Lee el nombre del ambiente en el aviso antes de confirmar.
 - *Este workflow inicia sesión con OAuth 2.0 en: …* Pulsa **Iniciar sesión**, o pulsa **Ejecutar** y primero se abre el inicio de sesión. Si lo cancelas, el workflow no se ejecuta. Mira [OAuth 2.0](/es/authorization/oauth2/).
 - *N paso(s) de mensajería se simulan*, junto al nombre del workflow. Los pasos de mensajería se simulan incluso contra la API real. Mira [Simulación](/es/test/simulation/).
 
+## Ejecuta una parte del workflow, o una ruta
+
+En el lienzo de la pestaña **Diseño** puedes ejecutar menos que el workflow completo:
+
+| Para… | Usa | Mira |
+|---|---|---|
+| Detenerte antes de un paso, cambiar lo que recibe y continuar | **⏸ Pausar aquí**, o **F9** | [Depurar un workflow](/es/test/debug/) |
+| Ejecutar un paso, hasta un paso o desde un paso | **▷ Ejecutar solo este paso**, **▷ Ejecutar hasta aquí**, **Ejecutar desde este paso** | [Depurar un workflow](/es/test/debug/#ejecuta-solo-hasta-o-desde-un-paso) |
+| Recorrer una ruta con una respuesta simulada | **▷ Probar**, en la ruta | [Probar rutas y cobertura](/es/test/probe-routes/) |
+
 ## Detén una ejecución
 
-Mientras los casos se ejecutan, el botón **Ejecutar** se convierte en **Cancelar**. Los resultados también muestran un botón **Cancelar**. La ejecución se detiene en el paso actual y los casos que no habían empezado quedan **Pendientes**.
+Mientras los casos se ejecutan, el botón **Ejecutar** se convierte en **Cancelar**. Los resultados también muestran un botón **Cancelar**. La ejecución se detiene en el paso actual y los casos que no habían empezado quedan **Pendientes**. Si la ejecución está en pausa antes de un paso, la pausa se cierra.
 
 ## Ejecuta todos los workflows de un archivo
 
@@ -113,6 +127,7 @@ Mira [Dependencias](/es/design/dependencies/) y la receta [Un workflow inicia se
 ## Siguiente
 
 <CardGrid>
+  <LinkCard title="Resultados en el lienzo" description="Lee la ejecución en la tarjeta de cada paso." href="/es/test/run-on-canvas/" />
   <LinkCard title="Elige un elemento de una lista" description="Cuando la ejecución se pausa para preguntarte." href="/es/test/lists/" />
   <LinkCard title="Lee los resultados" href="/es/test/results/" />
   <LinkCard title="Atajos de teclado" href="/es/reference/shortcuts/" />

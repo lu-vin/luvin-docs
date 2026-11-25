@@ -1,60 +1,105 @@
 ---
 title: Build from saved requests
-description: Build a workflow without contracts by dragging saved requests onto the canvas, and let Luvin suggest how to wire them.
+description: Build a workflow without contracts from your saved requests. Luvin keeps their names, wires the data their Postman or Bruno scripts pass along and suggests the rest.
 sidebar:
   order: 11
 ---
 
-import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-You do not need an OpenAPI contract to build a workflow. If you have saved requests, for example imported from Postman or Bruno, drag them onto the canvas and each one becomes a step. Use this when the API has no contract, or you only have a collection of requests.
+You do not need an OpenAPI contract to build a workflow. If you have saved requests, for example imported from Postman or Bruno, add them to the canvas and each one becomes a step. Use this when the API has no contract, or you only have a collection of requests.
 
 A *request* is one saved API call: a method, a URL, headers and a body. See [Requests](/requests/overview/) and [Import from Postman or Bruno](/get-started/import/).
 
 ## Example: Create order and Get order
 
-You saved two requests, **Create order** and **Get order**. You drag them onto the canvas.
+You saved two requests, **Create order** and **Get order**. The script of **Create order** saves the new id, as many Postman collections do:
 
-| You drag | Luvin creates | What it keeps |
-|---|---|---|
-| Request **Create order** | The step `createOrder` | The same URL, headers and body, with the `{{variables}}` of the environment |
-| Request **Get order** | The step `getOrder` | The path with `{{order_id}}` |
-
-After a run, Luvin sees that **Create order** returns an `id` that **Get order** uses. A bar appears above the canvas:
-
-```text
-Luvin found 1 connection(s) between steps
+```js
+pm.collectionVariables.set("order_id", pm.response.json().id);
 ```
 
-Click **Connect** and `{{order_id}}` becomes the output of the first step. See [Accept the suggested connections](#accept-the-suggested-connections).
+You add both requests to the canvas.
+
+| You add | Luvin creates | What it keeps |
+|---|---|---|
+| Request **Create order** | A step titled **Create order**, with the id `createOrder` | The same URL, headers and body, with the `{{variables}}` of the environment |
+| Request **Get order** | A step titled **Get order**, with the id `getOrder` | The path, where `{{order_id}}` now comes from `createOrder` |
+
+Luvin read the script without running it: `{{order_id}}` in **Get order** is the `id` that **Create order** returns. The step `getOrder` takes it from there, and `createOrder` gets a new output, `order_id`. You did not have to send anything first.
+
+Without that script, Luvin learns the responses on the first run and then suggests the connection. See [Accept the suggested connections](#accept-the-suggested-connections).
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-from-requests.webp" src="/media/en/design-from-requests.mp4"></video>
 
+![The workflow built from the Postman requests Create order and Get order: the orderId of Get order shows ← order_id · from 1, read from the script, without sending anything](/media/en/design-script-wiring.webp)
+
 ## Add a request as a step
 
-<Steps>
-1. Open the workflow and go to the **Design** tab.
-2. In the **Operations** palette, open **Collection requests**. It lists the HTTP requests of the collection, grouped by folder. Type in **Search operation…** to filter.
-3. Drag a request onto the canvas, or click **+** on its row to add it at the end.
-</Steps>
+Open the workflow and go to the **Design** tab. There are three ways:
 
-The step is sent exactly like the request: same URL, parameters, headers and body, with the `{{variables}}` of the environment kept. The only values Luvin replaces are the ones that an earlier step returns. Luvin does not create inputs, so what does not come from a step keeps the value of the request.
-
-The step is named after the request: **Create order** becomes `createOrder`. Its success criterion is the lowest 2xx status Luvin knows for it, or `$statusCode < 400` if it knows none.
+- **On an empty canvas**, click **Build from the collection's requests**. **Add a step** opens. Click the requests in the order you want: each one goes at the end of the workflow. Close it when you are done.
+- **At any time**, click **＋ Step** in the toolbar, or press `/`. In **Add a step**, open **Collection requests** (the requests of the collection, grouped by folder) and click a request, or **+** on its row. Type in **Search operation…** to filter. The step goes after the selected step or, if none, at the end.
+- **From the sidebar**, drag a request from the collection tree onto the canvas.
 
 Only HTTP requests with a URL can be added. For anything else Luvin says **Only HTTP requests with a URL can be added to a workflow.**
 
-![The palette of a collection without contracts: Collection requests with Create order (POST) and Get order (GET)](/media/en/design-requests-palette.webp)
+![Add a step in a collection without contracts: Collection requests with Create order (POST) and Get order (GET)](/media/en/design-requests-palette.webp)
 
-### The question about required fields
+## What the step keeps
 
-The first time you add a request to a workflow, a dialog asks which fields the API requires. Answer it once and it applies to every workflow that uses that request. See [Add steps](/design/add-steps/).
+The step is sent exactly like the request: same URL, parameters, headers and body, with the `{{variables}}` of the environment kept. Luvin does not create inputs: what does not come from an earlier step keeps the value of the request.
+
+**Its title is the name of the request.** The canvas, the sidebar, the results and the reports show **01 - Login**, as you named it in Postman.
+
+**Its id is short and readable.** Luvin takes the name of the request without its leading numbering (`01 - `, `1.`, `#3`), drops filler words (*the*, *of*, *and*, *is*, *de*, *la*, *y*…) and keeps up to four words in camelCase:
+
+| Request | Step id |
+|---|---|
+| **Create order** | `createOrder` |
+| **01 - Login** | `login` |
+| **02 - Instrument is inactive and canonical** | `instrumentInactiveCanonical` |
+
+If the id is already taken, a number goes at the end: `login2`. The id appears under the title in the step panel and in the YAML, because expressions such as `$steps.login.outputs.token` use it. Ids that already exist never change, even if you rename the request.
+
+**Its success criterion** comes from the request's script when the script expects one status. A request that checks `pm.response.to.have.status(400)`, or `expect(res.status).to.equal(400)` in Bruno, gets `$statusCode == 400`: the step passes when the API answers the error it expects. See [Expect an error](/recipes/expected-error/#from-a-postman-request-that-expects-an-error). Otherwise it is the lowest 2xx status Luvin knows for the request, or `$statusCode < 400` if it knows none.
+
+## How Luvin wires the data
+
+When you add a request, Luvin looks at the earlier steps and replaces the values that come from them. It does not run anything.
+
+1. **What the scripts save.** If an earlier request's script saves a value from its response, a later `{{variable}}` with that name comes from that step. For example, **Products by category** has `pm.collectionVariables.set("productId", json.products[0].id)`, and **Product detail** uses `/products/{{productId}}`. Then `productId` in **Product detail** comes from `products/0/id` of the step `productsByCategory`, with a new output there. This works before Luvin knows any response.
+2. **What the responses say.** Once Luvin knows what an earlier step answers, a value takes an output or a response field with the same name, or a composed one: `customerId` takes `customer/id`.
+3. **An id in the path.** A path parameter such as `orderId` can take the `id` of the step right before it. Only if that step is about the same thing: a `userId` never takes the id of a step about products.
+4. **An input with the same name**, if the workflow already has one.
+
+Generated data is never replaced. A `{{$randomFirstName}}`, `{{$randomEmail}}` or `{{$guid}}` stays as it is, so each run sends a new value.
+
+The login token is wired the same way: Luvin reads the login's script and passes its token to the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/#luvin-connects-it-while-you-build).
+
+<video controls muted playsinline preload="metadata" poster="/media/en/token-from-script.webp" src="/media/en/token-from-script.mp4"></video>
+
+## Mark the required fields
+
+A request does not say which fields the API requires. Luvin does not ask while you build: a bar above the canvas says how many steps have none marked, for example *2 step(s) without required fields marked: without them there are no negative cases for those steps.* Click **Mark** to answer for all of them in one list, when you want.
+
+In the panel of a step, **Mark required fields** (or **Required fields (n)** once marked) opens the same list for that request. The answer applies to every workflow that uses the request. See [Required fields](/design/required-fields/).
+
+![The bar 1 step(s) without required fields marked, with Mark, and the card of the step with required not marked](/media/en/design-required-bar.webp)
 
 ## How Luvin builds a contract for you
 
 An Arazzo file needs a contract to point to. Luvin creates one from your requests, one per base URL, in the folder `requests/_contracts` of the collection. Each request is an operation. The first line says it is generated: do not edit it, because Luvin rewrites it when a request changes.
 
-A request does not say what the API answers, so the contract starts with no responses. Without them, Luvin cannot yet see which values come from earlier steps.
+A contract cannot have two operations with the same method and path. If two requests share them (for example, two variants of `GET /items`), Luvin puts the second in a sibling contract, such as `baseUrl2`. For you they are still **one API per base URL**:
+
+- the workflow's **Authorization** tab shows one card, `baseUrl`, and what you choose applies to all its contracts;
+- the environment has one base URL for it;
+- on the canvas, its steps say `source baseUrl`.
+
+Only the **YAML** tab lists each generated contract, with a note that explains why.
+
+A request does not say what the API answers, so the contract starts with no responses.
 
 ## Luvin learns the responses
 
@@ -72,7 +117,7 @@ You can also teach it without a run. Click the step. The panel starts with **Fro
 
 ## Accept the suggested connections
 
-With the responses known, Luvin can see that a value you wrote by hand comes from an earlier step. For example, the path of **Get order** has `{{order_id}}`, and **Create order** returns an `id`. A bar appears above the canvas: **Luvin found 2 connection(s) between steps**.
+With the responses known, Luvin can see that a value you wrote by hand comes from an earlier step. For example, the path of **Get order** has `{{order_id}}`, no script saves it, and **Create order** returns an `id`. A bar appears above the canvas: **Luvin found 1 connection(s) between steps**.
 
 | Button | What it does |
 |---|---|
@@ -81,18 +126,18 @@ With the responses known, Luvin can see that a value you wrote by hand comes fro
 | **Ignore** | Hides that one. |
 | **Hide** / **Show** | Folds or unfolds the list. |
 
-Each line names the step, the value and where it would come from. After a run, the other tabs show **With the last run, Luvin found 2 connection(s) between steps.** with the link **Review in Design**.
+Each line names the step, the value and where it would come from. After a run, the other tabs show **With the last run, Luvin found 1 connection(s) between steps.** with the link **Review in Design**.
 
-Luvin does not connect anything until you accept. **Undo** reverts it. [Connect data between steps](/design/wire-data/) explains the result.
+Luvin does not connect anything until you accept. **Undo** reverts it. Generated data such as `{{$randomEmail}}` is never suggested. [Connect data between steps](/design/wire-data/) explains the result.
 
-![The bar Luvin found 1 connection(s) between steps: the orderId of the second step, written as {{order_id}}, would come from the id of the first](/media/en/design-connections-bar.webp)
+![The bar Luvin found 1 connection(s) between steps: the orderId of the second step, written as order_id, would come from the id of the first](/media/en/design-connections-bar.webp)
 
 ## Choose data to vary
 
-Since the steps keep the values of the requests, the workflow starts with no inputs, and a case has nothing to change. Pick the values you want to vary.
+Since the steps keep the values of the requests, the workflow starts with no inputs (**▶ Start · no inputs**), and a case has nothing to change. Pick the values you want to vary.
 
 <Steps>
-1. On the **Start** card, read **No inputs: the steps use 5 fixed values.** and click **Choose variable data…**.
+1. On the **Start** card, click **Choose variable data…**.
 2. In **Data to vary per case**, tick the values. Each row shows where it is, for example `query · bank`, and its current value.
 3. Click **Turn into inputs**. The number of values you ticked is in the button.
 </Steps>
@@ -106,6 +151,7 @@ The same dialog opens from the **Cases** tab, with the button **Choose data to v
 ## Related
 
 <CardGrid>
+  <LinkCard title="Pass the login token to the next steps" href="/authorization/token-from-login/" />
   <LinkCard title="Connect data between steps" href="/design/wire-data/" />
   <LinkCard title="Parameters and body" href="/design/parameters-and-body/" />
   <LinkCard title="Inputs" href="/test/inputs/" />

@@ -1,17 +1,17 @@
 ---
 title: From operation to step
-description: Which parts of an OpenAPI operation decide the step Luvin writes, how the palette lists operations, how data is wired from the response schemas, and how to write contracts that design well.
+description: Which parts of an OpenAPI operation decide the step Luvin writes, how ＋ Step lists operations, how data is wired from the response schemas, and how to write contracts that design well.
 sidebar:
   order: 8
 ---
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-When you drag an operation onto the canvas, Luvin writes a step from the contract, by fixed rules. Nothing is guessed by AI. The better the contract, the less you fix by hand. This page looks at it from the contract side: which field of the contract becomes which part of the step.
+When you add an operation to a workflow, Luvin writes a step from the contract, by fixed rules. Nothing is guessed by AI. The better the contract, the less you fix by hand. This page looks at it from the contract side: which field of the contract becomes which part of the step.
 
 ## Example: add getPokemonSpecies after getPokemon
 
-In **Pokemon card**, `getPokemon` already runs. You drag `GET /pokemon-species/{idOrName}` below it.
+In **Pokemon card**, `getPokemon` already runs. You add `GET /pokemon-species/{idOrName}` after it with **＋ Step**.
 
 <Tabs>
 <TabItem label="In the contract">
@@ -77,11 +77,11 @@ In **Pokemon card**, `getPokemon` already runs. You drag `GET /pokemon-species/{
 
 When you add a step, the examples of the contract are not written into it. They become the starting values of the new inputs. Later, in the body of the step panel, **Fill with the example** puts the contract's example in the empty fields, and **Create inputs** turns each empty field into an input with that example. See [Schemas, inputs and cases](/contracts/schemas-and-cases/) and [Parameters and body](/design/parameters-and-body/).
 
-## The Operations palette
+## Where operations are listed
 
-The palette on the left of the **Design** tab has one group per contract, named after its source, with the number of operations. Each row shows the method, the path and the `summary`.
+**＋ Step**, at the top left of the canvas of the **Design** tab, opens a search with one group per contract, named after its source. Each row shows the method, the path and the `summary`. See [Add steps](/design/add-steps/).
 
-![The Operations palette of the Pokédex: the search box, the workflows of other Arazzo files and the operations of the pokeapi contract](/media/en/design-palette.webp)
+![The ＋ Step search of the Pokédex: suggestions, the patterns, the workflows of other Arazzo files and the operations of the pokeapi contract](/media/en/design-palette.webp)
 
 | Shown | Not shown |
 |---|---|
@@ -89,7 +89,7 @@ The palette on the left of the **Design** tab has one group per contract, named 
 | | Contracts that did not load. A contract that loaded but misses some `$ref` files is shown, without the parts of those files. |
 | | The contracts Luvin builds from your requests. Their operations are under **Collection requests**. |
 
-The search box filters by `operationId`, path, `summary` and `tags`. Searching `pokemon` finds every operation with that word in its path or its tag. With no group to show, the palette says *The collection has no OpenAPI contracts. Add one to see its operations here.*
+The search box filters by `operationId`, path, `summary` and `tags`. Searching `pokemon` finds every operation with that word in its path or its tag. With nothing to show, it says *The collection has no OpenAPI or AsyncAPI contracts. Add one to see its operations here.*
 
 ## How data is wired
 
@@ -112,7 +112,7 @@ The fields come from the schema of the success response, up to three levels deep
 | Do | Because |
 |---|---|
 | Give every operation a short, unique `operationId` | It names the step and keeps the pointer stable when paths change. |
-| Write a `summary` | It describes the step and shows in the palette. |
+| Write a `summary` | It describes the step and shows in **＋ Step**. |
 | Mark `required` honestly, on parameters and body fields | Required data is wired; optional data is left out. Required inputs also produce the "missing input" cases. |
 | Document the success status you really return, such as `201` for a create | It becomes the success criterion. |
 | Document the errors, each with a `description` | They become the errors you can handle and the response cases. |

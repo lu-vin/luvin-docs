@@ -60,7 +60,7 @@ In the last case of the table, the dialog adds **What each step receives from th
 
 <Steps>
 1. In the **Design** tab, click the step that needs the data.
-2. Under **Parameters**, open the source of the parameter and choose the field of the list from the previous step, for example `activeCreditCards/bank`. It says *from a list: you choose which at run time*.
+2. In the **Data** tab of the step panel, under **Receives**, open the source of the parameter and choose the field of the list from the previous step, for example `activeCreditCards/bank`. It says *from a list: you choose which at run time*.
 3. Run the case. The dialog appears after the step that returns the list.
 </Steps>
 
@@ -69,8 +69,6 @@ A field that comes from a list is named without its position: `activeCreditCards
 ## A list returned by a called workflow
 
 A step can call another workflow, for example one you reuse to get a customer's cards. If that workflow returns a list as an output, and the next step puts it in a single-value parameter, the run pauses the same way. It's the step that called the workflow that asks, and each parameter receives its field of the chosen item: `bank` gets the `bank` of the chosen card, `id` gets the `id` of the chosen benefit. Without someone to choose (the Runner or a load test), the first item is used.
-
-Before, the whole list went to the parameter and the request was sent with `[object Object]` in place of the value.
 
 ## Several cases at once
 
@@ -130,9 +128,12 @@ The step that returned the list keeps a note, **Chosen at run time**. For exampl
 - If the list has a single item, in **Simulation**. The run goes on with it, and the step keeps a note: *From the list: The list types had a single item ("…"): it was used.* Against the **Real API** the dialog does appear, so you confirm what the service returned.
 - If the step has a saved rule for that list. See [Saved rules for next times](#saved-rules-for-next-times).
 - In the [Runner](/runner/workflows/). It never stops to ask: it uses the saved rule or the item in the design.
+- In a route probe, **▷ Probe** on the canvas. Like the Runner, it uses the saved rule or the item the design points to. See [Probe routes and coverage](/test/probe-routes/).
 - If the list comes back empty.
 - If no later step uses data from the list.
 - If the step that returns the list failed.
+
+When you run only a step, up to a step or from a step, the dialog does appear, as in a normal run. See [Debug a workflow](/test/debug/#run-only-up-to-or-from-a-step).
 
 **Stop run**, in the dialog, cancels the run.
 

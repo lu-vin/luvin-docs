@@ -5,12 +5,12 @@ sidebar:
   order: 10
 ---
 
-import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 Algunas APIs no responden una llamada de inmediato. Publican un evento después: la confirmación de un pago, un webhook, un mensaje en una cola. Un paso de mensajería permite que un workflow envíe un mensaje o espere uno, usando un contrato AsyncAPI. Úsalo cuando una cadena mezcla llamadas a APIs con eventos.
 
 <Aside type="caution" title="La mensajería siempre se simula">
-Luvin todavía no se conecta a brokers (Kafka, AMQP, MQTT…). Un paso de mensajería nunca sale de tu equipo: se ejecuta con los ejemplos y schemas del contrato AsyncAPI, también cuando ejecutas contra la **API real**. Los pasos HTTP del mismo workflow siguen llamando a la API real.
+Luvin no se conecta a brokers (Kafka, AMQP, MQTT…). Un paso de mensajería nunca sale de tu equipo: se ejecuta con los ejemplos y schemas del contrato AsyncAPI, también cuando ejecutas contra la **API real**. Los pasos HTTP del mismo workflow siguen llamando a la API real.
 </Aside>
 
 ## Enviar y recibir
@@ -24,20 +24,31 @@ Un *canal* es la dirección por la que viajan los mensajes, por ejemplo `pokedex
 
 ## Agrega un paso de mensajería
 
-Las operaciones de los contratos AsyncAPI están en la paleta **Operaciones**, bajo el nombre del contrato, con una etiqueta **SEND** o **RECEIVE** y la dirección del canal. Arrastra una al lienzo, o usa su **+**, como con cualquier operación. Luvin escribe el paso:
+<Steps>
+1. Haz clic en el paso después del cual va el nuevo. Si no eliges ninguno, va al final.
+2. Haz clic en **＋ Paso** en la barra de herramientas, arriba del lienzo, o pulsa `/`.
+3. Busca la operación bajo el nombre de su contrato AsyncAPI. Cada una tiene una etiqueta **SEND** o **RECEIVE** y la dirección del canal. Escribe parte de la dirección para filtrar.
+4. Haz clic en la operación.
+</Steps>
+
+Luvin escribe el paso:
 
 | Agregas | Luvin escribe |
 |---|---|
 | Una operación **SEND** | `action: send`. El header de correlación del mensaje, como `correlationId`, como parámetro `in: header`, más los headers que el contrato marca como obligatorios. Los campos obligatorios del payload en `requestBody.payload`. Cada valor sale de un paso anterior cuando Luvin encuentra uno, o de un input nuevo. Un input de correlación nuevo trae el ejemplo `{{$guid}}`, así cada ejecución envía un id nuevo. |
 | Una operación **RECEIVE** | `action: receive`. Un `correlationId` con el valor que el último paso de envío antes de él pone en su header de correlación, o un input nuevo `correlationId` si no hay paso de envío. `timeout: 5000`. Los campos de su payload se ofrecen como outputs en el panel, y los pasos siguientes pueden tomarlos. |
 
-Un mensaje no tiene código de estado, así que Luvin no agrega `$statusCode == 200`. En **Es éxito si**, el panel dice qué se comprueba y ofrece **Editar en el YAML** para exigir un valor del payload, como `$message.payload#/status == 'CONFIRMED'`. También dice **Este paso usa cosas que el lienzo no edita** y las nombra, por ejemplo `correlationId` y `timeout`. Los outputs y los parámetros se editan en el panel. Los criterios sobre el mensaje y las acciones de error se escriben en el YAML.
+Un mensaje no tiene código de estado, así que Luvin no agrega `$statusCode == 200`. En el panel del paso:
+
+- La pestaña **Datos** edita los headers, el payload y los outputs, como en cualquier paso. También dice **Este paso usa cosas que el lienzo no edita** y las nombra, por ejemplo `correlationId` y `timeout`, con **Editar en el YAML**.
+- La pestaña **Éxito y rutas**, en **Es éxito si**, dice qué se comprueba. En un paso que recibe y no tiene criterios: **Llega un mensaje con el mismo id de correlación antes del tiempo límite.** Usa **Editar en el YAML** para exigir un valor del payload, como `$message.payload#/status == 'CONFIRMED'`. Los criterios que escribas aparecen ahí, cada uno con su tipo.
+- Un mensaje no tiene status al que reaccionar, así que los pasos de mensajería no tienen el botón **Qué hacer si falla**, ni en la tarjeta ni en el panel. **Desviar si pasa y se cumple una condición** funciona como en cualquier paso. Las rutas para un mensaje que falla, como `sightingRejected` más abajo, se escriben en el YAML; una vez escritas, se ven en la tarjeta y en **Rutas** como cualquier otra. Lee [Rutas: qué pasa después de cada paso](/es/design/branches/).
 
 También puedes escribir estos pasos en la [pestaña YAML](/es/design/arazzo-editor/). El editor te ayuda: después de `channelPath:` y `operationId:` ofrece los canales y las operaciones de los contratos cargados, y después de `action:` ofrece `send` y `receive`.
 
-![El workflow Register sighting en la pestaña Diseño, con un paso SEND elegido y su canal, parámetros y body en el panel](/media/es/messaging-step.webp)
+![El workflow Register sighting en la pestaña Diseño, con un paso SEND elegido y sus headers y su payload en la pestaña Datos del panel](/media/es/messaging-step.webp)
 
-![El panel de awaitConfirmation, un paso que recibe: el aviso de lo que el lienzo no edita (channelPath, correlationId, timeout, dependsOn), el criterio sobre el mensaje en Es éxito si, y el output entryNumber](/media/es/design-messaging-receive.webp)
+![El panel de awaitConfirmation, un paso que recibe: el aviso de lo que el lienzo no edita (channelPath, correlationId, timeout, dependsOn) y el output entryNumber](/media/es/design-messaging-receive.webp)
 
 ## Ejemplo: Register sighting
 

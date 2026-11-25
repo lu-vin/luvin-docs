@@ -1,0 +1,122 @@
+---
+title: Copiar, duplicar y extraer pasos
+description: Elige varios pasos, cópialos y pégalos en el mismo workflow o en otro, duplícalos, y extrae pasos seguidos a un workflow nuevo que el original llama.
+sidebar:
+  order: 12.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Arazzo está hecho para componer: un paso puede llamar a otro workflow y recibir sus outputs. En el lienzo puedes elegir varios pasos y copiarlos a otro workflow, duplicarlos o convertir un grupo de pasos en un workflow propio, todo sin tocar el YAML.
+
+## Ejemplo: reutiliza la debilidad y la habilidad
+
+En **Pokemon card**, los pasos 3 y 4 consultan la debilidad del tipo principal y la primera habilidad. Los quieres en un workflow aparte, para llamarlo desde otros workflows.
+
+<Steps>
+1. Haz clic en el paso 3. Mantén **Shift** y haz clic en el paso 4. Aparece una barra sobre el lienzo: **2 pasos elegidos**.
+2. Haz clic en **⇪ Extraer a un workflow**. Se abre una ventana: **Extraer 2 pasos a un workflow**.
+3. En **Nombre del workflow nuevo**, escribe `Debilidad y habilidad`.
+4. Lee lo que va a cambiar y haz clic en **Extraer**.
+</Steps>
+
+Los pasos 3 y 4 pasan a un workflow nuevo, al final del archivo. En su lugar, **Pokemon card** tiene un paso que lo llama. Los pasos que vienen después, y los outputs del workflow, ahora leen de ese paso.
+
+## Elige varios pasos
+
+| Cómo | Qué hace |
+|---|---|
+| **Shift** + clic, o ⌘ + clic (Ctrl + clic) | Suma el paso a la selección, o lo saca |
+| Clic derecho › **Sumar a la selección** | Lo mismo, desde el menú del paso |
+| **⌘A** (Ctrl+A) en el lienzo | Elige todos los pasos |
+| Un clic normal en un paso | Elige solo ese paso |
+| **Esc**, o **Cancelar** en la barra | Deja de elegir |
+
+Las tarjetas elegidas se resaltan. Con dos o más, flota una barra sobre el lienzo:
+
+| En la barra | Qué hace |
+|---|---|
+| **N pasos elegidos** · **⇧ clic para sumar o quitar** | Cuántos son y cómo cambiarlos |
+| **⎘ Copiar** (⌘C) | Los copia |
+| **⧉ Duplicar** | Pega una copia justo después del último paso elegido |
+| **⇪ Extraer a un workflow** | Los pasa a un workflow nuevo. Solo con pasos seguidos |
+| **× Quitar** | Los quita, después de una confirmación. Lee [Quita un paso](/es/design/organize/#quita-un-paso) |
+| **Cancelar** | Deja de elegir |
+
+![Los pasos 3 y 4 de Pokemon card elegidos, y la barra 2 pasos elegidos con Copiar, Duplicar, Extraer a un workflow, Quitar y Cancelar](/media/es/design-multi-bar.webp)
+
+## Copia y pega
+
+<Steps>
+1. Elige uno o más pasos.
+2. Presiona **⌘C** (Ctrl+C), o haz clic en **⎘ Copiar** en la barra, o haz clic derecho en una tarjeta y elige **Copiar**. Un aviso dice **2 pasos copiados: ⌘V los pega después del paso elegido, en este workflow o en otro.**
+3. Abre el workflow donde van, de este archivo o de otro.
+4. Elige el paso después del cual van y presiona **⌘V** (Ctrl+V), o haz clic derecho en él y elige **Pegar después de este paso**. Sin ningún paso elegido, van al final del workflow.
+</Steps>
+
+Los pasos se pegan con sus parámetros, criterios, outputs y rutas, y quedan elegidos.
+
+Lo que Luvin copia dura mientras la app está abierta. También se copia como YAML al portapapeles del sistema, así que lo puedes pegar en un archivo de texto o en la pestaña YAML.
+
+### Qué cambia al pegar
+
+- **Los ids que ya existen llevan un número.** Un `getPokemon` pegado pasa a ser `getPokemon_2`, y después `getPokemon_3`. Dentro de lo pegado, los datos, las rutas y el `dependsOn` siguen a los ids nuevos.
+- **Los datos que existen en el destino quedan conectados.** Un valor que lee un input o un paso que el workflow de destino tiene sigue funcionando.
+- **Los datos que no existen quedan marcados.** Un valor que lee un paso que no está muestra un chip rojo, **falta**. Un input que el workflow no declara también sale en rojo; su ayuda dice **Este workflow no tiene el input «…»: agrégalo en Inicio o conecta otro dato.** Dale un origen a esos valores. Lee [Conectar datos entre pasos](/es/design/wire-data/).
+- **Las rutas a pasos que no están** aparecen en [Por revisar](/es/design/review/), como cualquier ruta rota.
+
+⌘C y ⌘V copian texto como siempre cuando hay texto seleccionado o el cursor está en un campo.
+
+## Duplica
+
+Elige uno o más pasos y presiona **⌘D** (Ctrl+D), o haz clic en **⧉ Duplicar** en la barra, o haz clic derecho en una tarjeta y elige **Duplicar**. Las copias quedan justo después del último paso elegido, con ids nuevos, igual que al pegar.
+
+## Extrae a un workflow
+
+Extraer convierte pasos seguidos en un workflow nuevo del mismo archivo, y deja en su lugar un paso que lo llama.
+
+<Steps>
+1. Elige los pasos. Tienen que ir uno detrás de otro. Con pasos que no lo están, el botón está apagado y dice **Solo pasos seguidos: elige pasos uno detrás de otro.** Para extraer un solo paso, haz clic derecho en él y elige **Extraer a un workflow…**.
+2. Haz clic en **⇪ Extraer a un workflow** en la barra, o en **Extraer a un workflow…** en el menú de una tarjeta.
+3. Escribe el **Nombre del workflow nuevo**. Empieza como **Nuevo workflow**.
+4. Lee la ventana y haz clic en **Extraer**, o en **Cancelar**.
+</Steps>
+
+![La ventana Extraer 2 pasos a un workflow: el nombre del workflow nuevo, sus inputs y outputs, y cómo cambia el YAML](/media/es/design-extract-dialog.webp)
+
+No se escribe nada hasta que haces clic en **Extraer**. La ventana muestra:
+
+| Sección | Qué dice |
+|---|---|
+| La primera línea | El id del workflow nuevo y del paso que lo llama: **Los pasos pasan al workflow «…», en este archivo. En su lugar queda el paso «…», que lo llama.** |
+| **Inputs (lo que recibían de afuera)** | Cada valor que los pasos leen de los inputs del workflow o de pasos anteriores, con su origen, por ejemplo `mainType ← $steps.getPokemon.outputs.mainType` |
+| **Outputs (lo que se usa después)** | Cada valor del grupo que leen los pasos de después o los outputs del workflow, y quién **lo usa** |
+| **Rutas que se quitan** | Rutas del grupo que van a un paso que queda afuera. Se quitan |
+| Notas | Lo que funciona distinto una vez dentro del workflow nuevo (ver abajo) |
+| **Así queda en Arazzo** | El YAML del paso que va **En lugar de los pasos** y del workflow que va **Al final del archivo** |
+
+Después de **Extraer**, queda elegido el paso que llama al workflow nuevo. Un solo **↶ Deshacer** devuelve todo.
+
+### Qué cambia dentro del workflow nuevo
+
+- **Las reglas para todos los pasos** (las de **Inicio**) se copian al workflow nuevo, para que sus pasos las sigan teniendo. Las reglas que van a un paso que queda afuera no se copian.
+- **Una ruta que termina con éxito** ahora termina el workflow nuevo, y el principal sigue con el paso que viene después.
+- **Una ruta que sigue en otro workflow** lo hace dentro del workflow nuevo, y al terminar el principal sigue con el paso que viene después.
+- **Una ruta que falla y termina** funciona igual que antes: el workflow nuevo falla, el paso que lo llama falla y el workflow principal termina.
+- **Una ruta de afuera que entraba a la mitad del grupo** ahora va al paso que llama al workflow nuevo, que empieza por el primer paso extraído.
+
+El workflow nuevo siempre va al mismo archivo.
+
+## Mira los pasos del workflow que llama un paso
+
+Un paso que llama a un workflow del mismo archivo tiene un enlace en su tarjeta: **▸ Ver sus 2 pasos** (o **▸ Ver su paso**). Haz clic para listar esos pasos, con su método, sin salir del lienzo. **▾ Ocultar sus pasos** los pliega. Los workflows de otros archivos no se listan.
+
+Para abrir el workflow llamado, haz clic en él en la barra lateral. Lee [Workflows que usan otros workflows](/es/design/dependencies/).
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Workflows que usan otros workflows" href="/es/design/dependencies/" />
+  <LinkCard title="Organizar un workflow" href="/es/design/organize/" />
+  <LinkCard title="El lienzo" href="/es/design/canvas/" />
+</CardGrid>

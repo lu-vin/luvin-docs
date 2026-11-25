@@ -25,7 +25,7 @@ La mayoría de las APIs piden un token antes de responder. Esta receta inicia se
 3. En el inicio de la colección, pulsa **Importar Arazzo o contratos** y elige los dos archivos descargados.
 4. En la barra lateral, abre el workflow `loginAndCarts`.
 5. En la barra de ejecución, elige **API real**.
-6. Pulsa **Ejecutar**. Los resultados se abren abajo.
+6. Pulsa **Ejecutar**. Cada paso muestra su resultado en el lienzo; **Resultados ▴**, en la barra de resultado, abre los resultados completos. Mira [Ejecutar sobre el lienzo](/es/test/run-on-canvas/).
 
 </Steps>
 
@@ -105,6 +105,15 @@ workflows:
 
 Los outputs del workflow son `firstName` = Emily y `carts` = 1. Cada paso cumple sus criterios, así que el caso termina **Pasó**.
 
+## El token en Luvin
+
+Abre el workflow en la pestaña **Diseño**:
+
+- La tarjeta de `login` muestra **🔑 inicia sesión**, y `getMe` muestra **🔑**. Iniciar sesión no modifica datos, así que una ejecución contra la API real no pide confirmar `login`.
+- Haz clic en `getMe` y abre la pestaña **Autorización** del panel. Dice *Usa el token de «Log in and get a token» como Bearer en Authorization.* **Ver cómo queda en el Arazzo** muestra las líneas 33-35.
+
+Para armar lo mismo sin escribir YAML, agrega las tres operaciones a un workflow, haz clic en `getMe` y, en su pestaña **Autorización**, elige **Token de «Log in and get a token» (accessToken)**. Luvin declara el output `token` en `login`, escribe el parámetro `Authorization` en `getMe` y deja `login` en **Ninguna**. Este contrato no declara `security`, así que la acción del paso del login, que solo llega a los pasos cuya API pide autorización, aquí no conectaría nada: elígelo en el paso. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
+
 ## Pruébalo
 
 **Contraseña incorrecta.** Cambia el input `password` a `wrong` y ejecuta de nuevo. DummyJSON responde 400 (*Invalid credentials*) al login, `login` no cumple `$statusCode == 200` y falla, y los dos pasos siguientes se omiten. El workflow termina **No pasó**. Para que un rechazo sea el resultado esperado, mira [Comprueba que la API rechaza datos malos](/es/recipes/expected-error/).
@@ -113,6 +122,7 @@ Los outputs del workflow son `firstName` = Emily y `carts` = 1. Cada paso cumple
 
 <CardGrid>
 <LinkCard title="Conecta datos entre pasos" description="Cómo el output de un paso se vuelve el input del siguiente." href="/es/design/wire-data/" />
+<LinkCard title="Pasa el token del login a los pasos siguientes" description="Todas las formas de darle el token de un login a los demás pasos." href="/es/authorization/token-from-login/" />
 <LinkCard title="Autorización del workflow" description="Agrega un token sin escribirlo en los pasos." href="/es/authorization/workflow/" />
 <LinkCard title="Depends on" description="Un workflow inicia sesión y otros reutilizan su token." href="/es/recipes/depends-on/" />
 </CardGrid>

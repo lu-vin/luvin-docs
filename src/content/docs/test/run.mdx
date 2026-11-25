@@ -16,11 +16,13 @@ Running a workflow runs its selected cases, one after another, and gives each on
 The Pokédex example needs no credentials, so you can run it right away.
 
 <Steps>
-1. Open **Pokemon card**. In the **Cases** tab, its two cases are ticked.
+1. Open **Pokemon card** and click the **Cases** tab. Its two cases are ticked.
 2. In the run bar, choose **Simulation**. The button reads **Run 2 cases**.
 3. Press **Run**. The results open at the bottom: *Running case 2 of 2*, then a verdict for each case.
 4. Switch to **Real API** and press **Run** again. The run pauses to ask you to choose from a list. See [Choose an item from a list](/test/lists/).
 </Steps>
+
+Run from the **Design** tab and the result is drawn on the canvas instead: each step card says how it ended, and a bar at the bottom lists the cases. See [Results on the canvas](/test/run-on-canvas/).
 
 ## The run bar
 
@@ -35,7 +37,7 @@ The run bar is at the top of an open workflow, above its tabs. The workflow name
 
 ![The run bar of Pokemon card: Real API or Simulation, and Run 3 cases](/media/en/test-runbar.webp)
 
-The environment is not in the run bar. The active one is always visible at the top right of the window, in its color, or in Luvin green without one: it is the one whose base URLs, variables and credentials are used. Open it to switch. **Configure environment…**, at the end of its list, opens it. See [Environments](/environments/overview/).
+The environment is not in the run bar. The active one is always visible at the top right of the window, in the left half of the pill, the one with the database icon: the collection environment, in its color, or in Luvin green without one. It is the one whose base URLs, variables and credentials are used. Click that half to switch. **Configure environment…**, at the end of its list, opens it. The right half, with a globe, is the global environment. See [Environments](/environments/overview/).
 
 Before you press **Run**, the line at the top of the **Cases** tab says what will happen: how many cases are selected, how many go against the real API, how many are simulated and how many will not run. See [Cases](/test/cases/#the-cases-tab).
 
@@ -45,11 +47,13 @@ Before you press **Run**, the line at the top of the **Cases** tab says what wil
 1. Open the workflow.
 2. In the **Cases** tab, tick the cases you want. See [Cases](/test/cases/).
 3. In the run bar, choose **Real API** or **Simulation**.
-4. Check the environment at the top right of the window. Open it to choose another one.
+4. Check the environment at the top right of the window, in the left half of the pill. Click it to choose another one.
 5. Press **Run**. You can also press ⌘ + Enter on macOS, or Ctrl + Enter on Windows.
 </Steps>
 
 The results open at the bottom. While the run is in progress they show which case is running, for example *Running case 2 of 5*, and each case gets its verdict as it ends.
+
+In the **Design** tab the results do not open at the bottom: the canvas switches to **Run** and shows the result on each step, with a result bar over the canvas. **Results ▴**, in that bar, opens the full results. See [Results on the canvas](/test/run-on-canvas/).
 
 ## Run one case
 
@@ -84,9 +88,19 @@ Read the environment name in the notice before you confirm.
 - *This workflow signs in with OAuth 2.0 to: …* Press **Sign in**, or press **Run** and the sign-in opens first. If you cancel it, the workflow does not run. See [OAuth 2.0](/authorization/oauth2/).
 - *N messaging step(s) are simulated*, next to the workflow name. Messaging steps are simulated even against the real API. See [Simulation](/test/simulation/).
 
+## Run part of a workflow, or one route
+
+On the canvas of the **Design** tab you can run less than the whole workflow:
+
+| To… | Use | See |
+|---|---|---|
+| Stop before a step, change what it receives and continue | **⏸ Pause here**, or **F9** | [Debug a workflow](/test/debug/) |
+| Run one step, up to a step or from a step | **▷ Run only this step**, **▷ Run up to here**, **Run from this step** | [Debug a workflow](/test/debug/#run-only-up-to-or-from-a-step) |
+| Go through one route with a simulated response | **▷ Probe**, on the route | [Probe routes and coverage](/test/probe-routes/) |
+
 ## Stop a run
 
-While cases are running, the **Run** button becomes **Cancel**. The results show a **Cancel** button too. The run stops at the current step, and the cases that had not started stay **Pending**.
+While cases are running, the **Run** button becomes **Cancel**. The results show a **Cancel** button too. The run stops at the current step, and the cases that had not started stay **Pending**. If the run is paused before a step, the pause closes.
 
 ## Run every workflow of a file
 
@@ -113,6 +127,7 @@ See [Dependencies](/design/dependencies/) and the recipe [One workflow logs in, 
 ## Next
 
 <CardGrid>
+  <LinkCard title="Results on the canvas" description="Read the run on each step card." href="/test/run-on-canvas/" />
   <LinkCard title="Choose an item from a list" description="When the run pauses to ask you." href="/test/lists/" />
   <LinkCard title="Read the results" href="/test/results/" />
   <LinkCard title="Keyboard shortcuts" href="/reference/shortcuts/" />

@@ -41,10 +41,10 @@ If `pokeapi` had shown ✕, the problem would have been the file, not the operat
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| The row shows ○ | No workflow file lists the contract in `sourceDescriptions`. | Add one of its operations from the **Operations** palette (group marked **new**): Luvin lists the contract for you. Or create a workflow file with **New Arazzo**, or add it to `sourceDescriptions` in the YAML tab. See [A contract added after the workflow file](/contracts/add/#a-contract-added-after-the-workflow-file). |
+| The row shows ○ | No workflow file lists the contract in `sourceDescriptions`. | Add one of its operations with **＋ Step** (group marked **new**): Luvin lists the contract for you. Or create a workflow file with **New Arazzo**, or add it to `sourceDescriptions` in the YAML tab. See [A contract added after the workflow file](/contracts/add/#a-contract-added-after-the-workflow-file). |
 | The row shows the type `schemas` | The file starts with neither `openapi:` nor `asyncapi:`. Often a file of shared schemas, which is fine. Sometimes a typo such as `openApi:`. | If it is a contract, fix the first key. |
-| Its operations are not in the **Operations** palette | The contract did not load, or the search box filters them out. | Check the mark in the list and clear the search. See [The Operations palette](/contracts/operations-and-steps/#the-operations-palette). |
-| The palette says *The collection has no OpenAPI or AsyncAPI contracts. Add one to see its operations here.* | No OpenAPI or AsyncAPI contract of the collection has loaded. | Add one, or fix the one that does not load. |
+| Its operations are not in **＋ Step** | The contract did not load, or the search box filters them out. | Check the mark in the list and clear the search. See [Where operations are listed](/contracts/operations-and-steps/#where-operations-are-listed). |
+| **＋ Step** says *The collection has no OpenAPI or AsyncAPI contracts. Add one to see its operations here.* | No OpenAPI or AsyncAPI contract of the collection has loaded. | Add one, or fix the one that does not load. |
 | The **Credentials** of the environment do not list a scheme of the contract | Credentials are listed only for schemes that a step of a workflow uses. | Add a step that calls a protected operation. See [Servers and credentials](/contracts/servers-and-credentials/#from-security-to-credentials). |
 
 ## Editing the contract

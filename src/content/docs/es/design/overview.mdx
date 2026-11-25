@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Un workflow es una cadena de llamadas a una API donde cada paso puede usar datos de los anteriores. Lo construyes en la pestaña **Diseño** arrastrando operaciones a un lienzo, y Luvin escribe el archivo por ti.
+Un workflow es una cadena de llamadas a una API donde cada paso puede usar datos de los anteriores. Lo construyes en la pestaña **Diseño**, en un lienzo donde cada paso es una tarjeta, y Luvin escribe el archivo por ti en Arazzo estándar.
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-workflow.webp" src="/media/es/design-workflow.mp4"></video>
 
@@ -18,9 +18,9 @@ Un workflow es una cadena de llamadas a una API donde cada paso puede usar datos
 <Tabs>
   <TabItem label="En la app">
 
-El lienzo muestra **Inicio** con el input `pokemon`, luego cuatro tarjetas unidas por flechas y al final **Fin del workflow**. La segunda tarjeta, `getSpecies`, muestra el parámetro `idOrName` con el origen `getPokemon › id`.
+El lienzo muestra el botón verde **▶ Inicio · 1 input**, luego cuatro tarjetas y al final **■ Fin del workflow**. La segunda tarjeta muestra el parámetro `idOrName` con el chip **← id · de 1**: su valor es el `id` que entrega el paso 1.
 
-![La pestaña Diseño con la paleta de operaciones a la izquierda, el lienzo con pasos conectados al centro y el panel del paso a la derecha](/media/es/builder.webp)
+![La pestaña Diseño: la barra de herramientas flotante, el lienzo con las tarjetas completas de los pasos y el panel del paso abierto sobre el lado derecho](/media/es/builder.webp)
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -54,7 +54,7 @@ El lienzo muestra **Inicio** con el input `pokemon`, luego cuatro tarjetas unida
 | **Input** | Un valor que el workflow pide al ejecutarse, por ejemplo el nombre de un Pokémon. |
 | **Output** | Un valor que un paso toma de su respuesta para que lo usen los pasos siguientes. |
 | **Criterio de éxito** | La regla que dice que un paso salió bien, por ejemplo «responde 200». |
-| **Acción** | Lo que pasa cuando un paso responde con un error: terminar, reintentar o ir a otro paso. |
+| **Ruta** | Lo que pasa después de un paso: si falla, o si pasa y se cumple una condición. Puede reintentar, ir a otro paso, seguir en otro workflow o terminar. |
 
 Un *contrato* es el archivo OpenAPI o AsyncAPI que describe una API. El [glosario](/es/reference/glossary/) tiene todos los términos.
 
@@ -69,69 +69,50 @@ El lienzo muestra el workflow de arriba hacia abajo. **Diseño** es la pestaña 
 
 ## Las partes de la pestaña Diseño
 
-| Área | Dónde | Para qué sirve |
+El lienzo ocupa toda la pestaña. Sus herramientas flotan encima.
+
+| Parte | Dónde | Para qué sirve |
 |---|---|---|
-| Paleta **Operaciones** | Izquierda | Todo lo que puedes agregar: las operaciones de cada contrato, **Requests de la colección**, **Reutilizables** y **Workflows de este Arazzo**. Busca, arrastra o pulsa **+**. La flecha de su encabezado la oculta. |
-| Lienzo | Centro | El workflow como tarjetas unidas por flechas: **Inicio** con los inputs, una tarjeta por paso y **Fin del workflow** con los outputs. |
-| Panel del paso | Derecha | Se abre al hacer clic en una tarjeta. Aquí editas parámetros, body, éxito, errores y outputs. Haz clic en un espacio vacío del lienzo para cerrarlo. |
-| Barra de herramientas | Sobre el lienzo | **Deshacer**, **Rehacer** y **+ Workflow**. |
+| Barra de herramientas | Arriba a la izquierda | **↶ Deshacer**, **↷ Rehacer**, **Diseño** y **Ejecución**, **＋ Paso**, buscar, **⚠ por revisar**, **\{ \} YAML** y **⋯**. |
+| **Ver** | Arriba a la derecha | Qué dibuja el lienzo: las rutas, las líneas de datos y si las tarjetas van completas o minimizadas. |
+| Lienzo | Centro | **Inicio**, una tarjeta por paso y **Fin del workflow**, de arriba hacia abajo. |
+| Panel del paso | Sobre el lado derecho | Se abre al hacer clic en una tarjeta, con las pestañas **Datos**, **Éxito y rutas**, **Autorización** y **Respuesta**. |
+| Zoom y minimapa | Abajo | Acercar y alejar, **⤢ Ajustar** y el mapa del workflow entero. |
 
-Arrastra las divisiones entre las tres áreas para cambiar su ancho. Haz doble clic en una división para volver al tamaño original.
+Cada tarjeta muestra el paso completo: sus parámetros con el origen de cada valor, sus criterios de éxito, sus outputs y sus rutas. Una tarjeta se puede minimizar con **–**.
 
-### Qué muestra la tarjeta de un paso
+![La tarjeta completa de un paso: número y título, método y ruta, Parámetros con sus chips, Criterios de éxito, Outputs y la sección Si falla en rojo](/media/es/design-card.webp)
 
-- Su posición en la ejecución y su nombre. Apunta a la tarjeta para ver las flechas **↑** y **↓** que la mueven.
-- **modifica datos** cuando la operación es un POST, PUT, PATCH o DELETE.
-- El método y la ruta de la operación, y el contrato del que viene.
-- **Parámetros**: cada valor y de dónde viene. `pokemon` es un input, `getPokemon › id` es un output de otro paso, y cualquier otra cosa es un valor fijo.
-- **Criterios de éxito** y **Outputs**.
-- **Si falla**: qué pasa con cada error.
-
-![La tarjeta de getPokemon: número y nombre, método y ruta, sus parámetros con su origen, sus criterios de éxito, sus outputs y la sección Si falla](/media/es/design-card.webp)
-
-### Mostrar: las dos capas
-
-Sobre el lienzo, **Mostrar:** tiene dos interruptores.
-
-| Interruptor | Qué hace |
-|---|---|
-| **Acciones según la respuesta** | Agrega la sección **Si falla** a cada tarjeta y dibuja los saltos a otros pasos. El número es cuántas acciones define el workflow. |
-| **Flujo de datos** | El número es cuántas conexiones llevan datos de un paso a otro. En el diagrama de la pestaña **Resumen** muestra u oculta esas líneas. En **Diseño** las líneas de datos siempre se dibujan, porque ahí es donde las editas. |
-
-A la derecha, la leyenda explica los puntos: el verde es **éxito** y el naranja es **salta a otro paso**.
-
-![Una tarjeta con Acciones según la respuesta encendido: la sección Si falla lista 401 fin, 429 reintenta ×3, 409 ir a listProducts y 400 sin acción](/media/es/design-actions-canvas.webp)
-
-### Muévete por el lienzo
-
-- Arrastra el fondo para desplazarte. Usa los botones de la esquina para acercar, alejar y encuadrar todo el workflow.
-- Arrastra una tarjeta o la parte vertical de una línea para ordenar el dibujo. **Reordenar** aparece sobre el lienzo y lo deja todo como estaba.
-
-<Aside type="note">
-Mover una tarjeta hacia los lados solo cambia el dibujo. Moverla arriba o abajo de otro paso cambia el orden de la ejecución. Consulta [Organizar un workflow](/es/design/organize/).
-</Aside>
+[El lienzo](/es/design/canvas/) explica cada parte, los controles de ventana de las tarjetas, las opciones de **Ver**, la búsqueda y los atajos de teclado.
 
 ## En esta sección
 
 | Para hacer esto | Lee |
 |---|---|
 | Ver cómo se hace una tarea común, con su YAML | [Casuísticas de diseño](/es/design/common-situations/) |
+| Leer el lienzo y moverte por él | [El lienzo](/es/design/canvas/) |
 | Empezar un workflow nuevo | [Crear un workflow](/es/design/create/) |
 | Agregar llamadas | [Agregar pasos](/es/design/add-steps/) |
 | Pasar datos de un paso al siguiente | [Conectar datos entre pasos](/es/design/wire-data/) |
 | Completar lo que envía una llamada | [Parámetros y body](/es/design/parameters-and-body/) |
 | Guardar valores de una respuesta | [Outputs](/es/design/outputs/) |
-| Decidir qué es éxito y qué hacer ante los errores | [Éxito y errores](/es/design/success-and-errors/) |
+| Decidir qué es éxito | [Éxito y errores](/es/design/success-and-errors/) |
+| Decidir qué pasa después de un paso | [Rutas: qué pasa después de cada paso](/es/design/branches/) |
+| Ver qué haría mal el Arazzo antes de ejecutarlo | [Por revisar](/es/design/review/) |
+| Recorrer páginas, esperar un trabajo o iniciar sesión | [Patrones de Arazzo estándar](/es/design/patterns/) |
 | Definir algo una vez y usarlo en varios pasos | [Reutilizables](/es/design/reusables/) |
 | Usar un workflow desde otro | [Workflows que usan otros workflows](/es/design/dependencies/) |
+| Copiar pasos, o convertir algunos en un workflow propio | [Copiar, duplicar y extraer pasos](/es/design/copy-and-extract/) |
 | Enviar y recibir mensajes | [Pasos de mensajería](/es/design/messaging/) |
 | Trabajar sin contratos | [Armar desde requests guardados](/es/design/from-requests/) |
-| Reordenar, renombrar, eliminar, deshacer | [Organizar un workflow](/es/design/organize/) |
+| Reordenar, renombrar, quitar, deshacer | [Organizar un workflow](/es/design/organize/) |
+| Ver el archivo mientras diseñas | [El YAML al lado del lienzo](/es/design/yaml-side-by-side/) |
 | Editar el archivo a mano | [La pestaña YAML](/es/design/arazzo-editor/) |
 
 ## Siguiente
 
 <CardGrid>
+  <LinkCard title="El lienzo" href="/es/design/canvas/" />
   <LinkCard title="Crear un workflow" href="/es/design/create/" />
   <LinkCard title="Casuísticas de diseño" description="Cómo se hace cada tarea común, con su YAML." href="/es/design/common-situations/" />
   <LinkCard title="Inicio rápido" description="Si todavía no ejecutaste el ejemplo." href="/es/get-started/quick-start/" />

@@ -1,24 +1,24 @@
 ---
-title: Error branches
-description: What a branch is, how a run continues after each kind of action in Arazzo, and where you create and read branches in Luvin.
+title: "Routes: what happens after each step"
+description: What a route is, how a run moves after each Arazzo action, and how the canvas draws every route with its color and its real target.
 sidebar:
   order: 7.1
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A branch says what the workflow does when a step gets a given response, for example "if `getSpecies` responds 404, end the workflow". Without a branch, any error stops the workflow with a generic failure. Add a branch for each error your application treats differently, so that the outcome is known and tested.
+A route says what the workflow does after a step, depending on how it went. For example: "if `getPokemon` responds 404, end the workflow", or "if the Pokémon is legendary, go to step 4". Without routes, a step that passes goes on to the next one, and a step that fails stops the workflow with a generic failure.
 
-This page explains how a run moves from step to step. The pages that follow show how to create each branch from the canvas.
+In Arazzo, routes are the actions of a step (`onSuccess` and `onFailure`) and the rules of the workflow (`successActions` and `failureActions`). The canvas shows all of them, and Luvin writes them for you as standard Arazzo.
 
 ## Example: end on a 404
 
-In **Pokemon card**, `getPokemon` already has a branch: when the Pokémon does not exist, the workflow ends there instead of failing.
+In **Pokemon card**, `getPokemon` already has a route: when the Pokémon does not exist, the workflow ends there.
 
 <Tabs>
 <TabItem label="On the canvas">
 
-The card of `getPokemon`, in the **Design** tab, has a section **On failure** with the row `404 → pokemonNotFound` **end ✕**.
+The card of `getPokemon`, in the **Design** tab, has a section **On failure** with the row `404 → ends the workflow (End) as failed`. A red dashed arrow leaves that row and goes down the left side to **End of workflow**.
 
 </TabItem>
 <TabItem label="In the YAML">
@@ -38,78 +38,131 @@ The card of `getPokemon`, in the **Design** tab, has a section **On failure** wi
 
 ## How a run moves through the steps
 
-In Arazzo, a step either succeeds or fails:
+A step **passes** when all its success criteria hold, for example `$statusCode == 200`. It **fails** when one of them does not hold, for example because the API answered 404.
 
-- It **succeeds** when all its success criteria hold, for example `$statusCode == 200`.
-- It **fails** when one criterion does not hold, for example because the API answered 404.
+Then the run looks at the routes of the step:
 
-Then the run looks at the actions of the step. After a success it reads `onSuccess`, after a failure it reads `onFailure`. It takes the **first** action of the list whose criteria all hold, and does what that action says. An action without criteria matches any response.
+- After a pass, it reads `onSuccess`. After a failure, it reads `onFailure`.
+- It checks them **in order** and takes the **first** one whose conditions all hold. A route without conditions matches any response.
+- If none of the step's own routes applies, it uses the rules of the workflow, in the same way.
 
-| The step | Action that applies | What the run does next |
+| The step | Route that applies | What the run does next |
 |---|---|---|
-| Succeeds | None | Goes on with the next step of the list. After the last step, the workflow ends. |
-| Succeeds | `end` | Ends the workflow here. The steps below do not run. |
-| Succeeds | `goto` | Jumps to the step it names. |
+| Passes | None | Goes on to the next step. After the last step, the workflow ends. |
+| Passes | End (`end`) | Ends the workflow here, successfully. The steps below do not run. |
+| Passes | Go to another step (`goto` + `stepId`) | Jumps to that step and goes on from there. |
 | Fails | None | Stops. The workflow fails with the error of the step. |
-| Fails | `end` | Stops at this step, as a known outcome. The steps below do not run. |
-| Fails | `retry` | Calls the step again, up to `retryLimit` times. If it keeps failing, the workflow fails. |
-| Fails | `goto` | Goes on from the step it names, then follows the list from there. |
+| Fails | End (`end`) | Stops at this step. The workflow ends as failed, with a known reason. |
+| Fails | Retry (`retry`) | Calls the step again, up to `retryLimit` times, waiting `retryAfter` seconds. If it keeps failing, the workflow fails. |
+| Fails | Go to another step (`goto` + `stepId`) | Jumps to that step, earlier or later, and goes on from there. |
+| Either | Continue in another workflow (`goto` + `workflowId`) | Hands control to that workflow. It does not come back: the result of that workflow is the result of this one. |
+| Fails | Renew and retry (`retry` + `workflowId`) | Runs another workflow first, for example the login, then calls the step again. |
 
-Two rules follow from this, and Luvin applies them for you when you build branches on the canvas:
+Two things follow from this:
 
-- **The order of the list is the order of the run.** A step placed after the last step of the happy path still runs after it, unless something ends the run before. That is why Luvin adds an action named `done` when it puts a step at the end for an error. See [A new step for an error](/design/branch-new-step/).
-- **A jump does not come back.** After the target of a `goto` succeeds, the run goes on with the step below the target, not with the step that jumped.
+- **The order of the steps is the order of the run.** A step placed after the last step of the happy path still runs after it, unless something ends the run before. That is why Luvin adds an action named `done` when it puts a step at the end for a route. See [A new step for a route](/design/branch-new-step/).
+- **A jump does not come back.** After the target of a `goto` passes, the run goes on with the step below the target, not with the step that jumped.
 
-### What you see in the results
+## Routes on the card
+
+Each card lists its routes in two sections, in the order of the Arazzo:
+
+| Section | What it lists |
+|---|---|
+| **If it passes and matches** (green) | Detours for when the step passes and a condition on its response also holds (`onSuccess`). If none holds, the run goes on to the next step. |
+| **On failure** (red) | What the workflow does when the step misses its success criteria (`onFailure`). |
+
+Each row is one route: the status or the condition, an arrow, and what it does in words. For example:
+
+| Row | Meaning |
+|---|---|
+| `404 → ends the workflow (End) as failed` | On a 404, the workflow ends here. |
+| `429 ↻ retries up to 3 · every 2 s` | On a 429, the step is called again. |
+| `401 ↻ runs «Login» and retries (up to 1)` | On a 401, the workflow `login` runs, then the step is called again. |
+| `409 → goes to step 2 · List products` | On a 409, the run jumps to step 2. |
+| `success → ends successfully (End)` | When the step passes, the workflow ends. |
+| `500 ✕ no route: the workflow fails` | The contract says the API can answer 500 and nothing handles it. |
+
+A row that comes from a [reusable](/design/reusables/) starts with ♻. Hover over a section title to read what it means.
+
+### Statuses without a route
+
+Each status that the contract declares for the operation and that no route or rule handles shows as a red row: `422 ✕ no route: the workflow fails`, with the button **Choose what to do**. It opens the route editor with that status filled in. See [Add or change a route](/design/branch-menu/).
+
+You do not have to handle them all. Handle the responses your application treats differently, such as "not found" or "not approved". These rows are also counted in [To review](/design/review/) as **without a route**.
+
+### Rules for every step
+
+When the workflow has rules, the **On failure** section of each card ends with a line such as **If none of these applies, it uses the Start rules (429)**. **Start rules** is a link: it opens the panel of **Start**, where the rules are. See [The Routes panel and rules for every step](/design/routes-panel/#rules-for-every-step).
+
+## The arrows
+
+Each route has an arrow that leaves its row, runs along the **left** side of the cards and enters its real target. Data lines run on the right, so left is control and right is data. Arrows have no label: the row says what the route does.
+
+| Scenario | Color | Where the arrow goes |
+|---|---|---|
+| Goes on to the next step | Grey, the spine | The next card |
+| Passes and a condition holds | Green | The target step, or **End of workflow** if it ends |
+| Fails and goes to another step or ends | Red, dashed | The target step, or **End of workflow** |
+| Retries | Blue | A loop back into the same card |
+| Continues in another workflow | Amber | An exit box next to the end, **Continues in «…»** |
+
+**View → Routes**, at the top right of the canvas, has the same legend, with the line **The API can respond it and there is no route: the workflow fails** for statuses without a route. Untick **Show the routes** to hide the sections and the arrows when you only want to read the data. The right-click menu of the canvas does the same with **Hide actions by response**.
+
+### Continue in another workflow
+
+A route of type `goto` with a `workflowId` does not point to a step of this workflow. The canvas draws an exit box below **End of workflow**, for example:
+
+> **↗ Continues in «Suggest name»**
+> workflow from this file · from step 1 if 404 · does not return
+
+If the workflow is in another Arazzo file, the box says **another source:** and the name of that source.
+
+![The 404 of step 4 continues in Browse products: an amber arrow from that row to the box ↗ Continues in «Browse products», below End of workflow](/media/en/design-route-exit.webp)
+
+### Loops
+
+A route can go back to an earlier step, or to the same one. Arazzo puts no limit on that. The row says it, for example **goes back to step 1 · Get the Pokémon (the runner stops at 200 executions)**. A run that loops through jumps or retries too many times stops with **The run was stopped: possible infinite loop of goto/retry actions.**
+
+When a loop depends only on the status, [To review](/design/review/) warns about it. A loop that checks a field of the response, like a pagination that stops when there is no next page, is the normal way to repeat a step in Arazzo and is not flagged. See [Standard Arazzo patterns](/design/patterns/).
+
+<Aside type="note">
+A step that calls another workflow has no **＋ What to do if it fails** on its card: use **Add route…** in its right-click menu. A messaging step has none either, because a message has no status. Its routes depend on the message and are written in the YAML tab. See [Messaging steps](/design/messaging/).
+</Aside>
+
+## Where you add and change routes
+
+| To do this | Where | Read |
+|---|---|---|
+| Add a route for a status, or for a condition on the response | **＋ What to do if it fails** and **＋ Detour if it passes and a condition holds** on the card, **Add route…** (R) in the step menu | [Add or change a route](/design/branch-menu/) |
+| Use a status the contract does not declare | Type it in **If it responds** | [A route for any status](/design/branch-other-status/) |
+| Send a response to a step that runs only for it | **or a new step…** in the route editor | [A new step for a route](/design/branch-new-step/) |
+| Reorder, change or remove routes; rules for every step | The **Success and routes** tab of the step panel, and the panel of **Start** | [The Routes panel and rules for every step](/design/routes-panel/) |
+| Repeat a step until there are no more pages, or until a job finishes | **＋ Step → Patterns · standard Arazzo** | [Standard Arazzo patterns](/design/patterns/) |
+| Conditions with `regex`, `xpath` or several values at once | The **YAML** tab | [The YAML tab](/design/arazzo-editor/) |
+
+## What you see when it runs
+
+After a run, the arrow of the route the case took moves and the others fade. Its row says **taken**, and the steps it skipped say **skipped (route of step 2)**. See [Results on the canvas](/test/run-on-canvas/). To make a route run without calling the API, use **▷ Probe** on its row: see [Probe routes and coverage](/test/probe-routes/).
+
+In the results, each route that fired leaves a line under its step:
 
 | What happened | Line under the step |
 |---|---|
-| An `end` action fired | **↪ End of workflow (action "pokemonNotFound")** |
-| A `goto` action fired | **↪ Goes to step "listPokemon" (action "on404")** |
-| A `retry` action fired | **↪ Retry 1 of 3 (action "on429")** |
-| All the retries failed | **↪ The 3 retries were exhausted** |
+| An `end` route fired | **End of workflow (action "pokemonNotFound")** |
+| A `goto` route fired | **Goes to step "listPokemon" (action "on404")** |
+| A `retry` route fired | **Retry 1 of 3 (action "retry429")** |
+| All the retries failed | **The 3 retries were exhausted** |
 
-Steps that did not run show why:
+Steps that did not run show why: **Not run because step "getPokemon" failed.**, or **Not run: the workflow ended earlier due to an end/goto action.** in a run that went well.
 
-| Why | Message |
-|---|---|
-| An earlier step failed, or an `end` stopped it after an error | **Not run because step "getPokemon" failed.** |
-| An `end` or a `goto` skipped them in a run that went well | **Not run: the workflow ended earlier due to an end/goto action.** |
-
-A run that loops through jumps or retries more than 200 times stops with **The run was stopped: possible infinite loop of goto/retry actions.**
-
-## What you can build from the canvas
-
-| Kind of branch | Where | Read |
-|---|---|---|
-| End, retry or go to a later step, for a status the contract documents | The **+** or the pencil of a row in **On failure** | [The branch menu](/design/branch-menu/) |
-| The same, for a status the contract does not document | **+ If it responds another status…** | [Statuses the contract doesn't document](/design/branch-other-status/) |
-| A new step only for that response | **+ A new step…** in the menu | [A new step for an error](/design/branch-new-step/) |
-| End, retry or go to any step, earlier ones too | The step panel, **If it responds with an error** | [Success and errors](/design/success-and-errors/) |
-| Actions on success, actions that depend on a field of the response, several statuses in one action | The **YAML** tab | [The YAML tab](/design/arazzo-editor/) |
-
-Every branch you create with the card menu or with the actions of the step panel, other than a reusable, is written the same way: an action named `on` followed by the status, such as `on404`, with the criterion `$statusCode == 404`. When you change a branch that already had an action with another name, Luvin keeps that name.
-
-<Aside type="note">
-Only operation steps have branches on the canvas. A step that calls another workflow, a messaging step (a message has no status) and a step whose operation is not in any contract of the collection have no **+** in **On failure**.
-</Aside>
-
-## Where you read the branches
-
-<Steps>
-1. **On the card.** With **Actions by response** on, above the canvas, each card lists its branches and the documented errors with no action. A jump is drawn as an orange dashed line. See [See the actions on the canvas](/design/success-and-errors/#see-the-actions-on-the-canvas).
-2. **In the step panel.** **If it responds with an error** lists one row per status, with the action chosen.
-3. **In the Overview tab.** **Response coverage** says, for each status the contract documents, whether something handles it.
-4. **In the Cases tab.** Each branch gets its own generated case, for example **getSpecies responds 404 → on404**, which simulates that response and checks that the action fires. See [Cases](/test/cases/).
-</Steps>
-
-![Cards on the canvas with Actions by response on: getProduct has 404 → on404 go to openTicket, with an orange dashed line down to openTicket, and createOrder has success → done end ✓ and 409 → no action fails](/media/en/design-branch-done.webp)
+Each route also gives you a test: the **Cases** tab has a generated case for it, such as **getSpecies responds 404 → on404**, which simulates that response and checks that the route fires. See [Cases](/test/cases/).
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="The branch menu" href="/design/branch-menu/" />
-  <LinkCard title="A new step for an error" href="/design/branch-new-step/" />
-  <LinkCard title="Insert a step" href="/design/insert-step/" />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" />
+  <LinkCard title="The Routes panel and rules for every step" href="/design/routes-panel/" />
+  <LinkCard title="To review" href="/design/review/" />
   <LinkCard title="Retry, jump and end on errors" href="/recipes/error-branches/" />
 </CardGrid>

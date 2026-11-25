@@ -26,7 +26,7 @@ The three use the same types and the same fields. Only the place changes.
 | Place | What it covers | Where you set it |
 |---|---|---|
 | A request | That one request | **Authorization** tab of the request |
-| The collection | Every request set to **Inherit from collection** | **Authorization** card in the collection overview |
+| The collection | Every request set to **Inherit from collection** | **Authorization** tab of the collection overview |
 | A workflow | The steps of a workflow, API by API | **Authorization** tab of the workflow |
 | The environment | The credentials that a contract asks for, used by workflow steps by default | **Credentials** section of the environment |
 
@@ -59,9 +59,10 @@ Details and click paths: [Where authorization applies](/authorization/where-it-a
 
 **For a step of a workflow**, from the most specific to the least:
 
-1. **This workflow only**, if you set one for that API.
-2. **All workflows**, if you set one for that API. If it says **Inherit from collection**, the collection's authorization is used.
-3. The credentials of the contract, taken from the active environment.
+1. The step itself, in its **Authorization** tab in **Design**: the token of an earlier step, such as a login, or **None**. See [Pass the login token to the next steps](/authorization/token-from-login/).
+2. **This workflow only**, if you set one for that API.
+3. **All workflows**, if you set one for that API. If it says **Inherit from collection**, the collection's authorization is used.
+4. The credentials of the contract, taken from the active environment.
 
 A case that tests a call *without credentials* always goes without authorization, whatever you set.
 

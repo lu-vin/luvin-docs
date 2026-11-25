@@ -25,13 +25,13 @@ This video is the whole loop with the Pokédex example, which needs no account o
 
    ![The Cases tab: the line that says what Run will do, and the cases in their groups](/media/en/test-case-groups.webp)
 
-3. **Where it runs.** In the run bar, **Real API** sends the requests to the base URLs of the active environment, which you choose at the top right of the window. **Simulation** sends nothing: each step answers with the examples of its contract. See [Run](/test/run/) and [Simulation](/test/simulation/).
+3. **Where it runs.** In the run bar, **Real API** sends the requests to the base URLs of the active environment, which you choose in the left half of the pill at the top right of the window. **Simulation** sends nothing: each step answers with the examples of its contract. See [Run](/test/run/) and [Simulation](/test/simulation/).
 
    ![The run bar: Real API or Simulation, and the Run button with the number of cases](/media/en/test-runbar.webp)
 
-4. **Run.** Press **Run**. If a step creates, changes or deletes data, Luvin asks first. If a step returns a list that the next steps use, the run pauses so you choose an item. See [Choose an item from a list](/test/lists/).
+4. **Run.** Press **Run**. If a step creates, changes or deletes data, Luvin asks first. If a step returns a list that the next steps use, the run pauses so you choose an item. See [Choose an item from a list](/test/lists/). To stop before a step and change what it receives, see [Debug a workflow](/test/debug/).
 
-5. **Results.** A sentence in plain words says whether the workflow works. Each case ends **Passed**, **Failed**, **Warning** or **Inconclusive**, with its reason, and each step shows the request, the response and the criteria. See [Read the results](/test/results/).
+5. **Results.** A sentence in plain words says whether the workflow works. Each case ends **Passed**, **Failed**, **Warning** or **Inconclusive**, with its reason, and each step shows the request, the response and the criteria. See [Read the results](/test/results/). In the **Design** tab, each step card also shows its result. See [Results on the canvas](/test/run-on-canvas/).
 
    ![The results of a run: the summary in plain words, the filters by verdict and the detail of a case](/media/en/test-verdicts.webp)
 
@@ -79,6 +79,9 @@ Open the [Overview tab](/test/overview-tab/) first. It shows the errors in the d
 | Test a situation of my own | [Custom data cases](/test/custom-cases/) |
 | Run, run one case, stop a run | [Run](/test/run/) |
 | Run without calling the API | [Simulation](/test/simulation/) |
+| See the run on the diagram, and compare it with the previous one | [Results on the canvas](/test/run-on-canvas/) |
+| Test an error route without waiting for the API to fail, and see which routes are untested | [Probe routes and coverage](/test/probe-routes/) |
+| Stop before a step, change a value, or run only part of the workflow | [Debug a workflow](/test/debug/) |
 | Know why a case failed | [Read the results](/test/results/) and [Read a step result](/test/step-results/) |
 | Send the results to someone | [Reports](/test/reports/) |
 

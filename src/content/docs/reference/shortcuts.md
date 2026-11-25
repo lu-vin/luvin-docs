@@ -61,10 +61,30 @@ While a dialog is open, such as **Preferences** or a new request, **⌘Enter** b
 
 ## Design tab
 
+On the canvas. Press **?**, or choose **Keyboard shortcuts** in **⋯**, to see this list in the app.
+
 | Shortcut | What it does |
 |---|---|
-| **⌘Z** (**Ctrl+Z**) | Undoes the last change to the workflow. The same as **Undo**. |
-| **⇧⌘Z** (**Ctrl+Shift+Z**) | Redoes it. The same as **Redo**. |
+| **↑ ↓** | Move between steps |
+| **Enter** | Open the step |
+| **Esc** | Close the panel or stop selecting |
+| **/** | Add a step |
+| **⌘Enter (Ctrl+Enter)** | Run |
+| **⇧Enter (Shift+Enter)** | Run only the selected step. See [Debug](/test/debug/). |
+| **⌘F (Ctrl+F)** | Search the canvas |
+| **⌘Z (Ctrl+Z)** | Undo the last change to the workflow. The same as **Undo**. |
+| **⇧⌘Z (Ctrl+Shift+Z)** | Redo it. The same as **Redo**. |
+| **⌥↑ ⌥↓ (Alt+↑ Alt+↓)** | Move the step |
+| **⌘D (Ctrl+D)** | Duplicate the step |
+| **⌫ (Delete)** | Remove the step |
+| **F9** | Pause before the step. See [Debug](/test/debug/). |
+| **R** | Step routes |
+| **M** | Minimize the step |
+| **⇧ click (Shift+click)** | Select several steps |
+| **⌘A (Ctrl+A)** | Select every step |
+| **⌘C ⌘V (Ctrl+C Ctrl+V)** | Copy and paste steps |
+| **⇧1 (Shift+1)** | Fit the zoom |
+| **?** | See these shortcuts |
 
 They work when the focus is not in a text field. Inside a field, **⌘Z** undoes the text you typed, as in any program.
 
@@ -72,9 +92,7 @@ The history of **Undo** is kept when you go to another tab of the workflow, such
 
 | Key | Where | What it does |
 |---|---|---|
-| **Esc** | The menu of a **+** or a pencil on a step card | Closes it. See [Success and errors](/design/success-and-errors/). |
-| **Enter** | The field of **+ If it responds another status…** | The same as **Choose**. |
-| **Esc** | That same field | Cancels it. |
+| **Esc** | The route editor, or a menu on a step card | Closes it. See [Add or change a route](/design/branch-menu/). |
 
 ## Tabs
 

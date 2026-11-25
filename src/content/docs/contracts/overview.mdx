@@ -56,13 +56,13 @@ This one operation is what Luvin needs to design, run and simulate a call:
 
 | Part of the contract | Where you see it | Read more |
 |---|---|---|
-| `paths` and their operations | The **Operations** palette of the **Design** tab. Each operation becomes a step. | [From operation to step](/contracts/operations-and-steps/) |
+| `paths` and their operations | The **＋ Step** search of the **Design** tab. Each operation becomes a step. | [From operation to step](/contracts/operations-and-steps/) |
 | `parameters` and `requestBody` | The parameters and body of each step, the inputs of the workflow and the generated cases. | [Schemas, inputs and cases](/contracts/schemas-and-cases/) |
 | `responses` and their schemas | Success criteria, error branches, outputs and the check of each response. | [Does the response match the contract?](/contracts/response-check/) |
 | `example` and `examples` | **Simulation**, mock servers, **Try it out**, generated requests and the starting values of inputs. | [Examples, simulation and mocks](/contracts/examples/) |
 | `servers` | The **Base URLs** of every environment. | [Servers and credentials](/contracts/servers-and-credentials/) |
 | `security` and `securitySchemes` | The **Credentials** of every environment, and the **Without credentials** case. | [Servers and credentials](/contracts/servers-and-credentials/) |
-| `tags` | The search of the palette, and one folder per tag when you generate requests. | [Generate requests from a contract](/requests/generate-from-contract/) |
+| `tags` | The **＋ Step** search, and one folder per tag when you generate requests. | [Generate requests from a contract](/requests/generate-from-contract/) |
 | AsyncAPI `channels`, `operations` and messages | Send and receive steps, always simulated. | [AsyncAPI contracts](/contracts/asyncapi/) |
 | `$ref` to other files | The parts that live in other files, joined into one contract. | [References between files](/contracts/references/) |
 
@@ -80,7 +80,7 @@ sourceDescriptions:
     type: asyncapi
 ```
 
-The steps use that name: `operationId: $sourceDescriptions.pokeapi.getPokemon`. The base URL of the environment and the credentials are also stored under that name, so `pokeapi` is the name you see in the **Contracts** list, in the palette and in the environment.
+The steps use that name: `operationId: $sourceDescriptions.pokeapi.getPokemon`. The base URL of the environment and the credentials are also stored under that name, so `pokeapi` is the name you see in the **Contracts** list, in **＋ Step** and in the environment.
 
 Luvin matches each address with a file of the collection by its file name. You do not write these lines by hand: a new workflow file lists every contract of the collection for you. See [How a workflow finds its file](/contracts/add/#how-a-workflow-finds-its-file).
 

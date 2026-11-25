@@ -70,12 +70,16 @@ Environments belong to the open [collection](/reference/glossary/). Each collect
 
 Luvin remembers the active environment of each collection on this computer. It is not written to the files, so each teammate can have a different one active.
 
+### Global environments
+
+A workspace can also have global environments, which every collection of the workspace uses, as in Bruno. Put there what several collections share, such as the address of a login server. At most one global environment is active at a time, and it is optional. When you choose a collection environment, the global environment with the same name is chosen too, if there is one. See [Global environments](/environments/variable-levels/#global-environments).
+
 ## Where environments are
 
 | Place | What you find |
 |---|---|
-| Top bar | The active environment, at the top right of the window: a pill in its color, or in Luvin green without one. It is always visible while a collection is open. |
-| Sidebar | The **Environments** panel: click the **Environments** icon at the top of the sidebar. Its title shows the open collection's name. The active one has its dot filled in. A row with variables shows how many, such as **3 vars**. |
+| Top bar | The active environments, at the top right of the window, in one pill with two halves. On the left, the collection environment, with a database icon, in its color or in Luvin green without one. On the right, the global environment, with a globe, or a gray **No global** when there is none. It is always visible while a collection is open. |
+| Sidebar | The **Environments** panel: click the **Environments** icon at the top of the sidebar. **Global environments** come first, then the environments of the open collection, under a title with its name. The active one has its dot filled in. A row with variables shows how many, such as **3 vars**. |
 | The environment tab | Titled **Environment “name”**. It shows the active environment: its base URLs, credentials, variables and secrets, with a row of every environment at the top. |
 | Runner | The **Environment** list, at the top left while you set up a run. |
 | Search | Press ⌘K (Ctrl+K) and type a name. The group **Environments** lists them, and the one in use says **active**. |
@@ -90,12 +94,16 @@ The active environment is the one Luvin uses for every run, every request and **
 
 <Steps>
 
-1. Click the pill at the top right of the window.
+1. Click the left half of the pill at the top right of the window, the one with the database icon.
 2. Choose an environment. The active one has a check mark.
 
 </Steps>
 
 Its last option, **Configure environment…**, opens the active environment in its tab. Use the pill to switch without leaving what you are doing.
+
+The right half opens the list of global environments, with **None** to use none, and **See all variables…**, which opens the Variables panel. With no global environment yet, it offers **Create global environment “local”**, named like the active collection environment.
+
+![The two-half environment pill, with the menu of the global environment open: local, None and See all variables](/media/en/env-pill-split.webp)
 
 </TabItem>
 <TabItem label="Sidebar">

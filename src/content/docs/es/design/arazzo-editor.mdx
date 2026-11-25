@@ -38,7 +38,7 @@ Usa $steps.getPokemn.outputs.id, pero el paso "getPokemn" no existe.
 
 ## El YAML es la fuente de verdad
 
-El lienzo y el YAML son dos vistas del mismo archivo. Cada cambio que haces en el lienzo se escribe en el YAML, y cada cambio que escribes en el YAML se ve en el lienzo. No se guarda nada aparte, así que lo que escribes a mano se conserva.
+El lienzo y el YAML son dos vistas del mismo archivo. Cada cambio que haces en el lienzo se escribe en el YAML, y cada cambio que escribes en el YAML se ve en el lienzo. No se guarda nada aparte, así que lo que escribes a mano se conserva. Para ver el texto mientras trabajas en el lienzo, abre **\{ \} YAML** al lado: lee [El YAML al lado del lienzo](/es/design/yaml-side-by-side/).
 
 - **Un Arazzo escrito en JSON sigue en JSON.** Editarlo en el lienzo conserva el formato y su sangría.
 - **Deshacer sobrevive a una visita a otra pestaña.** **Deshacer** y **Rehacer** de la pestaña **Diseño** conservan su historial cuando abres la pestaña YAML, u otra pestaña del workflow, y vuelves. Si editaste el YAML entre medio, el historial empieza de nuevo, así deshacer no borra lo que escribiste.
@@ -127,9 +127,10 @@ En un workspace, el archivo se guarda solo y la barra muestra el estado del guar
 El lienzo cubre el trabajo común. Prefiere el YAML para:
 
 - Criterios que miran dentro de la respuesta, como `$response.body#/capture_rate >= 0`.
-- Acciones que dependen de un campo de la respuesta, no solo del estado.
-- Pasos de mensajería. Consulta [Pasos de mensajería](/es/design/messaging/).
-- Varios cambios a la vez: renombrar, copiar pasos de otro archivo o mover un bloque.
+- Rutas de falla que dependen de un campo de la respuesta, no del status, y condiciones con `regex` o `xpath`. El editor de rutas escribe rutas de falla por status y rutas de éxito sobre el valor de un output. Lee [Agregar o cambiar una ruta](/es/design/branch-menu/).
+- Un `retry` que primero ejecuta otro paso (`retry` con `stepId`).
+- Rutas de falla de los pasos de mensajería. Consulta [Pasos de mensajería](/es/design/messaging/).
+- Varios cambios a la vez, como mover un bloque o reemplazar un valor en todos lados. Para copiar pasos entre workflows, el lienzo tiene [Copiar, duplicar y extraer pasos](/es/design/copy-and-extract/).
 - Leer exactamente lo que escribió Luvin, o arreglar un archivo que escribió otra persona.
 
 Cuando un paso usa algo que el lienzo no edita, su panel lo dice y ofrece **Editar en el YAML**.

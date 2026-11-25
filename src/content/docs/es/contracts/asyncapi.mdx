@@ -98,7 +98,7 @@ En un contrato 3.x, cada operación necesita un `action` y un `channel` con un `
 
 Cuando un canal tiene una operación send y una receive y el paso no tiene `action`, el análisis avisa: *El canal "x" tiene más de una operación; se usa la de tipo "send". Indica "action: send" o "action: receive" en el paso.* Cuando el paso dice una acción y la operación es la otra, el análisis anota que se usa la del paso.
 
-Las operaciones del contrato están en la paleta **Operaciones** del diseño, con la etiqueta **SEND** o **RECEIVE**: arrastrar una escribe el paso con `operationId` y `action`. En la pestaña YAML, después de `channelPath:` y de `operationId:` el editor ofrece los canales y las operaciones de los contratos cargados. Mira [Pasos de mensajería](/es/design/messaging/).
+Las operaciones del contrato están en **＋ Paso**, en la pestaña **Diseño**, con la etiqueta **SEND** o **RECEIVE**: agregar una escribe el paso con `operationId` y `action`. En la pestaña YAML, después de `channelPath:` y de `operationId:` el editor ofrece los canales y las operaciones de los contratos cargados. Mira [Pasos de mensajería](/es/design/messaging/).
 
 ## Mensajes
 
@@ -161,7 +161,6 @@ Los errores y advertencias aparecen sobre la vista previa, como en cualquier con
 |---|---|
 | **Try it out**, **Probar sola** | Luvin no se conecta a un broker. |
 | **Generar requests** y mock servers | Son para operaciones HTTP. |
-| La paleta **Operaciones** | Los pasos de mensajería se escriben en la pestaña YAML. |
 | URLs base desde `servers` | Los servidores AsyncAPI son brokers. Solo se muestran en la vista previa. |
 
 ## Relacionado

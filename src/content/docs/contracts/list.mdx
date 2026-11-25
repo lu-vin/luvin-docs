@@ -75,10 +75,10 @@ The **⋯** menu has:
 
 ## Contracts built from requests
 
-When you drag saved requests into a workflow, Luvin builds a small OpenAPI contract with them, so the workflow file stays standard. These contracts live in `requests/_contracts/` inside the collection, one per base URL, and they also show in the list.
+When you add saved requests to a workflow, Luvin builds a small OpenAPI contract with them, so the workflow file stays standard. These contracts live in `requests/_contracts/` inside the collection, one per base URL (two requests with the same method and path go to a sibling contract, such as `baseUrl2`, which still counts as the same API), and they also show in the list. See [Build from saved requests](/design/from-requests/).
 
 - They have no **⋯** menu. Luvin rebuilds them when your requests change, so you never delete them by hand.
-- Their operations are not repeated in the palette: you find them under **Collection requests**.
+- Their operations are not repeated in the **Add a step** dialog: you find them under **Collection requests**.
 
 See [Workflows from requests](/design/from-requests/).
 
@@ -107,7 +107,7 @@ In a workspace, deleting a contract deletes its file from the collection folder.
 
 ## Other places that list contracts
 
-- The **Collection overview** has a **Contracts** card: *N of M loaded*, with a link to each contract that has a file.
+- In the [collection overview](/workspaces/collection-overview/), the **Overview** tab lists each contract that has a file, with its type. Click one to open it.
 - The home screen counts the **Contracts** that the workflow files of the open collection name.
 - ⌘K (Ctrl+K) finds those contracts by their name, in the group **Contracts**, and opens them.
 

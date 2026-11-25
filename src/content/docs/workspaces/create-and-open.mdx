@@ -22,12 +22,14 @@ A workspace is a folder on disk: real files, `luvin.yaml` and one subfolder per 
 1. On the welcome screen, click **Create a workspace**.
 2. Type the **Workspace name**. The first value is **My workspace**. For example: `Shop tests`.
 3. Read the line **Will be created at**. It shows the full path, for example `/Users/ana/Documents/Luvin/shop-tests`. The last part is the folder name, taken from the name you typed.
-5. To change it, click **Change location**. Then click **Change…** (or **Choose folder…**) to pick another folder, and edit the **Folder name** if you want.
-6. Click **Create workspace**.
+4. To change it, click **Change location**. Then click **Change…** (or **Choose folder…**) to pick another folder, and edit the **Folder name** if you want.
+5. Click **Create workspace**.
 
 </Steps>
 
-Luvin creates the folder and its `luvin.yaml`, opens the workspace and shows the screen **Create your first collection**. Go on with [Create a collection](/workspaces/collections/#create-a-collection).
+Luvin creates the folder and its `luvin.yaml`, opens the workspace and shows the screen **Create your first collection**.
+
+A workspace cannot be created inside another one, because opening the outer one would not show it. If the location you chose is inside a workspace, nothing is created and the welcome screen names that workspace: choose another location, or open that one with **Open a workspace**. Go on with [Create a collection](/workspaces/collections/#create-a-collection).
 
 ```yaml title="shop-tests/luvin.yaml"
 # Workspace de Luvin. Cada colección es una carpeta con su collection.yaml.
@@ -43,14 +45,27 @@ collections: []
 <Steps>
 
 1. On the welcome screen, click **Open a workspace**.
-2. A folder dialog opens. Pick a folder that has a `luvin.yaml`.
+2. A folder dialog opens. Pick the workspace folder, the one that has a `luvin.yaml`.
 
 </Steps>
 
-You can also open a folder that is not a workspace yet. Luvin creates a `luvin.yaml` in it:
+If you pick a folder that is not a workspace, Luvin never turns it into one on its own. It looks for the workspace that folder belongs to:
+
+| You picked | What happens |
+|---|---|
+| A folder inside a workspace, such as one of its collections | That workspace opens, with that collection. A notice at the top says so, for example: *«partners» is inside the workspace «Shop tests»: opened that workspace (…).* |
+| A folder with one workspace inside it, and no loose collections | That workspace opens. A notice says which one and where. |
+| A folder with several workspaces inside it, or one plus loose collections | The welcome screen says **This folder is not a workspace** and shows a card per workspace. Click one to open it. |
+| A folder with no workspace at all | The welcome screen says **This folder is not a workspace** and asks what to do. |
+
+![The welcome screen says This folder is not a workspace for the folder tests, which has Arazzo files, with Create a workspace in «tests», Choose another folder and Cancel](/media/en/open-folder-not-workspace.webp)
+
+When Luvin asks, you can also click **Create a workspace in «tests»** (with the name of your folder), **Choose another folder** or **Cancel**. If the folder has collections or Arazzo files, a line says the new workspace includes them:
 
 - Each subfolder that has a `collection.yaml` becomes a collection.
 - If the folder itself has Arazzo files or contracts, the folder becomes a collection, named like the workspace.
+
+The notice closes with its **×** button.
 
 A workspace created with the old name of the app, with a `studio.yaml`, is renamed to `luvin.yaml` when you open it.
 
@@ -68,7 +83,7 @@ The name of the workspace is at the top left of the window. Click it to open the
 
 | Menu item | What it does |
 |---|---|
-| **Rename workspace** | The name becomes a text box. Type the new name and press Enter. Escape cancels. Only the name in `luvin.yaml` changes. The folder keeps its name. |
+| **Rename workspace** | The name becomes a text box. Type the new name and press Enter. Escape cancels. The folder on disk is renamed too. See [Rename a workspace](#rename-a-workspace). |
 | **Show in Finder** (**Show in file explorer** on Windows) | Opens the folder in your file manager. |
 | **Close and switch workspace** | Saves, closes the workspace and goes back to the welcome screen. Open or create another there. |
 | **Delete workspace…** | Deletes the whole workspace. Asks you to confirm. |
@@ -82,6 +97,16 @@ The name of the workspace is at the top left of the window. Click it to open the
 </Steps>
 
 The house icon next to the name opens **Home** of the current workspace.
+
+### Rename a workspace
+
+Renaming a workspace changes its name in `luvin.yaml` and renames its folder, in the same place, so the folder on disk (and git) shows what the app shows. Renaming **Shop tests** to **Payments QA** moves `shop-tests/` to `payments-qa/`.
+
+- The folder name is the name in lowercase, without accents, with `-` instead of spaces.
+- The secrets and the history kept on this computer move with it, and the open collection opens again from the new folder.
+- If a folder with that name already exists next to the workspace, nothing changes: the save state at the top reads **Save failed**, and pointing at it shows *The workspace couldn’t be renamed:* with the reason. Luvin never writes over another folder.
+- A workspace whose folder still has its old name, because it was renamed with an older version, is fixed by confirming the same name again: open **Rename workspace** and press Enter.
+- The workspaces that come with the app, such as the examples and the tour, keep their folder.
 
 ### What Delete workspace does
 

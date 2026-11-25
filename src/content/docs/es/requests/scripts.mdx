@@ -1,0 +1,246 @@
+---
+title: Scripts
+description: Corre JavaScript antes de un request y después de su respuesta, como en Postman y Bruno, en el request, la carpeta y la colección. Dónde van, en qué orden corren, dónde ves sus pruebas y su consola, la confianza y la seguridad.
+sidebar:
+  order: 14
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Un script es JavaScript que corre **antes de enviar un request** o **después de que llega su respuesta**. Úsalo cuando las pestañas **Variables** y **Comprobaciones** no alcanzan: firmar un request, armar un valor con varios campos, llamar antes a otro endpoint o escribir una prueba con lógica.
+
+Los scripts usan la misma API que Postman (`pm.*`) y Bruno (`bru.*`, `req`, `res`). Un script que copias de Postman o Bruno corre en Luvin tal cual, en la mayoría de los casos. Las colecciones que importas conservan sus scripts completos: mira [Importar de Postman o Bruno](/es/get-started/import/#los-scripts-se-traen-completos).
+
+## Ejemplo: prueba a Pikachu y muestra su especie
+
+<Steps>
+
+1. Crea un request **Get pokemon**: `GET https://pokeapi.co/api/v2/pokemon/pikachu`.
+2. Abre su pestaña **Scripts** y haz clic en **Después de la respuesta**, a la izquierda.
+3. Pega este script:
+
+   ```js
+   const pokemon = pm.response.json();
+
+   pm.test("status is 200", () => {
+     pm.response.to.have.status(200);
+   });
+   pm.test("it is electric", () => {
+     pm.expect(pokemon.types[0].type.name).to.eql("electric");
+   });
+
+   pm.collectionVariables.set("speciesName", pokemon.species.name);
+   console.log("Species:", pokemon.species.name);
+   ```
+
+4. Pulsa **Enviar** (⌘/Ctrl + Enter).
+5. La respuesta tiene dos pestañas más. **Pruebas** lista ✓ **status is 200** y ✓ **it is electric**. **Consola** muestra `Species: pikachu`, marcado como **Después de la respuesta · request**.
+6. Escribe `{{speciesName}}` en otro request de la colección. Vale `pikachu`.
+
+</Steps>
+
+## Dónde van los scripts
+
+Cada nivel tiene dos scripts, **Antes del request** y **Después de la respuesta**. Un punto junto al nombre te dice cuáles tienen código.
+
+| Nivel | Dónde lo escribes | Corre en |
+|---|---|---|
+| Request | La pestaña **Scripts** del request, junto a **Variables** y **Comprobaciones** | Ese request |
+| Carpeta | En la barra lateral, el menú de la carpeta, **Scripts…** (dice **Scripts • …** cuando la carpeta ya tiene). Se abre un diálogo **Scripts de la carpeta «Clientes»** | Cada request de esa carpeta y de sus subcarpetas |
+| Colección | Abre la colección (haz clic en su nombre en la barra lateral) y luego su pestaña **Scripts** | Cada request de la colección |
+
+Cuando un request también tiene scripts de carpeta o de colección, su pestaña **Scripts** lo dice, con un enlace a cada uno: *También corren, antes que estos: colección, carpeta «Clientes». Después de la respuesta, en el mismo orden.*
+
+![La pestaña Scripts del request Get customer, en Después de la respuesta, con la nota de que también corren los scripts de la colección y de la carpeta «Clientes»](/media/es/request-scripts-tab.webp)
+
+![El diálogo Scripts de la carpeta «Clientes», con un script de Antes del request que agrega una cabecera X-Request-Id](/media/es/folder-scripts-dialog.webp)
+
+![La pestaña Scripts de la colección Shop API, con un script de Antes del request que detiene cualquier request enviado antes de iniciar sesión](/media/es/collection-scripts-tab.webp)
+
+Los scripts corren en los requests HTTP y GraphQL. Los requests gRPC y WebSocket no los tienen.
+
+<Aside type="note" title="No en los pasos de un workflow">
+Los scripts corren cuando envías un request, en el runner y en las pruebas de rendimiento de requests. No corren en los pasos de un workflow: un workflow pasa los datos con sus propios outputs e inputs. Cuando armas un workflow desde requests, Luvin lee cada `set` de sus scripts de después de la respuesta, sin correrlos, y con ellos conecta los datos entre pasos. Por ejemplo, si el script de un paso hace `pm.collectionVariables.set("productId", json.products[0].id)`, un paso posterior que usa `{{productId}}` lo toma de la respuesta de ese paso. Lo mismo vale para el token del login. Mira [Armar desde requests guardados](/es/design/from-requests/) y [El token de un login](/es/authorization/token-from-login/).
+</Aside>
+
+## En qué orden corren
+
+Luvin sigue el orden de Postman. Cuando pulsas **Enviar**:
+
+<Steps>
+
+1. Corren los scripts **Antes del request**: el de la colección, luego el de cada carpeta de afuera hacia adentro, luego el del request. Cada uno puede cambiar el request, y el siguiente ve el cambio.
+2. Luvin reemplaza las `{{variables}}`, agrega la autorización y los headers automáticos, y envía el request.
+3. Llega la respuesta. La pestaña **Variables** guarda sus valores y la pestaña **Comprobaciones** compara los suyos.
+4. Corren los scripts **Después de la respuesta** en el mismo orden: colección, carpetas, request. Ya ven lo que la pestaña **Variables** acaba de guardar.
+5. La respuesta muestra el status, las comprobaciones y las pestañas **Pruebas** y **Consola**.
+
+</Steps>
+
+Un script ve el request como está escrito, con sus `{{variables}}`. No ve la autorización ni los headers automáticos, porque Luvin los agrega después.
+
+### Cuando un script falla
+
+| Qué pasa | Resultado |
+|---|---|
+| Un script **Antes del request** lanza un error | El request **no se envía**. El área de la respuesta dice **El script de antes del request falló, así que el request no se envió.**, con el script y la línea, por ejemplo **Antes del request · colección, línea 2**, y lo que el script escribió en la consola. |
+| Un script **Antes del request** llama a `pm.execution.skipRequest()` | El request no se envía: *No se envió: el script de antes del request (colección) lo saltó con pm.execution.skipRequest().* |
+| Un script **Después de la respuesta** lanza un error | La respuesta se ve igual. El error aparece en la pestaña **Pruebas** y cuenta como una prueba fallida. Los demás scripts de después de la respuesta corren igual. |
+| Un script trabaja más de 10 segundos | Se corta: **Se detuvo: tardó más de 10 segundos.** El tiempo que espera a `pm.sendRequest` o a `setTimeout` no cuenta. |
+| Un script usa más de 64 MB | **Se detuvo: usó más de 64 MB de memoria.** |
+| Un script espera más de 60 segundos en total | **Se detuvo: esperó más de 60 segundos (pm.sendRequest o setTimeout).** |
+| Un script usa algo que Luvin no tiene | Esa línea falla con `` `pm.vault.get` todavía no está en Luvin. `` (con el nombre que usó). Mira [La API de los scripts](/es/requests/scripts-api/#lo-que-no-está-disponible). |
+
+Un script de colección puede detener todos los requests a propósito. Por ejemplo, este script **Antes del request** de la colección detiene cualquier request que se envíe antes de iniciar sesión:
+
+```js
+if (!pm.collectionVariables.get("token") && pm.info.requestName !== "Log in") {
+  throw new Error('Missing token. Send "Log in" first.');
+}
+```
+
+![La respuesta de Get orders: el script de antes del request falló, así que el request no se envió, en Antes del request · colección, línea 2, con Missing token. Send "Log in" first.](/media/es/scripts-before-failed.webp)
+
+## Dónde ves los resultados
+
+| Qué | Dónde |
+|---|---|
+| `pm.test`, `test` (Bruno), `tests["…"]` | La pestaña **Pruebas** de la respuesta: ✓ o ✕ con el nombre de cada prueba y, si falló, por qué. La pestaña muestra cuántas fallaron en rojo, o cuántas pasaron en verde. Cuando las pruebas vienen de varios niveles, cada una dice de cuál. |
+| `console.log`, `info`, `warn`, `error`, `debug` | La pestaña **Consola** de la respuesta, en orden. Cada línea dice qué script la escribió, por ejemplo **Antes del request · carpeta «Clientes»**. Si no hay nada: *Los scripts no escribieron nada (console.log).* |
+| Un error | Arriba en **Pruebas**, o en el área de la respuesta si el request no se envió. |
+| `pm.sendRequest` | La pestaña **Network** de las [Dev Tools](/es/dev-tools/network/), como un request más con el nombre del request seguido de `· sendRequest`, con los secretos tapados. |
+
+La pestaña **Pruebas** aparece cuando el envío tuvo pruebas o un error. La pestaña **Consola** aparece siempre que corrió un script.
+
+![La pestaña Pruebas de la respuesta de Log in, con ✓ status is 200 y ✓ returns a token](/media/es/response-tests-tab.webp)
+
+![La pestaña Consola de la respuesta de Get customer: una línea de Antes del request · carpeta «Clientes» y otra de Después de la respuesta · request](/media/es/response-console-tab.webp)
+
+## Las variables que guarda un script
+
+Un script puede guardar valores con `set`. Dónde queda el valor depende de lo que llama:
+
+| Llamada | Dónde queda el valor | Cuánto dura |
+|---|---|---|
+| `pm.environment.set`, `bru.setEnvVar` | El **valor actual** de la variable en el ambiente activo | Hasta que lo restableces |
+| `pm.collectionVariables.set` | El valor actual de la variable de la colección | Hasta que lo restableces |
+| `pm.globals.set`, `bru.setGlobalEnvVar` | El valor actual en el ambiente global activo. Si no hay ninguno, Luvin crea uno con el nombre del ambiente activo | Hasta que lo restableces |
+| `pm.variables.set` | Solo este envío: lo lee el script de después de la respuesta del mismo request | Este envío |
+| `bru.setVar` | Un valor guardado, como los de la pestaña **Variables** | Mientras la colección está abierta |
+
+El **valor actual** funciona como en Postman:
+
+- Se guarda **en este equipo**, cifrado. No se escribe en los archivos del workspace, así que nunca llega a git. Cada persona del equipo tiene el suyo.
+- Sobrevive al cierre de Luvin. El token que guardó un script de login sigue ahí al día siguiente.
+- Le gana al valor del archivo en el mismo nivel. El orden entre niveles no cambia: un `pm.collectionVariables.set` no le gana a una variable del ambiente con el mismo nombre. Mira [Niveles de las variables](/es/environments/variable-levels/).
+- Si la variable no existe en ese nivel, el `set` la crea solo como valor actual.
+- Una variable con valor actual tiene un botón **Restablecer** (↺) en el panel **Variables**. Su tooltip dice **Restablecer: volver al valor del archivo**. La pestaña **Variables** de la colección también tiene **Restablecer todos**. Cuando pasas el mouse por una `{{variable}}` en un campo, la tarjeta dice *Valor actual de este equipo: lo guardó el script de «Log in». No está en los archivos ni en git.*, con **Restablecer**.
+- También puedes escribir un valor actual a mano en esos dos lugares.
+- Se tapa en el historial y en los reportes cuando la variable es secreta, o cuando su nombre parece de una credencial, como `token` o `password`.
+
+![La tarjeta de la variable token en una cabecera de Get customer: Valor actual de este equipo: lo guardó el script de «Log in». No está en los archivos ni en git., con Restablecer](/media/es/variables-current-value.webp)
+
+Una variable de colección secreta de Postman vive en un ambiente, porque en Luvin los secretos solo viven en los ambientes. `pm.collectionVariables.get` y `set` la encuentran igual ahí, así que el script corre sin cambios.
+
+## Confiar en una colección
+
+Un script puede leer las variables y los secretos del ambiente activo, y puede mandarlos a otro lado con `pm.sendRequest`. Por eso los scripts de una colección que no escribiste no corren hasta que confíes en ella.
+
+Cuando abres una colección con scripts en la que este equipo todavía no confía, por ejemplo justo después de importarla o de clonarla desde git, Luvin pregunta **¿Confías en esta colección?**:
+
+> Tiene scripts que corren antes de enviar sus requests y después de cada respuesta. Pueden leer las variables y los secretos del ambiente activo.
+
+![El diálogo ¿Confías en esta colección? con los botones Ahora no y Confiar](/media/es/scripts-trust-dialog.webp)
+
+| Botón | Qué pasa |
+|---|---|
+| **Confiar** | Sus scripts corren desde ahora, en este equipo. Luvin no vuelve a preguntar. |
+| **Ahora no** | Los requests se envían igual, sin correr ningún script. Luvin vuelve a preguntar la próxima vez que abras Luvin. |
+
+Mientras no confíes en ella:
+
+- Las pestañas **Scripts** dicen **Los scripts de esta colección no corren hasta que confíes en ella.**, con **Confiar en esta colección**.
+- Cada respuesta dice **Los scripts de este request no corrieron: todavía no confías en esta colección.**, con el mismo botón.
+- El runner y las pruebas de rendimiento envían los requests sin los scripts.
+
+Ten en cuenta:
+
+- Una colección que creas en Luvin es de confianza desde el principio.
+- Escribir o cambiar un script en una colección cuenta como confiar en ella.
+- La confianza se guarda en este equipo, por carpeta de la colección. No está en los archivos ni viaja por git. Un clon en otra carpeta vuelve a preguntar.
+- Cuando importas sobre una colección que ya existe y reemplazas su contenido, Luvin vuelve a preguntar.
+- Si un `git pull` cambia los scripts de una colección en la que ya confías, Luvin no vuelve a preguntar. Revisa los cambios de los scripts en el pull request, como revisas el código.
+
+<Aside type="tip">
+¿No estás seguro de una colección? Elige **Ahora no**, abre la pestaña **Scripts** de la colección, de sus carpetas y de algunos requests, y léelos. Busca llamadas a `pm.sendRequest`, `bru.sendRequest` o `axios` hacia direcciones que no conoces.
+</Aside>
+
+## En el runner y en las pruebas de rendimiento
+
+Los scripts también corren en [el runner](/es/runner/requests/) y en las [pruebas de rendimiento](/es/runner/performance/) de requests, en el mismo orden, en cada iteración.
+
+- `pm.iterationData` tiene la fila del archivo de datos de esa iteración, y `pm.info.iteration` su número, desde `0`.
+- Lo que guarda un request pasa a los requests siguientes de la corrida. Un script lo lee en su nivel: lo que «Log in» guarda con `pm.collectionVariables.set`, «Get orders» lo lee con `pm.collectionVariables.get`.
+- Los valores actuales que guarda un script se conservan solo si **Conservar las variables al terminar** está activado. En una prueba de rendimiento nunca se conservan: cada usuario virtual tiene los suyos.
+- Cada request de la corrida lista sus pruebas junto a sus comprobaciones, por ejemplo `5/6`. Los totales suman un contador de **pruebas**.
+- Un request con una prueba fallida falla, aunque responda `200`. Un request sin comprobaciones cuyas pruebas pasan todas, pasa.
+- Un request que detuvo un script de antes del request dice **Detenido por un script**, y debajo *Script de antes del request (colección): Missing token. Send "Log in" first.*
+
+![El runner después de ejecutar los requests de Shop API: 5/6 pruebas y, debajo de cada request, sus pruebas, con every order is delivered fallida en Get orders](/media/es/runner-requests-tests.webp)
+
+## Qué puede y qué no puede hacer un script
+
+Los scripts corren aislados, en un motor de JavaScript aparte, en su propio hilo. La pestaña **Scripts** lo dice: *Los scripts corren aislados: no pueden leer tus archivos ni ejecutar programas, y se cortan a los 10 segundos.*
+
+| Un script puede | Un script no puede |
+|---|---|
+| Leer y cambiar el request antes de enviarlo | Leer ni escribir archivos de tu equipo |
+| Leer la respuesta | Ejecutar programas ni comandos |
+| Leer y guardar variables, incluidos los secretos del ambiente activo | Abrir conexiones por su cuenta: no hay `fetch` ni `XMLHttpRequest` |
+| Enviar otros requests con `pm.sendRequest`, `bru.sendRequest` o `axios`, que Luvin envía como cualquier request | Cargar librerías aparte de las que trae Luvin |
+| Usar las librerías que trae Luvin: `chai`, `crypto-js`, `lodash`, `moment`, `uuid` y otras | Trabajar más de 10 segundos, usar más de 64 MB o esperar más de 60 segundos |
+
+Cada `pm.sendRequest` tiene un límite de 30 segundos. Las `{{variables}}` de su URL o de su body no se reemplazan: ármalas con `pm.variables.get` o `pm.variables.replaceIn`.
+
+## Cómo se guardan los scripts
+
+Los scripts se guardan en los archivos YAML de la colección, así que viajan con ella por git: los del request en su `.request.yaml`, los de una carpeta en su `_folder.request.yaml` y los de la colección en `collection.yaml`.
+
+```yaml title="requests/get-pokemon.request.yaml"
+version: 2
+name: Get pokemon
+kind: http
+method: GET
+url: https://pokeapi.co/api/v2/pokemon/pikachu
+scripts:
+  after: |-
+    pm.test("status is 200", () => {
+      pm.response.to.have.status(200);
+    });
+```
+
+`before` tiene el script **Antes del request** y `after` el de **Después de la respuesta**. Un archivo con scripts se escribe con `version: 2`, así una versión anterior de Luvin que no conoce los scripts lo abre pero no lo sobrescribe. Los valores actuales que guardan los scripts nunca se escriben en estos archivos. Mira [Cómo se guarda un request](/es/requests/files/).
+
+## ¿Scripts o las pestañas Variables y Comprobaciones?
+
+Los dos trabajan juntos en el mismo request. Las pestañas **Variables** y **Comprobaciones** no necesitan código y son más fáciles de leer y de revisar. Los scripts resuelven lo que esas pestañas no pueden.
+
+| Quieres | Usa |
+|---|---|
+| Guardar un token o un id de la respuesta | La pestaña **Variables** |
+| Revisar el status, un campo, un header o el tiempo | La pestaña **Comprobaciones** |
+| Firmar el request, agregar un header calculado o una fecha | Un script **Antes del request** |
+| Llamar a un endpoint de login antes del request | Un script **Antes del request** con `pm.sendRequest` |
+| Revisar algo solo bajo una condición, o recorrer una lista | Un script **Después de la respuesta** |
+| Conservar un valor después de cerrar Luvin | Un script con `pm.environment.set` o `pm.collectionVariables.set` |
+
+Mira [Variables y comprobaciones](/es/requests/variables-and-checks/).
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="La API de los scripts" href="/es/requests/scripts-api/" description="Cada objeto de pm y bru, y lo que no está disponible." />
+  <LinkCard title="Variables y comprobaciones" href="/es/requests/variables-and-checks/" description="Guarda valores y revisa la respuesta sin código." />
+  <LinkCard title="Importar de Postman o Bruno" href="/es/get-started/import/" />
+  <LinkCard title="Ejecuta requests" href="/es/runner/requests/" />
+</CardGrid>

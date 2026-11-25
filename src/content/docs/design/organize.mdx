@@ -1,6 +1,6 @@
 ---
 title: Organize a workflow
-description: Reorder, rename and delete steps, undo and redo changes, and delete a workflow you no longer need.
+description: Reorder steps, change their title and id, remove them, undo and redo changes, and delete a workflow you no longer need.
 sidebar:
   order: 12
 ---
@@ -11,7 +11,7 @@ Once a workflow has steps, you will want to move some, rename others and remove 
 
 ## Example: move a step above the one it reads
 
-In **Pokemon card**, `getSpecies` reads `$steps.getPokemon.outputs.id`. Drag `getSpecies` above `getPokemon`.
+In **Pokemon card**, step 2 `getSpecies` reads the `id` of step 1, `getPokemon`: its chip says **← id · from 1**.
 
 <Steps>
 1. Drag the `getSpecies` card up and drop it above `getPokemon`.
@@ -21,21 +21,22 @@ In **Pokemon card**, `getSpecies` reads `$steps.getPokemon.outputs.id`. Drag `ge
 
 ## Reorder steps
 
-Steps run from top to bottom, in the order they appear. There are three ways to move one.
+Steps run from top to bottom, in the order they appear. There are four ways to move one.
 
 | How | Steps |
 |---|---|
 | Drag | Drag the card up or down on the canvas and drop it between two other cards. |
-| Arrows on the card | Point at the card and click **↑** or **↓**. |
-| Arrows in the panel | Click the step, then **Move up** or **Move down** at the top of its panel. |
+| Keyboard | Select the step and press **⌥↑** or **⌥↓** (Alt+↑ or Alt+↓). |
+| Right-click | Right-click the card and choose **Move up** or **Move down**. |
+| The panel | Click the step, then **⋯** at the bottom of its panel, and **Move up** or **Move down**. |
 
-The arrow that would move the first step up, or the last step down, is off.
+**Move up** is off on the first step, and **Move down** on the last one.
 
-Only the vertical position counts. Moving a card sideways changes the drawing, not the order, and **Reset layout** puts the drawing back.
+Only the vertical position counts. Moving a card sideways changes the drawing, not the order, and **Reset layout**, in **View**, puts the drawing back.
 
 ### When the new order breaks a connection
 
-A step can only use data from steps that run before it. If you move a step above one it takes data from, a bar appears: **Check the order:** and the detail, for example **“getBenefits” uses data from “getCards”, which now runs after it**. Luvin does not change the connections. Click **Undo** in the bar, or move the other step too. Undoing the move, from the bar, from **Undo** above the canvas or with ⌘ + Z, also takes the bar away. The [YAML tab](/design/arazzo-editor/) and the step's panel also show the error **Uses an output of “getCards”, which runs later.**
+A step can only use data from steps that run before it. If you move a step above one it takes data from, a bar appears: **Check the order:** and the detail, for example **“getBenefits” uses data from “getCards”, which now runs after it**. Luvin does not change the connections. Click **Undo** in the bar, or move the other step too. Undoing the move, from the bar, from **↶** above the canvas or with ⌘ + Z, also takes the bar away. The [YAML tab](/design/arazzo-editor/) and the step's panel also show the error **Uses an output of “getCards”, which runs later.**
 
 ![The bar Check the order: “getOrder” uses data from “createOrder”, which now runs after it, with Undo and Close](/media/en/design-order-warning.webp)
 
@@ -43,48 +44,71 @@ A step can only use data from steps that run before it. If you move a step above
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-organize.webp" src="/media/en/design-organize.mp4"></video>
 
-## Rename a step
+## Give a step a title and an id
+
+A step has a title, which is what the card shows, and an id, which is what expressions use to read its outputs (`$steps.getPokemon.outputs.id`).
+
+### Change the title
 
 <Steps>
 1. Click the step.
-2. Click its name at the top of the panel.
-3. Type the new name and press Enter, or click outside.
+2. Click the title at the top of its panel. Without one, it shows the summary of the operation in grey.
+3. Type a short sentence, for example "Get the Pokémon".
 </Steps>
 
-A name can have letters, numbers, `-` and `_`, without spaces, and it cannot repeat in the workflow. If it does not fit these rules, Luvin shows an error above the canvas and keeps the old name.
+The title is saved as the `description` of the step, as you type.
 
-Renaming is safe. Luvin updates every place that points to the step: the values that read its outputs (`$steps.name.outputs…`), the actions that jump to it and the `dependsOn` of other steps.
+### Change the id
+
+<Steps>
+1. Click the step.
+2. Under the title, click the id with **✎**. Its tooltip says **Change the step id (expressions use it; it is updated across the Arazzo)**.
+3. Type the new id and press Enter, or click outside.
+</Steps>
+
+An id can have letters, numbers, `-` and `_`, without spaces, and it cannot repeat in the workflow. If it does not fit these rules, Luvin shows an error above the canvas and keeps the old id.
+
+Changing the id is safe. Luvin updates every place that points to the step: the values that read its outputs (`$steps.id.outputs…`), the routes that go to it and the `dependsOn` of other steps.
 
 To rename the whole workflow, see [Create a workflow](/design/create/).
 
-## Delete a step
+## Remove a step
 
 <Steps>
-1. Click the step.
-2. Press Delete or Backspace, or click the bin (**Remove the step**) at the top of its panel.
+1. Start the removal in one of these ways:
+   - click **×** (**Remove the step**) in the header of the card;
+   - select the step and press **⌫** (Backspace) or Delete;
+   - right-click the card and choose **Delete the step**, or use **⋯** at the bottom of its panel.
+2. A window asks **Remove step 2?** and lists **This breaks in the workflow**: the steps that use its data, the routes that go to it, the steps that depend on it and the outputs of the workflow that come from it. If nothing breaks, it says **No other step uses its data or has routes to it.**
+3. Click **Remove the step**, or **Cancel**.
 </Steps>
+
+![The window Remove step 2? with This breaks in the workflow: step 3 uses its data, and the Cancel and Remove the step buttons](/media/en/design-remove-confirm.webp)
+
+**Cancel** has the focus, so pressing Enter does not remove anything. With several steps selected, the window says **Remove 3 steps?** and the button **Remove 3 steps**.
 
 The step disappears from the canvas and from the file.
 
-Other steps may have used its data. In that case a red bar above the canvas names them: **Other steps used what you removed and lost that data: createOrder.** Luvin keeps their references, which now point to nothing. Each of those steps shows **1 error(s)** on its card, and its panel shows an error such as **Uses $steps.getPokemon.outputs.id, but step "getPokemon" does not exist.** Give those values another source (see [Connect data between steps](/design/wire-data/)), or click **Undo** to bring the step back.
+If other steps used its data, a red bar above the canvas names them: **Other steps used what you removed and lost that data: createOrder.** Luvin keeps their references, which now point to nothing. Their chips turn red and say **missing**, the card shows **1 error(s)**, and the panel shows an error such as **Uses $steps.getPokemon.outputs.id, but step "getPokemon" does not exist.** Give those values another source (see [Connect data between steps](/design/wire-data/)), or undo to bring the step back.
 
-![After deleting listProducts: the red bar names createOrder, and its card has a red border and says 1 error(s), because it read the sku of the deleted step](/media/en/design-dangling.webp)
+![After removing listProducts: the red bar names createOrder, and its card has a red border and says 1 error(s), because it read the sku of the removed step](/media/en/design-dangling.webp)
 
-## Keyboard and right-click on the canvas
+## Right-click on the canvas
 
-| On | Do | What happens |
-|---|---|---|
-| A data line | Click the line or its label, then press **Delete** or **Backspace** | The connection is removed: the parameter is left without a source. The line is highlighted while selected. |
-| A data line | Right-click | **Remove this connection** |
-| An arrow of the order | Right-click | **Insert a step here** |
-| A step | Right-click | **See the step details**, **Insert a step after**, **Move up**, **Move down**, **Delete the step** |
-| The background | Right-click | **Add a step at the end**, **Fit to view**, and show or hide the actions by response and the data flow |
+| On | What it offers |
+|---|---|
+| A data line | **Remove this connection**. You can also click the line and press Delete or Backspace. |
+| An arrow of the order | **Insert a step here** |
+| A step | **See the step details**, **Copy**, **Paste after this step** (when you copied steps), **Duplicate**, **Add to the selection**, **Extract to a workflow…**, the run options, **Add route…**, **Insert a step after**, **Move up**, **Move down** and **Delete the step** |
+| The background | **Add a step at the end**, **Fit to view**, **Hide actions by response** (or **Show…**) and the three options of **Data** |
 
-**Undo** brings back anything you removed this way.
+The run options are explained in [Debug a workflow](/test/debug/). **Copy**, **Duplicate** and **Extract** are in [Copy, duplicate and extract steps](/design/copy-and-extract/), and **Add route…** in [Add or change a route](/design/branch-menu/).
+
+Undo brings back anything you removed this way.
 
 ## Undo and redo
 
-Above the canvas, **Undo** and **Redo** step back and forward through the changes you made in the **Design** tab: adding, moving, renaming and deleting steps, connections, values and outputs.
+Above the canvas, **↶** (**Undo**) and **↷** (**Redo**) step back and forward through the changes you made in the **Design** tab: adding, moving, renaming and removing steps, connections, values, outputs and routes.
 
 | Action | macOS | Windows |
 |---|---|---|

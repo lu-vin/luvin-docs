@@ -101,6 +101,12 @@ workflows:
 | 35-37 | A `jsonpath` criterion on the whole body. It passes when the path finds at least one match: here, a product with a price above 0. |
 | 44-60 | The second workflow, `impossiblePrice`, asks for a price above 100000. No phone costs that much, so it fails on purpose. |
 
+## On the canvas
+
+Open `searchPhones` in the **Design** tab. The card of `search` lists the four criteria under **Success criteria**, each with its type on the right: **simple**, **simple**, **regex** and **jsonpath**. A criterion with a `context` shows it first, as in `$response.header.Content-Type ~ ^application/json`.
+
+In the panel of the step, the tab **Success and routes** has them under **It succeeds if** · **all are met**. The status is a list you change there; the other three are edited in the YAML tab, with **Edit in the YAML**.
+
 ## What you get
 
 Both workflows call `GET /products/search?q=phone&limit=3&select=title,price`.
@@ -129,11 +135,28 @@ $response.header.Content-Type = "application/json; charset=utf-8" does not match
 - Change `q` to `laptop` in the **Inputs** tab and run `searchPhones` again. The total becomes `5` and the criteria still hold.
 - In `impossiblePrice`, change `100000` to `100`. The criterion now finds the products that cost more than 100 and the workflow passes.
 
+## A JSONPath that is really a comparison
+
+A JSONPath criterion finds things; it does not compare. Suppose you write the total check as JSONPath:
+
+```yaml
+- context: $response.body
+  condition: $.total > 0
+  type: jsonpath
+```
+
+`$.total > 0` is not a JSONPath query, so it never finds anything and `search` would always fail. Luvin catches it before you run: the toolbar shows **⚠ 1 to review**, and the warning reads **Step 1: the criterion «$.total > 0» is not valid JSONPath and is never met: the step always fails.** with **Write it as a simple condition: «$response.body#/total > 0». Any Arazzo tool evaluates it that way.**
+
+Click the warning, then **Change it** in the **Success and routes** tab. Luvin rewrites that criterion as `condition: $response.body#/total > 0`, the simple condition of line 31. The filters of this recipe, such as `$.products[?(@.price > 0)]`, are valid queries and are not flagged. See [To review](/design/review/#a-jsonpath-condition-that-never-holds).
+
+![The Success and routes tab of a step with a JSONPath criterion that is never met: the box To review with the button Change it](/media/en/design-review-fix.webp)
+
 ## Related
 
 <CardGrid>
   <LinkCard title="Success criteria" href="/reference/criteria/" description="Simple, regex, JSONPath and XPath, and how a failure is explained." />
   <LinkCard title="Expressions" href="/reference/expressions/" description="`$statusCode`, `$response.body` and the rest." />
-  <LinkCard title="Success and errors" href="/design/success-and-errors/" description="Criteria and actions in the step panel." />
+  <LinkCard title="Success and errors" href="/design/success-and-errors/" description="Criteria and routes in the step panel." />
+  <LinkCard title="To review" href="/design/review/" description="Conditions that can never hold, caught before you run." />
   <LinkCard title="Expect an error" href="/recipes/expected-error/" description="Make a 400 the expected answer." />
 </CardGrid>

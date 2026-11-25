@@ -98,11 +98,11 @@ Si el request falla antes de que llegue una respuesta (la API no respondió a ti
 
 **Durante y después de la corrida:**
 
-- Cada request es una fila con ✓ o ✕, su método, nombre, URL, status (o **Sin respuesta**), tiempo, tamaño y las comprobaciones que pasaron sobre su total, como `3/4`, en verde o en rojo.
-- Un request pasa si recibió respuesta y pasaron todas sus comprobaciones. Sin comprobaciones, pasa si su status es menor que `400`.
+- Cada request es una fila con ✓ o ✕, su método, nombre, URL, status (o **Sin respuesta**), tiempo, tamaño y las comprobaciones que pasaron sobre su total, como `3/4`, en verde o en rojo. Las pruebas de sus [scripts](/es/requests/scripts/) cuentan en el mismo número, y se listan junto a las comprobaciones.
+- Un request pasa si recibió respuesta, pasaron todas sus comprobaciones y no falló ninguna prueba. Sin comprobaciones ni pruebas, pasa si su status es menor que `400`.
 - Haz clic en una fila para abrirla: el error, si lo hubo, la misma lista de comprobaciones y **Variables guardadas** que en la respuesta, la respuesta misma (si **Guardar las respuestas para verlas** está encendido) y **Abrir el request**.
 - Un request fallido sin comprobaciones dice *Sin comprobaciones, un status de error cuenta como fallo. Agrega una comprobación (por ejemplo, status es 404) si es lo esperado.*
-- Los totales suman las comprobaciones que pasaron sobre el total, en **comprobaciones**, como `11/12`.
+- Los totales suman las comprobaciones que pasaron sobre el total, en **comprobaciones**, como `11/12`. Cuando los scripts tienen pruebas, los totales también las cuentan, en **pruebas**.
 - **Todos**, **Fallaron** y **Pasaron** filtran las filas.
 - **Detenerse si un request falla** detiene la corrida en el primer request que falla: *Falla si no responde, si no cumple una comprobación o, sin comprobaciones, si el status es un error.*
 
@@ -110,7 +110,7 @@ Lo que guarda un request pasa a los requests siguientes de la corrida. Mira [Gua
 
 ### En una prueba de rendimiento
 
-En una prueba de rendimiento de requests, un request con una comprobación que falló cuenta como fallido, aunque responda `200`. Su error es la expresión y el nombre de la comprobación en el archivo, como `res.body.name eq`. Mira [Lee una prueba de rendimiento](/es/runner/performance-results/).
+En una prueba de rendimiento de requests, un request con una comprobación o una prueba que falló cuenta como fallido, aunque responda `200`. Su error es la expresión y el nombre de la comprobación en el archivo, como `res.body.name eq`. Mira [Lee una prueba de rendimiento](/es/runner/performance-results/).
 
 ## En el historial
 

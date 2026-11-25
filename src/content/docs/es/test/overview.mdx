@@ -25,13 +25,13 @@ Este video es la vuelta completa con el ejemplo de la Pokédex, que no necesita 
 
    ![La pestaña Casos: la línea que dice qué hará Ejecutar y los casos en sus grupos](/media/es/test-case-groups.webp)
 
-3. **Dónde se ejecuta.** En la barra de ejecución, **API real** envía los requests a las URLs base del ambiente activo, que eliges arriba a la derecha de la ventana. **Simulación** no envía nada: cada paso responde con los ejemplos de su contrato. Mira [Ejecutar](/es/test/run/) y [Simulación](/es/test/simulation/).
+3. **Dónde se ejecuta.** En la barra de ejecución, **API real** envía los requests a las URLs base del ambiente activo, que eliges en la mitad izquierda de la pastilla de arriba a la derecha de la ventana. **Simulación** no envía nada: cada paso responde con los ejemplos de su contrato. Mira [Ejecutar](/es/test/run/) y [Simulación](/es/test/simulation/).
 
    ![La barra de ejecución: API real o Simulación, y el botón Ejecutar con la cantidad de casos](/media/es/test-runbar.webp)
 
-4. **Ejecutar.** Pulsa **Ejecutar**. Si un paso crea, cambia o borra datos, Luvin pregunta antes. Si un paso devuelve una lista que usan los pasos siguientes, la ejecución se pausa para que elijas un elemento. Mira [Elige un elemento de una lista](/es/test/lists/).
+4. **Ejecutar.** Pulsa **Ejecutar**. Si un paso crea, cambia o borra datos, Luvin pregunta antes. Si un paso devuelve una lista que usan los pasos siguientes, la ejecución se pausa para que elijas un elemento. Mira [Elige un elemento de una lista](/es/test/lists/). Para detenerte antes de un paso y cambiar lo que recibe, mira [Depurar un workflow](/es/test/debug/).
 
-5. **Resultados.** Una frase en palabras simples dice si el workflow funciona. Cada caso termina en **Pasó**, **No pasó**, **Advertencia** o **No concluyente**, con su razón, y cada paso muestra el request, la respuesta y los criterios. Mira [Lee los resultados](/es/test/results/).
+5. **Resultados.** Una frase en palabras simples dice si el workflow funciona. Cada caso termina en **Pasó**, **No pasó**, **Advertencia** o **No concluyente**, con su razón, y cada paso muestra el request, la respuesta y los criterios. Mira [Lee los resultados](/es/test/results/). En la pestaña **Diseño**, la tarjeta de cada paso también muestra su resultado. Mira [Resultados en el lienzo](/es/test/run-on-canvas/).
 
    ![Los resultados de una ejecución: el resumen en palabras simples, los filtros por veredicto y el detalle de un caso](/media/es/test-verdicts.webp)
 
@@ -79,6 +79,9 @@ Abre primero la [pestaña Resumen](/es/test/overview-tab/). Muestra los errores 
 | Probar una situación propia | [Casos con datos propios](/es/test/custom-cases/) |
 | Ejecutar, ejecutar un caso, detener una ejecución | [Ejecutar](/es/test/run/) |
 | Ejecutar sin llamar a la API | [Simulación](/es/test/simulation/) |
+| Ver la ejecución en el diagrama, y compararla con la anterior | [Resultados en el lienzo](/es/test/run-on-canvas/) |
+| Probar una ruta de error sin esperar a que la API falle, y ver qué rutas faltan | [Probar rutas y cobertura](/es/test/probe-routes/) |
+| Detenerme antes de un paso, cambiar un valor o ejecutar solo una parte del workflow | [Depurar un workflow](/es/test/debug/) |
 | Saber por qué no pasó un caso | [Lee los resultados](/es/test/results/) y [Lee el resultado de un paso](/es/test/step-results/) |
 | Enviarle los resultados a alguien | [Reportes](/es/test/reports/) |
 

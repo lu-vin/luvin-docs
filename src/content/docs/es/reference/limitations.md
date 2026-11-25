@@ -17,6 +17,7 @@ Esto es lo que Luvin todavía no hace. Revísalo antes de planificar una prueba,
 - **Las pruebas de rendimiento salen de tu equipo.** La carga sale de esta máquina: hasta 500 usuarios virtuales y 60 minutos por prueba, con el límite de lo que tu equipo y tu red alcancen a enviar. Mira [Rendimiento](/es/runner/performance/).
 - **Las pruebas de rendimiento solo miden la API real.** En **Simulación** no hay nada que medir. Para probar sin la API, apunta el ambiente a un mock server. En los workflows, la prueba repite un caso por workflow: el camino feliz entre los marcados, o el primero.
 - **Los requests WebSocket no van en el runner.**
+- **Los scripts corren en los requests HTTP y GraphQL, no en los pasos de un workflow.** Corren cuando envías un request, en el runner y en las pruebas de rendimiento de requests. Algunos miembros de Postman y Bruno no están disponibles, como `pm.execution.setNextRequest` o `pm.vault`: mira [La API de los scripts](/es/requests/scripts-api/#lo-que-no-está-disponible).
 - **Todavía no hay versión alojada.** Luvin es una app de escritorio: corre en tu equipo.
 
 ## Relacionado

@@ -1,0 +1,150 @@
+---
+title: To review
+description: What Luvin finds by reading the Arazzo the way it would run it, before you run it, and how to fix each warning.
+sidebar:
+  order: 7.6
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Some mistakes pass every check of the Arazzo schema and only show when the workflow runs: a route that skips the step that gives a value, a route to a step that no longer exists, a condition that can never hold. **To review** reads the Arazzo the way the runner would and points them out on the canvas, with what to do.
+
+The warnings never block: you can still run the workflow.
+
+## Example: a JSONPath condition that is really a comparison
+
+In a workflow on the PokéAPI, `getSpecies` checks the capture rate with a JSONPath criterion:
+
+```yaml title="pokemon.arazzo.yaml" {4-6}
+- stepId: getSpecies
+  successCriteria:
+    - condition: $statusCode == 200
+    - context: $response.body
+      condition: $.capture_rate >= 0
+      type: jsonpath
+```
+
+The schema accepts it. But `$.capture_rate >= 0` is not a JSONPath query: it finds nothing, so the criterion never holds and the step always fails, whatever the API answers.
+
+<Steps>
+1. Above the canvas, the toolbar shows the amber chip **⚠ 1 to review**.
+2. Click it. The menu **To review · Luvin reads the Arazzo the way it would run it** lists: **Step 2: the criterion «$.capture_rate >= 0» is not valid JSONPath and is never met: the step always fails.** Below it: **Write it as a simple condition: «$response.body#/capture_rate >= 0». Any Arazzo tool evaluates it that way.**
+3. Click the warning. Luvin selects `getSpecies` and opens its **Success and routes** tab, where the same warning has the button **Change it**.
+4. Click **Change it**.
+</Steps>
+
+![The menu of the chip ⚠ 1 to review · 3 without a route: the JSONPath criterion of step 2 that is never met, and the statuses without a route](/media/en/design-review-menu.webp)
+
+<Tabs>
+<TabItem label="After">
+
+```yaml title="pokemon.arazzo.yaml" {4}
+- stepId: getSpecies
+  successCriteria:
+    - condition: $statusCode == 200
+    - condition: $response.body#/capture_rate >= 0
+```
+
+</TabItem>
+</Tabs>
+
+The warning goes away. ⌘Z (Ctrl+Z) undoes the change.
+
+![The Success and routes tab of getSpecies: the box To review with the button Change it, and the criterion marked with ⚠](/media/en/design-review-fix.webp)
+
+## The chip and its menu
+
+The chip is in the toolbar of the canvas, in amber, when there is something to review. It counts two things:
+
+- **N to review**: problems that change what the run does.
+- **N without a route**: statuses the contract declares that nothing handles. These are informative.
+
+For example, **⚠ 1 to review · 4 without a route**. With the step panel open, the chip shows only the total; hover over it to read both numbers.
+
+Click the chip to open the list. Each warning says what happens and, below, what to do. Click one to go there: Luvin selects the step and brings it into view, and opens the tab where you fix it. **Data** for a value, **Success and routes** for a route or a condition. A warning about the outputs of the workflow selects **End of workflow**.
+
+The chip is hidden while the canvas shows the results of a run. See [Results on the canvas](/test/run-on-canvas/).
+
+## What it finds
+
+| Warning | Level | Where else you see it |
+|---|---|---|
+| [A value that a route can skip](#a-value-that-a-route-can-skip) | Warning | The data chip turns amber with ⚠; a box in the **Data** tab of the step, or in the panel of **End of workflow**. |
+| [A route to a step that no longer exists](#a-route-to-a-step-that-no-longer-exists) | Error | ⚠ on the route row. |
+| [A loop only the runner stops](#a-loop-only-the-runner-stops) | Warning | ⚠ on the route row. |
+| [A status without a route](#a-status-without-a-route) | Information | The red row `✕ no route: the workflow fails` on the card. |
+| [A JSONPath condition that never holds](#a-jsonpath-condition-that-never-holds) | Error | ⚠ next to the criterion or on the route row; a box in **Success and routes** with **Change it**. |
+
+Hover over a ⚠ to read the warning and what to do.
+
+### A value that a route can skip
+
+A route that jumps forward skips the steps in between. If a later step uses a value one of them gives, that value arrives empty when the route is taken.
+
+> **Step 4: «orderId» comes from step 3, which the route «if it responds 409» of step 2 skips.**
+> If that route is taken, it arrives here with no value. Change the route so it does not skip step 3, or take the data from another step.
+
+On the card, the chip of that value turns amber, for example `← orderId · from 3 ⚠`.
+
+The outputs of the workflow are checked too, in the panel of **End of workflow**. In **Pokemon card**, with a route that sends the 404 of step 2 to a step at the bottom:
+
+- **End: the output «weakTo» comes from step 3, which the route «if it responds 404» of step 2 skips.**
+- **End: the output «weakTo» comes from step 3, and the route «if it passes» of step 2 ends earlier.**, when a route ends the workflow successfully before the step that gives it.
+
+What to do: **If that route is taken, the workflow returns that output empty. Change the route or remove the output.** A parameter of a step has no default value in Arazzo, so the fix is in the route or in the source of the value. See [Connect data between steps](/design/wire-data/).
+
+### A route to a step that no longer exists
+
+> **Step 2: the route «if it responds 404» goes to step «listPokemon», which no longer exists.**
+> Pick another step in the route, or remove it.
+
+It happens when you remove or rename the target outside the canvas, for example in the YAML tab. The row of the route says **goes to a step that no longer exists (listPokemon)**. Click its pencil to choose another step, or remove it. See [Add or change a route](/design/branch-menu/).
+
+### A loop only the runner stops
+
+A route that goes back to an earlier step, or to the same one, has no limit in Arazzo. Luvin stops a run after 200 executions. When the route depends only on the status, the API can answer the same every time:
+
+> **Step 3: the route «if it responds 401» goes back to step 1 with no limit. If the API keeps responding the same, the runner cuts it at 200 executions and the workflow fails.**
+> Use «Retry» or «Renew and retry», which have an attempt limit, or add a condition on the response that stops holding.
+
+A route on success with no condition at all always goes back: **Step 3: the route «if it passes» always goes back to step 1. Nothing stops it before the runner's 200 executions, and the workflow fails.**
+
+A loop that checks a field of the response is not flagged. For example, a pagination that repeats the step while `$response.body#/next != null` stops by itself on the last page. See [Standard Arazzo patterns](/design/patterns/).
+
+### A status without a route
+
+> **Step 2: the API can respond 404 and there is no route: the workflow fails.**
+> Choose what to do with 404, or leave it if that failure is expected.
+
+These are the red rows of the card. You do not have to handle them all: they are there so you decide. See [A route for any status](/design/branch-other-status/#declared-statuses-without-a-route-one-click).
+
+### A JSONPath condition that never holds
+
+A criterion of type `jsonpath` written as a comparison, such as `$.legendary == true` or `$.capture_rate >= 0`, is not a valid JSONPath query. The runner finds nothing, so:
+
+| Where it is | What happens | Warning |
+|---|---|---|
+| Success criteria of a step | The step always fails. | **Step 1: the criterion «$.legendary == true» is not valid JSONPath and is never met: the step always fails.** |
+| A route of a step | The route is never taken. | **Step 1: the condition «$.legendary == true» of the route «ifLegendary» is not valid JSONPath and is never met: the route is never taken.** |
+| A rule of the workflow | The rule never applies. | **Start: the condition «$.legendary == true» of the rule «…» is not valid JSONPath and is never met: the rule never applies.** The ⚠ goes on its row in the panel of **Start**. |
+
+No Arazzo tool will match these conditions either, so Luvin does not run them as comparisons: it proposes the standard form.
+
+When the `context` is `$response.body` or `$message.payload`, **Change it** rewrites only that condition as a simple condition, `$response.body#/legendary == true`, and removes its `context` and `type`. The rest of the YAML, comments included, stays as it was.
+
+With any other `context`, there is no one-click fix. The warning says what to do: **Write it as a simple condition on the body («$response.body#/field == value»), or as a JSONPath query that finds something.**
+
+Valid JSONPath queries are not flagged. `$.abilities[?(@.is_hidden == false)]` holds when it finds at least one ability that is not hidden. See [Check more than the status](/recipes/criteria/).
+
+<Aside type="tip">
+After **Change it**, **▷ Probe** can also simulate the route: it answers with that value in the body and follows the path. See [Probe routes and coverage](/test/probe-routes/).
+</Aside>
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="The Routes panel and rules for every step" href="/design/routes-panel/" />
+  <LinkCard title="Success criteria" href="/reference/criteria/" />
+  <LinkCard title="Check more than the status" href="/recipes/criteria/" />
+</CardGrid>

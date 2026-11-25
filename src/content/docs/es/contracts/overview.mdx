@@ -56,13 +56,13 @@ Esta única operación es lo que Luvin necesita para diseñar, ejecutar y simula
 
 | Parte del contrato | Dónde la ves | Más información |
 |---|---|---|
-| `paths` y sus operaciones | La paleta **Operaciones** de la pestaña **Diseño**. Cada operación se vuelve un paso. | [De la operación al paso](/es/contracts/operations-and-steps/) |
+| `paths` y sus operaciones | La búsqueda de **＋ Paso** en la pestaña **Diseño**. Cada operación se vuelve un paso. | [De la operación al paso](/es/contracts/operations-and-steps/) |
 | `parameters` y `requestBody` | Los parámetros y el body de cada paso, los inputs del workflow y los casos generados. | [Schemas, inputs y casos](/es/contracts/schemas-and-cases/) |
 | `responses` y sus schemas | Criterios de éxito, ramas de error, outputs y la comprobación de cada respuesta. | [¿La respuesta cumple el contrato?](/es/contracts/response-check/) |
 | `example` y `examples` | **Simulación**, mock servers, **Try it out**, requests generados y los valores de partida de los inputs. | [Ejemplos, simulación y mocks](/es/contracts/examples/) |
 | `servers` | Las **URLs base** de cada ambiente. | [Servidores y credenciales](/es/contracts/servers-and-credentials/) |
 | `security` y `securitySchemes` | Las **Credenciales** de cada ambiente y el caso **Sin credenciales**. | [Servidores y credenciales](/es/contracts/servers-and-credentials/) |
-| `tags` | La búsqueda de la paleta, y una carpeta por tag cuando generas requests. | [Generar requests desde un contrato](/es/requests/generate-from-contract/) |
+| `tags` | La búsqueda de **＋ Paso**, y una carpeta por tag cuando generas requests. | [Generar requests desde un contrato](/es/requests/generate-from-contract/) |
 | `channels`, `operations` y mensajes de AsyncAPI | Pasos send y receive, siempre simulados. | [Contratos AsyncAPI](/es/contracts/asyncapi/) |
 | `$ref` a otros archivos | Las partes que viven en otros archivos, unidas en un solo contrato. | [Referencias entre archivos](/es/contracts/references/) |
 
@@ -80,7 +80,7 @@ sourceDescriptions:
     type: asyncapi
 ```
 
-Los pasos usan ese nombre: `operationId: $sourceDescriptions.pokeapi.getPokemon`. La URL base del ambiente y las credenciales también se guardan con ese nombre, así que `pokeapi` es el nombre que ves en la lista **Contratos**, en la paleta y en el ambiente.
+Los pasos usan ese nombre: `operationId: $sourceDescriptions.pokeapi.getPokemon`. La URL base del ambiente y las credenciales también se guardan con ese nombre, así que `pokeapi` es el nombre que ves en la lista **Contratos**, en **＋ Paso** y en el ambiente.
 
 Luvin empareja cada dirección con un archivo de la colección por su nombre de archivo. No escribes estas líneas a mano: un archivo de workflows nuevo lista por ti todos los contratos de la colección. Mira [Cómo encuentra su archivo un workflow](/es/contracts/add/#cómo-encuentra-su-archivo-un-workflow).
 

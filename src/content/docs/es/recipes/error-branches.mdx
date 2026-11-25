@@ -99,6 +99,34 @@ workflows:
 | 42-44 | Cuando `findItem` pasa, `end` detiene el workflow sin ejecutar el respaldo. |
 | 45-50 | Cuando `findItem` responde 404, `goto` salta al paso `fallback`. |
 
+## Ármalo en el lienzo
+
+Casi todas estas rutas se pueden escribir con el editor de rutas, en la pestaña **Diseño**. Dos no tienen condición, y el editor siempre pide una, así que salen de otro lado.
+
+**`retryThenEnd`**
+
+<Steps>
+
+1. En la tarjeta de `callService`, haz clic en **＋ Qué hacer si falla**.
+2. En **Si responde**, escribe `503`, haz clic en **Reintentar** y pon **Esperar** `1` **s, hasta** `2` **veces**. Haz clic en **Agregar**.
+3. La ruta sin condición, `stopOnAnyOtherError`, va en la pestaña YAML. En la tarjeta se lee `otro error → termina el workflow (Fin) como fallido`.
+
+</Steps>
+
+El editor llama a la primera ruta `retry503`. Renómbrala en la pestaña YAML si quieres `retryUnavailable`; el lienzo conserva el nombre que escribas.
+
+**`fallbackOnNotFound`**
+
+<Steps>
+
+1. En la tarjeta de `findItem`, haz clic en **＋ Qué hacer si falla**, escribe `404` y haz clic en **Ir a otro paso**.
+2. Haz clic en **o un paso nuevo…** y elige `GET /http/{status}`. Luvin agrega el paso al final, lleva el 404 hacia él y le da a `findItem` la ruta de éxito `done`, de tipo `end`, para que un `findItem` que pasa no siga de largo al respaldo.
+3. Luvin llama al paso nuevo `getStatus`. En su panel, haz clic en el id y cámbialo por `fallback`. En `status`, elige **Valor fijo…** y escribe `200`.
+
+</Steps>
+
+En la tarjeta de `findItem`, **Si pasa y se cumple** muestra `éxito → termina con éxito (Fin)` y **Si falla** muestra `404 → va al paso 2 · …`, con una flecha roja punteada hasta el respaldo. Ver [Un paso nuevo para una ruta](/es/design/branch-new-step/).
+
 ## Qué obtienes
 
 `GET https://dummyjson.com/http/{status}` responde con el status que le pides, así que puedes provocar cada error.
@@ -132,6 +160,7 @@ Luvin espera como máximo 10 segundos por cada `retryAfter`, aunque escribas má
 
 <CardGrid>
   <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" description="Acciones al éxito y al fallo, una por una." />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" description="Cada opción del editor de rutas." />
   <LinkCard title="Razones de fallo" href="/es/reference/failure-reasons/" description="Qué significa cada razón en los resultados." />
   <LinkCard title="Espera un error" href="/es/recipes/expected-error/" description="Cuando el error es la respuesta correcta." />
 </CardGrid>

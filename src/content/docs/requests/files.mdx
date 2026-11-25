@@ -72,6 +72,8 @@ name: Customers
 
 A subfolder you create by hand on disk also appears in the sidebar, even without a marker. Its name is the name of the folder.
 
+When a folder has [scripts](/requests/scripts/), its marker also keeps them, under `scripts`, and starts with `version: 2`.
+
 ## The keys
 
 Luvin leaves out every key that is empty, so a file only has what the request uses.
@@ -90,6 +92,8 @@ Luvin leaves out every key that is empty, so a file only has what the request us
 | `autoHeadersOff` | The automatic headers you unticked, in lowercase. |
 | `requiredFields` | The fields you marked as required, such as `query:bank` or `body:title`. |
 | `examples` | The responses saved as examples. |
+| `vars`, `asserts` | HTTP and GraphQL: the rows of the **Variables** and **Checks** tabs. See [Variables and checks](/requests/variables-and-checks/#in-the-request-file). |
+| `scripts` | HTTP and GraphQL: the code of the **Scripts** tab, in `before` (**Before request**) and `after` (**After response**). A file with scripts starts with `version: 2`. See [Scripts](/requests/scripts/#how-scripts-are-saved). |
 
 ### Rows
 

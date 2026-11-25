@@ -60,13 +60,15 @@ The workflows appear in the sidebar and the files are saved in the collection fo
 
 ### Drag and drop
 
-You can drop files anywhere on the window. While you drag, an overlay says **Drop to add to “Partners”** and **OpenAPI or AsyncAPI contracts and Arazzo files (.yaml, .yml or .json)**. When you release, a note says **Added 3 file(s) to the collection**.
+You can drop files anywhere on the window. While you drag, an overlay says **Drop to add to «Partners»** and **OpenAPI or AsyncAPI contracts and Arazzo files (.yaml, .yml or .json); Postman or Bruno collections are imported on their own**. When you release, a note says **Added 3 file(s) to the collection**.
+
+A Postman collection or environment, or a Bruno export, is not added as a file: it opens the [import dialog](#import-from-postman-or-bruno) with its summary. The same happens if you pick one with **Add files to the collection** or **Import contract…**. The other files of the same drop are added to the collection.
 
 | Case | What you see |
 |---|---|
 | Some files are not `.yaml`, `.yml` or `.json` | **Added 2 file(s); 1 were not .yaml, .yml or .json**. The others are added. |
 | None of the files is valid | **Only .yaml, .yml or .json files can be added** |
-| No collection is open | **Open or create a collection to add files to it** |
+| No collection is open | The overlay says **Drop to import from Postman or Bruno**. Postman and Bruno files open the import dialog, which creates its own collection. Other files show **Open or create a collection to add files to it**. |
 
 ## Import from Postman or Bruno
 
@@ -84,7 +86,7 @@ Each Postman or Bruno collection becomes a new Luvin collection, with its folder
 
 ![The dialog to import from Postman or Bruno](/media/en/import-postman.webp)
 
-Tests become [variables and checks](/requests/variables-and-checks/) where they can; other scripts are not imported, and an authorization or body type without an equivalent is left empty. The warnings in the dialog say which. The full walkthrough is in [Import](/get-started/import/) and [From Postman](/tutorials/from-postman/).
+Scripts come over as they were, in the **Scripts** tab of the collection, of each folder and of each request, and run once you trust the collection. An authorization or body type without an equivalent is left empty. The warnings in the dialog say which. The full walkthrough is in [Import](/get-started/import/) and [From Postman](/tutorials/from-postman/).
 
 ## Open a collection
 
@@ -161,9 +163,9 @@ The collection version is a label your team chooses, such as `1.2.0`. It is not 
 
 <Steps>
 
-1. Open the [collection overview](/workspaces/collection-overview/).
-2. In the card **Version**, click **Set version**. If there is one, click **Change**.
-3. Type it, for example `1.2.0`, and click **Save**.
+1. Open the [collection overview](/workspaces/collection-overview/), on its **Overview** tab.
+2. Under the name, click **Set version**. If there is one, click the version.
+3. Type it, for example `1.2.0`, and click **Save** (or press Enter). Esc cancels.
 
 </Steps>
 
@@ -171,7 +173,7 @@ It is saved as `collectionVersion` in `collection.yaml`. Empty text removes it. 
 
 ## Copy the path and share
 
-In the card **Share** of the overview, click **Copy path**. The button says **Copied**. A collection is a folder of text files: send the path, or share it with [git](/workspaces/git/). Secrets are never in it.
+At the top of the [collection overview](/workspaces/collection-overview/), click **Copy path**. The button says **✓ Copied**. A collection is a folder of text files: send the path, or share it with [git](/workspaces/git/). Secrets are never in it.
 
 ## Order the collections
 

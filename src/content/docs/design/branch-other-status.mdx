@@ -1,50 +1,45 @@
 ---
-title: Statuses the contract doesn't document
-description: Add a branch for a status the contract does not list, such as 429, 500 or 503, which statuses are allowed and how they show in the app.
+title: A route for any status
+description: Give a route to a status the contract does not declare, such as 429 or 503, and handle declared statuses without a route in one click.
 sidebar:
   order: 7.3
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-APIs answer statuses their contract never mentions: a 429 when you send too many requests, a 500 when the server breaks, a 503 during maintenance. The rows of **On failure** only list what the contract documents, so these have their own entry: **+ If it responds another status…**.
+Contracts often leave out statuses that any API can answer: 429 when you send too many requests, 503 during maintenance, 500 when the server fails. The route editor takes any status, declared or not.
 
 ## Example: retry a 429 of getPokemon
 
-The PokéAPI contract documents 200 and 404 for `GET /pokemon/{idOrName}`, not 429.
+The PokéAPI contract does not declare 429 for `getPokemon`.
 
 <Steps>
-1. In the **Design** tab of **Pokemon card**, find the card of `getPokemon`.
-2. At the end of its **On failure** section, click **+ If it responds another status…**. A small field appears, with `429` as placeholder.
-3. Type `429`.
-4. Click **Choose**, or press Enter. The menu **If it responds 429** opens.
-5. Click **Retry (up to 3 times)**.
+1. Open **Pokemon card** and click the **Design** tab.
+2. On the card of `getPokemon`, click **＋ What to do if it fails**.
+3. In **If it responds**, type `429`. The statuses next to **the contract says:** do not include it, and that is fine.
+4. Click **Retry**, leave **Wait** `2` **s, up to** `3` **times**, and click **Add**.
 </Steps>
 
-![The On failure section of the getProduct card, below the row 404 → no action, with 429 typed in the field and the Choose button](/media/en/design-branch-other.webp)
-
 <Tabs>
-<TabItem label="On the card">
+<TabItem label="On the canvas">
 
-A new row appears below the others: `429 → on429` **retries ×3**, with a pencil to change it.
+The card gets the row `429 ↻ retries up to 3 · every 2 s`, with a blue loop back into the card.
 
 </TabItem>
 <TabItem label="In the YAML">
 
-```yaml title="pokemon.arazzo.yaml" {7-13}
-- stepId: getPokemon
-  # …
-  onFailure:
-    - name: pokemonNotFound
-      type: end
-      criteria:
-        - condition: $statusCode == 404
-    - name: on429
-      type: retry
-      retryAfter: 1
-      retryLimit: 3
-      criteria:
-        - condition: $statusCode == 429
+```yaml title="pokemon.arazzo.yaml"
+onFailure:
+  - name: pokemonNotFound
+    type: end
+    criteria:
+      - condition: $statusCode == 404
+  - name: retry429
+    type: retry
+    retryAfter: 2
+    retryLimit: 3
+    criteria:
+      - condition: $statusCode == 429
 ```
 
 </TabItem>
@@ -52,53 +47,57 @@ A new row appears below the others: `429 → on429` **retries ×3**, with a penc
 
 ## Which statuses you can type
 
-| Rule | Detail |
-|---|---|
-| Three digits | The field takes only digits, up to three. Letters and spaces are dropped as you type. |
-| From 100 to 599 | The first digit must be 1 to 5. **Choose** stays disabled until the status is valid. |
-| Any status in that range | Including 2xx and 3xx. A branch only fires when the step fails, so a status that already counts as success never reaches it. |
+**If it responds** takes only digits, up to three. Anything else is dropped as you type. **Add** stays off until the status has three digits and you chose what to do.
 
-To leave the field without choosing, press **Esc**, or click outside it with the field empty.
+A route on failure only runs when the step fails. A status the step already counts as success, such as its 200, never reaches it.
+
+## A status for every step
+
+When the same status can come from any call, as a 429 from a rate limit or a 503 from maintenance, add it once as a rule of the workflow instead of one route per step. Open **Start**, click **＋ Rule for every step** and fill in the editor the same way. See [Rules for every step](/design/routes-panel/#rules-for-every-step).
 
 ## Common statuses
 
-| Status | Usual meaning | A sensible branch |
+| Status | Usual meaning | A sensible route |
 |---|---|---|
-| 429 | Too many requests | **Retry (up to 3 times)**. Raise `retryAfter` in the YAML if the API asks to wait longer. |
-| 500 | The server failed | **End the workflow**, if your application shows a known error page, or no branch, so the run fails and you see it. |
-| 503 | Service unavailable, for example during maintenance | **Retry (up to 3 times)**, or **End the workflow**. |
+| 401 | The token expired | **Renew and retry**, with the login workflow. |
+| 409 | Conflict with the current state | **Go to another step**, for example one that reads the current state. |
+| 429 | Too many requests | **Retry**. Raise **Wait** if the API asks to wait longer. |
+| 500 | The server failed | **End the workflow**, or no route, so the run fails and you see it. |
+| 503 | Service unavailable | **Retry**, or **End the workflow**. |
 
-Luvin waits only what `retryAfter` says. It does not read a `Retry-After` header of the response.
+Luvin waits only what the route says. It does not read a `Retry-After` header of the response.
+
+## Declared statuses without a route: one click
+
+A status the contract declares and nothing handles is a red row on the card, `422 ✕ no route: the workflow fails`. In the **Success and routes** tab of the step panel, the same status has three buttons:
+
+| Button | What it adds |
+|---|---|
+| **Ends** | A route that ends the workflow on that status. The notice says **Route added: if it responds 422, the workflow ends.** |
+| **Retries** | A route that retries the step every 2 seconds, up to 3 times. The notice says **Route added: if it responds 422, it retries every 2 s, up to 3 times.** |
+| **Choose what to do** | The route editor, with the status filled in. |
+
+Each notice has **Undo**.
+
+![The Success and routes tab of createOrder: each declared status without a route, such as 400, 401 and 409, with Ends, Retries and Choose what to do](/media/en/design-route-unhandled.webp)
 
 ## What you see afterwards
 
 | Where | What appears |
 |---|---|
-| The card | The row `429 → on429` with its effect, and a pencil to change or remove it. |
-| The step panel | **If it responds with an error** now has a row **429**, with the action chosen. |
-| **Response coverage**, in **Overview** | Nothing new. Coverage only counts the statuses the contract documents. |
-| **Cases** | A generated case, **getPokemon responds 429 → on429**, that simulates that response. |
-| Results of a real run that got a 429 | The **Contract** tab of the step notes **Status 429 is not documented in the contract of `GET /pokemon/{idOrName}`.** |
+| The card | The row of the new route, with its arrow, and a pencil to change it. |
+| The **Success and routes** tab | The route in the **Routes** list, in words and with its Arazzo line. |
+| [To review](/design/review/) | If the status was declared, one fewer **without a route**. |
+| **Cases** | A generated case, **getPokemon responds 429 → retry429**, that simulates that response. |
+| Results of a real run that got a 429 | The step notes **Status 429 is not documented in the contract of …**. |
 
-The last message is a hint, not a mistake in your workflow. If the API really answers that status, add it to the contract. Once it is documented, it shows as a normal row with its description.
-
-<Aside type="note">
-If you type a status the contract does document, or one that already has an action, the menu opens the same way. With an action already there, the menu includes **Remove the branch**.
-</Aside>
-
-## Troubleshooting
-
-**There is no + If it responds another status… link.** The step calls another workflow, is a messaging step, or its operation is not in a contract. Write the action in the [YAML tab](/design/arazzo-editor/).
-
-**Choose stays disabled.** The status has fewer than three digits, or starts with 0, 6, 7, 8 or 9.
-
-**The field closed by itself.** It closes when it loses the focus while empty. Click the link again.
+That last message is a hint, not a mistake in your workflow. If the API really answers that status, add it to the contract: it then shows next to **the contract says:**, and as a red row while nothing handles it. See [Edit a contract](/contracts/edit/).
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="The branch menu" href="/design/branch-menu/" />
-  <LinkCard title="Error branches" href="/design/branches/" />
-  <LinkCard title="Edit a contract" href="/contracts/edit/" />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="The Routes panel and rules for every step" href="/design/routes-panel/" />
   <LinkCard title="Read a step result" href="/test/step-results/" />
 </CardGrid>

@@ -1,0 +1,139 @@
+---
+title: Debug a workflow
+description: Pause before a step, change what it receives and continue; run only one step, up to a step or from a step.
+sidebar:
+  order: 14
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+To find out why a step fails with a given value, you do not need to change the inputs and run everything again. Pause the run before the step, change what it is about to receive and continue, as in a debugger. You can also run a single step, run up to a step, or repeat from a step with what the earlier steps gave.
+
+Everything happens on the canvas, in the **Design** tab.
+
+## Example: try another Pokémon in step 2
+
+In **Pokemon card**, `getSpecies` receives `idOrName` from the `id` that `getPokemon` returned.
+
+<Steps>
+1. Open **Pokemon card** in the **Design** tab and click the card of `getSpecies`.
+2. At the bottom of the step panel, press **⏸ Pause here**. It now says **⏸ Paused here**, and the card shows **⏸ pause**.
+3. In the run bar, choose **Simulation** and press **Run 2 cases**. If the dialog to choose an item from a list opens, choose one and continue.
+4. The run stops before `getSpecies`. Its card says **⏸ paused**, with the path it is about to call. The result bar says **⏸ Paused before step 2**.
+5. The panel opens in the **Data** tab: **Paused before this step.** Under **Receives · 1**, `idOrName` has the value that came from step 1.
+6. Type `150` and press **▷ Continue**. The step runs with `150`.
+</Steps>
+
+![The run paused before getSpecies, in Simulation: the card says ⏸ paused, the bar says ⏸ Paused before step 2 with ▷ Continue, and under Receives · 1 the value of idOrName is changed to 150](/media/en/test-pause.webp)
+
+When the case ends, the chip of `idOrName` on the card says `= 150 ✎`. The workflow did not change: the next run sends the value of step 1 again.
+
+## Set or remove a pause
+
+A pause goes before a step. Any of these sets it, and the same action removes it:
+
+| Where | How |
+|---|---|
+| The step card | The **⏸** button at the top right, next to the window controls. It shows when you rest the pointer on the card. With a pause set it stays in sight: **⏸ pause**. |
+| The keyboard | Select the step and press **F9**. |
+| The menu of the step | Right-click the card: **⏸ Pause before this step**, or **Remove the pause**. |
+| The step panel | **⏸ Pause here** at the bottom. With the pause set it says **⏸ Paused here**. The **⋯** menu next to it has **⏸ Pause before this step** too. |
+
+Pauses are remembered on this computer, for each workflow. They are not written in the Arazzo, so they do not reach your team through git.
+
+## When the run stops
+
+- Every time the run reaches the step, also when a route goes back to it. Not on its retries.
+- In every case that reaches the step. **Continue without pauses** skips the pauses for the rest of that run.
+- In a normal run, and when you run only, up to or from a step.
+- Not in **▷ Probe**, in the [Runner](/runner/workflows/) or in a performance test: nobody is there to answer.
+
+The pause is shown on the canvas. If you ran from another tab, open **Design** to see it and continue.
+
+A step that calls another workflow pauses before it, and you edit the inputs it passes. The run does not pause inside the called workflow.
+
+## What you can change
+
+In the pause, **Receives** lists each value the step is about to receive, with its field and where it comes from:
+
+| Value | Example |
+|---|---|
+| Parameters of the path, the query, the headers and the cookies | `idOrName`, `limit`, `X-Request-Id` |
+| Each simple field of a JSON body: text, number, yes/no or empty | `products/0/quantity`. Objects and lists are opened down to their fields. |
+| The inputs a step passes to a called workflow | `customerId` |
+
+A body that is not JSON (a form, multipart or plain text) has no fields in the pause. Secrets appear masked.
+
+**Types are kept.** A value that was text stays text. A value that was a number, a yes/no, empty or an object is read as JSON: `5` typed where there was a number goes as the number `5`, not the text `"5"`; `true` and `false` go as yes/no; `null` goes as empty. If what you type cannot be read as JSON, it goes as text.
+
+**Example.** A shop workflow pauses before **Create the cart**. Under **Receives**, `products/0/quantity` says `1`. Type `500` and continue: the request body carries `"quantity": 500`, a number, and you see how the API answers a quantity out of stock.
+
+![A shop workflow paused before Create the cart: under Receives · 3, the fields of the JSON body, with products/0/quantity changed from 1 to 500 and marked ✎](/media/en/test-pause-body.webp)
+
+## Continue, or stop
+
+| Button | What it does |
+|---|---|
+| **▷ Continue**, in the panel or in the result bar | The step runs with what you typed. The run goes on. |
+| **Continue without pauses** | The same, and the run does not pause again until it ends. |
+| **Cancel**, in the run bar | Stops the run. The pause closes. |
+
+What you edit applies only to that step and that run. It does not touch the Arazzo or the cases. Another step that uses the same input gets the original value.
+
+The run records it:
+
+- On the card, the chip of the value says `= 150 ✎`. Its tooltip: *Edited in the pause: the step ran with this value, only in this run.*
+- In the **Response** tab of the step, **What it received** marks it with **✎** and **edited in the pause**.
+- The **Request** tab of the full results shows the request as it was sent, with the edited value.
+
+The time spent paused does not count in the duration of the run.
+
+## Run only, up to or from a step
+
+Three ways to run part of the workflow:
+
+| Action | What it runs | Needs a previous run |
+|---|---|---|
+| **▷ Run only this step** | Only this step, with what the earlier steps gave in the last run. | Yes |
+| **▷ Run up to here** | From the start, and stops after this step without following its route. | No: without one it uses the **Happy path** |
+| **Run from this step** | This step and the ones after it, with what the earlier steps gave in the last run. | Yes |
+
+Where to find them:
+
+- Right-click a step card: the three of them.
+- The step panel: **▷ Run only this step** at the bottom, and **▷ Run up to here** and **▷ Run from this step** in **⋯**.
+- The **Response** tab of a step: **▷ Run from this step**, under **What to do**.
+- The keyboard: select a step and press **⇧ + Enter** to run only that step.
+
+![The menu of the card of getSpecies after a run, with Pause before this step, Run only this step, Run up to here and Run from this step](/media/en/test-run-range.webp)
+
+Without a previous run, **Run only this step** and **Run from this step** are off, with the reason: *Run the workflow once: it needs what the earlier steps gave.*
+
+### Which case and which data
+
+- They use the case you see in the result bar, and its last run. Choose another chip to start from another case.
+- They run in simulation or against the real API, as that case ran. If the API signs in with OAuth 2.0, the sign-in opens first.
+- They stop at pauses and ask which item of a list to use, like a normal run.
+
+### The result
+
+The partial run is one more chip in the result bar, for example **▷ Only step 2 · Happy path**, **▷ Up to step 3 · Happy path** or **▷ From step 2 · Happy path**. It passes when the steps that run pass.
+
+The steps outside the range say **did not run**, and in the full results: *Not run: it is outside what was asked to run.*
+
+A partial run remembers which case it came from. You can run **only step 2**, change something, and then run **from step 2**.
+
+It is not saved in the history and it does not change what **⇄ Compare** compares with. The next partial run or route probe replaces it.
+
+<Aside type="caution">
+Running only, up to or from a step starts at once. It does not show the notice for steps that modify data. Against the real API, a `POST`, `PUT`, `PATCH` or `DELETE` in the range is sent.
+</Aside>
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Results on the canvas" href="/test/run-on-canvas/" />
+  <LinkCard title="Probe routes and coverage" href="/test/probe-routes/" />
+  <LinkCard title="Choose an item from a list" href="/test/lists/" />
+  <LinkCard title="Find out why a case failed" description="A tutorial from the verdict to the exact request." href="/tutorials/debug-failure/" />
+</CardGrid>

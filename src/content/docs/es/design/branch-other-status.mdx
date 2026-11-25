@@ -1,104 +1,103 @@
 ---
-title: Estados que el contrato no documenta
-description: Agrega una rama para un estado que el contrato no lista, como 429, 500 o 503, qué estados se aceptan y cómo se ven en la app.
+title: Una ruta para cualquier status
+description: Dale una ruta a un status que el contrato no declara, como 429 o 503, y maneja con un clic los status declarados que no tienen ruta.
 sidebar:
   order: 7.3
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Las APIs responden estados que su contrato nunca menciona: un 429 cuando envías demasiadas peticiones, un 500 cuando el servidor se rompe, un 503 durante un mantenimiento. Las filas de **Si falla** solo listan lo que el contrato documenta, así que estos tienen su propia entrada: **+ Si responde otro status…**.
+Los contratos suelen dejar fuera status que cualquier API puede responder: 429 cuando mandas demasiados requests, 503 durante un mantenimiento, 500 cuando falla el servidor. El editor de rutas acepta cualquier status, esté declarado o no.
 
-## Ejemplo: reintenta un 429 de getPokemon
+## Ejemplo: reintentar un 429 de getPokemon
 
-El contrato de la PokéAPI documenta 200 y 404 para `GET /pokemon/{idOrName}`, no 429.
+El contrato de la PokéAPI no declara el 429 para `getPokemon`.
 
 <Steps>
-1. En la pestaña **Diseño** de **Pokemon card**, busca la tarjeta de `getPokemon`.
-2. Al final de su sección **Si falla**, haz clic en **+ Si responde otro status…**. Aparece un campo pequeño, con `429` de ejemplo.
-3. Escribe `429`.
-4. Haz clic en **Elegir**, o pulsa Enter. Se abre el menú **Si responde 429**.
-5. Haz clic en **Reintentar (hasta 3 veces)**.
+1. Abre **Pokemon card** y haz clic en la pestaña **Diseño**.
+2. En la tarjeta de `getPokemon`, haz clic en **＋ Qué hacer si falla**.
+3. En **Si responde**, escribe `429`. Los status que aparecen junto a **el contrato dice:** no lo incluyen, y no pasa nada.
+4. Haz clic en **Reintentar**, deja **Esperar** `2` **s, hasta** `3` **veces** y haz clic en **Agregar**.
 </Steps>
 
-![La sección Si falla de la tarjeta de getProduct, debajo de la fila 404 → sin acción, con 429 escrito en el campo y el botón Elegir](/media/es/design-branch-other.webp)
-
 <Tabs>
-<TabItem label="En la tarjeta">
+<TabItem label="En el lienzo">
 
-Aparece una fila nueva debajo de las demás: `429 → on429` **reintenta ×3**, con un lápiz para cambiarla.
+La tarjeta queda con la fila `429 ↻ reintenta hasta 3 · cada 2 s`, con un lazo azul que vuelve a la tarjeta.
 
 </TabItem>
 <TabItem label="En el YAML">
 
-```yaml title="pokemon.arazzo.yaml" {7-13}
-- stepId: getPokemon
-  # …
-  onFailure:
-    - name: pokemonNotFound
-      type: end
-      criteria:
-        - condition: $statusCode == 404
-    - name: on429
-      type: retry
-      retryAfter: 1
-      retryLimit: 3
-      criteria:
-        - condition: $statusCode == 429
+```yaml title="pokemon.arazzo.yaml"
+onFailure:
+  - name: pokemonNotFound
+    type: end
+    criteria:
+      - condition: $statusCode == 404
+  - name: retry429
+    type: retry
+    retryAfter: 2
+    retryLimit: 3
+    criteria:
+      - condition: $statusCode == 429
 ```
 
 </TabItem>
 </Tabs>
 
-## Qué estados puedes escribir
+## Qué status puedes escribir
 
-| Regla | Detalle |
-|---|---|
-| Tres dígitos | El campo acepta solo dígitos, hasta tres. Las letras y los espacios se descartan mientras escribes. |
-| De 100 a 599 | El primer dígito tiene que ser del 1 al 5. **Elegir** sigue desactivado hasta que el estado es válido. |
-| Cualquier estado de ese rango | También 2xx y 3xx. Una rama solo se activa cuando el paso falla, así que un estado que ya cuenta como éxito nunca llega a ella. |
+**Si responde** acepta solo dígitos, hasta tres. Lo demás se descarta mientras escribes. **Agregar** queda desactivado hasta que el status tenga tres dígitos y hayas elegido qué hacer.
 
-Para salir del campo sin elegir, pulsa **Esc**, o haz clic fuera de él con el campo vacío.
+Una ruta de fallo solo se ejecuta cuando el paso falla. Un status que el paso ya cuenta como éxito, como su 200, nunca llega a ella.
 
-## Estados frecuentes
+## Un status para todos los pasos
 
-| Estado | Qué suele significar | Una rama razonable |
+Cuando el mismo status puede venir de cualquier llamada, como un 429 por límite de uso o un 503 por mantenimiento, agrégalo una sola vez como regla del workflow en vez de una ruta por paso. Abre **Inicio**, haz clic en **＋ Regla para todos los pasos** y completa el editor igual. Ver [Reglas para todos los pasos](/es/design/routes-panel/#reglas-para-todos-los-pasos).
+
+## Status frecuentes
+
+| Status | Qué suele significar | Una ruta razonable |
 |---|---|---|
-| 429 | Demasiadas peticiones | **Reintentar (hasta 3 veces)**. Sube `retryAfter` en el YAML si la API pide esperar más. |
-| 500 | El servidor falló | **Terminar el workflow**, si tu aplicación muestra una página de error conocida, o ninguna rama, para que la ejecución falle y lo veas. |
-| 503 | Servicio no disponible, por ejemplo durante un mantenimiento | **Reintentar (hasta 3 veces)**, o **Terminar el workflow**. |
+| 401 | El token venció | **Renovar y reintentar**, con el workflow del login. |
+| 409 | Conflicto con el estado actual | **Ir a otro paso**, por ejemplo uno que lea el estado actual. |
+| 429 | Demasiados requests | **Reintentar**. Sube **Esperar** si la API pide esperar más. |
+| 500 | Falló el servidor | **Terminar el workflow**, o ninguna ruta, para que la ejecución falle y lo veas. |
+| 503 | Servicio no disponible | **Reintentar**, o **Terminar el workflow**. |
 
-Luvin espera solo lo que dice `retryAfter`. No lee un header `Retry-After` de la respuesta.
+Luvin espera solo lo que dice la ruta. No lee el header `Retry-After` de la respuesta.
+
+## Status declarados sin ruta: un clic
+
+Un status que el contrato declara y que nada maneja es una fila roja en la tarjeta, `422 ✕ sin ruta: el workflow falla`. En la pestaña **Éxito y rutas** del panel del paso, ese status tiene tres botones:
+
+| Botón | Qué agrega |
+|---|---|
+| **Termina** | Una ruta que termina el workflow con ese status. El aviso dice **Ruta agregada: si responde 422, termina el workflow.** |
+| **Reintenta** | Una ruta que reintenta el paso cada 2 segundos, hasta 3 veces. El aviso dice **Ruta agregada: si responde 422, reintenta cada 2 s, hasta 3 veces.** |
+| **Elegir qué hacer** | El editor de rutas, con el status ya puesto. |
+
+Cada aviso tiene **Deshacer**.
+
+![La pestaña Éxito y rutas de createOrder: cada status declarado sin ruta, como 400, 401 y 409, con Termina, Reintenta y Elegir qué hacer](/media/es/design-route-unhandled.webp)
 
 ## Qué ves después
 
 | Dónde | Qué aparece |
 |---|---|
-| La tarjeta | La fila `429 → on429` con su efecto, y un lápiz para cambiarla o quitarla. |
-| El panel del paso | **Si responde con error** ahora tiene una fila **429**, con la acción elegida. |
-| **Cobertura de respuestas**, en **Resumen** | Nada nuevo. La cobertura solo cuenta los estados que documenta el contrato. |
-| **Casos** | Un caso generado, **getPokemon responde 429 → on429**, que simula esa respuesta. |
-| Resultados de una ejecución real que recibió un 429 | La pestaña **Contrato** del paso indica **El código 429 no está documentado en el contrato de `GET /pokemon/{idOrName}`.** |
+| La tarjeta | La fila de la ruta nueva, con su flecha, y un lápiz para cambiarla. |
+| La pestaña **Éxito y rutas** | La ruta en la lista **Rutas**, en palabras y con su línea de Arazzo. |
+| [Por revisar](/es/design/review/) | Si el status estaba declarado, uno menos **sin ruta**. |
+| **Casos** | Un caso generado, **getPokemon responde 429 → retry429**, que simula esa respuesta. |
+| Resultados de una ejecución real que recibió un 429 | El paso avisa **El código 429 no está documentado en el contrato de …**. |
 
-El último mensaje es un aviso, no un error de tu workflow. Si la API de verdad responde ese estado, agrégalo al contrato. Una vez documentado, aparece como una fila normal con su descripción.
-
-<Aside type="note">
-Si escribes un estado que el contrato sí documenta, o uno que ya tiene una acción, el menú se abre igual. Si ya hay una acción, el menú incluye **Quitar la rama**.
-</Aside>
-
-## Solución de problemas
-
-**No aparece el enlace + Si responde otro status….** El paso llama a otro workflow, es un paso de mensajería o su operación no está en un contrato. Escribe la acción en la [pestaña YAML](/es/design/arazzo-editor/).
-
-**Elegir sigue desactivado.** El estado tiene menos de tres dígitos, o empieza con 0, 6, 7, 8 o 9.
-
-**El campo se cerró solo.** Se cierra cuando pierde el foco estando vacío. Haz clic otra vez en el enlace.
+Ese último mensaje es una pista, no un error de tu workflow. Si la API de verdad responde ese status, agrégalo al contrato: entonces aparece junto a **el contrato dice:**, y como fila roja mientras nada lo maneje. Ver [Editar un contrato](/es/contracts/edit/).
 
 ## Relacionado
 
 <CardGrid>
-  <LinkCard title="El menú de una rama" href="/es/design/branch-menu/" />
-  <LinkCard title="Ramas de error" href="/es/design/branches/" />
-  <LinkCard title="Editar un contrato" href="/es/contracts/edit/" />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="El panel Rutas y las reglas para todos los pasos" href="/es/design/routes-panel/" />
   <LinkCard title="Lee el resultado de un paso" href="/es/test/step-results/" />
 </CardGrid>

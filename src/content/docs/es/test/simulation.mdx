@@ -100,6 +100,8 @@ Un **caso de mensaje** es para un paso que recibe un mensaje. Luvin simula un me
 
 Los casos por respuesta se simulan por defecto. Para comprobar lo mismo contra tu API, cambia el caso a **API real** y dale datos. Mira [Ajusta un caso](/es/test/adjust-cases/).
 
+Para recorrer una sola ruta sin ejecutar los casos, pulsa **▷ Probar** en esa ruta, en la pestaña **Diseño**. Simula de la misma forma la respuesta que activa la ruta, siempre en simulación, aunque la barra de ejecución diga **API real**. Mira [Probar rutas y cobertura](/es/test/probe-routes/).
+
 ## Los pasos de mensajería siempre se simulan
 
 Luvin no se conecta a brokers de mensajes como Kafka, AMQP o MQTT. Los pasos que envían o reciben un mensaje por un canal AsyncAPI se simulan **en toda ejecución**, también cuando la barra de ejecución dice **API real**.
@@ -129,10 +131,13 @@ Cuando un paso devuelve una lista que usan pasos posteriores, la ejecución se p
 
 Contra la **API real** el diálogo siempre aparece, también con un solo elemento. Mira [Elige un elemento de una lista](/es/test/lists/).
 
+Probar una ruta (**▷ Probar**) nunca muestra el diálogo: sigue con el elemento que indica el diseño.
+
 ## Siguiente
 
 <CardGrid>
   <LinkCard title="Ejecutar" href="/es/test/run/" />
   <LinkCard title="Casos" href="/es/test/cases/" />
+  <LinkCard title="Probar rutas y cobertura" href="/es/test/probe-routes/" />
   <LinkCard title="Lee los resultados" href="/es/test/results/" />
 </CardGrid>

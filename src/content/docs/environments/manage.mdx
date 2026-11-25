@@ -9,6 +9,8 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 You usually need more than one environment: your machine, a shared test server, production. A new environment starts as a copy of the active one, so you only change what differs.
 
+This page is about the environments of a collection. Global environments, which every collection of the workspace shares, are created, renamed and deleted in the **Environments** panel, under **Global environments**: see [Global environments](/environments/variable-levels/#global-environments).
+
 ## Example: add staging to the shop
 
 The shop collection has `local`, with the base URL `shop` set to `http://localhost:8080`, the variable `clientId` and the secret `clientSecret`.
@@ -33,7 +35,7 @@ The shop collection has `local`, with the base URL `shop` set to `http://localho
 
 <Steps>
 
-1. Open the active environment: click the pill at the top right and choose **Configure environment…**.
+1. Open the active environment: click the left half of the pill at the top right (the collection environment, with a database icon) and choose **Configure environment…**.
 2. Click **+ New**, at the end of the row of environments.
 3. Type the name and press **Enter**.
 
@@ -107,7 +109,7 @@ The color shows wherever the environment does:
 
 | Place | How |
 |---|---|
-| The pill at the top right | The whole pill takes the color. Without one, it is Luvin green. |
+| The pill at the top right | Its left half, the collection environment, takes the color. Without one, it is Luvin green. |
 | The **Environments** panel | The dot of the row. |
 | The environment tab | The dot in the title and in the row of environments. |
 | The **Environment** list of the Runner | The list takes the color of the active one. |

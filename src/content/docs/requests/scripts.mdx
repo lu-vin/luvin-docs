@@ -1,0 +1,246 @@
+---
+title: Scripts
+description: Run JavaScript before a request and after its response, as in Postman and Bruno, at request, folder and collection level. Where they go, the order they run in, where you see their tests and console, trust and security.
+sidebar:
+  order: 14
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+A script is JavaScript that runs **before a request** is sent or **after its response** arrives. Use one when the **Variables** and **Checks** tabs are not enough: sign a request, build a value from several fields, call another endpoint first, or write a test with logic.
+
+Scripts use the same API as Postman (`pm.*`) and Bruno (`bru.*`, `req`, `res`). A script you copy from Postman or Bruno runs in Luvin as it is, in most cases. Collections you import keep their scripts whole: see [Import from Postman or Bruno](/get-started/import/#scripts-come-over-whole).
+
+## Example: test Pikachu and log its species
+
+<Steps>
+
+1. Create a request **Get pokemon**: `GET https://pokeapi.co/api/v2/pokemon/pikachu`.
+2. Open its **Scripts** tab and click **After response** on the left.
+3. Paste this script:
+
+   ```js
+   const pokemon = pm.response.json();
+
+   pm.test("status is 200", () => {
+     pm.response.to.have.status(200);
+   });
+   pm.test("it is electric", () => {
+     pm.expect(pokemon.types[0].type.name).to.eql("electric");
+   });
+
+   pm.collectionVariables.set("speciesName", pokemon.species.name);
+   console.log("Species:", pokemon.species.name);
+   ```
+
+4. Press **Send** (⌘/Ctrl + Enter).
+5. The response has two more tabs. **Tests** lists ✓ **status is 200** and ✓ **it is electric**. **Console** shows `Species: pikachu`, marked **After response · request**.
+6. Write `{{speciesName}}` in another request of the collection. It is `pikachu`.
+
+</Steps>
+
+## Where scripts go
+
+Each level has two scripts, **Before request** and **After response**. A dot next to the name tells you which ones have code.
+
+| Level | Where you write it | It runs for |
+|---|---|---|
+| Request | The **Scripts** tab of the request, next to **Variables** and **Checks** | That request |
+| Folder | In the sidebar, the menu of the folder, **Scripts…** (it says **Scripts • …** when the folder has some). A dialog **Scripts of the folder “Customers”** opens | Every request in that folder and its subfolders |
+| Collection | Open the collection (click its name in the sidebar), then its **Scripts** tab | Every request in the collection |
+
+When a request also has folder or collection scripts, its **Scripts** tab says so, with a link to each one: *These also run, before these ones: collection, folder “Customers”. After the response, in the same order.*
+
+![The Scripts tab of the request Get customer, on After response, with the note that the scripts of the collection and of the folder “Customers” also run](/media/en/request-scripts-tab.webp)
+
+![The dialog Scripts of the folder “Customers”, with a Before request script that adds an X-Request-Id header](/media/en/folder-scripts-dialog.webp)
+
+![The Scripts tab of the collection Shop API, with a Before request script that stops any request sent before logging in](/media/en/collection-scripts-tab.webp)
+
+Scripts run in HTTP and GraphQL requests. gRPC and WebSocket requests do not have them.
+
+<Aside type="note" title="Not in workflow steps">
+Scripts run when you send a request, in the runner and in load tests of requests. They do not run in the steps of a workflow: a workflow passes data with its own outputs and inputs. When you build a workflow from requests, Luvin reads every `set` of their after-response scripts, without running them, and wires the data between steps with them. For example, if a step's script does `pm.collectionVariables.set("productId", json.products[0].id)`, a later step that uses `{{productId}}` takes it from that step's response. The same works for the login token. See [Build from saved requests](/design/from-requests/) and [The token from a login](/authorization/token-from-login/).
+</Aside>
+
+## The order they run in
+
+Luvin follows Postman's order. When you press **Send**:
+
+<Steps>
+
+1. The **Before request** scripts run: the collection's, then each folder's from the outside in, then the request's. Each one can change the request, and the next one sees the change.
+2. Luvin replaces the `{{variables}}`, adds the authorization and the automatic headers, and sends the request.
+3. The response arrives. The **Variables** tab saves its values and the **Checks** tab compares its values.
+4. The **After response** scripts run in the same order: collection, folders, request. They already see what the **Variables** tab just saved.
+5. The response shows the status, the checks, and the **Tests** and **Console** tabs.
+
+</Steps>
+
+A script sees the request as it is written, with its `{{variables}}`. It does not see the authorization or the automatic headers, because Luvin adds them later.
+
+### When a script fails
+
+| What happens | Result |
+|---|---|
+| A **Before request** script throws an error | The request is **not sent**. The response area says **The before-request script failed, so the request was not sent.**, with the script and the line, such as **Before request · collection, line 2**, and what the script wrote to the console. |
+| A **Before request** script calls `pm.execution.skipRequest()` | The request is not sent: *Not sent: the before-request script (collection) skipped it with pm.execution.skipRequest().* |
+| An **After response** script throws an error | The response shows as usual. The error appears in the **Tests** tab and counts as a failed test. The other after-response scripts still run. |
+| A script runs for more than 10 seconds | It stops: **Stopped: it took more than 10 seconds.** Time spent waiting for `pm.sendRequest` or `setTimeout` does not count. |
+| A script uses more than 64 MB | **Stopped: it used more than 64 MB of memory.** |
+| A script waits for more than 60 seconds in total | **Stopped: it waited more than 60 seconds (pm.sendRequest or setTimeout).** |
+| A script uses something Luvin does not have | That line fails with `` `pm.vault.get` is not in Luvin yet. `` (with the name it used). See [The script API](/requests/scripts-api/#what-is-not-available). |
+
+A collection script can stop every request on purpose. For example, this **Before request** script of the collection stops any request sent before logging in:
+
+```js
+if (!pm.collectionVariables.get("token") && pm.info.requestName !== "Log in") {
+  throw new Error('Missing token. Send "Log in" first.');
+}
+```
+
+![The response area of Get orders: the before-request script failed, so the request was not sent, at Before request · collection, line 2, with Missing token. Send "Log in" first.](/media/en/scripts-before-failed.webp)
+
+## Where you see the results
+
+| What | Where |
+|---|---|
+| `pm.test`, `test` (Bruno), `tests["…"]` | The **Tests** tab of the response: ✓ or ✕ with the name of each test and, if it failed, why. The tab shows how many failed in red, or how many passed in green. When tests come from several levels, each one says which. |
+| `console.log`, `info`, `warn`, `error`, `debug` | The **Console** tab of the response, in order. Each line says which script wrote it, such as **Before request · folder “Customers”**. With nothing written: *The scripts wrote nothing (console.log).* |
+| An error | At the top of **Tests**, or in the response area if the request was not sent. |
+| `pm.sendRequest` | The **Network** tab of [Dev Tools](/dev-tools/network/), as one more request named after the request plus `· sendRequest`, with the secrets masked. |
+
+The **Tests** tab appears when the send had tests or an error. The **Console** tab appears whenever a script ran.
+
+![The Tests tab of the response of Log in, with ✓ status is 200 and ✓ returns a token](/media/en/response-tests-tab.webp)
+
+![The Console tab of the response of Get customer: one line from Before request · folder “Customers” and one from After response · request](/media/en/response-console-tab.webp)
+
+## Variables a script saves
+
+A script can save values with `set`. Where the value goes depends on what it calls:
+
+| Call | Where the value goes | How long it lasts |
+|---|---|---|
+| `pm.environment.set`, `bru.setEnvVar` | The **current value** of the variable in the active environment | Until you reset it |
+| `pm.collectionVariables.set` | The current value of the collection variable | Until you reset it |
+| `pm.globals.set`, `bru.setGlobalEnvVar` | The current value in the active global environment. If there is none, Luvin creates one named like the active environment | Until you reset it |
+| `pm.variables.set` | Only this send: the after-response script of the same request reads it | This send |
+| `bru.setVar` | A saved value, like the ones of the **Variables** tab | While the collection is open |
+
+The **current value** works as in Postman:
+
+- It is kept **on this computer**, encrypted. It is not written to the files of the workspace, so it never reaches git. Your teammates keep their own.
+- It survives closing Luvin. A token saved by a login script is still there the next day.
+- It wins over the value in the file at the same level. The order between levels does not change: a `pm.collectionVariables.set` does not win over an environment variable with the same name. See [Variable levels](/environments/variable-levels/).
+- If the variable does not exist at that level, the `set` creates it only as a current value.
+- A variable with a current value has a **Reset** button (↺) in the **Variables** panel. Its tooltip says **Reset: go back to the file's value**. The **Variables** tab of the collection also has **Reset all**. When you point at a `{{variable}}` in a field, the card says *Current value on this computer: the script of “Log in” saved it. It is not in the files or in git.*, with **Reset**.
+- You can also type a current value by hand in those two places.
+- It is masked in the history and in reports when the variable is secret, or when its name looks like a credential, such as `token` or `password`.
+
+![The card of the variable token in a header of Get customer: Current value on this computer: the script of “Log in” saved it. It is not in the files or in git., with Reset](/media/en/variables-current-value.webp)
+
+A secret collection variable from Postman lives in an environment, because in Luvin secrets only live in environments. `pm.collectionVariables.get` and `set` still find it there, so the script runs without changes.
+
+## Trust a collection
+
+A script can read the variables and the secrets of the active environment, and it can send them somewhere with `pm.sendRequest`. That is why the scripts of a collection you did not write do not run until you trust it.
+
+When you open a collection with scripts that this computer does not trust yet, for example right after importing it or cloning it from git, Luvin asks **Do you trust this collection?**:
+
+> It has scripts that run before sending its requests and after each response. They can read the variables and secrets of the active environment.
+
+![The dialog Do you trust this collection? with the buttons Not now and Trust](/media/en/scripts-trust-dialog.webp)
+
+| Button | What happens |
+|---|---|
+| **Trust** | Its scripts run from now on, on this computer. Luvin does not ask again. |
+| **Not now** | Requests are still sent, without running any script. Luvin asks again the next time you open Luvin. |
+
+While you do not trust it:
+
+- The **Scripts** tabs say **The scripts of this collection do not run until you trust it.**, with **Trust this collection**.
+- Each response says **The scripts of this request did not run: you don't trust this collection yet.**, with the same button.
+- The runner and load tests send the requests without the scripts.
+
+Good to know:
+
+- A collection you create in Luvin is trusted from the start.
+- Writing or changing a script in a collection counts as trusting it.
+- Trust is kept on this computer, per collection folder. It is not in the files and it does not travel with git. A clone in another folder asks again.
+- When you import over an existing collection and replace its content, Luvin asks again.
+- If a `git pull` changes the scripts of a collection you already trust, Luvin does not ask again. Review script changes in the pull request, as you review code.
+
+<Aside type="tip">
+Not sure about a collection? Choose **Not now**, open the **Scripts** tab of the collection, of its folders and of a few requests, and read them. Look for `pm.sendRequest`, `bru.sendRequest` or `axios` calls to addresses you do not know.
+</Aside>
+
+## In the runner and in load tests
+
+Scripts also run in [the runner](/runner/requests/) and in [load tests](/runner/performance/) of requests, in the same order, on every iteration.
+
+- `pm.iterationData` holds the row of the data file for that iteration, and `pm.info.iteration` its number, starting at `0`.
+- What one request saves goes to the next requests of the run. A script reads it at its level: what “Log in” saves with `pm.collectionVariables.set`, “Get orders” reads with `pm.collectionVariables.get`.
+- The current values a script saves are kept only if **Keep variable values at the end** is on. In a load test they are never kept: each virtual user has its own.
+- Each request of the run lists its tests next to its checks, such as `5/6`. The totals add a **tests** counter.
+- A request with a failed test fails, even with a `200`. A request with tests that all pass and no checks passes.
+- A request stopped by a before-request script says **Stopped by a script**, and below it *Before-request script (collection): Missing token. Send "Log in" first.*
+
+![The runner after running the requests of Shop API: 5/6 tests, and under each request its tests, with every order is delivered failed in Get orders](/media/en/runner-requests-tests.webp)
+
+## What a script can and cannot do
+
+Scripts run isolated, in a separate JavaScript engine, in its own thread. The **Scripts** tab says it: *Scripts run isolated: they cannot read your files or run programs, and they stop after 10 seconds.*
+
+| A script can | A script cannot |
+|---|---|
+| Read and change the request before it is sent | Read or write files on your computer |
+| Read the response | Run programs or commands |
+| Read and save variables, including the secrets of the active environment | Open connections by itself: there is no `fetch` or `XMLHttpRequest` |
+| Send other requests with `pm.sendRequest`, `bru.sendRequest` or `axios`, which Luvin sends like any request | Load libraries other than the ones Luvin includes |
+| Use the libraries Luvin includes: `chai`, `crypto-js`, `lodash`, `moment`, `uuid` and others | Run for more than 10 seconds of work, use more than 64 MB, or wait for more than 60 seconds |
+
+Each `pm.sendRequest` has a limit of 30 seconds. `{{variables}}` in its URL or body are not replaced: build them with `pm.variables.get` or `pm.variables.replaceIn`.
+
+## How scripts are saved
+
+Scripts are saved in the YAML files of the collection, so they travel with it in git: the request's in its `.request.yaml`, a folder's in its `_folder.request.yaml` and the collection's in `collection.yaml`.
+
+```yaml title="requests/get-pokemon.request.yaml"
+version: 2
+name: Get pokemon
+kind: http
+method: GET
+url: https://pokeapi.co/api/v2/pokemon/pikachu
+scripts:
+  after: |-
+    pm.test("status is 200", () => {
+      pm.response.to.have.status(200);
+    });
+```
+
+`before` holds the **Before request** script and `after` the **After response** one. A file with scripts is written with `version: 2`, so an older version of Luvin that does not know scripts opens it but does not overwrite it. The current values that scripts save are never written to these files. See [How a request is saved](/requests/files/).
+
+## Scripts or the Variables and Checks tabs?
+
+Both work together on the same request. The **Variables** and **Checks** tabs need no code and are easier to read and review. Scripts handle what those tabs cannot.
+
+| You want to | Use |
+|---|---|
+| Save a token or an id from the response | The **Variables** tab |
+| Check the status, a field, a header or the time | The **Checks** tab |
+| Sign the request, add a computed header or a timestamp | A **Before request** script |
+| Call a login endpoint before the request | A **Before request** script with `pm.sendRequest` |
+| Check something only under a condition, or loop over a list | An **After response** script |
+| Keep a value after closing Luvin | A script with `pm.environment.set` or `pm.collectionVariables.set` |
+
+See [Variables and checks](/requests/variables-and-checks/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="The script API" href="/requests/scripts-api/" description="Every pm and bru object, and what is not available." />
+  <LinkCard title="Variables and checks" href="/requests/variables-and-checks/" description="Save values and check the response without code." />
+  <LinkCard title="Import from Postman or Bruno" href="/get-started/import/" />
+  <LinkCard title="Run requests" href="/runner/requests/" />
+</CardGrid>

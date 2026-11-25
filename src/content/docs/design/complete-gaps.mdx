@@ -22,7 +22,7 @@ The **Overview** tab also lists it as an error: **The contract requires the quer
 
 ## When the bar appears
 
-The bar appears above the canvas in the **Design** tab, and above the fields in the **Inputs** tab. It shows only when Luvin finds something to complete. A workflow with nothing missing does not show it.
+The bar appears at the top of the canvas in the **Design** tab, and above the fields in the **Inputs** tab. It shows only when Luvin finds something to complete. A workflow with nothing missing does not show it.
 
 It usually appears after something changes under the workflow:
 
@@ -33,11 +33,11 @@ The bar does not appear while the YAML cannot be read. Fix the YAML first.
 
 ![The bar This workflow is missing data after deleting the input username that the login step uses: It uses inputs the workflow does not declare: username, with Complete](/media/en/design-gaps-bar.webp)
 
-The same happens when you delete an input on the **Start** panel while a step still reads it.
+The same happens when you delete an input on the **Start** panel while a step still reads it. On that step's card, the value shows a red chip with **missing**.
 
 ## What Luvin detects
 
-The bar has up to two sentences. Each one is a different problem.
+The bar has up to two sentences. Each one is a different problem. Below them it reminds you what **Complete** does: **Complete declares them as inputs (with the contract’s type) or wires them to an earlier step, without redoing the steps. You can undo it.**
 
 | Sentence | What it means |
 |---|---|
@@ -78,13 +78,13 @@ Open the step afterwards and check where each value comes from. A source that Lu
 
 <Steps>
 1. Click **Complete** in the bar of the **Design** tab.
-2. If you do not like the result, click **Undo** above the canvas, or press ⌘ + Z (Ctrl + Z).
+2. If you do not like the result, click ↶ (**Undo**) in the toolbar at the top of the canvas, or press ⌘ + Z (Ctrl + Z).
 </Steps>
 
-**Redo** brings it back. See [Organize a workflow](/design/organize/).
+↷ (**Redo**) brings it back. See [Organize a workflow](/design/organize/).
 
 <Aside type="note">
-The bar is also in the **Inputs** tab, with the same **Complete** button. **Undo** is a button of the **Design** tab, so if you want to be able to undo, click **Complete** in **Design**.
+The bar is also in the **Inputs** tab, with the same **Complete** button. Undo and redo belong to the **Design** tab, so if you want to be able to undo, click **Complete** in **Design**.
 </Aside>
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-gaps.webp" src="/media/en/design-gaps.mp4"></video>

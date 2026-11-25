@@ -13,11 +13,12 @@ Esta página nombra cada parte de la pantalla y dice para qué sirve. Léela una
 
 | Área | Dónde | Para qué sirve |
 |---|---|---|
-| Barra superior | Borde de arriba | El workspace abierto, el estado de guardado y el ambiente activo |
+| Barra superior | Borde de arriba | El workspace abierto, el estado de guardado y los ambientes activos |
 | Barra lateral | Izquierda | Tus colecciones, ambientes, historial y mock servers |
 | Pestañas | Sobre el área principal | Lo que tienes abierto |
 | Barra de ejecución | Bajo las pestañas, en un workflow | Dónde y cómo ejecutar |
 | Barra de resultados | Abajo de un workflow | Los resultados de la última ejecución |
+| Panel Variables | A la derecha, cuando lo abres | Todas las variables que puedes usar, y dónde vive cada una |
 | Barra de estado | Borde de abajo | Preferencias, tema, tour, búsqueda y Dev Tools |
 
 ## Barra superior
@@ -25,7 +26,13 @@ Esta página nombra cada parte de la pantalla y dice para qué sirve. Léela una
 - **Inicio** (el ícono de la casa) abre el inicio del workspace, con sus colecciones y acciones rápidas.
 - **El selector de workspace** es el botón con el nombre del workspace. Su menú muestra dónde está guardado el workspace y ofrece **Renombrar workspace**, **Cerrar y cambiar de workspace**, **Eliminar workspace…** y **Mostrar en Finder** (**Mostrar en el explorador** en Windows).
 - **El estado de guardado**, a la derecha, dice **Guardando…**, **✓ Guardado** o **Error al guardar**. Cada cambio se guarda solo. ⌘S (Ctrl+S) guarda al instante.
-- **El ambiente activo**, arriba a la derecha: una pastilla con su nombre, del color que le elegiste, o en el verde de Luvin si no tiene. Se ve siempre que hay una colección abierta, así sabes adónde van tus ejecuciones, y es el único lugar de la ventana que lo muestra. Haz clic en ella para elegir otro ambiente, en una lista que marca el activo. Su última opción, **Configurar ambiente…**, abre la pestaña del ambiente. Consulta [Ambientes](/es/environments/overview/).
+- **Los ambientes activos**, arriba a la derecha: una pastilla con dos mitades, como en Bruno. Se ve siempre que hay una colección abierta, así sabes adónde van tus ejecuciones, y es el único lugar de la ventana que la muestra.
+  - La mitad izquierda, con un ícono de base de datos, es el ambiente de la colección, del color que le elegiste, o en el verde de Luvin si no tiene. Haz clic en ella para elegir otro, en una lista que marca el activo. Su última opción, **Configurar ambiente…**, abre la pestaña del ambiente.
+  - La mitad derecha, con un globo, es el ambiente global del workspace, o un **Sin global** gris cuando no hay ninguno activo. Haz clic en ella para elegir uno, o **Ninguno**. **Ver todas las variables…** abre el panel Variables.
+
+  Consulta [Ambientes](/es/environments/overview/) y [Ambientes globales](/es/environments/variable-levels/#ambientes-globales).
+
+  ![La pastilla del ambiente arriba a la derecha, con el ambiente de la colección a la izquierda y el global a la derecha, y el menú del ambiente global abierto](/media/es/env-pill-split.webp)
 
 ## Barra lateral
 
@@ -34,11 +41,11 @@ Arriba de la barra lateral, cuatro íconos cambian entre sus paneles. Luvin recu
 | Panel | Qué muestra |
 |---|---|
 | **Colecciones** | Cada colección. Haz clic en la flecha para desplegar una, o en su nombre para abrir el resumen de la colección. Dentro: los archivos Arazzo, sus workflows, los pasos de cada workflow y los **Requests**. Debajo, los **Contratos** de la colección abierta: ✓ cargado, ✕ no cargado, ○ todavía no lo usa ningún workflow. |
-| **Ambientes** | Los ambientes de la colección abierta. Haz clic en uno para activarlo y abrirlo. |
+| **Ambientes** | Los **Ambientes globales** del workspace, después los ambientes de la colección abierta, y **Variables de la colección**. Haz clic en un ambiente para activarlo. |
 | **Historial** | Las últimas entradas del historial de la colección. **Ver todo** abre la pestaña **Historial**. |
 | **Mock servers** | Los mock servers de la colección. Un punto verde en el ícono indica que hay uno encendido. |
 
-Consulta [La barra lateral](/es/get-started/sidebar/) para cada panel. El punto junto a un workflow indica cómo salió su última ejecución. Pasa el cursor por encima para leer el estado, por ejemplo **Pasaron**, **No pasaron** o **Sin ejecutar**. La mayoría de las filas tiene un menú ⋯ con acciones como **Renombrar** y **Eliminar**.
+Arrastra el borde derecho de la barra lateral para hacerla más ancha o más angosta. Consulta [La barra lateral](/es/get-started/sidebar/) para cada panel. El punto junto a un workflow indica cómo salió su última ejecución. Pasa el cursor por encima para leer el estado, por ejemplo **Pasaron**, **No pasaron** o **Sin ejecutar**. La mayoría de las filas tiene un menú ⋯ con acciones como **Renombrar** y **Eliminar**.
 
 ## Pestañas
 
@@ -47,13 +54,14 @@ Todo lo que abres se vuelve una pestaña: un workflow, un request, un contrato, 
 - **Pestañas de vista previa.** En un workspace, un solo clic abre una pestaña de vista previa, con su nombre en cursiva. Lo siguiente que abras la reemplaza. Para dejarla abierta, haz doble clic en la pestaña o en la fila de la barra lateral, edítala o ejecútala.
 - **El botón +** (**Crear o importar**), en el extremo derecho de la barra de pestañas, abre un menú con **Nuevo workflow en este archivo**, **Nuevo Arazzo**, **Nuevo request**, **Nuevo contrato OpenAPI**, **Nuevo contrato AsyncAPI** e **Importar de Postman o Bruno**. Un elemento está apagado cuando no puede aplicarse, por ejemplo cuando no hay una colección abierta. El **+** queda fuera de las pestañas, así que siempre se ve.
 - **Más pestañas de las que caben.** Cuando las pestañas no caben, aparecen tres botones junto al **+**. Las flechas (**Ver las pestañas de la izquierda**, **Ver las pestañas de la derecha**) desplazan las pestañas; una flecha está apagada cuando no hay más de ese lado. El chevron (**Todas las pestañas abiertas**) lista todas las pestañas abiertas, con una marca en la actual. Elige una para abrirla.
+- **Variables** (el botón `{ }`, junto al **+**) abre o cierra el panel Variables a la derecha. Consulta [El panel Variables](#el-panel-variables).
 - **Clic derecho en una pestaña** para **Nuevo Arazzo**, **Cerrar**, **Cerrar las demás**, **Cerrar a la izquierda**, **Cerrar a la derecha** y **Cerrar todas**. Un elemento está apagado cuando no hay nada que cerrar. La pestaña **Inicio** no se puede cerrar.
 
 ## Las pestañas de un workflow
 
 | Pestaña | Para qué sirve |
 |---|---|
-| **Diseño** | Armar el workflow en un lienzo arrastrando operaciones |
+| **Diseño** | Armar el workflow en un lienzo: agregar pasos, conectar los datos entre ellos y probarlo ahí mismo. Consulta [Diseñar workflows](/es/design/overview/) |
 | **Inputs** | Los valores con los que parte cada caso. Un número indica que faltan valores o que no son válidos |
 | **Casos** | Los casos generados y los tuyos. El número es cuántos están listos para ejecutar |
 | **Autorización** | La autorización de cada API que llama el workflow |
@@ -68,7 +76,27 @@ De izquierda a derecha: el nombre y la descripción del workflow (haz clic en cu
 
 ## Barra de resultados
 
-**Resultado** es una barra delgada abajo hasta que ejecutas. Entonces se abre sola. Haz clic en su título para plegarla o desplegarla. Su encabezado tiene **Repetir**, **JSON** y **Reporte**, y un botón para ver los resultados a la derecha o abajo. En **Diseño** los resultados siempre van abajo.
+**Resultado** es una barra delgada abajo hasta que ejecutas. Entonces se abre sola. Haz clic en su título para plegarla o desplegarla. Su encabezado tiene **Repetir**, **JSON** y **Reporte**, y un botón para ver los resultados a la derecha o abajo. Arrastra la línea entre los resultados y el resto para cambiar su tamaño.
+
+En **Diseño**, en cambio, una barra de resultado más chica flota sobre el lienzo, y su botón **Resultados** abre los resultados completos. Consulta [Diseñar workflows](/es/design/overview/).
+
+## El panel Variables
+
+Haz clic en `{ }` en la barra de pestañas para abrir el panel **Variables** a la derecha de cualquier vista: un request, un workflow, la colección. Arriba lista las variables del request abierto y, debajo, cada nivel, del que gana al que pierde. Los valores se editan ahí mismo. Haz clic otra vez en `{ }`, o en su **×**, para cerrarlo. Consulta [El panel Variables](/es/environments/variable-levels/#el-panel-variables).
+
+## Cambiar el tamaño de los paneles
+
+Como en Postman, puedes arrastrar los bordes entre las partes de la ventana. Luvin recuerda cada tamaño en este equipo.
+
+| Borde | Qué cambia | Doble clic |
+|---|---|---|
+| El borde derecho de la barra lateral | El ancho de la barra, de 200 a 560 px | Vuelve a su ancho de siempre |
+| El borde izquierdo del panel Variables | El ancho del panel, de 300 a 720 px | Vuelve a su ancho de siempre |
+| La línea entre un request y su respuesta | Cuánto alto ocupa cada uno. Los editores del body y de los scripts llenan el espacio | Vuelve a la división original |
+| La línea junto a los resultados de un workflow | Su ancho, o su alto cuando están abajo | Vuelve al ancho de siempre, cuando están a la derecha |
+| La línea junto al panel **Documentación**, en el **Inicio** y en el resumen de la colección | El ancho del panel | No |
+
+Todos menos el borde de **Documentación** también se mueven con las flechas del teclado después de hacer clic en ellos.
 
 ## Barra de estado
 
@@ -80,18 +108,22 @@ De izquierda a derecha: el nombre y la descripción del workflow (haz clic en cu
 | **Tour** | Inicia el [tour guiado](/es/get-started/guided-tour/) |
 | **Buscar** | Abre la búsqueda |
 | **Dev Tools** | Abre Console, Network y Performance, más una Terminal |
+| **Atajos** `?` | Lista los atajos de teclado del lienzo, mientras un workflow está abierto en **Diseño** |
+| La versión | La versión de Luvin que usas, como `v0.2.0-beta.10` |
 
 ## Búsqueda con ⌘K
 
-Pulsa ⌘K (Ctrl+K en Windows), escribe y pulsa Enter. La búsqueda encuentra workflows, pasos, ambientes, contratos, requests y colecciones. Las palabras pueden ir en cualquier orden, y las tildes y las mayúsculas no importan. Usa ↑ y ↓ para moverte y Esc para cerrar. Los resultados aparecen en grupos, hasta 60 a la vez:
+Pulsa ⌘K (Ctrl+K en Windows), escribe y pulsa Enter. La búsqueda encuentra acciones, workflows, pasos, ambientes, contratos, requests, mock servers y colecciones. Las palabras pueden ir en cualquier orden, y las tildes y las mayúsculas no importan. Usa ↑ y ↓ para moverte y Esc para cerrar. Los resultados aparecen en grupos, hasta 60 a la vez:
 
 | Grupo | Qué muestra una fila | Qué hace Enter |
 |---|---|---|
+| **Acciones** | **Ejecutar requests**, **Ejecutar workflows** (cuando la colección tiene workflows), **Abrir el historial**, **Nuevo request** y **Nuevo mock server**. | La hace. |
 | **Workflows** | El nombre del workflow y, cuando la colección tiene varios archivos Arazzo, el archivo en que está. Si no, su resumen. | Abre el workflow. |
 | **Pasos** | El paso, con su método HTTP y el workflow al que pertenece. | Abre ese paso en su workflow. |
 | **Ambientes** | El ambiente, con su color. El que está en uso dice **activo**. | Lo hace el ambiente activo y lo abre. |
 | **Contratos** | El contrato, con **API** o **ASYNC**, y su archivo. | Abre el contrato. |
 | **Requests** | El request guardado, con su método y su URL. | Abre el request. |
+| **Mock servers** | El mock server, y su puerto cuando está encendido. | Abre el mock server. |
 | **Colecciones** | La colección y su carpeta. | Abre la colección. |
 
 El método y el nombre del grupo también cuentan cuando Luvin compara tus palabras, así que `get pokemon` encuentra los pasos `GET` con ese nombre. Cuando nada coincide, dice **Nada coincide con lo que buscas.**

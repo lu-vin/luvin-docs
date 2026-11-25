@@ -1,0 +1,122 @@
+---
+title: Copy, duplicate and extract steps
+description: Select several steps, copy and paste them in the same workflow or another one, duplicate them, and extract consecutive steps to a new workflow that the old one calls.
+sidebar:
+  order: 12.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Arazzo is made to compose: a step can call another workflow and receive its outputs. On the canvas you can select several steps and copy them to another workflow, duplicate them, or turn a group of steps into a workflow of its own, all without touching the YAML.
+
+## Example: reuse the weakness and the ability
+
+In **Pokemon card**, steps 3 and 4 read the weakness of the main type and the first ability. You want them in a workflow of their own, to call from other workflows.
+
+<Steps>
+1. Click step 3. Hold **Shift** and click step 4. A bar appears over the canvas: **2 steps selected**.
+2. Click **⇪ Extract to a workflow**. A window opens: **Extract 2 steps to a workflow**.
+3. In **Name of the new workflow**, type `Weakness and ability`.
+4. Read what will change, then click **Extract**.
+</Steps>
+
+Steps 3 and 4 move to a new workflow at the end of the file. In their place, **Pokemon card** has one step that calls it. The steps after it, and the outputs of the workflow, now read from that step.
+
+## Select several steps
+
+| How | What it does |
+|---|---|
+| **Shift** + click, or ⌘ + click (Ctrl + click) | Adds the step to the selection, or takes it out |
+| Right-click › **Add to the selection** | The same, from the menu of the step |
+| **⌘A** (Ctrl+A) on the canvas | Selects every step |
+| A plain click on a step | Selects only that step |
+| **Esc**, or **Cancel** in the bar | Stops selecting |
+
+The selected cards are highlighted. With two or more, a bar floats over the canvas:
+
+| In the bar | What it does |
+|---|---|
+| **N steps selected** · **⇧ click to add or remove** | How many and how to change them |
+| **⎘ Copy** (⌘C) | Copies them |
+| **⧉ Duplicate** | Pastes a copy right after the last selected step |
+| **⇪ Extract to a workflow** | Moves them to a new workflow. Only for consecutive steps |
+| **× Remove** | Removes them, after a confirmation. See [Remove a step](/design/organize/#remove-a-step) |
+| **Cancel** | Stops selecting |
+
+![Steps 3 and 4 of Pokemon card selected, and the bar 2 steps selected with Copy, Duplicate, Extract to a workflow, Remove and Cancel](/media/en/design-multi-bar.webp)
+
+## Copy and paste
+
+<Steps>
+1. Select one or more steps.
+2. Press **⌘C** (Ctrl+C), or click **⎘ Copy** in the bar, or right-click a card and choose **Copy**. A notice says **2 steps copied: ⌘V pastes them after the selected step, in this workflow or another.**
+3. Open the workflow where they go, in this file or another one.
+4. Select the step they go after, and press **⌘V** (Ctrl+V), or right-click it and choose **Paste after this step**. With no step selected, they go at the end of the workflow.
+</Steps>
+
+The steps are pasted with their parameters, criteria, outputs and routes, and stay selected.
+
+What Luvin copies lives while the app is open. It is also copied to the system clipboard as YAML, so you can paste it into a text file or the YAML tab.
+
+### What changes when you paste
+
+- **Ids that already exist get a number.** A pasted `getPokemon` becomes `getPokemon_2`, then `getPokemon_3`. Inside what you pasted, the data, the routes and the `dependsOn` follow the new ids.
+- **Data that exists in the destination stays connected.** A value that reads an input or a step that the destination workflow has keeps working.
+- **Data that does not exist is marked.** A value that reads a step that is not there shows a red chip, **missing**. An input the workflow does not declare also shows red; its tooltip says **This workflow has no input «…»: add it in Start or connect another value.** Give those values a source. See [Connect data between steps](/design/wire-data/).
+- **Routes to steps that are not there** are flagged in [To review](/design/review/), like any broken route.
+
+⌘C and ⌘V copy text as usual while text is selected or the cursor is in a field.
+
+## Duplicate
+
+Select one or more steps and press **⌘D** (Ctrl+D), or click **⧉ Duplicate** in the bar, or right-click a card and choose **Duplicate**. The copies go right after the last selected step, with new ids, as when you paste.
+
+## Extract to a workflow
+
+Extracting turns consecutive steps into a new workflow of the same file, and leaves in their place one step that calls it.
+
+<Steps>
+1. Select the steps. They must be one after another. With steps that are not, the button is off and says **Only consecutive steps: select steps one after another.** To extract a single step, right-click it and choose **Extract to a workflow…**.
+2. Click **⇪ Extract to a workflow** in the bar, or **Extract to a workflow…** in the menu of a card.
+3. Type the **Name of the new workflow**. It starts as **New workflow**.
+4. Read the window, then click **Extract**, or **Cancel**.
+</Steps>
+
+![The window Extract 2 steps to a workflow: the name of the new workflow, its inputs and outputs, and how the YAML changes](/media/en/design-extract-dialog.webp)
+
+Nothing is written until you click **Extract**. The window shows:
+
+| Section | What it says |
+|---|---|
+| The first line | The id of the new workflow and of the step that calls it: **The steps move to the workflow «…», in this file. In their place goes the step «…», which calls it.** |
+| **Inputs (what they received from outside)** | Each value the steps read from the workflow's inputs or from earlier steps, with where it came from, for example `mainType ← $steps.getPokemon.outputs.mainType` |
+| **Outputs (what is used afterwards)** | Each value the later steps or the workflow outputs read from the group, and **used by** whom |
+| **Routes that are removed** | Routes of the group that go to a step that stays outside. They are removed |
+| Notes | What works differently once inside the new workflow (see below) |
+| **How it looks in Arazzo** | The YAML of the step that goes **In place of the steps** and of the workflow that goes **At the end of the file** |
+
+After **Extract**, the step that calls the new workflow is selected. One **↶ Undo** puts everything back.
+
+### What changes inside the new workflow
+
+- **The rules for every step** (the ones in **Start**) are copied to the new workflow, so its steps keep them. Rules that go to a step that stays outside are not copied.
+- **A route that ends successfully** now ends the new workflow, and the main one goes on with the next step.
+- **A route that continues in another workflow** does so inside the new workflow, and when it ends the main one goes on with the next step.
+- **A route that fails and ends** works as before: the new workflow fails, the step that calls it fails, and the main workflow ends.
+- **A route from outside that went into the middle of the group** now goes to the step that calls the new workflow, which starts with the first extracted step.
+
+The new workflow always goes to the same file.
+
+## See the steps of a workflow that a step calls
+
+A step that calls a workflow of the same file has a link on its card: **▸ See its 2 steps** (or **▸ See its step**). Click it to list those steps, with their method, without leaving the canvas. **▾ Hide its steps** folds them. Workflows of other files are not listed.
+
+To open the called workflow, click it in the sidebar. See [Workflows that use other workflows](/design/dependencies/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Workflows that use other workflows" href="/design/dependencies/" />
+  <LinkCard title="Organize a workflow" href="/design/organize/" />
+  <LinkCard title="The canvas" href="/design/canvas/" />
+</CardGrid>

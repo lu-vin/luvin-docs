@@ -98,11 +98,11 @@ If the request fails before a response arrives (the API did not answer in time, 
 
 **During and after the run:**
 
-- Each request is a row with ✓ or ✕, its method, name, URL, status (or **No response**), time, size and the checks that passed out of its total, such as `3/4`, in green or red.
-- A request passes if it got a response and every check passed. With no checks, it passes if its status is below `400`.
+- Each request is a row with ✓ or ✕, its method, name, URL, status (or **No response**), time, size and the checks that passed out of its total, such as `3/4`, in green or red. The tests of its [scripts](/requests/scripts/) count in the same number, and are listed with the checks.
+- A request passes if it got a response, every check passed and no test failed. With no checks and no tests, it passes if its status is below `400`.
 - Click a row to open it: the error, if there was one, the same list of checks and **Saved variables** as in the response, the response itself (if **Keep responses to see them** is on) and **Open the request**.
 - A failed request without checks says *Without checks, an error status counts as a failure. Add a check (for example, status is 404) if it is expected.*
-- The totals add up the checks that passed out of all of them, under **checks**, such as `11/12`.
+- The totals add up the checks that passed out of all of them, under **checks**, such as `11/12`. When the scripts have tests, the totals also count them, under **tests**.
 - **All**, **Failed** and **Passed** filter the rows.
 - **Stop if a request fails** stops the run at the first request that fails: *It fails when it does not answer, when a check fails or, without checks, when the status is an error.*
 
@@ -110,7 +110,7 @@ What a request saves goes to the next requests of the run. See [Save values from
 
 ### In a load test
 
-In a load test of requests, a request with a failed check counts as failed, even with a `200`. Its error is the expression and the name of the check in the file, such as `res.body.name eq`. See [Read a performance test](/runner/performance-results/).
+In a load test of requests, a request with a failed check or a failed test counts as failed, even with a `200`. Its error is the expression and the name of the check in the file, such as `res.body.name eq`. See [Read a performance test](/runner/performance-results/).
 
 ## In the history
 

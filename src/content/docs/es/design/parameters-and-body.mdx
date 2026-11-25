@@ -5,9 +5,9 @@ sidebar:
   order: 5
 ---
 
-import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Un paso envía dos clases de datos: parámetros (en la ruta, en el query o en los headers) y, en algunas operaciones, un body. Editas ambos en el panel del paso, bajo **Parámetros**.
+Un paso envía dos clases de datos: parámetros (en la ruta, en el query o en los headers) y, en algunas operaciones, un body. Editas ambos en el panel del paso, en la pestaña **Datos**, bajo **Recibe**.
 
 ## Ejemplo: el body de Create order
 
@@ -16,9 +16,9 @@ En el ejemplo de PayPal, **Create order** envía un body armado con tres inputs.
 <Tabs>
   <TabItem label="En la app">
 
-  Bajo **Body** `application/json`, cada campo tiene una lista **Origen**. `purchase_units/amount/currency_code` lee el input `currency`, `purchase_units/amount/value` lee `amount` y `purchase_units/description` lee `description`. Los campos dentro de listas se editan con **Editar como JSON**.
+  Bajo **Body · application/json**, cada campo tiene una lista que dice de dónde sale su valor. `purchase_units/amount/currency_code` lee el input `currency`, `purchase_units/amount/value` lee `amount` y `purchase_units/description` lee `description`. Los campos dentro de listas se editan con **Editar como JSON**.
 
-  ![El panel de un paso con los campos del body y los botones Rellenar con el ejemplo, Crear inputs y Editar como JSON](/media/es/step-body.webp)
+  ![La pestaña Datos del panel del paso con los campos del body y los botones Rellenar con el ejemplo, Crear inputs y Editar como JSON](/media/es/step-body.webp)
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -40,72 +40,83 @@ En el ejemplo de PayPal, **Create order** envía un body armado con tres inputs.
   </TabItem>
 </Tabs>
 
-## Abre el panel del paso
+## Abrir el panel del paso
 
 <Steps>
-1. En la pestaña **Diseño**, haz clic en un paso del lienzo.
+1. En la pestaña **Diseño**, haz clic en un paso del lienzo. También puedes hacer clic en ⤢ (**Abrir en el panel**) en su tarjeta.
 </Steps>
 
-El panel se abre a la derecha. Arriba tiene el nombre del paso, su ruta y una caja para su descripción: **Qué hace este paso (para quien lea el workflow)**.
+El panel se abre encima del lienzo, a la derecha, y el lienzo se corre para que la tarjeta quede a la vista. Arriba muestra:
 
-## Edita un parámetro
+- **Paso N de M** y el estado del paso, por ejemplo **✓ listo** o **⚠ 1 por corregir**.
+- El título del paso, en una caja que puedes editar. Es la `description` del paso en el archivo.
+- El método y la ruta, el **id** con ✎ para cambiarlo, la **fuente** (el contrato) y **Ver en YAML**.
 
-Los parámetros se agrupan según por dónde viajan: **Ruta**, **Query**, **Headers** y **Cookies**. El número junto a cada título es cuántos parámetros tiene el grupo.
+Debajo hay cuatro pestañas: **Datos**, **Éxito y rutas**, **Autorización** (solo en pasos HTTP) y **Respuesta**. Esta página trata de **Datos**. Las otras pestañas se explican en [Éxito y errores](/es/design/success-and-errors/), [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/) y [Resultados en el lienzo](/es/test/run-on-canvas/).
 
-Cada parámetro es una fila con su nombre y una lista, **Origen**, que dice de dónde sale su valor. [Conectar datos entre pasos](/es/design/wire-data/) explica cada opción de esa lista.
+Abajo, **▷ Ejecutar solo este paso** y **⏸ Pausar aquí** sirven para depurar: lee [Depurar un workflow](/es/test/debug/). **⋯** tiene las mismas acciones que el menú del paso en el lienzo. Para cerrar el panel, haz clic en su **×**, pulsa Esc o haz clic en un lugar vacío del lienzo.
 
-| Marca | Significado |
+Puedes arrastrar el borde izquierdo del panel para hacerlo más ancho. Con doble clic en el borde vuelve al ancho original.
+
+## Editar un parámetro
+
+En **Recibe**, los parámetros se agrupan según por dónde viajan: **Ruta**, **Query**, **Headers** y **Cookies**. Un paso que llama a otro workflow tiene **Inputs del workflow** en su lugar. El número junto a cada título es cuántos tiene el grupo.
+
+Cada parámetro es una fila con su nombre y, debajo, una lista que dice de dónde sale su valor. [Conectar datos entre pasos](/es/design/wire-data/) explica cada opción de esa lista.
+
+| Marca | Qué significa |
 |---|---|
 | `*` | El contrato exige este valor. |
 | **extra** | El contrato no lo declara. Alguien lo agregó a mano, por ejemplo en el YAML. |
-| ♻ | Viene de un [reutilizable](/es/design/reusables/). |
+| ♻ nombre | Viene de un [reutilizable](/es/design/reusables/). |
+| **último: 25** | El valor que recibió en la última ejecución. |
 
-Si la operación no tiene parámetros ni body, el panel dice **Esta operación no recibe parámetros.**
+El header que lleva la autorización no aparece aquí. Está en la pestaña **Autorización**. Lee [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
 
-Para ver parámetros de query en acción, mira [Parámetros de query y paginación](/es/recipes/pagination-query/).
+Si el paso no recibe nada, la pestaña dice **No recibe datos.**
+
+Para ver parámetros de query en acción, mira [Recorre una lista por páginas](/es/recipes/pagination-query/).
 
 ### Un valor dentro de un texto
 
-Algunos valores mezclan texto fijo con datos, como un token después de `Bearer`. Elige **Valor fijo…** y escribe la expresión entre llaves dentro del texto: `Bearer {$steps.login.outputs.token}`. Luvin la reemplaza al ejecutar el paso. El lienzo no dibuja una línea de datos para él, porque el valor no es solo el output.
+Algunos valores mezclan texto fijo con datos, como un texto de búsqueda que incluye un tipo. Elige **Valor fijo…** y escribe la expresión entre llaves dentro del texto: `type:{$inputs.type}`. Luvin la reemplaza cuando el paso se ejecuta. La tarjeta muestra el texto entero como valor fijo, porque el valor no es solo la expresión.
 
-![La cabecera Authorization de createOrder con el valor fijo Bearer y el token del paso login](/media/es/design-token-header.webp)
-
-## Envía un parámetro opcional
+## Enviar un parámetro opcional
 
 Los parámetros opcionales no se envían hasta que les das un origen. Quedan plegados en una línea: **Opcionales sin enviar: limit, offset**.
 
 <Steps>
 1. Haz clic en **Editar** en esa línea. Aparece una fila por cada parámetro opcional.
-2. En la fila que quieras, abre **Origen** y elige de dónde sale el valor, por ejemplo **Valor fijo…** y luego `20`.
-3. Haz clic en **Ocultar los que no se envían** para plegar el resto otra vez.
+2. En la fila que quieras, abre su lista y elige de dónde sale el valor, por ejemplo **Valor fijo…** y luego `20`.
+3. Haz clic en **Ocultar los que no se envían** para volver a plegar el resto.
 </Steps>
 
-Para dejar de enviarlo, elige **No enviar** en su lista **Origen**.
+Para dejar de enviarlo, elige **No enviar** en su lista.
 
-![Los parámetros opcionales limit y offset desplegados, cada uno con No enviar, y el enlace Ocultar los que no se envían](/media/es/design-optional-params-open.webp)
+![Los parámetros de query opcionales limit y offset desplegados, cada uno con No enviar, y el enlace Ocultar los que no se envían](/media/es/design-optional-params-open.webp)
 
-## Completa el body
+## Llenar el body
 
-Cuando la operación recibe un body, aparece un último grupo: **Body**, seguido de su formato, por ejemplo `application/json`.
+Cuando la operación recibe un body, aparece un último grupo en **Recibe**: **Body**, seguido de su formato, por ejemplo **Body · application/json**.
 
 - El grupo lista todos los campos que declara el contrato, obligatorios y opcionales.
-- Un campo dentro de un objeto se muestra con su ruta: `amount/value`.
-- Cada campo tiene la misma lista **Origen** que un parámetro. Los campos opcionales sin valor se pliegan.
-- Un valor fijo que escribes en un campo numérico se envía como número. `true` o `false` en un campo de sí/no se envía como booleano.
+- Un campo dentro de un objeto se muestra con su camino: `amount/value`.
+- Cada campo tiene la misma lista que un parámetro. Los campos opcionales sin valor se pliegan.
+- Un valor fijo que escribes en un campo numérico se envía como número. `true` o `false` en un campo de sí o no se envía como booleano.
 
-Tres botones sobre los campos trabajan sobre todo el body:
+Tres botones sobre los campos trabajan con el body entero:
 
 | Botón | Qué hace | Cuándo aparece |
 |---|---|---|
-| **Rellenar con el ejemplo** | Pone el valor de ejemplo del contrato en los campos vacíos. Después puedes cambiarlos. | El contrato tiene un ejemplo para el body o para sus campos vacíos. |
-| **Crear inputs** | Crea un input del workflow por cada campo vacío, con el ejemplo del contrato como valor, y lo conecta. Si ya existe un input con ese nombre, lo usa. Llenas los inputs en la pestaña **Inputs** y los casos pueden variarlos. | Algún campo del contrato está vacío. |
-| **Editar como JSON** | Abre todo el body como texto. | Siempre. |
+| **Rellenar con el ejemplo** | Pone en los campos vacíos el valor de ejemplo del contrato. Después puedes cambiarlos. | El contrato tiene un ejemplo para el body o para sus campos vacíos. |
+| **Crear inputs** | Crea un input del workflow por cada campo vacío, con el ejemplo del contrato como valor, y lo conecta. Si ya hay un input con ese nombre, lo usa. Los inputs se llenan en la pestaña **Inputs** y los casos pueden variarlos. | Algún campo del contrato está vacío. |
+| **Editar como JSON** | Abre el body entero como texto. | Siempre. |
 
 <Aside type="note">
-**Rellenar con el ejemplo** y **Crear inputs** se saltan los campos que están dentro de listas. Para esos, usa **Editar como JSON**.
+**Rellenar con el ejemplo** y **Crear inputs** se saltan los campos dentro de listas. Para esos, usa **Editar como JSON**.
 </Aside>
 
-## Edita el body como JSON
+## Editar el body como JSON
 
 Úsalo para listas, objetos anidados o campos que el contrato no declara.
 
@@ -115,9 +126,9 @@ Tres botones sobre los campos trabajan sobre todo el body:
 3. Haz clic en **Aplicar**, o pulsa ⌘ + Enter (Ctrl + Enter en Windows). **Cancelar** cierra la caja sin cambios.
 </Steps>
 
-La caja parte de lo que el paso ya tiene. Si el body está vacío, parte del ejemplo del contrato o, cuando no hay, de todos los campos del contrato con su valor de ejemplo. En ese caso la caja dice **Parte de los campos del contrato; nada se guarda hasta que pulses Aplicar.**
+La caja parte de lo que el paso ya tiene. Si el body está vacío, parte del ejemplo del contrato o, si no hay, de todos los campos del contrato con su valor de ejemplo. En ese caso la caja dice **Parte de los campos del contrato; nada se guarda hasta que pulses Aplicar.**
 
-Para tomar un valor de otro lugar, escribe la referencia como texto:
+Para tomar un valor de otro lado, escribe la referencia como texto:
 
 | Escribes | El paso envía |
 |---|---|
@@ -141,43 +152,43 @@ Este es el body de **Create order** en el ejemplo de PayPal:
 }
 ```
 
-Si el texto no es un JSON válido, la caja muestra **El JSON no es válido:** con el motivo, y no cambia nada. Para quitar el body, vacía la caja y haz clic en **Aplicar**.
+Si el texto no es un JSON válido, la caja muestra **El JSON no es válido:** con el motivo, y nada cambia. Para quitar el body, vacía la caja y haz clic en **Aplicar**.
 
-Para armar un body con datos aleatorios, mira [Datos generados en el body](/es/recipes/generated-data/).
+Para armar un body con datos aleatorios, mira [Envía datos generados](/es/recipes/generated-data/).
 
 ![La caja Editar como JSON de createOrder con un objeto address y una lista lines, y los botones Cancelar y Aplicar](/media/es/design-body-json.webp)
 
-## Convierte un valor fijo en un input
+## Convertir un valor fijo en input
 
-Un valor fijo siempre es el mismo. Conviértelo en un input cuando quieras que los casos prueben otros valores: vacíos, inválidos, otros datos.
+Un valor fijo siempre es el mismo. Conviértelo en input cuando quieras que los casos prueben otros valores: vacíos, inválidos, otros datos.
 
 <Steps>
-1. En el lienzo, apunta al valor fijo en la tarjeta del paso. Junto a él aparece **→ input**.
+1. En el lienzo, pasa el ratón por la fila del valor fijo en la tarjeta del paso. Aparece **→ input** a su lado.
 2. Haz clic en **→ input**.
 </Steps>
 
-El workflow recibe un input nuevo con el valor actual como valor, así que se ejecuta igual que antes, y el paso ahora lee el input.
+El workflow gana un input nuevo con el valor actual como valor, así que se ejecuta igual que antes, y el paso ahora lee el input.
 
-Para hacer varios a la vez, usa la tarjeta **Inicio**: **Elegir datos variables…** cuando el workflow no tiene inputs, o **+ Volver input otro valor fijo** cuando ya tiene algunos. Un diálogo, **Datos para variar por caso**, lista cada valor fijo. Marca los que quieras y haz clic en **Convertir en inputs**. Si el mismo valor se usa en varios pasos, un solo input los alimenta a todos.
+Para convertir varios a la vez, usa el botón **Inicio**, arriba del lienzo: debajo dice **Elegir datos variables…** cuando el workflow no tiene inputs, o **+ Volver input otro valor fijo** cuando ya tiene. Se abre la ventana **Datos para variar por caso** con todos los valores fijos. Marca los que quieras y haz clic en **Convertir en inputs**. Si el mismo valor se usa en varios pasos, un solo input los alimenta a todos.
 
 ![La tarjeta de createOrder con el botón → input junto al valor fijo de currency](/media/es/design-promote-one.webp)
 
-![El diálogo Datos para variar por caso: cada valor fijo con dónde está, su valor y el input en que se convertiría](/media/es/design-pick-data.webp)
+![La ventana Datos para variar por caso: cada valor fijo con dónde está, su valor y el input en que se convertiría](/media/es/design-pick-data.webp)
 
-Debes ver los inputs nuevos en **Inicio**, y los valores de la tarjeta ahora los leen.
+Deberías ver los inputs nuevos en **Inicio**, y los valores de la tarjeta muestran chips como **← currency · Inicio**.
 
-![Inicio con los inputs currency y city, creados desde valores fijos, y sus líneas de datos](/media/es/design-promoted.webp)
+![Inicio con los inputs currency y city, creados a partir de valores fijos, y las tarjetas que los leen](/media/es/design-promoted.webp)
 
-### Vuelve un input a valor fijo
+### Volver a convertir un input en valor fijo
 
-No hay un solo botón para esto. Hazlo en dos movimientos:
+No hay un solo botón para esto. Hazlo en dos pasos:
 
 <Steps>
-1. Haz clic en el paso y, en la lista **Origen** del valor, elige **Valor fijo…**. Escribe el valor. El campo sigue a la vista mientras lo editas, también si es opcional.
+1. Haz clic en el paso y, en la lista del valor, elige **Valor fijo…**. Escribe el valor. El campo sigue a la vista mientras lo editas, también si es opcional.
 2. Haz clic en **Inicio** y borra el input con su papelera, si ningún otro paso lo usa.
 </Steps>
 
-Si borras un input que un paso todavía usa, aparece la barra **A este workflow le faltan datos**. Ver [Completa los datos que faltan](/es/design/complete-gaps/). Justo después de convertir valores en inputs, **Deshacer** también trae de vuelta los valores fijos.
+Si borras un input que un paso todavía usa, aparece la barra **A este workflow le faltan datos**. Lee [Completa los datos que faltan](/es/design/complete-gaps/). Justo después de convertir valores en inputs, ↶ (**Deshacer**) también trae de vuelta los valores fijos.
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-promote.webp" src="/media/es/design-promote.mp4"></video>
 
@@ -185,7 +196,8 @@ Si borras un input que un paso todavía usa, aparece la barra **A este workflow 
 
 <CardGrid>
   <LinkCard title="Outputs" href="/es/design/outputs/" />
+  <LinkCard title="Conectar datos entre pasos" href="/es/design/wire-data/" />
   <LinkCard title="Inputs" href="/es/test/inputs/" />
   <LinkCard title="Casos" href="/es/test/cases/" />
-  <LinkCard title="Datos generados en el body" href="/es/recipes/generated-data/" />
+  <LinkCard title="Envía datos generados" href="/es/recipes/generated-data/" />
 </CardGrid>

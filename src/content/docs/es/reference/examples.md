@@ -206,7 +206,7 @@ En simulación no se ejecutan los casos de rechazo ni los de datos propios. Mira
 Para ejecutar contra el sandbox:
 
 1. Ve a [developer.paypal.com/dashboard](https://developer.paypal.com/dashboard/), **Apps & Credentials**, pestaña **Sandbox**, y crea una app. Es gratis.
-2. En Luvin, abre el ambiente de arriba a la derecha de la ventana y elige **Configurar ambiente…**.
+2. En Luvin, abre la mitad izquierda de la píldora de ambiente, arriba a la derecha de la ventana (el ambiente de la colección), y elige **Configurar ambiente…**.
 3. En el ambiente **Sandbox**, pega el Client ID como la variable `clientId` y el Secret como el secreto `clientSecret`. El secreto queda cifrado en tu computador.
 4. Cambia a **API real** y ejecuta **Create order**. El pedido queda `CREATED`.
 5. Para capturarlo, abre el `approveUrl` del resultado con una **cuenta de comprador del sandbox** (**Testing Tools**, **Sandbox Accounts**) y aprueba el pago.

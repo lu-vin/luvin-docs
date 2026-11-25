@@ -37,7 +37,7 @@ From left to right, a card shows the step number, its status, its name, the meth
 | **Succeeded** | The step met all its criteria. |
 | **Succeeded with warnings** | The criteria were met, with something to review: the response does not match the contract, an output that later steps use was not found, or a messaging step was simulated. |
 | **Failed** | The step did not meet its criteria, or there was no response. |
-| **Not run** | The workflow stopped or ended before this step. |
+| **Not run** | The workflow stopped or ended before this step, or the step was outside a partial run: *Not run: it is outside what was asked to run.* |
 
 Two more badges can appear: **Simulated**, and **Attempt 2** when the step was retried. A messaging step shows **Sent**, **Message received** or **No message** in place of the HTTP status.
 
@@ -111,6 +111,10 @@ If the step answers something else, the note says **Did not respond what the cas
 
 When the run paused for you to [choose an item from a list](/test/lists/), the step that returned the list has a note, **Chosen at run time**, with the item and the value each parameter received. **From the list** means the list had a single item and it was used without asking.
 
+## A value edited in a pause
+
+When you [paused before a step](/test/debug/) and changed what it receives, the **Request** tab shows the request as it was sent, with the value you typed. On the canvas, the chip of that value says, for example, `= 150 ✎`.
+
 ## Secrets are masked
 
 - The secrets and credentials of the environment appear as `••••` in requests, responses and outputs.
@@ -123,6 +127,7 @@ See [Privacy](/reference/privacy/).
 
 <CardGrid>
   <LinkCard title="Read the results" href="/test/results/" />
+  <LinkCard title="Results on the canvas" href="/test/run-on-canvas/" />
   <LinkCard title="Reports" href="/test/reports/" />
   <LinkCard title="Success and errors" href="/design/success-and-errors/" />
 </CardGrid>

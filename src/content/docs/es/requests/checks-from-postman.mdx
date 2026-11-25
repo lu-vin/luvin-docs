@@ -1,153 +1,35 @@
 ---
-title: Comprobaciones desde Postman y Bruno
-description: Cómo convierte Luvin los tests de Postman y los asserts y scripts de Bruno en variables y comprobaciones al importar, qué se salta y por qué, y cómo completarlo a mano.
+title: Asserts de Bruno y tests de Postman
+description: Qué pasa a ser una variable o una comprobación cuando importas de Bruno, a dónde van los tests de Postman y los scripts de Bruno, y cómo pasar una prueba de un script a una comprobación sin código.
 sidebar:
   order: 13
 ---
 
-import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Luvin no ejecuta scripts. Cuando importas una colección de Postman o Bruno, lee los scripts que corren después de la respuesta y convierte las líneas comunes (guardar un valor, revisar el status, comparar un campo) en las pestañas **Variables** y **Comprobaciones** de cada request. Lo que no puede convertir en una comprobación queda fuera, y la importación te dice cuánto. Esta página lista cada conversión, para que sepas qué revisar.
+Cuando importas una colección, sus pruebas siguen funcionando. Los tests de Postman y los scripts de Bruno se traen completos, a la pestaña **Scripts**, y corren como en el original cuando confías en la colección. Los bloques `vars:post-response` y `assert` de Bruno, que no tienen código, pasan a las pestañas **Variables** y **Comprobaciones** de cada request.
 
-## Qué lee Luvin
+Esta página lista qué pasa a ser una comprobación, y cómo pasar a mano una prueba de un script a una comprobación, si prefieres comprobaciones sin código.
 
-| De | Qué se convierte | Qué no |
-|---|---|---|
-| Postman | El script **Tests** de cada request | Los scripts pre-request, y todos los scripts de una carpeta o de la colección |
-| Bruno | Los bloques `vars:post-response` y `assert`, y los scripts `tests` y `script:post-response` de cada request, desde la carpeta de archivos `.bru` o desde la exportación `.json` | `script:pre-request`, y los scripts de `folder.bru` y `collection.bru` |
+## A dónde va cada parte
 
-## Ejemplo: un test de Postman
+| Desde | Va a |
+|---|---|
+| Postman: el script **Pre-request** de la colección, una carpeta o un request | El script **Antes del request** del mismo nivel |
+| Postman: el script **Tests** (post-response) de la colección, una carpeta o un request | El script **Después de la respuesta** del mismo nivel |
+| Bruno: `script:pre-request` de `collection.bru`, `folder.bru` o un request | El script **Antes del request** del mismo nivel |
+| Bruno: `script:post-response` y `tests` | El script **Después de la respuesta** del mismo nivel, primero uno y luego el otro |
+| Bruno: `vars:post-response` de un request | La pestaña **Variables** del request |
+| Bruno: `assert` de un request | La pestaña **Comprobaciones** del request |
 
-```js
-const jsonData = pm.response.json();
-pm.environment.set("pokemonId", jsonData.id);
-pm.test("Status is 200", function () {
-  pm.response.to.have.status(200);
-});
-pm.test("It is Pikachu", function () {
-  pm.expect(jsonData.name).to.eql("pikachu");
-  pm.expect(jsonData.types).to.be.an("array");
-  pm.expect(pm.response.responseTime).to.be.below(1000);
-});
-if (jsonData.name !== "pikachu") {
-  postman.setNextRequest(null);
+Funciona desde una carpeta de archivos `.bru` y desde el `.json` que exporta Bruno. Mira [Scripts](/es/requests/scripts/) e [Importar de Postman o Bruno](/es/get-started/import/#los-scripts-se-traen-completos).
+
+## Bloques de Bruno que pasan a variables y comprobaciones
+
+```
+vars:post-response {
+  token: res.body.token
 }
-```
-
-Después de importar, el request tiene:
-
-| Pestaña | Fila |
-|---|---|
-| **Variables** | `pokemonId` ← `res.body.id` |
-| **Comprobaciones** | `res.status` **es igual a** `200` |
-| **Comprobaciones** | `res.body.name` **es igual a** `pikachu` |
-| **Comprobaciones** | `res.body.types` **es una lista** |
-| **Comprobaciones** | `res.responseTime` **es menor que** `1000` |
-
-El bloque `if` se salta completo, y la importación cuenta este script como uno con partes que no se pudieron convertir.
-
-## Importa y revisa
-
-<Steps>
-
-1. Importa la colección: mira [Trae tus propios archivos y requests](/es/get-started/import/).
-2. Antes de hacer clic para importar, lee el resumen de cada colección. Dice cuántas variables y comprobaciones se convirtieron y cuántos scripts tenían partes que no (mira [Lo que dice el resumen](#lo-que-dice-el-resumen)).
-3. Después de importar, abre un request y mira sus pestañas **Variables** y **Comprobaciones**.
-4. Pulsa **Enviar**. Revisa que el chip junto al status diga lo que esperas.
-5. Agrega a mano lo que se saltó. Mira [Completa a mano lo que falta](#completa-a-mano-lo-que-falta).
-
-</Steps>
-
-## Guardar variables
-
-| Script | Se convierte en |
-|---|---|
-| `pm.environment.set("x", …)` | Una variable `x` |
-| `pm.collectionVariables.set("x", …)`, `pm.globals.set("x", …)`, `pm.variables.set("x", …)` | Una variable `x` |
-| `bru.setVar("x", …)`, `bru.setEnvVar("x", …)` | Una variable `x` |
-| Bruno `vars:post-response`: `token: res.body.token` | Una variable `token` |
-
-El segundo argumento tiene que ser algo que Luvin pueda leer de la respuesta (mira la tabla siguiente). Si no, como `jsonData.items.map(i => i.id)`, la línea se salta.
-
-<Aside type="note" title="No se escribe en el ambiente">
-En Postman, `pm.environment.set` cambia el ambiente. En Luvin, el valor es un valor guardado: vive en memoria mientras la colección está abierta (cambiar de ambiente lo borra) y gana sobre la variable del ambiente con el mismo nombre. Mira [Guarda valores de una respuesta](/es/requests/save-variables/#en-memoria-no-en-el-ambiente).
-</Aside>
-
-## Leer la respuesta
-
-| Script | Se convierte en |
-|---|---|
-| `pm.response.json().id`, `res.body.id`, `res.getBody().id` | `res.body.id` |
-| `jsonData.id`, después de `const jsonData = pm.response.json()` (también con `var` o `let`, `res.getBody()`, `res.body` o `JSON.parse(responseBody)`) | `res.body.id` |
-| `res("id")` (Bruno) | `res.body.id` |
-| `pm.response.json().items[0].id` | `res.body.items[0].id` |
-| `pm.response.json()["user-id"]` | `res.body["user-id"]` |
-| `pm.response.code`, `res.status`, `res.getStatus()` | `res.status` |
-| `pm.response.responseTime`, `res.responseTime`, `res.getResponseTime()` | `res.responseTime` |
-| `pm.response.headers.get("X-Id")`, `res.getHeader("X-Id")`, `res.headers.get("X-Id")`, `res.headers["X-Id"]` | `res.headers.x-id` |
-
-Los nombres de los headers pasan a minúsculas. Los índices negativos (`[-1]`) y las llamadas a métodos (`.map()`, `.find()`, `.filter()`) no se convierten.
-
-## Comprobar la respuesta
-
-### Comprobaciones de toda la respuesta (Postman)
-
-| Script | Se convierte en |
-|---|---|
-| `pm.response.to.have.status(201)` | `res.status` **es igual a** `201` |
-| `pm.response.to.be.ok`, `pm.response.to.be.success` | Dos comprobaciones: `res.status` **es mayor o igual a** `200` y **es menor que** `300` |
-| `pm.response.to.have.header("X-Id")` | `res.headers.x-id` **existe** |
-| `pm.response.to.be.json` | `res.headers.content-type` **contiene** `json` |
-
-### expect
-
-`pm.expect(…)` (Postman) y `expect(…)` (Bruno) se convierten en una comprobación cada uno, cuando lo que está entre paréntesis es algo que Luvin puede leer de la respuesta:
-
-| Cadena | Comprobación |
-|---|---|
-| `.to.eql(x)`, `.to.equal(x)`, `.to.eq(x)`, `.to.equals(x)`, `.to.deep.equal(x)` | **es igual a** |
-| `.to.not.eql(x)`, `.to.not.equal(x)` | **no es igual a** |
-| `.to.be.above(x)`, `.to.be.greaterThan(x)`, `.to.be.gt(x)` | **es mayor que** |
-| `.to.be.at.least(x)`, `.to.be.gte(x)` | **es mayor o igual a** |
-| `.to.be.below(x)`, `.to.be.lessThan(x)`, `.to.be.lt(x)` | **es menor que** |
-| `.to.be.at.most(x)`, `.to.be.lte(x)` | **es menor o igual a** |
-| `.to.include(x)`, `.to.contain(x)`, `.to.contains(x)`, `.to.have.string(x)` | **contiene** |
-| `.to.not.include(x)`, `.to.not.contain(x)` | **no contiene** |
-| `.to.match(/…/)` | **coincide con (regex)**, con el patrón y sus opciones |
-| `.to.exist`, `.to.not.be.undefined` | **existe** |
-| `.to.be.ok` | **es verdadero** |
-| `.to.not.exist`, `.to.be.undefined` | **no existe** |
-| `.to.be.null` | **es null** |
-| `.to.be.empty` | **está vacío** |
-| `.to.not.be.empty` | **no está vacío** |
-| `.to.be.a("string")`, `.to.be.an("string")` | **es texto** |
-| `.to.be.a("number")` | **es número** |
-| `.to.be.a("boolean")` | **es true/false** |
-| `.to.be.an("array")` | **es una lista** |
-| `.to.be.an("object")` | **es un objeto** |
-
-<Aside type="note">
-En Postman, `.to.be.ok` significa "es verdadero": no es `0`, `""`, `false` ni `null`. Luvin lo convierte en **es verdadero**, que pasa y falla con los mismos valores. Solo `pm.response.to.be.ok`, sobre la respuesta entera, se convierte en las dos comprobaciones de status de arriba.
-</Aside>
-
-### El valor esperado
-
-La `x` de la cadena tiene que estar escrita como un valor:
-
-| En el script | Valor esperado en Luvin |
-|---|---|
-| `200`, `-1`, `3.5` | `200`, `-1`, `3.5` |
-| `true`, `false`, `null` | `true`, `false`, `null` |
-| `"pikachu"`, `'pikachu'`, `` `pikachu` `` | `pikachu` |
-| `[1, 2]`, `{ 'id': 7 }` | `[1,2]`, `{"id":7}` |
-
-Una variable o una expresión como valor esperado, como `pm.environment.get("id")` o `` `order-${id}` ``, no se puede convertir: la línea se salta. Escríbela en Luvin con una `{{variable}}`: `{{id}}`.
-
-### assert de Bruno
-
-Cada línea del bloque `assert` se convierte en una comprobación. El nombre del operador tiene que ser uno de los [nombres del archivo](/es/requests/check-operators/#todas-las-comprobaciones) de Luvin, que son los mismos de Bruno:
-
-```
 assert {
   res.status: eq 200
   res.body.name: isString
@@ -156,62 +38,99 @@ assert {
 }
 ```
 
-| Línea | Se convierte en |
+Después de importar, el request tiene:
+
+| Pestaña | Fila |
 |---|---|
-| `res.status: eq 200` | `res.status` **es igual a** `200` |
-| `res.body.name: isString` | `res.body.name` **es texto** |
-| `res.body.types: isNotEmpty` | `res.body.types` **no está vacío** |
-| `~res.body.order: gt 0` (desactivada en Bruno) | `res.body.order` **es mayor que** `0`, desmarcada |
+| **Variables** | `token` ← `res.body.token` |
+| **Comprobaciones** | `res.status` **es igual a** `200` |
+| **Comprobaciones** | `res.body.name` **es texto** |
+| **Comprobaciones** | `res.body.types` **no está vacío** |
+| **Comprobaciones** | `res.body.order` **es mayor que** `0`, desmarcada (estaba desactivada en Bruno con `~`) |
 
-Un operador que Luvin no tiene, como `between`, se salta.
+El operador de cada línea de `assert` tiene que ser uno de los [nombres en el archivo](/es/requests/check-operators/#todas-las-comprobaciones) de Luvin, que son los mismos de Bruno. Una línea con un operador que Luvin no tiene, como `between`, se omite.
 
-## Qué se salta y por qué
+El lado izquierdo tiene que ser algo que Luvin pueda leer de la respuesta:
 
-| Se salta | Por qué |
+| En Bruno | En Luvin |
 |---|---|
-| Los scripts pre-request | Corren antes del request y pueden cambiarlo. Luvin no ejecuta código. Usa en cambio las [variables del ambiente](/es/environments/variables-and-secrets/), las [variables dinámicas](/es/environments/dynamic-variables/) y la [autorización](/es/authorization/overview/) del request. |
-| Los scripts de una carpeta o de la colección | Luvin guarda las comprobaciones por request. |
-| Todo lo que está dentro de `if`, `else`, `for`, `while`, `switch`, `try`, `catch`, `finally` o `do` | Una comprobación que solo tenía sentido con una condición ("si es un 404, el error dice…") fallaría con cada `200`. Se salta el bloque completo, también sus líneas de cierre. |
-| Las líneas que Luvin no reconoce | Por ejemplo `pm.expect(jsonData).to.have.property("id")`, `.to.have.lengthOf(3)`, `.to.be.true`, `.to.be.oneOf([200, 201])`, `postman.setNextRequest(…)`, `console.log(…)`, o código que firma o calcula valores. |
-| Un mensaje como segundo argumento | `pm.expect(jsonData.id, "has an id")` no se convierte. |
+| `res.body.id`, `res.getBody().id`, `res("id")` | `res.body.id` |
+| `res.body.items[0].id` | `res.body.items[0].id` |
+| `res.status`, `res.getStatus()` | `res.status` |
+| `res.responseTime`, `res.getResponseTime()` | `res.responseTime` |
+| `res.getHeader("X-Id")`, `res.headers["X-Id"]` | `res.headers.x-id` |
 
-Los comentarios (`//` y `/* … */`) y los envoltorios `pm.test("…", function () {` y `});` se ignoran: no cuentan como saltados.
+### Qué dice el resumen
 
-## Completa a mano lo que falta
+Antes de importar, el resumen de la colección dice *3 variable(s) y assertion(s) de Bruno pasaron a las pestañas Variables y Comprobaciones de cada request.* Si se omitió una línea, avisa: *Algunas assertions o variables de respuesta de Bruno no se pudieron pasar a Comprobaciones o Variables.* Escribe esas líneas a mano en la pestaña **Comprobaciones**, o como prueba en el script **Después de la respuesta**.
 
-| En el script | En Luvin |
+## Pasar una prueba de un script a una comprobación
+
+Una prueba en un script y una comprobación en la pestaña **Comprobaciones** pueden decir lo mismo. Las comprobaciones no necesitan código, se revisan más fácil y se ven junto al status. Para pasar una prueba a la pestaña **Comprobaciones**, usa estas equivalencias y después borra la prueba del script.
+
+```js
+const jsonData = pm.response.json();
+pm.test("It is Pikachu", function () {
+  pm.response.to.have.status(200);
+  pm.expect(jsonData.name).to.eql("pikachu");
+  pm.expect(jsonData.types).to.be.an("array");
+  pm.expect(pm.response.responseTime).to.be.below(1000);
+});
+```
+
+equivale a estas comprobaciones:
+
+| De la respuesta | Comprobación | Valor esperado |
+|---|---|---|
+| `res.status` | **es igual a** | `200` |
+| `res.body.name` | **es igual a** | `pikachu` |
+| `res.body.types` | **es una lista** | |
+| `res.responseTime` | **es menor que** | `1000` |
+
+### Lo que lee el script
+
+| En el script | De la respuesta |
 |---|---|
+| `pm.response.json().id`, `jsonData.id` (después de `const jsonData = pm.response.json()`) | `res.body.id` |
+| `pm.response.code` | `res.status` |
+| `pm.response.responseTime` | `res.responseTime` |
+| `pm.response.headers.get("X-Id")` | `res.headers.x-id` (los nombres de los headers en minúsculas) |
+
+### La cadena
+
+| Cadena | Comprobación |
+|---|---|
+| `pm.response.to.have.status(201)` | `res.status` **es igual a** `201` |
+| `pm.response.to.be.ok`, `pm.response.to.be.success` | `res.status` **es mayor o igual a** `200` y **es menor que** `300` |
+| `pm.response.to.have.header("X-Id")` | `res.headers.x-id` **existe** |
+| `.to.eql(x)`, `.to.equal(x)` | **es igual a** |
+| `.to.not.eql(x)` | **no es igual a** |
+| `.to.be.above(x)`, `.to.be.at.least(x)` | **es mayor que**, **es mayor o igual a** |
+| `.to.be.below(x)`, `.to.be.at.most(x)` | **es menor que**, **es menor o igual a** |
+| `.to.include(x)`, `.to.not.include(x)` | **contiene**, **no contiene** |
+| `.to.match(/…/)` | **coincide con (regex)** |
+| `.to.exist`, `.to.not.exist` | **existe**, **no existe** |
+| `.to.be.null`, `.to.be.empty`, `.to.not.be.empty` | **es null**, **está vacío**, **no está vacío** |
+| `.to.be.ok` | **es verdadero** |
+| `.to.be.a("string")`, `"number"`, `"boolean"`, `"array"`, `"object"` | **es texto**, **es número**, **es true/false**, **es una lista**, **es un objeto** |
 | `pm.expect(jsonData).to.have.property("id")` | `res.body.id` **existe** |
 | `pm.expect(jsonData.items).to.have.lengthOf(3)` | `res.body.items.length` **es igual a** `3` |
-| `pm.expect(jsonData.active).to.be.true` | `res.body.active` **es igual a** `true` |
-| `pm.expect(pm.response.code).to.be.oneOf([200, 201])` | `res.status` **es mayor o igual a** `200` y `res.status` **es menor o igual a** `201` |
 | `pm.expect(jsonData.id).to.eql(pm.environment.get("orderId"))` | `res.body.id` **es igual a** `{{orderId}}` |
-| Una comprobación dentro de `if (pm.response.code === 404)` | Un request aparte para ese caso, con `res.status` **es igual a** `404` y sus propias comprobaciones |
 
-## Lo que dice el resumen
+### Qué dejar como script
 
-El resumen de cada colección, antes de importar, dice:
+Déjala en el script cuando la prueba:
 
-- *N variable(s) y comprobación(es) convertidas de los scripts (pestañas Variables y Comprobaciones de cada request).*
-- *N script(s) tienen partes que no se pudieron convertir (pre-request o lógica en JavaScript): no se importan, porque Luvin no ejecuta scripts. Lo común (guardar una variable, revisar el status o un campo) sí se convirtió.*
-
-![El paso de revisión de Importar de Postman o Bruno para una colección Shop API: 3 requests, 1 carpeta, 0 ejemplos, 1 ambiente, 8 variable(s) y comprobación(es) convertidas de los scripts, y un aviso de que 2 script(s) tienen partes que no se pudieron convertir](/media/es/import-checks-summary.webp)
-
-El segundo número cuenta scripts, no líneas:
-
-| Colección | Qué cuenta como uno |
-|---|---|
-| Postman | Cada script pre-request, cada script **Tests** con al menos una línea saltada, y cada script de una carpeta o de la colección |
-| Bruno, carpeta de archivos `.bru` | Cada `script:pre-request`, cada script `tests` o `script:post-response` con una línea saltada, los bloques `vars:post-response` y `assert` de un request (una vez por los dos) cuando se saltó una línea, y cada script de `collection.bru` |
-| Bruno, exportación `.json` | Cada request con un script pre-request o con una línea saltada, una vez |
-
-Los scripts de un `folder.bru` de Bruno no se convierten ni se cuentan.
+- solo tiene sentido con una condición, como `if (pm.response.code === 404)`;
+- recorre una lista, como cada elemento de `jsonData.items`;
+- calcula el valor esperado, como una suma o una fecha;
+- guarda un valor que tiene que seguir ahí después de cerrar Luvin (`pm.environment.set`). La pestaña **Variables** conserva los valores solo mientras la colección está abierta.
 
 ## Relacionado
 
 <CardGrid>
-  <LinkCard title="Trae tus propios archivos y requests" href="/es/get-started/import/" />
+  <LinkCard title="Scripts" href="/es/requests/scripts/" />
+  <LinkCard title="La API de los scripts" href="/es/requests/scripts-api/" />
   <LinkCard title="Comprueba la respuesta" href="/es/requests/checks/" />
   <LinkCard title="Las comprobaciones, una por una" href="/es/requests/check-operators/" />
-  <LinkCard title="De una colección de Postman o Bruno a un workflow probado" href="/es/tutorials/from-postman/" />
 </CardGrid>

@@ -1,0 +1,139 @@
+---
+title: Depurar un workflow
+description: Pausa antes de un paso, cambia lo que recibe y continúa; ejecuta solo un paso, hasta un paso o desde un paso.
+sidebar:
+  order: 14
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Para entender por qué un paso falla con cierto valor, no hace falta cambiar los inputs y ejecutar todo de nuevo. Pausa la ejecución antes del paso, cambia lo que va a recibir y continúa, como en un depurador. También puedes ejecutar un solo paso, ejecutar hasta un paso, o repetir desde un paso con lo que dieron los pasos de antes.
+
+Todo pasa en el lienzo, en la pestaña **Diseño**.
+
+## Ejemplo: prueba otro Pokémon en el paso 2
+
+En **Pokemon card**, `getSpecies` recibe `idOrName` del `id` que devolvió `getPokemon`.
+
+<Steps>
+1. Abre **Pokemon card** en la pestaña **Diseño** y haz clic en la tarjeta de `getSpecies`.
+2. Abajo en el panel del paso, pulsa **⏸ Pausar aquí**. Ahora dice **⏸ En pausa aquí**, y la tarjeta muestra **⏸ pausa**.
+3. En la barra de ejecución, elige **Simulación** y pulsa **Ejecutar 2 casos**. Si se abre el diálogo para elegir un elemento de una lista, elige uno y continúa.
+4. La ejecución se detiene antes de `getSpecies`. Su tarjeta dice **⏸ en pausa**, con la ruta que va a llamar. La barra de resultado dice **⏸ En pausa antes del paso 2**.
+5. El panel se abre en la pestaña **Datos**: **En pausa antes de este paso.** En **Recibe · 1**, `idOrName` tiene el valor que llegó del paso 1.
+6. Escribe `150` y pulsa **▷ Continuar**. El paso se ejecuta con `150`.
+</Steps>
+
+![La ejecución en pausa antes de getSpecies, en Simulación: la tarjeta dice ⏸ en pausa, la barra dice ⏸ En pausa antes del paso 2 con ▷ Continuar, y en Recibe · 1 el valor de idOrName cambiado a 150](/media/es/test-pause.webp)
+
+Cuando termina el caso, el chip de `idOrName` en la tarjeta dice `= 150 ✎`. El workflow no cambió: la próxima ejecución vuelve a enviar el valor del paso 1.
+
+## Pon o quita una pausa
+
+La pausa va antes de un paso. Cualquiera de estas acciones la pone, y la misma la quita:
+
+| Dónde | Cómo |
+|---|---|
+| La tarjeta del paso | El botón **⏸** arriba a la derecha, junto a los controles de ventana. Aparece al pasar el puntero sobre la tarjeta. Con la pausa puesta queda a la vista: **⏸ pausa**. |
+| El teclado | Elige el paso y pulsa **F9**. |
+| El menú del paso | Clic derecho en la tarjeta: **⏸ Pausar antes de este paso**, o **Quitar la pausa**. |
+| El panel del paso | **⏸ Pausar aquí**, abajo. Con la pausa puesta dice **⏸ En pausa aquí**. El menú **⋯** de al lado también tiene **⏸ Pausar antes de este paso**. |
+
+Las pausas se recuerdan en este equipo, por workflow. No se escriben en el Arazzo, así que no le llegan a tu equipo por git.
+
+## Cuándo se detiene la ejecución
+
+- Cada vez que la ejecución llega al paso, también cuando una ruta vuelve a él. No en sus reintentos.
+- En cada caso que llega al paso. **Seguir sin pausas** se salta las pausas en lo que queda de esa ejecución.
+- En una ejecución normal, y cuando ejecutas solo, hasta o desde un paso.
+- No en **▷ Probar**, en el [Runner](/es/runner/workflows/) ni en una prueba de rendimiento: ahí no hay nadie para responder.
+
+La pausa se ve en el lienzo. Si ejecutaste desde otra pestaña, abre **Diseño** para verla y continuar.
+
+Un paso que llama a otro workflow se pausa antes, y editas los inputs que le pasa. La ejecución no se pausa dentro del workflow llamado.
+
+## Qué puedes cambiar
+
+En la pausa, **Recibe** lista cada valor que el paso va a recibir, con su campo y de dónde viene:
+
+| Valor | Ejemplo |
+|---|---|
+| Parámetros de la ruta, la query, los headers y las cookies | `idOrName`, `limit`, `X-Request-Id` |
+| Cada campo simple de un body JSON: texto, número, sí/no o vacío | `products/0/quantity`. Los objetos y las listas se abren hasta sus campos. |
+| Los inputs que un paso le pasa a un workflow llamado | `customerId` |
+
+Un body que no es JSON (un formulario, multipart o texto plano) no tiene campos en la pausa. Los secretos se ven tapados.
+
+**El tipo se conserva.** Un valor que era texto sigue siendo texto. Un valor que era un número, un sí/no, vacío o un objeto se lee como JSON: `5` escrito donde había un número va como el número `5`, no como el texto `"5"`; `true` y `false` van como sí/no; `null` va como vacío. Si lo que escribes no se puede leer como JSON, va como texto.
+
+**Ejemplo.** Un workflow de una tienda se pausa antes de **Crear el carrito**. En **Recibe**, `products/0/quantity` dice `1`. Escribe `500` y continúa: el body del request lleva `"quantity": 500`, un número, y ves cómo responde la API a una cantidad sin stock.
+
+![Un workflow de una tienda en pausa antes de Crear el carrito: en Recibe · 3, los campos del body JSON, con products/0/quantity cambiado de 1 a 500 y marcado con ✎](/media/es/test-pause-body.webp)
+
+## Continúa, o detén
+
+| Botón | Qué hace |
+|---|---|
+| **▷ Continuar**, en el panel o en la barra de resultado | El paso se ejecuta con lo que escribiste. La ejecución sigue. |
+| **Seguir sin pausas** | Lo mismo, y la ejecución no vuelve a pausar hasta que termine. |
+| **Cancelar**, en la barra de ejecución | Detiene la ejecución. La pausa se cierra. |
+
+Lo que editas vale solo para ese paso y esa ejecución. No toca el Arazzo ni los casos. Otro paso que usa el mismo input recibe el valor original.
+
+La ejecución lo deja anotado:
+
+- En la tarjeta, el chip del valor dice `= 150 ✎`. Su tooltip: *Editado en la pausa: con este valor corrió el paso, solo en esta ejecución.*
+- En la pestaña **Respuesta** del paso, **Lo que recibió** lo marca con **✎** y **editado en la pausa**.
+- La pestaña **Petición** de los resultados completos muestra el request tal como se envió, con el valor editado.
+
+El tiempo en pausa no cuenta en la duración de la ejecución.
+
+## Ejecuta solo, hasta o desde un paso
+
+Tres formas de ejecutar una parte del workflow:
+
+| Acción | Qué ejecuta | Necesita una ejecución anterior |
+|---|---|---|
+| **▷ Ejecutar solo este paso** | Solo este paso, con lo que dieron los pasos de antes en la última ejecución. | Sí |
+| **▷ Ejecutar hasta aquí** | Desde el principio, y se detiene después de este paso sin seguir su ruta. | No: sin una, usa el **Camino feliz** |
+| **Ejecutar desde este paso** | Este paso y los que siguen, con lo que dieron los pasos de antes en la última ejecución. | Sí |
+
+Dónde están:
+
+- Clic derecho en la tarjeta de un paso: las tres.
+- El panel del paso: **▷ Ejecutar solo este paso** abajo, y **▷ Ejecutar hasta aquí** y **▷ Ejecutar desde este paso** en **⋯**.
+- La pestaña **Respuesta** de un paso: **▷ Ejecutar desde este paso**, en **Qué hacer**.
+- El teclado: elige un paso y pulsa **⇧ + Enter** para ejecutar solo ese paso.
+
+![El menú de la tarjeta de getSpecies después de una ejecución, con Pausar antes de este paso, Ejecutar solo este paso, Ejecutar hasta aquí y Ejecutar desde este paso](/media/es/test-run-range.webp)
+
+Sin una ejecución anterior, **Ejecutar solo este paso** y **Ejecutar desde este paso** quedan desactivados, con el motivo: *Ejecuta una vez el workflow: hace falta lo que dieron los pasos de antes.*
+
+### Con qué caso y con qué datos
+
+- Usan el caso que ves en la barra de resultado, y su última ejecución. Elige otro chip para partir de otro caso.
+- Corren en simulación o contra la API real, igual que corrió ese caso. Si la API inicia sesión con OAuth 2.0, primero se abre el inicio de sesión.
+- Se detienen en las pausas y preguntan qué elemento de una lista usar, como una ejecución normal.
+
+### El resultado
+
+La ejecución parcial es un chip más en la barra de resultado, por ejemplo **▷ Solo el paso 2 · Camino feliz**, **▷ Hasta el paso 3 · Camino feliz** o **▷ Desde el paso 2 · Camino feliz**. Pasa cuando pasan los pasos que se ejecutan.
+
+Los pasos que quedan fuera dicen **no se ejecutó**, y en los resultados completos: *No se ejecutó: queda fuera de lo que se pidió ejecutar.*
+
+Una ejecución parcial recuerda de qué caso salió. Puedes ejecutar **solo el paso 2**, cambiar algo y después ejecutar **desde el paso 2**.
+
+No se guarda en el historial y no cambia con qué compara **⇄ Comparar**. La próxima ejecución parcial o prueba de una ruta la reemplaza.
+
+<Aside type="caution">
+Ejecutar solo, hasta o desde un paso empieza de inmediato. No muestra el aviso de los pasos que modifican datos. Contra la API real, un `POST`, `PUT`, `PATCH` o `DELETE` dentro del rango se envía.
+</Aside>
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Resultados en el lienzo" href="/es/test/run-on-canvas/" />
+  <LinkCard title="Probar rutas y cobertura" href="/es/test/probe-routes/" />
+  <LinkCard title="Elige un elemento de una lista" href="/es/test/lists/" />
+  <LinkCard title="Averigua por qué falló un caso" description="Un tutorial desde el veredicto hasta el request exacto." href="/es/tutorials/debug-failure/" />
+</CardGrid>

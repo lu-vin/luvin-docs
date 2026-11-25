@@ -9,7 +9,7 @@ import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components'
 
 The collection authorization is the credentials that the requests of a collection use by default. You set it once, and every request set to **Inherit from collection** sends it. Use it when most requests of a collection call the same API with the same token or key.
 
-![The Authorization card of a collection, with Bearer Token selected](/media/en/collection-auth.webp)
+![The Authorization tab of a collection, with Bearer Token selected](/media/en/collection-auth.webp)
 
 ## Set it
 
@@ -17,17 +17,17 @@ Example: all the requests of a shop collection use one bearer token, stored in t
 
 <Steps>
 
-1. Open the collection overview: click the collection name in the sidebar.
-2. Find the card **Authorization**. Its hint says: **For standalone requests: used by those set to “Inherit from collection”.**
+1. Open the collection: click its name in the sidebar.
+2. Click the **Authorization** tab. Its hint says: **For standalone requests: used by those set to “Inherit from collection”. Workflows pick theirs per API, in their Authorization tab.**
 3. In **Type**, choose **Bearer Token**.
 4. In **Token**, type `{{apiToken}}`.
 5. Leave the prefix as `Bearer` unless the API uses another.
 
 </Steps>
 
-Nothing to save: Luvin saves it by itself. The other types you can choose are **Basic Auth**, **API Key**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **AWS Sig v4**, **Akamai EdgeGrid** and **No Auth**. Each one has its own fields: see [Collection authorization](/authorization/collection/).
+Nothing to save: Luvin saves it by itself. A dot appears next to the tab name, so you can see from any tab that the collection has an authorization. The other types you can choose are **Basic Auth**, **API Key**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **AWS Sig v4**, **Akamai EdgeGrid** and **No Auth**. Each one has its own fields: see [Collection authorization](/authorization/collection/).
 
-Without an authorization, the card says **Requests that inherit from the collection are sent without authorization.**
+With **No Auth**, the tab says **Requests that inherit from the collection are sent without authorization.**
 
 ## Which requests use it
 

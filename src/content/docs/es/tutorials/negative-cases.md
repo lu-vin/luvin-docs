@@ -1,6 +1,6 @@
 ---
 title: Comprueba que tu API rechaza datos malos
-description: Ejecuta los casos de rechazo que genera Luvin, elige qué status debe devolver cada uno, agrega un caso con tus propios datos y comparte los resultados como reporte HTML.
+description: Ejecuta los casos de rechazo que genera Luvin, elige qué status debe devolver cada uno, agrega un caso con tus propios datos, prueba la ruta de error en el lienzo y comparte los resultados como reporte HTML.
 sidebar:
   order: 4
 ---
@@ -15,7 +15,7 @@ Luvin genera estos casos a partir del contrato y del workflow. Están en la pest
 |---|---|---|
 | **Sin el input obligatorio "…"** | Deja fuera un input obligatorio. | Un input obligatorio que no va en la ruta de la URL. |
 | **"…" con …** | Un valor incorrecto: fuera de las opciones permitidas, un texto en lugar de un número, o un valor que no cumple el patrón. | Un input con opciones permitidas, de tipo número o sí/no, o con un patrón. |
-| **Sin credenciales** | Ninguna credencial. El primer paso protegido debe responder 401 o 403. | Un contrato protege al menos un paso. |
+| **Sin credenciales** | Ninguna credencial. El primer paso protegido que no es un inicio de sesión debe responder 401 o 403. | Al menos un paso envía credenciales: un contrato lo protege, o su API tiene una autorización puesta en Luvin. |
 
 Todos necesitan la **API real**: en Simulación Luvin no valida lo que envías, así que muestran **No se ejecutará**. Mira [Casos](/es/test/cases/).
 
@@ -82,7 +82,21 @@ Los casos generados no conocen tus reglas de negocio. Agrega uno para una situac
 
 Desmarca los otros casos y haz clic en **Ejecutar**. Un caso con datos propios siempre se ejecuta contra la API real. Termina como **Pasó** cuando `getPokemon` responde 404 y se activa la acción `pokemonNotFound`. Haz clic en **Ver valores enviados** para ver el valor que produjo el generador.
 
-## 7. Exporta el reporte
+## 7. Prueba la ruta de error en el lienzo
+
+Los casos de rechazo revisan tu API. Las rutas revisan tu workflow: qué hace cuando un paso responde un error. Puedes recorrerlas sin que la API falle.
+
+1. En **Pokemon card**, haz clic en la pestaña **Diseño**.
+2. En la tarjeta de `getPokemon`, busca la fila de la ruta del 404 y haz clic en **▷ Probar**.
+3. La barra de abajo del lienzo dice **Probada: 404 → pokemonNotFound · terminó el workflow con error**, y la fila dice **✓ probada**. No se envió nada: el 404 se simula desde el contrato.
+4. En la barra de herramientas del lienzo, haz clic en **◎ Rutas probadas 1/1**. En **Errores sin ruta**, el menú lista el 404 de `getSpecies`, `getWeakness` y `getAbility`: el contrato lo documenta y el workflow no lo maneja.
+5. Haz clic en **Elegir qué hacer** en uno de ellos. El lienzo elige ese paso, para que decidas qué ruta agregar.
+
+![Después de ▷ Probar en la ruta del 404 de getPokemon: la fila dice tomada y ✓ probada, y la barra dice Probada: 404 → pokemonNotFound](/media/es/test-probe-route.webp)
+
+Mira [Probar rutas y cobertura](/es/test/probe-routes/).
+
+## 8. Exporta el reporte
 
 1. En el encabezado de los resultados, haz clic en **Reporte**.
 2. Luvin descarga un archivo llamado `report-<título>-<fecha>.html`.
@@ -98,10 +112,12 @@ El archivo tiene un resumen en palabras simples, los contadores, el ambiente, un
 - Un status sugerido por Luvin da una **Advertencia** cuando la API difiere. Un status que eliges tú da **No pasó**.
 - Un paso que responde el error esperado se muestra como aprobado.
 - Los casos con datos propios y los generadores cubren tus reglas.
+- **▷ Probar** recorre una ruta de error del workflow sin que la API falle, y **◎ Rutas probadas** lista los errores sin ruta.
 - **Reporte** exporta todo como un solo archivo HTML.
 
 ## Siguiente
 
 - [Averigua por qué falló un caso](/es/tutorials/debug-failure/)
 - [Casos](/es/test/cases/)
+- [Probar rutas y cobertura](/es/test/probe-routes/)
 - [Reportes](/es/test/reports/)

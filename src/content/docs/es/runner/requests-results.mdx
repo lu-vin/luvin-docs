@@ -63,11 +63,13 @@ Los tiempos de menos de un segundo van en ms, por ejemplo `180 ms`. Los más lar
 | El request… | Resultado |
 |---|---|
 | No responde: sin conexión, tiempo agotado, un error antes de enviarlo | **Falla**. Su status dice **Sin respuesta**. |
+| Tiene un test de script (`pm.test`) que falla | **Falla**, sea cual sea el status. |
 | Responde y tiene comprobaciones | **Pasa** si se cumplen todas. **Falla** si alguna no. |
-| Responde y no tiene comprobaciones | **Pasa** si el status es menor que 400. **Falla** con 400 o más. |
+| Responde, no tiene comprobaciones y tiene tests de script que pasan todos | **Pasa**, aunque el status sea 4xx o 5xx. |
+| Responde y no tiene comprobaciones ni tests de script | **Pasa** si el status es menor que 400. **Falla** con 400 o más. |
 | Es una llamada gRPC | **Pasa** si termina con el código 0. |
 
-Si un status de error es lo que esperas, agrega una comprobación, por ejemplo que `res.status` sea igual a `404`. Así el request pasa cuando responde 404. Al abrir un request que falló por su status, sin comprobaciones, te lo recuerda: *Sin comprobaciones, un status de error cuenta como fallo. Agrega una comprobación (por ejemplo, status es 404) si es lo esperado.*
+Si un status de error es lo que esperas, agrega una comprobación (o un test de script como `pm.response.to.have.status(404)`), por ejemplo que `res.status` sea igual a `404`. Así el request pasa cuando responde 404. Al abrir un request que falló por su status, sin comprobaciones, te lo recuerda: *Sin comprobaciones, un status de error cuenta como fallo. Agrega una comprobación (por ejemplo, status es 404) si es lo esperado.*
 
 ## Filtros
 

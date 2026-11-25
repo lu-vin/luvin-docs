@@ -13,6 +13,7 @@ Luvin runs on your machine. This page says where each kind of data lives and wha
 - Luvin only reads and writes inside folders you chose, and its interface has no direct access to the file system. The terminal opens your own shell, only in a workspace folder or your home folder.
 - Without a workspace, the saved session leaves out credentials and any input whose name looks sensitive (`token`, `password`, `secret`…).
 - **History stays on this device**, in the storage of the app (IndexedDB), never in the workspace files. Environment secrets, credentials and the values a request saves as secret are masked in it. You can turn it off in **Preferences**. See [History](/workspaces/history/).
+- **Scripts run isolated.** A pre-request or post-response script cannot read your files or run programs. It can read the variables and secrets of the active environment, so the scripts of a collection you did not write only run after you trust it. See [Scripts](/requests/scripts/#trust-a-collection).
 - **Mock servers listen only on `127.0.0.1`.** Other computers cannot reach them. From a browser, only a page served from `localhost` or `127.0.0.1` can read their responses, and a call that uses any other host name gets `403`. See [Routes and responses](/mocks/routes/).
 
 ## Where each kind of data lives
@@ -26,6 +27,9 @@ Luvin runs on your machine. This page says where each kind of data lives and wha
 | Preferences such as theme, interface and panel sizes | This computer. | No. |
 | History of requests and runs, with secrets masked | This computer, in the storage of the app (IndexedDB). | No. |
 | Mock servers: name, port, source and own routes | `mocks/*.mock.yaml`. | Yes. |
+| Scripts of requests, folders and the collection | The request files, `_folder.request.yaml` and `collection.yaml`. | Yes. |
+| Current values that scripts save | Encrypted on this computer. | No. |
+| The collections you trust to run scripts | This computer. | No. |
 | The Log of a mock | Memory. It is emptied when the app reloads. | No. |
 | The Console and the Network lists | Memory. They disappear when you close the app. | No. |
 

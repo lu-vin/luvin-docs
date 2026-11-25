@@ -75,10 +75,10 @@ El menú **⋯** tiene:
 
 ## Contratos armados desde requests
 
-Cuando arrastras requests guardados a un workflow, Luvin arma con ellos un contrato OpenAPI pequeño, para que el archivo de workflows siga siendo estándar. Estos contratos viven en `requests/_contracts/` dentro de la colección, uno por URL base, y también aparecen en la lista.
+Cuando agregas requests guardados a un workflow, Luvin arma con ellos un contrato OpenAPI pequeño, para que el archivo de workflows siga siendo estándar. Estos contratos viven en `requests/_contracts/` dentro de la colección, uno por URL base (dos requests con el mismo método y la misma ruta van a un contrato hermano, como `baseUrl2`, que sigue contando como la misma API), y también aparecen en la lista. Mira [Armar desde requests guardados](/es/design/from-requests/).
 
 - No tienen menú **⋯**. Luvin los vuelve a armar cuando cambian tus requests, así que nunca los eliminas a mano.
-- Sus operaciones no se repiten en la paleta: las encuentras en **Requests de la colección**.
+- Sus operaciones no se repiten en el diálogo **Agregar un paso**: las encuentras en **Requests de la colección**.
 
 Mira [Armar desde requests guardados](/es/design/from-requests/).
 
@@ -107,7 +107,7 @@ En un workspace, eliminar un contrato borra su archivo de la carpeta de la colec
 
 ## Otros lugares que listan contratos
 
-- El **Resumen de la colección** tiene una tarjeta **Contratos**: *N de M cargado(s)*, con un enlace a cada contrato que tiene archivo.
+- En la [vista de la colección](/es/workspaces/collection-overview/), la pestaña **Resumen** lista cada contrato que tiene archivo, con su tipo. Haz clic en uno para abrirlo.
 - La pantalla de inicio cuenta los **Contratos** que nombran los archivos de workflows de la colección abierta.
 - ⌘K (Ctrl+K) encuentra esos contratos por su nombre, en el grupo **Contratos**, y los abre.
 

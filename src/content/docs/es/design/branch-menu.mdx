@@ -1,167 +1,165 @@
 ---
-title: El menú de una rama
-description: Cada opción del menú que se abre desde una fila de Si falla, qué escribe en el Arazzo y cómo cambiar o quitar una rama.
+title: Agregar o cambiar una ruta
+description: Abre el editor de rutas desde la tarjeta, el menú del paso o Inicio, elige una de las acciones de Arazzo y mira cómo queda en Arazzo antes de agregarla.
 sidebar:
   order: 7.2
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-El menú de una rama decide, desde la misma tarjeta, qué hace el workflow cuando un paso recibe un error. Se abre desde las filas de **Si falla** y tiene una opción por cada cosa que puede hacer el workflow: un paso nuevo, saltar a un paso posterior, terminar, reintentar o quitar lo que hay.
+El editor de rutas escribe cada acción de Arazzo sin tocar el YAML: reintentar, renovar y reintentar, ir a otro paso, seguir en otro workflow y terminar. Pide el status o la condición, explica cada opción en una línea y muestra cómo queda la ruta en Arazzo mientras la completas.
 
-## Ejemplo: reintenta un 404 de getWeakness
+## Ejemplo: reintentar un 503 de getPokemon
+
+La PokéAPI puede responder 503 cuando está saturada. Reintenta dos veces, esperando dos segundos.
 
 <Steps>
 1. Abre **Pokemon card** y haz clic en la pestaña **Diseño**.
-2. En la tarjeta de `getWeakness`, busca la fila `404 → sin acción` **falla**.
-3. Haz clic en el **+** al final de la fila. Se abre un menú con el título **Si responde 404**.
-4. Haz clic en **Reintentar (hasta 3 veces)**.
+2. En la tarjeta de `getPokemon`, al final de **Si falla**, haz clic en **＋ Qué hacer si falla**. Se abre el editor. Su título es el número y el título del paso, seguido de **qué hacer si falla**.
+3. En **Si responde**, escribe `503`.
+4. Haz clic en **Reintentar**. El editor muestra **Esperar** `2` **s, hasta** `3` **veces**.
+5. Cambia `3` por `2`.
+6. Revisa la vista previa y haz clic en **Agregar**.
 </Steps>
 
+![El editor de rutas del paso 1 de Pokemon card: Si responde 503, Reintentar, Esperar 2 s, hasta 2 veces, y la vista previa del onFailure](/media/es/design-route-dialog.webp)
+
+La tarjeta queda con la fila `503 ↻ reintenta hasta 2 · cada 2 s`, con un lazo azul que vuelve a la tarjeta. Un aviso dice **Ruta agregada.** con **Deshacer**.
+
 <Tabs>
-<TabItem label="En la tarjeta">
+<TabItem label="Así queda en Arazzo (onFailure)">
 
-La fila ahora dice `404 → on404` **reintenta ×3**. El **+** se convirtió en un lápiz.
-
-</TabItem>
-<TabItem label="En el YAML">
-
-```yaml title="pokemon.arazzo.yaml" {3-9}
-- stepId: getWeakness
+```yaml title="pokemon.arazzo.yaml"
+- stepId: getPokemon
   # …
   onFailure:
-    - name: on404
+    - name: retry503
       type: retry
-      retryAfter: 1
-      retryLimit: 3
+      retryAfter: 2
+      retryLimit: 2
       criteria:
-        - condition: $statusCode == 404
+        - condition: $statusCode == 503
 ```
 
 </TabItem>
 </Tabs>
 
-## Abre el menú
+![La tarjeta de getPokemon después de agregar la ruta: en Si falla, el 404 que termina el workflow y la fila azul 503 que reintenta hasta 2 veces](/media/es/design-route-card.webp)
 
-Las filas están en la sección **Si falla** de cada tarjeta. Para verlas, **Acciones según la respuesta**, sobre el lienzo, tiene que estar activado. Viene activado.
+## Abrir el editor
 
-| Fila | Botón al final | Tooltip |
+| Desde | Qué abre |
+|---|---|
+| **＋ Qué hacer si falla**, al final de **Si falla** en la tarjeta | Una ruta para cuando el paso falla (`onFailure`). |
+| **＋ Desviar si pasa y se cumple una condición**, en la tarjeta | Una ruta para cuando el paso pasa y se cumple un dato de su respuesta (`onSuccess`). |
+| **Elegir qué hacer**, en una fila roja `422 ✕ sin ruta: el workflow falla` | Una ruta de fallo con ese status ya puesto. |
+| El lápiz al final de una fila de ruta | Esa ruta, para cambiarla. Su tooltip dice **Cambiar la ruta**. |
+| **Agregar ruta…** en el menú del clic derecho de una tarjeta, o la tecla **R** con un paso elegido | Una ruta de fallo para ese paso. |
+| **＋ Qué hacer si falla** y **＋ Desviar si pasa y se cumple una condición** en la pestaña **Éxito y rutas** del panel del paso | Lo mismo que en la tarjeta. |
+| **＋ Regla para todos los pasos**, en el panel de **Inicio** | Una regla del workflow. Ver [Reglas para todos los pasos](/es/design/routes-panel/#reglas-para-todos-los-pasos). |
+
+## 1. Di cuándo aplica la ruta
+
+### Si falla: un status
+
+**Si responde** recibe un status de tres dígitos, por ejemplo `404`. Al lado, **el contrato dice:** muestra los status de error que el contrato declara para la operación. Haz clic en uno para usarlo.
+
+Puedes escribir cualquier status, también uno que el contrato no declara. Ver [Una ruta para cualquier status](/es/design/branch-other-status/).
+
+### Si pasa: una condición sobre un dato
+
+**Si el dato** muestra los outputs del paso. Elige uno y escribe al lado de **es** el valor que debe tener. Empieza con `true`.
+
+Por ejemplo, con el output `isLegendary` de `getSpecies` y el valor `true`, la ruta aplica cuando la especie es legendaria. Luvin escribe la condición sobre la respuesta: `$response.body#/is_legendary == true`.
+
+Si el paso no tiene outputs, el editor dice **El paso no tiene outputs: declara uno para usarlo en la condición.** Ver [Outputs](/es/design/outputs/).
+
+<Aside type="note">
+El editor escribe condiciones de igualdad (`==`). Para `!=`, `>`, un `regex`, un `xpath` o varias condiciones a la vez, escribe la ruta en la [pestaña YAML](/es/design/arazzo-editor/). La tarjeta y el panel la muestran igual, y puedes reordenarla o quitarla.
+</Aside>
+
+## 2. Elige qué hacer
+
+En **Qué hacer**, cada opción dice para qué sirve.
+
+| Opción | Qué hace | Aparece |
 |---|---|---|
-| Un error documentado sin acción: `404 → sin acción` **falla** | **+** | **Qué hacer si responde 404** |
-| Un estado con acción: `404 → on404` **fin ✕** | Un lápiz | **Cambiar qué hacer si responde 404** |
-| Un estado que el contrato no documenta | **+ Si responde otro status…**, al final de la sección | Mira [Estados que el contrato no documenta](/es/design/branch-other-status/) |
+| **Reintentar** | *Vuelve a llamar al mismo paso, con espera y un límite. Para 429, 500 o 503.* | Si falla |
+| **Renovar y reintentar** | *Ejecuta otro workflow (por ejemplo, el login) y reintenta el paso. Para 401.* | Si falla, cuando hay otro workflow |
+| **Ir a otro paso** | *Salta a un paso de este workflow, adelante o atrás.* | En un paso, no en una regla |
+| **Seguir en otro workflow** | *Pasa el control a otro workflow, de este archivo o de otro. No vuelve.* | Cuando hay otro workflow |
+| **Terminar el workflow** | *Termina aquí (Fin). El workflow queda como fallido.* | Si falla |
+| **Terminar con éxito** | *Termina aquí (Fin) aunque queden pasos.* | Si pasa |
 
-El menú se abre debajo del botón. Se cierra cuando eliges una opción, con **Esc**, con un clic fuera de él o al desplazar el lienzo.
+Cuando eliges una, el editor pide solo lo que esa opción necesita. **cambiar**, al lado de la opción, vuelve a la lista.
 
-![La tarjeta de getProduct con la fila 404 → sin acción falla y el menú de su + abierto: Si responde 404, + Un paso nuevo…, Ir a «Create order», Terminar el workflow y Reintentar (hasta 3 veces)](/media/es/design-branch-menu.webp)
+### Reintentar
 
-Algunas filas no tienen botón:
+**Esperar** `2` **s, hasta** `3` **veces**. Cambia los dos números como necesites. Contra la API real, Luvin espera como máximo 10 segundos entre dos intentos aunque escribas más, y en simulación no espera.
 
-- Una fila que agrupa varios estados, o una sin estado, como `otro error`.
-- Una fila de `onSuccess`, como `éxito → done` **fin ✓**.
-- Cualquier fila de un paso que llama a otro workflow, de un paso de mensajería o de un paso cuya operación no está en un contrato.
+### Renovar y reintentar
 
-Esas se editan en la [pestaña YAML](/es/design/arazzo-editor/).
+- **Antes, ejecutar**: el workflow que se ejecuta antes del reintento, de este archivo o de otro archivo Arazzo de la colección. Cada opción muestra su nombre y dónde está.
+- **Reintentar hasta** `1` **veces**.
 
-## Las opciones, una por una
+Escribe un `retry` con `workflowId` y `retryAfter: 0`. Los outputs de ese workflow quedan disponibles para el paso cuando se vuelve a llamar. Ejemplo que se puede ejecutar: [Inicia sesión y usa el token](/es/recipes/login-token/).
 
-El menú muestra sus opciones en este orden. Cada opción salvo **+ Un paso nuevo…** es un solo cambio: **Deshacer**, sobre el lienzo, o ⌘Z (Ctrl+Z), lo revierte.
+### Ir a otro paso
 
-### + Un paso nuevo…
+**Ir al paso** muestra los otros pasos del workflow, con su número y su título. Un paso de más arriba arma un bucle: la fila dice **vuelve al paso 1 · …**, y [Por revisar](/es/design/review/) avisa si nada de la respuesta lo corta.
 
-Agrega un paso que se ejecuta solo ante esta respuesta y lo conecta con la rama. Abre un diálogo con la paleta, pone el paso al final del workflow y termina el camino feliz antes de él. Es la primera opción y tiene el foco cuando se abre el menú.
+En una ruta de fallo con status, **o un paso nuevo…** agrega un paso solo para esa respuesta. Ver [Un paso nuevo para una ruta](/es/design/branch-new-step/).
 
-Lee [Un paso nuevo para un error](/es/design/branch-new-step/) para ver todo el recorrido.
+### Seguir en otro workflow
 
-### Ir a «paso»
+**Seguir en** muestra los workflows de este archivo y de los otros archivos Arazzo de la colección. El lienzo dibuja una salida **Sigue en «…»** junto al final.
 
-Una opción por cada paso que viene **después** de este, con su nombre en palabras: para `getWeakness`, el menú de `getSpecies` muestra **Ir a «Get weakness»**. El último paso de un workflow no tiene ninguna.
+Si eliges un workflow de otro archivo, Luvin agrega ese archivo a las fuentes de este Arazzo, de tipo `arazzo`, y escribe `workflowId: $sourceDescriptions.<fuente>.<workflow>`.
 
-La ejecución salta a ese paso y sigue desde ahí, saltándose los pasos intermedios.
+### Terminar el workflow, Terminar con éxito
 
-```yaml {3-5}
-onFailure:
-  - name: on404
-    type: goto
-    stepId: getWeakness
-    criteria:
-      - condition: $statusCode == 404
-```
+No hay nada más que completar. La nota dice adónde va la flecha: **La flecha irá al Fin. El workflow termina aquí como fallido.**, o, en una ruta de éxito, **La flecha irá al Fin. El workflow termina con éxito aunque queden pasos.**
 
-La fila dice `404 → on404` **ir a getWeakness**, y una línea naranja punteada recorre el lado izquierdo desde la fila hasta la tarjeta de `getWeakness`.
+### Aplicar un reutilizable
 
-Para saltar a un paso anterior, por ejemplo para consultar hasta que algo esté listo, usa el panel del paso: su lista ofrece todos los demás pasos del workflow. Un ciclo que ejecuta más de 200 pasos se detiene con **Se detuvo la ejecución: posible ciclo infinito de acciones goto/retry.**
+En una ruta de fallo de un paso, cuando el archivo tiene acciones de error reutilizables para ese status, la lista termina con **O aplica un reutilizable:** y un botón por cada uno, marcado con ♻. Al hacer clic se aplica al paso y el editor se cierra. Ver [Reutilizables](/es/design/reusables/).
 
-### Terminar el workflow
+## 3. Revisa y agrega
 
-La ejecución se detiene en este paso como un resultado conocido. Los pasos de abajo no se ejecutan.
-
-```yaml {3}
-onFailure:
-  - name: on404
-    type: end
-    criteria:
-      - condition: $statusCode == 404
-```
-
-La fila dice `404 → on404` **fin ✕**. En los resultados, el paso muestra **↪ Fin del workflow (acción "on404")**.
-
-### Reintentar (hasta 3 veces)
-
-La ejecución llama al paso otra vez. El menú siempre escribe los mismos valores:
-
-| Campo | Valor | Qué significa |
-|---|---|---|
-| `retryAfter` | `1` | Segundos de espera antes de cada intento. Con la API real, Luvin nunca espera más de 10 segundos. En Simulación no espera. |
-| `retryLimit` | `3` | Intentos después de la primera llamada. Si todos fallan, el paso falla y los resultados dicen **Se agotaron los 3 reintentos**. |
-
-La fila dice `404 → on404` **reintenta ×3**. Para usar otros números, cámbialos en la pestaña YAML, o guarda la acción como [reutilizable](/es/design/reusables/): su panel tiene ambos campos. Mira [Reintentos y llamadas lentas](/es/design/success-and-errors/#reintentos-y-llamadas-lentas).
-
-### Quitar la rama
-
-Aparece solo cuando el estado ya tiene una acción. Quita la acción que maneja el `404`, se llame como se llame: `on404`, una que escribiste a mano como `pokemonNotFound`, o un reutilizable cuyo criterio es `$statusCode == 404`. Si el paso no tiene otra acción de falla, también desaparece `onFailure`. La fila vuelve a `404 → sin acción` **falla**, o desaparece si el contrato no documenta ese estado.
-
-No quita un paso creado con **+ Un paso nuevo…**, ni el `done` que vino con él. Mira [Quita una rama a un paso nuevo](/es/design/branch-new-step/#quita-una-rama-a-un-paso-nuevo).
-
-## Cambia una rama
+**Así queda en Arazzo (onFailure)**, o `onSuccess`, `failureActions` o `successActions`, muestra la ruta tal como se va a escribir, con su nombre. Mientras falte algo, dice **Falta completar la condición o el destino.** y **Agregar** queda desactivado.
 
 <Steps>
-1. Haz clic en el lápiz de la fila. Se abre el mismo menú, ahora con **Quitar la rama** al final.
-2. Elige otra opción.
+1. Lee la vista previa.
+2. Haz clic en **Agregar** para una ruta nueva, o en **Guardar** si cambiaste una.
 </Steps>
 
-Luvin reemplaza la acción que maneja ese estado en su lugar de la lista, así que su posición no cambia. Una acción con otro nombre, como `pokemonNotFound` en `getPokemon`, conserva su nombre: la fila dice `404 → pokemonNotFound` **reintenta ×3**. Un reutilizable pasa a ser una acción propia llamada `on404`; el reutilizable sigue en **Reutilizables** para los otros pasos que lo usan.
+Un aviso dice **Ruta agregada.** o **Ruta cambiada.**, con **Deshacer**. También puedes deshacer con ⌘Z (Ctrl+Z).
 
-## El menú y el panel del paso
+### Nombres
 
-Los dos escriben la misma acción. Cada uno tiene algo que el otro no tiene:
+Luvin nombra cada ruta nueva según lo que hace: `on404` (ir a un paso o terminar), `retry503`, `renew401`, o `if` más el campo para una condición de éxito, como `ifIs_legendary`. Si el nombre ya se usa en la misma lista, le suma `_2`, `_3`… Cuando cambias una ruta, conserva su nombre, también uno que escribiste tú.
 
-| | Menú de la tarjeta | Panel del paso |
-|---|---|---|
-| Dónde | **Si falla**, en la tarjeta | **Si responde con error**, en el panel |
-| Un paso nuevo para el error | **+ Un paso nuevo…** | No |
-| Ir a | Solo pasos posteriores | Cualquier otro paso, también los anteriores |
-| Acciones reutilizables | No | Un grupo **Reutilizables**, cuando una maneja ese estado |
-| Estados que el contrato no documenta | **+ Si responde otro status…** | Solo los que ya tienen una acción |
-| Sin acción | **Quitar la rama** | **Sin acción (el workflow falla)** |
+### Una ruta por condición
 
-## Solución de problemas
+Arazzo toma la primera ruta cuyas condiciones se cumplen. Una segunda ruta con la misma condición nunca se ejecutaría, así que si agregas una ruta para un status que ya tiene una, Luvin reemplaza esa ruta en su lugar en vez de agregar otra.
 
-**La acción de un estado cambió de nombre.** Era un reutilizable: cambiar la rama reemplaza la referencia por una acción del paso, llamada `on404`. Deshazlo con ⌘Z si querías cambiar el reutilizable para todos los pasos; ábrelo en **Reutilizables**.
+## Cambiar o quitar una ruta
 
-**La fila no tiene + ni lápiz.** Mira la lista de [Abre el menú](#abre-el-menú). Revisa también que estés en la pestaña **Diseño**: el diagrama de la pestaña **Resumen** solo muestra las ramas.
+<Steps>
+1. Haz clic en el lápiz al final de la fila, en la tarjeta o en la pestaña **Éxito y rutas** del panel del paso.
+2. Cambia el status, la condición, la opción o sus datos. La vista previa se actualiza.
+3. Haz clic en **Guardar**, o en **Quitar la ruta** para borrarla.
+</Steps>
 
-**El menú no tiene ninguna opción Ir a.** El paso es el último, así que no hay pasos posteriores. Usa el panel del paso para saltar a uno anterior.
+**Quitar la ruta** muestra **Ruta quitada.** con **Deshacer**. Para cambiar el orden en que se revisan las rutas, usa las flechas ↑ ↓ del panel Rutas: ver [El panel Rutas y las reglas para todos los pasos](/es/design/routes-panel/).
 
-<Aside type="tip">
-Cada rama también recibe un caso generado que simula esa respuesta, por ejemplo **getWeakness responde 404 → on404**. Ejecútalo para comprobar la rama sin hacer fallar la API. Mira [Casos](/es/test/cases/).
-</Aside>
+Para cerrar el editor sin cambios, haz clic en **Cancelar**.
 
 ## Relacionado
 
 <CardGrid>
-  <LinkCard title="Ramas de error" href="/es/design/branches/" />
-  <LinkCard title="Un paso nuevo para un error" href="/es/design/branch-new-step/" />
-  <LinkCard title="Estados que el contrato no documenta" href="/es/design/branch-other-status/" />
-  <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="El panel Rutas y las reglas para todos los pasos" href="/es/design/routes-panel/" />
+  <LinkCard title="Un paso nuevo para una ruta" href="/es/design/branch-new-step/" />
+  <LinkCard title="Reintenta, salta y termina ante errores" href="/es/recipes/error-branches/" />
 </CardGrid>

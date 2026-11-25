@@ -38,7 +38,7 @@ Uses $steps.getPokemn.outputs.id, but step "getPokemn" does not exist.
 
 ## The YAML is the source of truth
 
-The canvas and the YAML are two views of the same file. Each change you make on the canvas is written in the YAML, and each change you type in the YAML shows on the canvas. Nothing is kept apart, so what you write by hand is kept.
+The canvas and the YAML are two views of the same file. Each change you make on the canvas is written in the YAML, and each change you type in the YAML shows on the canvas. Nothing is kept apart, so what you write by hand is kept. To see the text while you work on the canvas, open **\{ \} YAML** next to it: see [The YAML next to the canvas](/design/yaml-side-by-side/).
 
 - **An Arazzo written in JSON stays JSON.** Editing it on the canvas keeps the format and its indentation.
 - **Undo survives a visit to another tab.** **Undo** and **Redo** of the **Design** tab keep their history when you open the YAML tab, or another tab of the workflow, and come back. If you edited the YAML in between, the history starts again, so undoing does not erase what you typed.
@@ -127,9 +127,10 @@ In a workspace, the file saves on its own and the bar shows the save state. Outs
 The canvas covers the common work. Prefer the YAML for:
 
 - Criteria that look inside the response, such as `$response.body#/capture_rate >= 0`.
-- Actions that depend on a field of the response, not only on the status.
-- Messaging steps. See [Messaging steps](/design/messaging/).
-- Several changes at once: renaming, copying steps from another file, or moving a block.
+- Failure routes that depend on a field of the response, not on the status, and conditions with `regex` or `xpath`. The route editor writes failure routes on a status and success routes on the value of an output. See [Add or change a route](/design/branch-menu/).
+- A `retry` that first runs another step (`retry` with `stepId`).
+- Failure routes of messaging steps. See [Messaging steps](/design/messaging/).
+- Several changes at once, such as moving a block or replacing a value everywhere. To copy steps between workflows, the canvas has [Copy, duplicate and extract steps](/design/copy-and-extract/).
 - Reading exactly what Luvin wrote, or fixing a file someone else wrote.
 
 When a step uses something the canvas does not edit, its panel says so and offers **Edit in the YAML**.

@@ -1,6 +1,6 @@
 ---
 title: Averigua por qué falló un caso
-description: Lee el veredicto y su motivo, abre el paso que falló, revisa el request en Dev Tools, repítelo en una terminal con cURL y corrige el input.
+description: Lee el veredicto y su motivo, mira la falla en el lienzo, revisa el request en Dev Tools, repítelo en una terminal con cURL, prueba otro valor en una pausa y corrige el input.
 sidebar:
   order: 5
 ---
@@ -41,6 +41,16 @@ Bajo el detalle, cada paso es una tarjeta. La que falló ya está abierta.
 5. Haz clic en **Respuesta** para ver qué contestó la API.
 
 Los pasos siguientes dicen **No ejecutado**, porque el workflow se detuvo. Mira [Lee el resultado de un paso](/es/test/step-results/).
+
+### La misma falla en el lienzo
+
+1. Haz clic en la pestaña **Diseño**. El lienzo muestra la ejecución: la tarjeta de `getPokemon` está en rojo y dice **✕ 404 → termina**, su ruta del 404 dice **tomada** y los demás pasos dicen **no se ejecutó**.
+2. Haz clic en la tarjeta de `getPokemon` y abre la pestaña **Respuesta** de su panel.
+3. En **Por qué falló**, `$statusCode == 200` dice **fue 404**. En **Lo que recibió**, `idOrName` es `"missingno"`.
+
+![El lienzo después de la ejecución que falló: la tarjeta de getPokemon dice ✕ 404 → termina, y su pestaña Respuesta dice por qué falló y que idOrName era "missingno"](/media/es/test-canvas-failed-response.webp)
+
+El diagrama te dice lo mismo que los resultados, sin salir del workflow. Mira [Resultados en el lienzo](/es/test/run-on-canvas/).
 
 ### Cuando la etiqueta es "Criterio no cumplido"
 
@@ -84,7 +94,7 @@ La terminal también responde 404. Entonces el workflow está bien y el dato es 
 
 Puedes llamar a una operación sin el resto del workflow.
 
-1. En **Diseño**, haz clic en el paso `getPokemon`.
+1. En la barra lateral, bajo **Pokemon card**, haz clic en su primer paso, el `GET` de `getPokemon`. Se abre una pestaña con el paso.
 2. Haz clic en **▶ Probar sola**. Se abre una pestaña con la operación.
 3. Elige **API real**, revisa el ambiente y haz clic en **Enviar**.
 
@@ -101,7 +111,18 @@ No toda falla es una respuesta. Si el paso tiene la etiqueta **Red** y no hay st
 
 Mira [Ayuda de conexión](/es/dev-tools/connection-help/).
 
-## 8. Corrige el input y ejecuta otra vez
+## 8. Prueba otro valor sin cambiar el input
+
+Antes de cambiar el input, comprueba que otro valor funciona, desde el mismo paso.
+
+1. En la pestaña **Diseño**, haz clic en la tarjeta de `getPokemon` y pulsa **F9**. La tarjeta muestra **⏸ pausa**.
+2. Haz clic en **Ejecutar**. La ejecución se detiene antes de `getPokemon`, y la barra de abajo del lienzo dice **⏸ En pausa antes del paso 1**.
+3. En el panel, en **Recibe**, `idOrName` dice `missingno`. Escribe `pikachu` y haz clic en **▷ Continuar**.
+4. Si la ejecución se pausa para elegir de una lista, haz clic en **Continuar con este elemento** cada vez.
+
+El caso termina como **Pasó**, y el chip de `idOrName` dice `= "pikachu" ✎`. La pestaña **Inputs** sigue diciendo `missingno`: el valor que escribiste valió solo para esa ejecución. Pulsa **F9** otra vez en la tarjeta para quitar la pausa. Mira [Depurar un workflow](/es/test/debug/).
+
+## 9. Corrige el input y ejecuta otra vez
 
 1. Haz clic en la pestaña **Inputs** y escribe `pikachu` en `pokemon`.
 2. Haz clic en la pestaña **Casos** y luego en **Ejecutar**.
@@ -114,11 +135,14 @@ Si la ejecución se pausa con **Ejecución en pausa**, haz clic en **Continuar c
 - La etiqueta de un paso que falló dice el tipo de problema: la API devolvió un error, no se cumplió un criterio, no hubo respuesta, etcétera.
 - **Ver en la respuesta** resalta el campo que difiere.
 - **Network** de Dev Tools muestra el request exacto, y **Copiar como cURL** lo repite en una terminal.
+- En la pestaña **Diseño**, el lienzo muestra en rojo el paso que falló, y su pestaña **Respuesta** dice por qué falló.
+- Una pausa (**F9**) te deja probar otro valor en un paso sin cambiar los inputs.
 - **▶ Probar sola** prueba una operación sin el resto del workflow.
 - El panel de conexión ayuda cuando la API no responde.
 
 ## Siguiente
 
 - [Comprueba que tu API rechaza datos malos](/es/tutorials/negative-cases/)
+- [Depurar un workflow](/es/test/debug/)
 - [Network](/es/dev-tools/network/)
 - [Por qué falló un paso o un caso](/es/reference/failure-reasons/)

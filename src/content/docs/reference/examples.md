@@ -206,7 +206,7 @@ In simulation, the rejection cases and your own data cases are not run. See [Sim
 To run against the sandbox:
 
 1. Go to [developer.paypal.com/dashboard](https://developer.paypal.com/dashboard/), **Apps & Credentials**, **Sandbox** tab, and create an app. It is free.
-2. In Luvin, open the environment at the top right of the window and choose **Configure environment…**.
+2. In Luvin, open the left half of the environment pill at the top right of the window (the collection's environment) and choose **Configure environment…**.
 3. In the **Sandbox** environment, paste the Client ID as the variable `clientId` and the Secret as the secret `clientSecret`. The secret stays encrypted on your computer.
 4. Switch to **Real API** and run **Create order**. The order is `CREATED`.
 5. To capture it, open the `approveUrl` from the result with a **sandbox buyer account** (**Testing Tools**, **Sandbox Accounts**) and approve the payment.

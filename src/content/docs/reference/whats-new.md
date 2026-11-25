@@ -5,7 +5,47 @@ sidebar:
   order: 12
 ---
 
-This page lists what Luvin can do and when each capability arrived. The newest is first. The current version is **0.1.5**.
+This page lists what Luvin can do and when each capability arrived. The newest is first. The current version is **0.2.0-beta.10**.
+
+## 25 November 2026 · version 0.2.0-beta.10
+
+**The workflow canvas, redesigned.**
+
+- **Full step cards and a roomier canvas.** Every step shows in full, with controls to minimize it; the workflow starts at **Start** and ends at **End of workflow**, and a failure shows in red. **＋ Step** replaces the palette column, and the step panel opens over the canvas, with tabs. See [Design workflows](/design/overview/).
+- **Data as chips, without arrows.** Each value a step receives says where it comes from; its line appears only when you pick or hover a step. See [Wire data between steps](/design/wire-data/).
+- **Every Arazzo route on the canvas**, one color per scenario, with a selector for each action (`goto`, `retry`, `end`) and a **Routes** panel to order, edit and remove them.
+- **To review** reads the Arazzo the way a run would and flags what the schema can't see, such as a JSONPath condition written as a comparison, which never matches.
+- **Run and debug on the canvas.** Each card shows whether it passed, compared with the previous run. Pause before a step, change what it receives (JSON body fields too) and continue; or run only a step, up to a step or from a step. See [Run on the canvas](/test/run-on-canvas/) and [Debug](/test/debug/).
+- **Test every route without your API.** Luvin simulates the response that leads to each route, and coverage shows which are missing, what each case did and which errors have no route. See [Probe routes and coverage](/test/probe-routes/).
+- **Copy, paste, duplicate and extract steps.** Picked steps copy to another workflow, and consecutive steps extract to a new workflow with a preview.
+- **Arazzo patterns from ＋ Step:** go through every page, wait until it finishes, and sign in and use the token. Also with a collection's requests.
+- **The YAML beside the canvas**, and a minimap.
+- **A fix when building from requests:** data is wired from what the Postman scripts save, an id is never taken from a step about something else, generated data such as `{{$randomFirstName}}` is kept, and a request that expects an error passes with that error. See [Build from saved requests](/design/from-requests/).
+
+## 24 November 2026 · versions 0.2.0-beta.8 and 0.2.0-beta.9
+
+**The login token goes to the other steps, and a workflow that reads at a glance.**
+
+- **The login token, in the next steps.** Each step says where its authorization comes from: the environment, a step's token or none. Luvin recognizes the token by reading the login's script, without running it, and connects it while you build, written in standard Arazzo. See [Workflow authorization](/authorization/workflow/).
+- **Steps named the way you named them.** A step built from a request is titled with the request's name and gets a short, readable id. Generated contracts with the same base URL are one API.
+- **Required fields without a dialog.** They're marked in the step panel itself.
+- **The collection, in tabs like Postman**, with Luvin's documentation on the side. See [Collection overview](/workspaces/collection-overview/).
+- **The runner lists each request's tests and checks**, like Postman's runner.
+- **A Postman collection with secret variables** runs as in Postman, and its saved values show and edit in both variable views.
+- **Opening a folder that isn't a workspace** no longer creates one silently.
+
+## 23 November 2026 · versions 0.2.0-beta.5 and 0.2.0-beta.6
+
+**Variables on four levels, Postman and Bruno scripts, and the desktop app only.**
+
+- **Luvin is a desktop app for macOS and Windows.** The examples and the tour live in the app data folder. See [Install and open Luvin](/get-started/install/).
+- **Four variable levels, as in Bruno:** the workspace's global environment, the collection's environment, collection variables and request variables, resolved in one order. The **Variables** panel shows them all, like Postman's "All variables", and a variable's card creates or moves it with **Add to**. See [Where a variable lives](/environments/variable-levels/).
+- **The global and the collection environment, together** in one split pill, as in Bruno.
+- **Variables in the body editor**, created with their value; JSON bodies with comments; and a panel with the request's variables. See [Parameters, headers and body](/requests/params-headers-body/).
+- **Scripts before the request and after the response**, as in Postman: on the request, the folder or the collection, with the `pm.*` API and Bruno's (`bru.*`), `pm.sendRequest` and Postman's libraries, in an isolated sandbox. They also run in the runner and in performance tests. Scripts of a collection you didn't write wait until you trust it. See [Scripts](/requests/scripts/).
+- **Importing brings scripts over whole.** Postman and Bruno scripts are kept as they are and run as in the original; they're no longer converted. Each variable lands on its level, and if the collection already exists, Luvin asks whether to import a copy or replace it. See [Bring your own files and requests](/get-started/import/).
+- **Resizable panels**, as in Postman: the request/response split, the collections sidebar and the side panels.
+- **Other improvements:** renaming a workspace renames its folder; dropping a Postman or Bruno file takes it to the importer, even with no collection open; and ⌘Q saves pending changes before quitting.
 
 ## 19 November 2026 · versions 0.1.4 and 0.1.5
 

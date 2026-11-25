@@ -60,7 +60,7 @@ En el último caso de la tabla, el diálogo agrega **Qué recibe cada paso del e
 
 <Steps>
 1. En la pestaña **Diseño**, haz clic en el paso que necesita el dato.
-2. Bajo **Parámetros**, abre el origen del parámetro y elige el campo de la lista del paso anterior, por ejemplo `activeCreditCards/bank`. Dice *de una lista: eliges cuál al ejecutar*.
+2. En la pestaña **Datos** del panel del paso, en **Recibe**, abre el origen del parámetro y elige el campo de la lista del paso anterior, por ejemplo `activeCreditCards/bank`. Dice *de una lista: eliges cuál al ejecutar*.
 3. Ejecuta el caso. El diálogo aparece después del paso que devuelve la lista.
 </Steps>
 
@@ -69,8 +69,6 @@ Un campo que viene de una lista se nombra sin su posición: `activeCreditCards/b
 ## Una lista que devuelve un workflow llamado
 
 Un paso puede llamar a otro workflow, por ejemplo uno que reutilizas para traer las tarjetas de un cliente. Si ese workflow devuelve una lista como output, y el paso siguiente la pone en un parámetro de un solo valor, la ejecución se pausa igual. Pregunta el paso que llamó al workflow, y cada parámetro recibe su dato del elemento elegido: `bank` recibe el `bank` de la tarjeta elegida, `id` recibe el `id` del beneficio elegido. Sin nadie que elija (el runner o una prueba de carga), se usa el primer elemento.
-
-Antes, la lista entera llegaba al parámetro y el request salía con `[object Object]` en lugar del valor.
 
 ## Varios casos a la vez
 
@@ -130,9 +128,12 @@ El paso que devolvió la lista guarda una nota, **Elegido al ejecutar**. Por eje
 - Si la lista tiene un solo elemento, en **Simulación**. La ejecución sigue con ese, y el paso guarda una nota: *De la lista: La lista types trajo un solo elemento («…»): se usó ese.* Contra la **API real** el diálogo sí aparece, para que confirmes lo que devolvió el servicio.
 - Si el paso tiene una regla guardada para esa lista. Mira [Reglas para las próximas veces](#reglas-para-las-próximas-veces).
 - En el [runner](/es/runner/workflows/). Nunca se detiene a preguntar: usa la regla guardada o el elemento que dice el diseño.
+- Al probar una ruta, con **▷ Probar** en el lienzo. Igual que el runner, usa la regla guardada o el elemento que dice el diseño. Mira [Probar rutas y cobertura](/es/test/probe-routes/).
 - Si la lista llega vacía.
 - Si ningún paso posterior usa datos de la lista.
 - Si el paso que devuelve la lista falló.
+
+Cuando ejecutas solo un paso, hasta un paso o desde un paso, el diálogo sí aparece, como en una ejecución normal. Mira [Depurar un workflow](/es/test/debug/#ejecuta-solo-hasta-o-desde-un-paso).
 
 **Detener ejecución**, en el diálogo, cancela la ejecución.
 

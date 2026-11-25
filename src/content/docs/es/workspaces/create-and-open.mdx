@@ -22,12 +22,14 @@ Un workspace es una carpeta del disco: archivos reales, `luvin.yaml` y una subca
 1. En la pantalla de bienvenida, haz clic en **Crear un workspace**.
 2. Escribe el **Nombre del workspace**. El primer valor es **Mi workspace**. Por ejemplo: `Pruebas de la tienda`.
 3. Lee la línea **Se creará en**. Muestra la ruta completa, por ejemplo `/Users/ana/Documents/Luvin/pruebas-de-la-tienda`. La última parte es el nombre de la carpeta, tomado del nombre que escribiste.
-5. Para cambiarla, haz clic en **Cambiar ubicación**. Luego haz clic en **Cambiar…** (o **Elegir carpeta…**) para elegir otra carpeta, y edita el **Nombre de la carpeta** si quieres.
-6. Haz clic en **Crear workspace**.
+4. Para cambiarla, haz clic en **Cambiar ubicación**. Luego haz clic en **Cambiar…** (o **Elegir carpeta…**) para elegir otra carpeta, y edita el **Nombre de la carpeta** si quieres.
+5. Haz clic en **Crear workspace**.
 
 </Steps>
 
-Luvin crea la carpeta con su `luvin.yaml`, abre el workspace y muestra la pantalla **Crea tu primera colección**. Sigue con [Crear una colección](/es/workspaces/collections/#crear-una-colección).
+Luvin crea la carpeta con su `luvin.yaml`, abre el workspace y muestra la pantalla **Crea tu primera colección**.
+
+No se puede crear un workspace dentro de otro, porque al abrir el de afuera no se vería. Si la ubicación que elegiste está dentro de un workspace, no se crea nada y la pantalla de bienvenida dice cuál es: elige otra ubicación, o ábrelo con **Abrir un workspace**. Sigue con [Crear una colección](/es/workspaces/collections/#crear-una-colección).
 
 ```yaml title="pruebas-de-la-tienda/luvin.yaml"
 # Workspace de Luvin. Cada colección es una carpeta con su collection.yaml.
@@ -43,14 +45,27 @@ collections: []
 <Steps>
 
 1. En la pantalla de bienvenida, haz clic en **Abrir un workspace**.
-2. Se abre un diálogo de carpetas. Elige una carpeta que tenga un `luvin.yaml`.
+2. Se abre un diálogo de carpetas. Elige la carpeta del workspace, la que tiene un `luvin.yaml`.
 
 </Steps>
 
-También puedes abrir una carpeta que todavía no es un workspace. Luvin le crea un `luvin.yaml`:
+Si eliges una carpeta que no es un workspace, Luvin nunca la convierte en uno por su cuenta. Busca el workspace al que pertenece esa carpeta:
+
+| Elegiste | Qué pasa |
+|---|---|
+| Una carpeta dentro de un workspace, como una de sus colecciones | Se abre ese workspace, con esa colección. Un aviso arriba lo dice, por ejemplo: *«partners» está dentro del workspace «Pruebas de la tienda»: se abrió ese workspace (…).* |
+| Una carpeta con un workspace adentro y sin colecciones sueltas | Se abre ese workspace. Un aviso dice cuál y dónde está. |
+| Una carpeta con varios workspaces adentro, o con uno y colecciones sueltas | La pantalla de bienvenida dice **Esta carpeta no es un workspace** y muestra una tarjeta por workspace. Haz clic en uno para abrirlo. |
+| Una carpeta sin ningún workspace | La pantalla de bienvenida dice **Esta carpeta no es un workspace** y te pregunta qué hacer. |
+
+![La bienvenida dice Esta carpeta no es un workspace para la carpeta pruebas, que tiene archivos Arazzo, con Crear un workspace en «pruebas», Elegir otra carpeta y Cancelar](/media/es/open-folder-not-workspace.webp)
+
+Cuando Luvin pregunta, también puedes hacer clic en **Crear un workspace en «pruebas»** (con el nombre de tu carpeta), **Elegir otra carpeta** o **Cancelar**. Si la carpeta tiene colecciones o archivos Arazzo, una línea dice que el workspace nuevo los incluye:
 
 - Cada subcarpeta que tiene un `collection.yaml` se vuelve una colección.
 - Si la carpeta misma tiene archivos Arazzo o contratos, la carpeta se vuelve una colección, con el nombre del workspace.
+
+El aviso se cierra con su botón **×**.
 
 Un workspace creado con el nombre antiguo de la app, con un `studio.yaml`, pasa a llamarse `luvin.yaml` al abrirlo.
 
@@ -68,7 +83,7 @@ El nombre del workspace está arriba a la izquierda de la ventana. Haz clic en �
 
 | Opción del menú | Qué hace |
 |---|---|
-| **Renombrar workspace** | El nombre se vuelve un cuadro de texto. Escribe el nuevo nombre y presiona Enter. Escape cancela. Solo cambia el nombre en `luvin.yaml`. La carpeta conserva su nombre. |
+| **Renombrar workspace** | El nombre se vuelve un cuadro de texto. Escribe el nuevo nombre y presiona Enter. Escape cancela. La carpeta del disco también cambia de nombre. Mira [Renombrar un workspace](#renombrar-un-workspace). |
 | **Mostrar en Finder** (**Mostrar en el explorador** en Windows) | Abre la carpeta en tu explorador de archivos. |
 | **Cerrar y cambiar de workspace** | Guarda, cierra el workspace y vuelve a la pantalla de bienvenida. Ahí abres o creas otro. |
 | **Eliminar workspace…** | Elimina todo el workspace. Pide confirmación. |
@@ -82,6 +97,16 @@ El nombre del workspace está arriba a la izquierda de la ventana. Haz clic en �
 </Steps>
 
 El ícono de casa junto al nombre abre el **Inicio** del workspace actual.
+
+### Renombrar un workspace
+
+Al renombrar un workspace cambia su nombre en `luvin.yaml` y también el de su carpeta, en el mismo lugar, así la carpeta del disco (y git) muestra lo mismo que la app. Si renombras **Pruebas de la tienda** a **QA de pagos**, `pruebas-de-la-tienda/` pasa a ser `qa-de-pagos/`.
+
+- El nombre de la carpeta es el nombre en minúsculas, sin tildes y con `-` en lugar de espacios.
+- Los secretos y el historial que guarda este equipo se mueven con él, y la colección abierta se vuelve a abrir desde la carpeta nueva.
+- Si junto al workspace ya hay una carpeta con ese nombre, no cambia nada: el estado de guardado de arriba dice **Error al guardar**, y al pasar el mouse sobre él ves *No se pudo renombrar el workspace:* con el motivo. Luvin nunca escribe encima de otra carpeta.
+- Un workspace cuya carpeta todavía tiene el nombre viejo, porque se renombró con una versión anterior, se arregla confirmando el mismo nombre otra vez: abre **Renombrar workspace** y presiona Enter.
+- Los workspaces que vienen con la app, como los ejemplos y el del tour, conservan su carpeta.
 
 ### Qué hace Eliminar workspace
 

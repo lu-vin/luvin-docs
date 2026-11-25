@@ -1,0 +1,141 @@
+---
+title: Resultados en el lienzo
+description: Ejecuta desde la pestaña Diseño y lee el resultado en la tarjeta de cada paso, la barra de resultado flotante, la pestaña Respuesta de un paso y la comparación con la ejecución anterior.
+sidebar:
+  order: 12
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Cuando ejecutas desde la pestaña **Diseño**, el lienzo muestra lo que pasó. La tarjeta de cada paso dice cómo terminó, cada chip de dato muestra el valor que recibió el paso y la ruta que tomó el caso queda marcada. Una barra abajo del lienzo lista los casos. Lees la ejecución en el diagrama, y los resultados completos siguen a un clic.
+
+## Ejemplo: Pokemon card en simulación
+
+<Steps>
+1. Abre **Pokemon card**. Se abre en la pestaña **Diseño**.
+2. En la barra de ejecución, elige **Simulación** y pulsa **Ejecutar 2 casos**.
+3. El lienzo pasa de **Diseño** a **Ejecución**, arriba a la izquierda. Mientras un paso corre, su tarjeta dice **↻ ejecutando…**.
+4. Al terminar, la barra de abajo dice **✓ 2 de 2 casos pasaron**, con un chip por caso: **Camino feliz ✓** y **getPokemon responde 404 → pokemonNotFound ✓**.
+5. Haz clic en el chip del caso 404. La tarjeta de `getPokemon` dice **✕ 404 → termina**, su ruta del 404 dice **tomada** y los demás pasos dicen **no se ejecutó**. El panel del paso se abre en ese paso, en la pestaña **Respuesta**.
+</Steps>
+
+Ese caso pasa: espera que `getPokemon` responda 404 y que la ruta `pokemonNotFound` termine el workflow. La tarjeta está en rojo porque el paso falló, y la ruta que lo manejó es la que dice **tomada**.
+
+<video controls muted playsinline preload="metadata" poster="/media/es/test-canvas-run.webp" src="/media/es/test-canvas-run.mp4"></video>
+
+## Diseño y Ejecución
+
+El selector de arriba a la izquierda del lienzo tiene dos vistas:
+
+| Vista | Qué muestra el lienzo |
+|---|---|
+| **Diseño** | El workflow, tal como lo armas. Sin resultados. |
+| **Ejecución** | En cada paso, lo que pasó en el caso elegido. |
+
+El selector aparece cuando el workflow ya tiene resultados. Cada ejecución lleva el lienzo a **Ejecución**. Cuando editas el workflow, vuelve a **Diseño**.
+
+## Qué dice cada tarjeta
+
+| En la tarjeta | Qué significa |
+|---|---|
+| **✓ 200 · 182 ms** | El paso pasó: su status y cuánto tardó. Un paso simulado dice **✓ 200 · simulado** en lugar del tiempo. |
+| **✓ 200 · 3 intentos** | Pasó después de reintentar. |
+| **✕ 503 · 4 intentos** | Falló, también después de sus reintentos. |
+| **✕ 404 → termina** | Falló y una ruta terminó el workflow. |
+| **↪ 404 → sugerirNombre** | Falló, pero una ruta lo manejó y el workflow siguió (en ámbar). No cuenta como fallo. |
+| **saltado (ruta del paso 2)** | Una ruta del paso 2 saltó este paso. |
+| **no se ejecutó** | El workflow se detuvo o terminó antes de este paso. |
+| **↻ ejecutando…** | El paso está corriendo ahora. |
+| **↻ intento 2 de 4** | Una ruta está reintentando el paso. **↻ ejecuta «Renovar token»** cuando antes corre otro workflow. |
+| **⏸ en pausa** | La ejecución está en pausa antes de este paso. Mira [Depurar un workflow](/es/test/debug/). |
+
+Un paso que corrió varias veces en un bucle agrega cuántas, por ejemplo **· ×3**.
+
+Las filas de la tarjeta también cambian:
+
+- La ruta que tomó el caso dice **tomada**.
+- Cada chip de dato muestra el valor que recibió el paso, por ejemplo `← id = 25`. Pasa el puntero sobre un chip para ver de dónde sale el valor y su último valor.
+- Un valor que cambiaste en una pausa lleva **✎**.
+
+## La barra de resultado
+
+La barra flota abajo del lienzo. De izquierda a derecha:
+
+![Pokemon card después de ejecutar sus dos casos en Simulación: la tarjeta de getPokemon dice ✓ 200 · simulado, y la barra de resultado dice ✓ 2 de 2 casos pasaron, con un chip por caso, Repetir, Reporte y Resultados](/media/es/test-canvas-run.webp)
+
+| Elemento | Qué hace |
+|---|---|
+| **✓ 2 de 2 casos pasaron** o **✕ 1 de 3 caso falló** | Cómo terminó la ejecución. Mientras corre: **Ejecutando «Camino feliz»…**. En pausa: **⏸ En pausa antes del paso 2** y **▷ Continuar**. |
+| Un chip por caso | Su nombre y una marca: ✓ pasó, ✕ falló, ! advertencia o no concluyente, … sin terminar. Haz clic en un chip para ver el recorrido de ese caso en el lienzo. Pasa el puntero encima para leer por qué no pasó. |
+| **⇄ Comparar** | Marca lo que cambió respecto de la ejecución anterior de ese caso. Mira más abajo. |
+| **↻ Repetir** | Vuelve a ejecutar los casos seleccionados, igual que **Ejecutar**. |
+| **Reporte** | Descarga el reporte HTML. Mira [Reportes](/es/test/reports/). |
+| **Resultados ▴** | Abre los resultados completos debajo del lienzo, el mismo detalle de las otras pestañas. **Resultados ▾** los cierra. Mira [Lee los resultados](/es/test/results/). |
+
+Con el panel del paso abierto, la barra se acorta: se ocultan la palabra **Caso** y **Reporte**. **Reporte** sigue en los resultados completos.
+
+En la pestaña **Diseño**, los resultados completos no se abren solos: el lienzo cuenta la ejecución. Pulsa **Resultados ▴** cuando necesites el detalle de cada paso.
+
+## Elige un caso
+
+Haz clic en el chip de un caso. El lienzo dibuja su recorrido y elige el paso donde se salió del camino normal:
+
+- el paso que falló;
+- si ninguno falló, el primer paso que una ruta manejó o desvió.
+
+El panel del paso se abre en ese paso. Si falló, se abre en la pestaña **Respuesta**.
+
+Mientras la ejecución avanza, el lienzo sigue al caso que está corriendo. Al terminar, muestra el caso que elegiste, o el primero que falló.
+
+## La pestaña Respuesta de un paso
+
+Elige un paso y abre **Respuesta** en su panel. Dice qué respondió el paso en el caso elegido: **Caso «Camino feliz»**, el status, el tiempo (o **simulado**) y la cantidad de intentos.
+
+![La pestaña Respuesta de getPokemon después de responder 404 a missingno: Por qué falló, con $statusCode == 200 que fue 404, Lo que recibió y el Cuerpo con Copiar como cURL](/media/es/test-canvas-failed-response.webp)
+
+Cuando el paso falló, agrega:
+
+| Sección | Qué muestra |
+|---|---|
+| **Por qué falló** | Cada criterio que no se cumplió, por ejemplo `$statusCode == 200` con **fue 503**. Después, **Su ruta reintentó 3 veces y siguió respondiendo 503.**, o **Ninguna ruta del paso ni del workflow maneja 404.** |
+| **Lo que recibió** | Cada valor que recibió el paso, de dónde vino y **✎** si lo editaste en una pausa. |
+| **Cuerpo** | El cuerpo de la respuesta, con **Copiar como cURL**. |
+| **Qué hacer** | **▷ Ejecutar desde este paso**, para repetir desde ahí. **Reintentar más (×5, cada 5 s)** cuando se tomó una ruta de reintento: cambia esa ruta en el Arazzo para que reintente cada 5 s, hasta 5 veces. **＋ Ruta si responde 404…** cuando ninguna ruta maneja ese status: abre el editor de rutas para ese status. |
+
+Cuando una ruta manejó el fallo, la pestaña dice **Lo manejó la ruta «…». No cuenta como fallo.**
+
+**Ver la petición y la respuesta completas**, plegado al final, abre la misma tarjeta del paso que en los resultados completos: criterios, request, respuesta, contrato y outputs. Mira [Lee el resultado de un paso](/es/test/step-results/).
+
+Para agregar una ruta a mano, mira [Rutas](/es/design/branches/). Para repetir una parte del workflow, mira [Depurar un workflow](/es/test/debug/#ejecuta-solo-hasta-o-desde-un-paso).
+
+## Compara con la ejecución anterior
+
+Luvin guarda la ejecución anterior de cada workflow mientras la app está abierta. Después de ejecutar otra vez, aparece **⇄ Comparar** en la barra.
+
+<Steps>
+1. Ejecuta el workflow. Por ejemplo, **Pokemon card** en **Simulación**.
+2. Cambia algo: una ruta, un input o el ambiente. Al editar, el lienzo vuelve a **Diseño**.
+3. Ejecuta otra vez.
+4. Elige un caso en la barra y pulsa **⇄ Comparar**.
+</Steps>
+
+Ahora el botón dice cuántos pasos cambiaron, por ejemplo **⇄ 3 cambios**, o **⇄ Sin cambios**. Cada paso que cambió muestra, junto a su resultado, lo que hizo antes: **antes: ✓ 200**. Pulsa el botón otra vez para ocultar las marcas.
+
+![Un workflow de una tienda ejecutado otra vez con un producto que no existe: la barra dice ⇄ 2 cambios, el primer paso dice ✕ 404 junto a antes: ✓ 200, y el segundo dice no se ejecutó junto a antes: ✓ 200](/media/es/test-canvas-compare.webp)
+
+- Compara el mismo caso, paso por paso.
+- La ejecución anterior vive en memoria: se pierde al cerrar Luvin. Para ver ejecuciones más viejas, usa el [historial de ejecuciones](/es/workspaces/history-runs/).
+- Probar una ruta y una ejecución parcial (solo, hasta o desde un paso) no cambian con qué se compara, y no tienen **⇄ Comparar**.
+
+## Ejecuta desde otras pestañas
+
+El lienzo está solo en la pestaña **Diseño**. Si ejecutas desde **Casos** o **Inputs**, los resultados completos se abren abajo como siempre, y el lienzo muestra esa misma ejecución la próxima vez que abras **Diseño**.
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Probar rutas y cobertura" description="Prueba cada ruta con una respuesta simulada." href="/es/test/probe-routes/" />
+  <LinkCard title="Depurar un workflow" description="Pausa, edita y continúa; ejecuta solo, hasta o desde un paso." href="/es/test/debug/" />
+  <LinkCard title="Lee los resultados" href="/es/test/results/" />
+  <LinkCard title="Ejecutar" href="/es/test/run/" />
+</CardGrid>

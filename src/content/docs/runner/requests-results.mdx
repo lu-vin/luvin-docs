@@ -63,11 +63,13 @@ Times under a second are in ms, for example `180 ms`. Longer ones are in seconds
 | The request… | Result |
 |---|---|
 | Does not answer: no connection, timeout, an error before sending | **Fails**. Its status says **No response**. |
+| Has a script test (`pm.test`) that fails | **Fails**, whatever the status. |
 | Answers and has checks | **Passes** if every check passes. **Fails** if one does not. |
-| Answers and has no checks | **Passes** if the status is below 400. **Fails** with 400 or more. |
+| Answers, has no checks, and has script tests that all pass | **Passes**, even with a 4xx or 5xx status. |
+| Answers and has neither checks nor script tests | **Passes** if the status is below 400. **Fails** with 400 or more. |
 | Is a gRPC call | **Passes** if it ends with code 0. |
 
-If an error status is what you expect, add a check, for example that `res.status` equals `404`. The request then passes when it answers 404. Opening a request that failed for its status, with no checks, reminds you: *Without checks, an error status counts as a failure. Add a check (for example, status is 404) if it is expected.*
+If an error status is what you expect, add a check (or a script test such as `pm.response.to.have.status(404)`), for example that `res.status` equals `404`. The request then passes when it answers 404. Opening a request that failed for its status, with no checks, reminds you: *Without checks, an error status counts as a failure. Add a check (for example, status is 404) if it is expected.*
 
 ## Filters
 

@@ -36,12 +36,12 @@ Luvin guarda la autorización en cuatro lugares. Cada uno responde una pregunta 
     <Steps>
 
     1. Haz clic en el nombre de la colección en la barra lateral. Se abre el resumen de la colección.
-    2. Busca la tarjeta **Autorización**.
+    2. Haz clic en la pestaña **Autorización**.
     3. Elige un **Tipo**.
 
     </Steps>
 
-    Desde un request que hereda, **Configurar en la colección** te lleva a la misma tarjeta.
+    Desde un request que hereda, **Configurar en la colección** te lleva a la misma pestaña.
   </TabItem>
   <TabItem label="Workflow">
     <Steps>
@@ -71,6 +71,7 @@ Luvin guarda la autorización en cuatro lugares. Cada uno responde una pregunta 
 - **Una llamada puntual o explorar una API:** el request.
 - **Todos tus requests guardados comparten un login:** la colección, y deja los requests en **Heredar de la colección**.
 - **Un workflow necesita un token que vence o se pide al ejecutar:** la pestaña del workflow con **OAuth 2.0**.
+- **La API tiene su propia llamada de login que devuelve un token:** un paso de login en el workflow que le da su token a los pasos siguientes. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
 - **El contrato ya dice lo que necesita y basta con pegar un token:** las credenciales del ambiente.
 
 La autorización de la colección es para requests sueltos. Un workflow la usa solo si una API está en **Heredar de la colección** en la pestaña del workflow.

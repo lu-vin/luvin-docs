@@ -79,11 +79,11 @@ Requests that use `{{$guid}}`, `{{$randomEmail}}` or another Postman dynamic var
 
 </Steps>
 
-Postman scripts that set variables, such as `pm.environment.set("token", …)`, become saved values of the request, not environment variables. They are kept in memory while the collection is open, until you switch environments. See [Bring your own files and requests](/get-started/import/).
+Postman and Bruno scripts come with the collection and run once you trust it. When a script sets a variable, such as `pm.environment.set("token", …)`, it changes the **current value** of that variable on this computer. The environment file does not change. See [Variables a script saves](/requests/scripts/#variables-a-script-saves).
 
 ## Things to know
 
-- An import always creates a new collection. To add a Postman environment to a collection you already have, create the environment in Luvin and copy the values.
+- An import creates a new collection, or replaces the content of one with the same name, environments included. See [When the collection already exists](/get-started/import/#when-the-collection-already-exists). To add only a Postman environment to a collection you already have, create the environment in Luvin and copy the values.
 - If you choose only environment files, Luvin says **Those are only environments: choose the collection too.**
 - You need a workspace open to import. See [Create and open a workspace](/workspaces/create-and-open/).
 

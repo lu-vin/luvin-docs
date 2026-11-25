@@ -1,6 +1,6 @@
 ---
 title: Outputs
-description: Choose which values a step keeps from its response, how lists work, and what the workflow returns at the end.
+description: Choose which values a step keeps from its response, see who uses each one, how lists work, and what the workflow returns at the end.
 sidebar:
   order: 6
 ---
@@ -16,9 +16,9 @@ In **Pokemon card**, `getPokemon` keeps five values. Later steps read `id`, `mai
 <Tabs>
   <TabItem label="In the app">
 
-Under **Outputs** in the step panel, the fields `id`, `name`, `types/type/name`, `abilities/ability/name` and `base_experience` are ticked. On the card, each output has a dot you can drag to a later parameter.
+In the step panel, in the **Data** tab, **Gives · 5** lists the five outputs. Each row says who uses it, for example `id` **→ step 2**. On the card, each output has a row under **Outputs**, with a dot you can drag to a later parameter.
 
-![The step panel with the response fields ticked as outputs and the action chosen for each error](/media/en/step-outputs.webp)
+![The Data tab of getPokemon: the Gives section with its outputs and the steps that use each one](/media/en/step-outputs.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -41,19 +41,38 @@ Often you do not. When you connect a parameter to a field of an earlier response
 
 Add one by hand when you want the workflow to return the value at the end, or to have it ready before you add the step that will use it.
 
-## Tick the fields a step exposes
+## See what a step gives
 
 <Steps>
 1. In the **Design** tab, click the step.
-2. Go to **Outputs**, at the bottom of the panel. It says **What this step exposes to the next ones (from its response).**
-3. Tick a field.
+2. In the **Data** tab, go to **Gives**, below **Receives**. The number is how many outputs the step has.
+</Steps>
+
+Each row shows:
+
+| Part | Example | What it is |
+|---|---|---|
+| Name | `id` | The name the next steps use. |
+| Field | `id` | Where it comes from in the response. After a run, the value it got instead, for example `25`. |
+| Who uses it | **→ step 2, End** | The steps that read it, and **End** if the workflow returns it. |
+| **nobody uses it** | | No step reads it and the workflow does not return it. Not an error: it may be there for the report. |
+| ✕ | | Removes the output. |
+
+If the step has none yet, the section says **It gives no data yet.**
+
+## Add an output
+
+<Steps>
+1. Click the step and, in **Gives**, click **＋ Output**. The fields of the response appear under **What this step exposes to the next ones (from its response).**
+2. Tick a field.
+3. Click **Done** to close the list.
 </Steps>
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-outputs.webp" src="/media/en/design-outputs.mp4"></video>
 
-The output appears on the card, under **Outputs**, with a dot on its right that you can drag to a parameter of a later step. Untick the field to remove the output.
+The output appears in **Gives** and on the card, under **Outputs**, with a dot on its right that you can drag to a parameter of a later step. Untick the field, or click ✕ on its row, to remove the output.
 
-The panel lists the fields of the success response the contract documents: lists first, then simple values such as texts, numbers and yes/no. The name of the output comes from the path of the field:
+The list shows the fields of the success response the contract documents: lists first, then simple values such as texts, numbers and yes/no. The name of the output comes from the path of the field:
 
 | Field | Output name |
 |---|---|
@@ -61,15 +80,17 @@ The panel lists the fields of the success response the contract documents: lists
 | `customer/id` | `customerId` |
 | `types/type/name` | `typesTypeName` |
 
-If the panel says **The contract doesn't document the response: add outputs in the YAML.**, Luvin has no fields to offer. Write the output by hand as shown below.
+If the list says **The contract doesn't document the response: add outputs in the YAML.**, Luvin has no fields to offer. Write the output by hand as shown below.
 
 <Aside type="caution">
-If you untick an output that a later step uses, that step loses its value and shows an error. Give it another source, or click **Undo**.
+If you remove an output that a later step uses, that step loses its value: its chip turns red with **missing**. Give it another source, or click ↶ (**Undo**).
 </Aside>
+
+A step that signs in shows one more line in **Gives**, to use its token in the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/).
 
 ## Fields that are lists
 
-Responses often contain lists: the cards of a customer, the items of an order. The panel offers three kinds of fields for them.
+Responses often contain lists: the cards of a customer, the items of an order. The list of fields offers three kinds of fields for them.
 
 | What you tick | Tag | What the output holds |
 |---|---|---|
@@ -77,7 +98,7 @@ Responses often contain lists: the cards of a customer, the items of an order. T
 | A field of the items, for example `cards/bank` | None | The value of one item. You choose which item when you run. |
 | One value of a list of simple values, for example `tags` | **one item** | One of the values. You choose which when you run. |
 
-Fields of list items are shown without a position: `cards/bank`, not `cards/0/bank`. When a step has outputs of this kind, the panel adds a note, **These outputs come from one item of “cards”: you choose which one when you run.**, with the button **Expose the whole “cards” list** in case you want all the items instead.
+Fields of list items are shown without a position: `cards/bank`, not `cards/0/bank`. When a step has outputs of this kind, the list adds a note, **These outputs come from one item of “cards”: you choose which one when you run.**, with the button **Expose the whole “cards” list** in case you want all the items instead.
 
 The choice happens during the run: Luvin pauses and shows what came back. See [Choose an item from a list](/test/lists/).
 
@@ -85,7 +106,7 @@ The choice happens during the run: Luvin pauses and shows what came back. See [C
 
 ## Outputs written in the YAML
 
-The panel covers fields picked by their path. An output can also be a search inside the response, written in the [YAML tab](/design/arazzo-editor/). In **Pokemon card**, the step `getAbility` keeps the English description of an ability with a JSONPath search:
+The list covers fields picked by their path. An output can also be a search inside the response, written in the [YAML tab](/design/arazzo-editor/). In **Pokemon card**, the step `getAbility` keeps the English description of an ability with a JSONPath search:
 
 ```yaml
 outputs:
@@ -95,11 +116,11 @@ outputs:
     type: jsonpath
 ```
 
-An output like this appears in the panel below the fields, with its name, its expression and **Delete**. It works like any other output: later steps can use it, and it has a dot on the card.
+An output like this appears in **Gives** like any other. While **＋ Output** is open, it is listed below the fields with its name, its expression and **Delete**. Later steps can use it, and it has a dot on the card.
 
 ## What the workflow returns
 
-A workflow has its own outputs: what it returns when it ends. Other workflows that depend on it read them, and so does the report. You set them on the **End of workflow** card, the last one on the canvas.
+A workflow has its own outputs: what it returns when it ends. Other workflows that depend on it read them, and so does the report. You set them on **End of workflow**, the last card of the canvas. The card says how many it returns, for example **gives 6 outputs**, or **no outputs**.
 
 <Steps>
 1. Click **End of workflow**. The panel shows **Workflow outputs**.
@@ -111,7 +132,9 @@ You can also drag from the dot of any output to the **End of workflow** card.
 
 If the panel says **Nothing to expose yet: declare outputs on the steps.**, add outputs to a step first.
 
-For example, **Pokemon card** returns six values taken from its four steps, among them `name` and `mainType` from `getPokemon` and `weakTo` from `getWeakness`. On the canvas, a dashed line goes from each of those outputs to **End of workflow**.
+For example, **Pokemon card** returns six values taken from its four steps, among them `name` and `mainType` from `getPokemon` and `weakTo` from `getWeakness`. Each one is a row of the **End of workflow** card, with a chip that says where it comes from. Click **End of workflow** to see the lines from those steps.
+
+If a route can skip the step that gives a workflow output, or end the workflow before it, the panel of **End of workflow** warns you. See [To review](/design/review/).
 
 ![The End of workflow panel: the candidate outputs of the steps and the inputs, createOrder › orderId ticked, and below it its editable name and its bin](/media/en/design-workflow-outputs.webp)
 

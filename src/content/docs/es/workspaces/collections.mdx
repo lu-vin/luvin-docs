@@ -60,13 +60,15 @@ Los workflows aparecen en la barra lateral y los archivos se guardan en la carpe
 
 ### Arrastrar y soltar
 
-Puedes soltar archivos en cualquier parte de la ventana. Mientras arrastras, una capa dice **Suelta para agregar a «Partners»** y **Contratos OpenAPI o AsyncAPI y archivos Arazzo (.yaml, .yml o .json)**. Al soltar, un aviso dice **Se agregaron 3 archivo(s) a la colección**.
+Puedes soltar archivos en cualquier parte de la ventana. Mientras arrastras, una capa dice **Suelta para agregar a «Partners»** y **Contratos OpenAPI o AsyncAPI y archivos Arazzo (.yaml, .yml o .json); las colecciones de Postman o Bruno se importan aparte**. Al soltar, un aviso dice **Se agregaron 3 archivo(s) a la colección**.
+
+Una colección o un ambiente de Postman, o una exportación de Bruno, no se agrega como archivo: abre el [diálogo para importar](#importar-de-postman-o-bruno) con su resumen. Pasa lo mismo si eliges uno con **Agregar archivos a la colección** o **Importar contrato…**. Los demás archivos que soltaste se agregan a la colección.
 
 | Caso | Qué ves |
 |---|---|
 | Algunos archivos no son `.yaml`, `.yml` ni `.json` | **Se agregaron 2 archivo(s); 1 no eran .yaml, .yml ni .json**. Los demás se agregan. |
 | Ningún archivo es válido | **Solo se pueden agregar archivos .yaml, .yml o .json** |
-| No hay colección abierta | **Abre o crea una colección para agregarle archivos** |
+| No hay colección abierta | La capa dice **Suelta para importar de Postman o Bruno**. Los archivos de Postman y Bruno abren el diálogo para importar, que crea su propia colección. Con otros archivos ves **Abre o crea una colección para agregarle archivos**. |
 
 ## Importar de Postman o Bruno
 
@@ -84,7 +86,7 @@ Cada colección de Postman o Bruno se convierte en una colección nueva de Luvin
 
 ![El diálogo para importar de Postman o Bruno](/media/es/import-postman.webp)
 
-Los tests se vuelven [variables y comprobaciones](/es/requests/variables-and-checks/) cuando se puede; los demás scripts no se importan, y una autorización o un body sin equivalente queda vacío. Las advertencias del diálogo dicen cuáles. El recorrido completo está en [Importar](/es/get-started/import/) y [Desde Postman](/es/tutorials/from-postman/).
+Los scripts llegan tal como estaban, en la pestaña **Scripts** de la colección, de cada carpeta y de cada request, y corren cuando confías en la colección. Una autorización o un body sin equivalente queda vacío. Las advertencias del diálogo dicen cuáles. El recorrido completo está en [Importar](/es/get-started/import/) y [Desde Postman](/es/tutorials/from-postman/).
 
 ## Abrir una colección
 
@@ -161,9 +163,9 @@ La versión de la colección es una etiqueta que elige tu equipo, como `1.2.0`. 
 
 <Steps>
 
-1. Abre el [resumen de la colección](/es/workspaces/collection-overview/).
-2. En la tarjeta **Versión**, haz clic en **Definir versión**. Si ya hay una, haz clic en **Cambiar**.
-3. Escríbela, por ejemplo `1.2.0`, y haz clic en **Guardar**.
+1. Abre el [resumen de la colección](/es/workspaces/collection-overview/), en su pestaña **Resumen**.
+2. Debajo del nombre, haz clic en **Definir versión**. Si ya hay una, haz clic en la versión.
+3. Escríbela, por ejemplo `1.2.0`, y haz clic en **Guardar** (o presiona Enter). Esc cancela.
 
 </Steps>
 
@@ -171,7 +173,7 @@ Se guarda como `collectionVersion` en `collection.yaml`. Un texto vacío la quit
 
 ## Copiar la ruta y compartir
 
-En la tarjeta **Compartir** del resumen, haz clic en **Copiar la ruta**. El botón dice **Copiado**. Una colección es una carpeta de archivos de texto: envía la ruta, o compártela con [git](/es/workspaces/git/). Los secretos nunca están en ella.
+Arriba del [resumen de la colección](/es/workspaces/collection-overview/), haz clic en **Copiar la ruta**. El botón dice **✓ Copiado**. Una colección es una carpeta de archivos de texto: envía la ruta, o compártela con [git](/es/workspaces/git/). Los secretos nunca están en ella.
 
 ## Ordenar las colecciones
 

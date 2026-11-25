@@ -101,6 +101,12 @@ workflows:
 | 35-37 | Un criterio `jsonpath` sobre todo el body. Pasa cuando la ruta encuentra al menos una coincidencia: aquí, un producto con precio mayor que 0. |
 | 44-60 | El segundo workflow, `impossiblePrice`, pide un precio mayor que 100000. Ningún teléfono cuesta tanto, así que falla a propósito. |
 
+## En el lienzo
+
+Abre `searchPhones` en la pestaña **Diseño**. La tarjeta de `search` muestra los cuatro criterios en **Criterios de éxito**, cada uno con su tipo a la derecha: **simple**, **simple**, **regex** y **jsonpath**. Un criterio con `context` lo muestra primero, como en `$response.header.Content-Type ~ ^application/json`.
+
+En el panel del paso, la pestaña **Éxito y rutas** los tiene en **Es éxito si** · **se cumplen todos**. El status es una lista que cambias ahí; los otros tres se editan en la pestaña YAML, con **Editar en el YAML**.
+
 ## Qué obtienes
 
 Los dos workflows llaman a `GET /products/search?q=phone&limit=3&select=title,price`.
@@ -129,11 +135,28 @@ $response.header.Content-Type = "application/json; charset=utf-8" no cumple /^te
 - Cambia `q` por `laptop` en la pestaña **Inputs** y ejecuta `searchPhones` otra vez. El total pasa a `5` y los criterios se siguen cumpliendo.
 - En `impossiblePrice`, cambia `100000` por `100`. El criterio ahora encuentra los productos que cuestan más de 100 y el workflow pasa.
 
+## Un JSONPath que en realidad es una comparación
+
+Un criterio JSONPath encuentra cosas; no compara. Supón que escribes la revisión del total como JSONPath:
+
+```yaml
+- context: $response.body
+  condition: $.total > 0
+  type: jsonpath
+```
+
+`$.total > 0` no es una consulta JSONPath, así que nunca encuentra nada y `search` fallaría siempre. Luvin lo detecta antes de que ejecutes: la barra muestra **⚠ 1 por revisar**, y el aviso dice **Paso 1: el criterio «$.total > 0» no es JSONPath válido y nunca se cumple: el paso falla siempre.** con **Escríbela como condición simple: «$response.body#/total > 0». Así la evalúa cualquier herramienta de Arazzo.**
+
+Haz clic en el aviso y después en **Cambiarla**, en la pestaña **Éxito y rutas**. Luvin reescribe ese criterio como `condition: $response.body#/total > 0`, la condición simple de la línea 31. Los filtros de esta receta, como `$.products[?(@.price > 0)]`, son consultas válidas y no se avisan. Ver [Por revisar](/es/design/review/#una-condición-jsonpath-que-nunca-se-cumple).
+
+![La pestaña Éxito y rutas de un paso con un criterio JSONPath que nunca se cumple: el cuadro Por revisar con el botón Cambiarla](/media/es/design-review-fix.webp)
+
 ## Relacionado
 
 <CardGrid>
   <LinkCard title="Criterios de éxito" href="/es/reference/criteria/" description="Simple, regex, JSONPath y XPath, y cómo se explica un fallo." />
   <LinkCard title="Expresiones" href="/es/reference/expressions/" description="`$statusCode`, `$response.body` y el resto." />
-  <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" description="Criterios y acciones en el panel del paso." />
+  <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" description="Criterios y rutas en el panel del paso." />
+  <LinkCard title="Por revisar" href="/es/design/review/" description="Condiciones que nunca se cumplen, detectadas antes de ejecutar." />
   <LinkCard title="Espera un error" href="/es/recipes/expected-error/" description="Haz que un 400 sea la respuesta esperada." />
 </CardGrid>

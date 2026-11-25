@@ -1,17 +1,17 @@
 ---
 title: El resumen de la colección
-description: Qué muestra cada tarjeta del resumen de la colección, cómo abrirlo y qué cuentan los números del Inicio.
+description: La vista de la colección, ordenada en pestañas como en Postman (Resumen, Autorización, Scripts y Variables), con su documentación al costado, y qué cuentan los números del Inicio.
 sidebar:
   order: 8
 ---
 
 import { Steps, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-El resumen de la colección es una sola página que la describe: dónde está, su versión, su autorización, sus ambientes, workflows y contratos. Ábrelo cuando te sumas a un proyecto o cuando entregas una colección a otra persona.
+La vista de la colección es el lugar de todo lo que vale para una colección entera: su resumen, la autorización que heredan sus requests, sus scripts y sus variables. Está ordenada en pestañas, como en Postman, y su documentación queda a la derecha. Ábrela cuando te sumas a un proyecto o cuando entregas una colección a otra persona.
 
-![El resumen de una colección, con sus tarjetas a la izquierda y su documentación a la derecha](/media/es/collection-overview.webp)
+![El resumen de una colección, con sus pestañas a la izquierda y su documentación a la derecha](/media/es/collection-overview.webp)
 
-## Abrirlo
+## Abrirla
 
 Usa cualquiera de estas opciones:
 
@@ -19,21 +19,68 @@ Usa cualquiera de estas opciones:
 - En la barra lateral, haz clic en el nombre de una colección, o abre su menú **⋯** y elige **Resumen de la colección**.
 - Haz clic en la pestaña con el nombre de la colección, si ya está abierta.
 
-El resumen se abre en una pestaña con el nombre de la colección. El panel **Documentación** de la derecha se explica en [Escribir documentación](/es/workspaces/documentation/).
+La vista se abre en una pestaña con el nombre de la colección, en **Resumen**. Algunos enlaces la abren en otra pestaña: la autorización de la colección desde un workflow, o **Variables de la colección** en el panel **Ambientes** de la barra lateral, que abre **Variables**.
 
-## Las tarjetas
+## La cabecera
 
-| Tarjeta | Qué muestra y qué hace |
+Arriba están el nombre de la colección y tres botones:
+
+| Botón | Qué hace |
 |---|---|
-| **Ubicación** | La carpeta de la colección. **Mostrar en Finder** (**Mostrar en el explorador**) la abre en tu explorador de archivos. **Abrir en terminal** abre una terminal ahí. Las colecciones de los ejemplos incluidos viven en una carpeta de los datos de la app en este equipo, así que estos enlaces también funcionan para ellas. |
-| **Versión** | La versión que tu equipo le da a la colección, o **Sin definir**. Mira [Definir la versión](/es/workspaces/collections/#definir-la-versión). |
-| **Autorización** | La autorización de los requests con **Heredar de la colección**. Mira [Autorización de la colección](/es/workspaces/collection-authorization/). |
-| **Ambientes** | Los ambientes con sus colores, y el enlace `2 ambiente(s) · configurar`, que abre el activo. |
-| **Workflows** | Cuántos workflows, archivos Arazzo y casos de prueba, por ejemplo `4 workflow(s) en 1 archivo(s) Arazzo · 12 caso(s) de prueba`. Después de ejecutar casos agrega la última ejecución: ✓ pasaron, ✕ fallaron, ! advertencia, ? no concluyente. Los enlaces abren los primeros seis workflows. |
-| **Contratos** | Cuántos contratos cargaron, por ejemplo `3 de 3 cargado(s)`, y un enlace a cada uno. |
-| **Compartir** | Un recordatorio de que la colección es una carpeta que puedes compartir con git, y **Copiar la ruta**. |
+| **Mostrar en Finder** (**Mostrar en el explorador** en Windows) | Abre la carpeta de la colección en tu explorador de archivos. |
+| **Abrir en terminal** | Abre una terminal en esa carpeta. En la interfaz Simple no aparece. |
+| **Copiar la ruta** | Copia la ruta de la carpeta. El botón dice **✓ Copiado** por un momento. |
+
+Las colecciones de los ejemplos incluidos viven en una carpeta de los datos de la app en este equipo, así que estos botones también funcionan con ellas.
+
+## Las pestañas
+
+| Pestaña | Qué tiene |
+|---|---|
+| **Resumen** | Un resumen de la colección. Míralo abajo. |
+| **Autorización** | La autorización que usan los requests con **Heredar de la colección**. Mira [Autorización de la colección](/es/workspaces/collection-authorization/). |
+| **Scripts** | Scripts que corren en todos los requests de la colección: antes que los de cada carpeta y los del request, y después de cada respuesta en el mismo orden. Mira [Scripts](/es/requests/scripts/). |
+| **Variables** | Las variables de la colección: valores que son iguales en todos sus ambientes. Mira [Variables de la colección](#variables-de-la-colección). |
+
+Un punto junto a **Autorización**, **Scripts** o **Variables** indica que esa pestaña tiene algo configurado, como en Postman. Por ejemplo, el punto de **Autorización** aparece apenas eliges un tipo distinto de **Sin autorización**.
+
+## Resumen
+
+De arriba abajo:
+
+- **El nombre y la carpeta.** La ruta ocupa una sola línea. Si es larga, se corta por el principio, así siempre ves el final. Pasa el mouse sobre ella para leerla completa.
+- **La versión.** Haz clic en **Definir versión** (o en la versión, si ya hay una), escríbela y haz clic en **Guardar**. Esc cancela. Mira [Definir la versión](/es/workspaces/collections/#definir-la-versión).
+- **Los conteos**: cuántos requests, workflows, contratos y ambientes tiene la colección.
+- **Workflows.** Una fila por workflow, con su número de pasos. Haz clic en una fila para abrir el workflow. Debajo, una línea como `4 workflow(s) en 1 archivo(s) Arazzo · 12 caso(s) de prueba`. Después de ejecutar casos, el título suma la última ejecución: ✓ pasaron, ✕ fallaron, ! advertencia, ? no concluyente.
+- **Contratos.** Una fila por archivo de contrato, con su tipo (`openapi` o `asyncapi`). Haz clic en una fila para abrir el contrato.
+- **Ambientes.** Los ambientes con sus colores, y el enlace `2 ambiente(s) · configurar`, que abre el activo.
 
 Los conteos de la última ejecución son de esta sesión. No se guardan.
+
+## Variables de la colección
+
+La pestaña **Variables** es una tabla con **Nombre** y **Valor**. Úsala para los valores que no cambian entre ambientes, como `apiVersion` = `v2`.
+
+<Steps>
+
+1. Abre la colección y haz clic en la pestaña **Variables**.
+2. Haz clic en **+ Agregar variable**. Aparece una fila vacía.
+3. Escribe el nombre, por ejemplo `apiVersion`, y el valor, `v2`. Luvin la guarda solo.
+
+</Steps>
+
+- Un nombre puede tener letras, números, `_`, `.` y `-`, sin espacios. Si no, la fila dice **Usa letras, números, _ . o -, sin espacios**. Dos filas con el mismo nombre dicen **Ya hay una variable con este nombre**.
+- El botón de la papelera (**Eliminar**) quita una fila.
+- Las variables de la colección no pueden ser secretas. Lo que cambia entre ambientes, como URLs, credenciales y secretos, va en un ambiente: el enlace de debajo de la tabla lo abre.
+- Si un ambiente tiene una variable con el mismo nombre, gana la del ambiente.
+
+![La pestaña Variables de la colección, con la variable apiVersion en v2](/media/es/collection-variables.webp)
+
+Todos los requests y workflows de la colección pueden usarlas como `{{apiVersion}}`. Qué valor gana, y los otros lugares donde puede vivir una variable, están en [Dónde vive una variable](/es/environments/variable-levels/).
+
+## La documentación
+
+El panel **Documentación** queda a la derecha en cualquier pestaña. Escribe ahí el README de la colección, o genéralo desde sus archivos Arazzo. Mira [Escribir documentación](/es/workspaces/documentation/). Arrastra la línea entre las pestañas y el panel para cambiar su ancho.
 
 ## Los números del Inicio
 
@@ -47,6 +94,7 @@ Una colección sin Arazzo muestra un aviso en el **Inicio**: impórtalos con **I
 
 <CardGrid>
   <LinkCard title="Colecciones" href="/es/workspaces/collections/" />
+  <LinkCard title="Autorización de la colección" href="/es/workspaces/collection-authorization/" />
+  <LinkCard title="Dónde vive una variable" href="/es/environments/variable-levels/" />
   <LinkCard title="Escribir documentación" href="/es/workspaces/documentation/" />
-  <LinkCard title="Qué hay en el disco" href="/es/workspaces/files/" />
 </CardGrid>

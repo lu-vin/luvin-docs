@@ -17,6 +17,7 @@ These are the things Luvin does not do yet. Check them before you plan a test, s
 - **Performance tests run from your computer.** The load comes from this machine: up to 500 virtual users and 60 minutes per test, limited by what your computer and network can send. See [Performance](/runner/performance/).
 - **Performance tests measure only the real API.** In **Simulation** there is nothing to measure. To test without the API, point the environment at a mock server. For workflows, the test repeats one case per workflow: the happy path among the checked ones, or the first.
 - **WebSocket requests are not part of the runner.**
+- **Scripts run in HTTP and GraphQL requests, not in workflow steps.** They run when you send a request, in the runner and in load tests of requests. Some Postman and Bruno members are not available, such as `pm.execution.setNextRequest` or `pm.vault`: see [The script API](/requests/scripts-api/#what-is-not-available).
 - **No hosted version yet.** Luvin is a desktop app: it runs on your computer.
 
 ## Related

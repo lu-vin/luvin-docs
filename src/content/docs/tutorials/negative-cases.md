@@ -1,6 +1,6 @@
 ---
 title: Prove your API rejects bad data
-description: Run the rejection cases Luvin generates, choose which status each one must return, add a case with your own data and share the results as an HTML report.
+description: Run the rejection cases Luvin generates, choose which status each one must return, add a case with your own data, probe the error route on the canvas and share the results as an HTML report.
 sidebar:
   order: 4
 ---
@@ -15,7 +15,7 @@ Luvin generates these cases from the contract and the workflow. They are in the 
 |---|---|---|
 | **Without the required input "…"** | Leaves out one required input. | An input that is required, and not in the path of the URL. |
 | **"…" with …** | A wrong value: outside the allowed options, text instead of a number, or a value that breaks the pattern. | An input with allowed options, a number or yes/no type, or a pattern. |
-| **Without credentials** | No credentials. The first protected step must answer 401 or 403. | A contract protects at least one step. |
+| **Without credentials** | No credentials. The first protected step that is not a sign-in must answer 401 or 403. | At least one step sends credentials: a contract protects it, or its API has an authorization set in Luvin. |
 
 All of them need the **Real API**: in Simulation Luvin does not validate what you send, so they show **Will not run**. See [Cases](/test/cases/).
 
@@ -82,7 +82,21 @@ The generated cases do not know your business rules. Add one for a situation of 
 
 Untick the other cases and click **Run**. A custom data case always runs against the real API. It ends as **Passed** when `getPokemon` answers 404 and the action `pokemonNotFound` fires. Click **Show values sent** to see the value the generator produced.
 
-## 7. Export the report
+## 7. Probe the error route on the canvas
+
+The rejection cases check your API. The routes check your workflow: what it does when a step answers an error. You can go through them without the API failing.
+
+1. In **Pokemon card**, click the **Design** tab.
+2. On the card of `getPokemon`, find the row of the 404 route and click **▷ Probe**.
+3. The bar at the bottom of the canvas says **Probed: 404 → pokemonNotFound · ended the workflow with an error**, and the row says **✓ tested**. Nothing was sent: the 404 is simulated from the contract.
+4. In the toolbar of the canvas, click **◎ Routes tested 1/1**. Under **Errors without a route**, the menu lists the 404 of `getSpecies`, `getWeakness` and `getAbility`: the contract documents it and the workflow does not handle it.
+5. Click **Choose what to do** on one of them. The canvas selects that step, so you decide which route to add.
+
+![After ▷ Probe on the 404 route of getPokemon: the row says taken and ✓ tested, and the bar says Probed: 404 → pokemonNotFound](/media/en/test-probe-route.webp)
+
+See [Probe routes and coverage](/test/probe-routes/).
+
+## 8. Export the report
 
 1. In the header of the results, click **Report**.
 2. Luvin downloads a file named `report-<title>-<date>.html`.
@@ -98,10 +112,12 @@ The file has a summary in plain words, the counters, the environment, a table of
 - A status suggested by Luvin gives a **Warning** when the API differs. A status you choose gives **Failed**.
 - A step that answers the expected error is shown as passed.
 - Custom data cases and generators cover your own rules.
+- **▷ Probe** goes through an error route of the workflow without the API failing, and **◎ Routes tested** lists the errors without a route.
 - **Report** exports everything as one HTML file.
 
 ## Next
 
 - [Find out why a case failed](/tutorials/debug-failure/)
 - [Cases](/test/cases/)
+- [Probe routes and coverage](/test/probe-routes/)
 - [Reports](/test/reports/)

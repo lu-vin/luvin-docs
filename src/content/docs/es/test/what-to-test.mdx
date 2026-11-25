@@ -21,6 +21,8 @@ Los ejemplos usan la Pokédex y PayPal, que vienen con Luvin, y un workflow de t
 | [Un rechazo debe devolver un status dado](#un-rechazo-debe-devolver-un-status-dado) | Sí, tú eliges el status | Sí |
 | [Una situación propia](#una-situación-propia-caso-con-datos-propios) | No, la agregas tú | Sí |
 | [Una respuesta de error, contra la API real](#una-respuesta-de-error-contra-la-api-real) | Sí, tú das los datos | Sí |
+| [Cada ruta, sin que la API falle](#cada-ruta-sin-que-la-api-falle) | No, pulsas **▷ Probar** | No |
+| [Otro valor en un paso, sin cambiar los inputs](#otro-valor-en-un-paso-sin-cambiar-los-inputs) | No, pausas el paso | Depende del caso |
 | [Un caso sin un input](#un-caso-sin-un-input) | No, lo omites tú | Depende del caso |
 | [Datos fijos o datos nuevos en cada ejecución](#datos-fijos-o-datos-nuevos-en-cada-ejecución) | — | — |
 | [API real o Simulación](#api-real-o-simulación) | — | — |
@@ -85,16 +87,16 @@ Luvin solo genera este caso para inputs con opciones permitidas, de tipo número
 
 ## Una llamada sin credenciales
 
-**Qué demuestra:** las operaciones protegidas de verdad están protegidas. Luvin ejecuta el workflow sin credenciales y espera que el primer paso protegido responda 401 o 403.
+**Qué demuestra:** las operaciones protegidas de verdad están protegidas. Luvin ejecuta el workflow sin credenciales y espera que el primer paso protegido responda 401 o 403. Un paso de inicio de sesión y los pasos en **Ninguna** no son los que se revisan: un login es público.
 
 <Steps>
 
-1. En la pestaña **Casos**, abre el grupo **Seguridad**. Solo existe si un contrato protege al menos un paso, como en **Create order** de PayPal.
+1. En la pestaña **Casos**, abre el grupo **Seguridad**. Existe cuando al menos un paso envía credenciales: un contrato lo protege, como en **Create order** de PayPal, o su API tiene una autorización puesta en Luvin (en la colección, en el request o en la pestaña **Autorización** del workflow).
 2. Ejecuta **Sin credenciales** contra la **API real**.
 
 </Steps>
 
-**Qué debes ver:** **Pasó** si el paso respondió 401 o 403. Si respondió otra cosa, el caso **no pasa**, porque una operación que el contrato protege dejó pasar el request.
+**Qué debes ver:** **Pasó** si el paso respondió 401 o 403. Si respondió otra cosa, el caso **no pasa**, porque una operación protegida dejó pasar el request.
 
 ![Los casos de Create order de PayPal: Sin el input obligatorio "amount", Sin credenciales y un caso por respuesta](/media/es/test-paypal-cases.webp)
 
@@ -113,7 +115,7 @@ Luvin solo genera este caso para inputs con opciones permitidas, de tipo número
 
 ![Un caso por respuesta que pasó: getProduct simuló un 404 y la acción productNotFound terminó el workflow](/media/es/test-verdict-passed.webp)
 
-¿Qué respuestas todavía no tienen acción? Abre la pestaña **Resumen** y su sección **Cobertura de respuestas**. Cada fila **✕ Sin manejo** es un error que el workflow no trata. Mira [La pestaña Resumen](/es/test/overview-tab/#cobertura-de-respuestas).
+¿Qué respuestas todavía no tienen acción? Abre la pestaña **Resumen** y su sección **Cobertura de respuestas**. Cada fila **✕ Sin manejo** es un error que el workflow no trata. Mira [La pestaña Resumen](/es/test/overview-tab/#cobertura-de-respuestas). En el lienzo, después de una ejecución o una prueba, el menú del chip **◎ Rutas probadas** los lista en **Errores sin ruta**. Mira [Probar rutas y cobertura](/es/test/probe-routes/).
 
 ![Cobertura de respuestas de Pokemon card: 5 de 8 respuestas documentadas manejadas, tres 404 sin manejo](/media/es/test-coverage.webp)
 
@@ -183,6 +185,35 @@ Mira [Casos con datos propios](/es/test/custom-cases/).
 
 Un caso por respuesta en **API real** llama a la API aunque la barra de ejecución esté en **Simulación**. Mira [Ajusta un caso](/es/test/adjust-cases/#ejecuta-un-caso-por-respuesta-contra-la-api-real).
 
+## Cada ruta, sin que la API falle
+
+**Qué demuestra:** que cada ruta de un paso hace lo que esperas cuando el paso responde eso: termina el workflow, reintenta o va a otro paso. También sirve para las rutas sin status y las condiciones sobre el body, que los casos generados no cubren.
+
+<Steps>
+
+1. Abre el workflow en la pestaña **Diseño**.
+2. En la tarjeta del paso, busca la fila de la ruta, por ejemplo el 404 de `getPokemon` en **Pokemon card**.
+3. Pulsa **▷ Probar** en esa fila.
+
+</Steps>
+
+**Qué debes ver:** la barra de resultado dice cómo terminó, por ejemplo **Probada: 404 → pokemonNotFound · terminó el workflow con error**, y la fila dice **✓ probada**. Siempre corre en simulación. El chip **◎ Rutas probadas 1/1** cuenta las rutas que tomó algún caso o prueba en la sesión, y su menú lista las rutas sin probar y los errores sin ruta. Mira [Probar rutas y cobertura](/es/test/probe-routes/).
+
+## Otro valor en un paso, sin cambiar los inputs
+
+**Qué demuestra:** cómo se comporta un paso con un valor que tú eliges, en ese punto de la cadena, con lo que de verdad devolvieron los pasos de antes. Por ejemplo, un carrito con una cantidad sin stock.
+
+<Steps>
+
+1. En la pestaña **Diseño**, elige el paso y pulsa **F9**, o **⏸ Pausar aquí** en su panel.
+2. Pulsa **Ejecutar**. La ejecución se detiene antes de ese paso y su panel muestra **Recibe**: cada parámetro y cada campo del body JSON.
+3. Cambia el valor, por ejemplo `products/0/quantity` = `500`.
+4. Pulsa **▷ Continuar**.
+
+</Steps>
+
+**Qué debes ver:** el paso se ejecuta con ese valor, con su tipo: el request que se envió lleva `"quantity": 500`, un número. El Arazzo y los inputs no cambian. Para repetir solo ese paso después, usa **▷ Ejecutar solo este paso**. Mira [Depurar un workflow](/es/test/debug/).
+
 ## Un caso sin un input
 
 **Qué demuestra:** qué pasa cuando no se envía un input opcional, o cuando un caso necesita otros datos que los por defecto.
@@ -244,7 +275,7 @@ Mira [Simulación](/es/test/simulation/).
 
 <Steps>
 
-1. Arriba a la derecha de la ventana, abre el ambiente activo y elige otro. **Configurar ambiente…**, al final de la lista, lo abre.
+1. Arriba a la derecha de la ventana, haz clic en la mitad izquierda de la pastilla, el ambiente de la colección con el ícono de base de datos, y elige otro. **Configurar ambiente…**, al final de la lista, lo abre.
 2. Elige **API real** y pulsa **Ejecutar**.
 
 </Steps>
@@ -300,7 +331,7 @@ Mira [Ejecutar](/es/test/run/#cuando-un-workflow-depende-de-otro) y la receta [R
 |---|---|
 | OAuth 2.0 con client credentials, como el ejemplo de PayPal | Configúralo en la pestaña **Autorización** del workflow. Luvin pide el token antes de las llamadas y lo renueva solo. |
 | OAuth 2.0 en el que una persona inicia sesión | La barra de ejecución dice *Este workflow inicia sesión con OAuth 2.0 en: …*. Pulsa **Iniciar sesión**, o pulsa **Ejecutar** y el inicio de sesión se abre primero. Si lo cancelas, no se ejecuta nada. |
-| Una llamada de login propia | Pon el login en un workflow y haz que los demás dependan de él. Se ejecuta primero, en **Preparación**. |
+| Una llamada de login propia | Agrega el login como primer paso y pasa su token a los pasos siguientes. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/). Para compartir un login entre varios workflows, ponlo en un workflow propio y haz que los demás dependan de él: se ejecuta primero, en **Preparación**. |
 
 ![La pestaña Autorización de un workflow, con una tarjeta por API](/media/es/workflow-auth.webp)
 
@@ -361,6 +392,8 @@ El caso no se pudo juzgar: la API no respondió, el workflow se detuvo antes del
 </Steps>
 
 ![La pestaña Respuesta del paso que falló: el campo sku, marcado en rojo, tiene el valor unknown](/media/es/test-step-response.webp)
+
+En la pestaña **Diseño**, el paso que falló queda en rojo en el lienzo, y la pestaña **Respuesta** de su panel dice por qué falló, qué recibió y qué hacer. Mira [Resultados en el lienzo](/es/test/run-on-canvas/#la-pestaña-respuesta-de-un-paso).
 
 Mira [Lee el resultado de un paso](/es/test/step-results/).
 

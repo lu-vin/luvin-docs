@@ -13,6 +13,7 @@ Luvin corre en tu equipo. Esta página dice dónde vive cada tipo de dato y qué
 - Luvin solo lee y escribe dentro de las carpetas que elegiste, y su interfaz no tiene acceso directo al sistema de archivos. La terminal abre tu propio shell, solo en una carpeta del workspace o en tu carpeta personal.
 - Sin workspace, la sesión guardada deja fuera las credenciales y cualquier input cuyo nombre parezca sensible (`token`, `password`, `secret`…).
 - **El historial queda en este equipo**, en el almacenamiento de la app (IndexedDB), nunca en los archivos del workspace. Los secretos del ambiente, las credenciales y los valores que un request guarda como secretos van tapados en él. Puedes apagarlo en **Preferencias**. Mira [Historial](/es/workspaces/history/).
+- **Los scripts corren aislados.** Un script de antes del request o de después de la respuesta no puede leer tus archivos ni ejecutar programas. Sí puede leer las variables y los secretos del ambiente activo, por eso los scripts de una colección que no escribiste solo corren cuando confías en ella. Mira [Scripts](/es/requests/scripts/#confiar-en-una-colección).
 - **Los mock servers escuchan solo en `127.0.0.1`.** Los demás equipos no pueden llegar a ellos. Desde un navegador, solo una página servida desde `localhost` o `127.0.0.1` puede leer sus respuestas, y una llamada que usa cualquier otro nombre de host recibe `403`. Mira [Rutas y respuestas](/es/mocks/routes/).
 
 ## Dónde vive cada tipo de dato
@@ -26,6 +27,9 @@ Luvin corre en tu equipo. Esta página dice dónde vive cada tipo de dato y qué
 | Preferencias como el tema, la interfaz y el tamaño de los paneles | Este equipo. | No. |
 | Historial de requests y ejecuciones, con los secretos tapados | Este equipo, en el almacenamiento de la app (IndexedDB). | No. |
 | Mock servers: nombre, puerto, fuente y rutas propias | `mocks/*.mock.yaml`. | Sí. |
+| Scripts de los requests, las carpetas y la colección | Los archivos de los requests, `_folder.request.yaml` y `collection.yaml`. | Sí. |
+| Valores actuales que guardan los scripts | Cifrados en este equipo. | No. |
+| Las colecciones en las que confías para correr scripts | Este equipo. | No. |
 | El Log de un mock | La memoria. Se vacía cuando la app se recarga. | No. |
 | Las listas de Console y de Network | La memoria. Desaparecen cuando cierras la app. | No. |
 

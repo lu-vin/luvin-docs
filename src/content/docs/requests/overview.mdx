@@ -81,12 +81,12 @@ From top to bottom:
 
 - **Name.** Click it to rename the request. To its right you see the save state. The active environment is at the top right of the window.
 - **Method, URL and Send.** Choose the method, write the URL and press **Send** (⌘/Ctrl + Enter). While the request is on its way, the button becomes **Cancel**.
-- **Request tabs.** **Params**, **Authorization**, **Headers** and **Body**. On the right of the tabs, **Cookies** opens the cookie jar and **Copy as cURL** shows the request as a terminal command.
-- **Response.** The status, the time and the size, then the tabs **Body**, **Headers**, **Cookies** and **Sent request**, plus **Checks** when the request has checks or saves variables. **Sent request** shows what Luvin really sent: the final URL, every header and the body. See [Variables and checks](/requests/variables-and-checks/).
+- **Request tabs.** **Params**, **Authorization**, **Headers**, **Body**, **Variables**, **Checks** and **Scripts**. On the right of the tabs, **Variables in request** opens the Variables panel on the variables this request uses (see [Params, headers and body](/requests/params-headers-body/#variables-in-request)), **Cookies** opens the cookie jar and **Copy as cURL** shows the request as a terminal command.
+- **Response.** The status, the time and the size, then the tabs **Body**, **Headers**, **Cookies** and **Sent request**, plus **Checks** when the request has checks or saves variables, and **Tests** and **Console** when [scripts](/requests/scripts/) ran. **Sent request** shows what Luvin really sent: the final URL, every header and the body. See [Variables and checks](/requests/variables-and-checks/).
 
 In the **Body** tab of the response, **Pretty** formats and colours the answer, **Raw** shows it exactly as the server sent it, and **Preview** shows JSON as a table you can expand or renders an HTML page.
 
-Drag the line between the request and the response to resize them. Double-click it to go back to the original size.
+Drag the line between the request and the response to resize them, as in Postman. The body and script editors grow to fill the space. Double-click the line to go back to the original size. You can also click it and use ↑ and ↓. Luvin remembers the size on this computer, for every request.
 
 :::note
 If the request cannot be completed, the response area says **The request couldn’t complete** and gives the reason. See [Connection help](/dev-tools/connection-help/).
@@ -132,7 +132,7 @@ Open the **⋯** menu of the request in the sidebar:
 
 ## Use a request as a workflow step
 
-In the **Design** tab of a workflow, the palette has a **Collection requests** group. Drag a request onto the canvas and it becomes a step, sent exactly like the request. Only HTTP requests with a URL can become steps. See [Workflows from requests](/design/from-requests/).
+In the **Design** tab of a workflow, click **＋ Step** (or press `/`). The **Add a step** dialog opens: search for the request and choose it. You can also drag a request from the collection tree onto the canvas. Either way it becomes a step, sent exactly like the request. Only HTTP requests with a URL can become steps. See [Workflows from requests](/design/from-requests/).
 
 ## Next
 

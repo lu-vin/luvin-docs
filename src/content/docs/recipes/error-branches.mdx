@@ -99,6 +99,34 @@ workflows:
 | 42-44 | When `findItem` succeeds, `end` stops the workflow without running the fallback. |
 | 45-50 | When `findItem` answers 404, `goto` jumps to the step `fallback`. |
 
+## Build it on the canvas
+
+You can write most of these routes with the route editor, in the **Design** tab. Two of them have no condition, and the editor always asks for one, so they come from somewhere else.
+
+**`retryThenEnd`**
+
+<Steps>
+
+1. On the card of `callService`, click **＋ What to do if it fails**.
+2. In **If it responds**, type `503`, click **Retry** and set **Wait** `1` **s, up to** `2` **times**. Click **Add**.
+3. The route with no condition, `stopOnAnyOtherError`, goes in the YAML tab. On the card it reads `other error → ends the workflow (End) as failed`.
+
+</Steps>
+
+The editor names the first route `retry503`. Rename it in the YAML tab if you want `retryUnavailable`; the canvas keeps the name you write.
+
+**`fallbackOnNotFound`**
+
+<Steps>
+
+1. On the card of `findItem`, click **＋ What to do if it fails**, type `404` and click **Go to another step**.
+2. Click **or a new step…** and pick `GET /http/{status}`. Luvin adds the step at the end, points the 404 to it, and gives `findItem` the route on success `done`, of type `end`, so a passing `findItem` does not run into the fallback.
+3. Luvin names the new step `getStatus`. In its panel, click the id and change it to `fallback`. Under `status`, choose **Fixed value…** and type `200`.
+
+</Steps>
+
+On the card of `findItem`, **If it passes and matches** shows `success → ends successfully (End)` and **On failure** shows `404 → goes to step 2 · …`, with a red dashed arrow to the fallback. See [A new step for a route](/design/branch-new-step/).
+
 ## What you get
 
 `GET https://dummyjson.com/http/{status}` answers with the status you ask for, so you can provoke each error.
@@ -132,6 +160,7 @@ Luvin waits at most 10 seconds for each `retryAfter`, even if you write more.
 
 <CardGrid>
   <LinkCard title="Success and errors" href="/design/success-and-errors/" description="Actions on success and on failure, one by one." />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" description="Every option of the route editor." />
   <LinkCard title="Failure reasons" href="/reference/failure-reasons/" description="What each reason in the results means." />
   <LinkCard title="Expect an error" href="/recipes/expected-error/" description="When the error is the right answer." />
 </CardGrid>

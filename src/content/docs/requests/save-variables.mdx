@@ -124,6 +124,8 @@ Saved values are kept **in memory** while the collection is open.
 - They are cleared when you switch environments, so a token obtained with `local` is never sent to `production`.
 - They belong to the collection, not to a request: what **Log in** saves, every other request of the collection sees.
 
+A [script](/requests/scripts/) that saves with `pm.environment.set` or `pm.collectionVariables.set` works differently: it keeps a current value on this computer, which survives closing the app. See [Variables a script saves](/requests/scripts/#variables-a-script-saves).
+
 The **Variables** tab of any request lists them under **Saved now**, with the note **from every request in the collection**. Each line shows `{{name}}` and its value (point at it to read it whole, except for secrets). Click **Clear all** to forget every value. The list appears only when there is at least one saved value.
 
 ![The Variables tab after a send: the Saved now box, from every request in the collection, lists firstSku with SKU-100 and total with 10, with Clear all](/media/en/request-vars-runtime.webp)

@@ -9,9 +9,11 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 A request you saved has no contract that says which fields the API requires. You know it, so you tell Luvin. Do this when you build a workflow from saved requests. The answer decides which data the workflow asks for and which negative cases Luvin generates.
 
+Luvin does not stop you to ask when you add a request. It marks the steps that are missing the answer, and you mark the fields when you want.
+
 ## Example: Create order
 
-You add the request **Create order** to a workflow. The dialog **What does the API require in «Create order»?** opens. You tick what the API requires and click **Save**.
+You add the request **Create order** to a workflow. Its card shows **required not marked**. You click **Mark required fields** in its panel, tick what the API requires and click **Save**.
 
 <Tabs>
   <TabItem label="In the dialog">
@@ -44,29 +46,39 @@ What you mark has two effects:
 - **Required data.** When you turn a fixed value into an input, that input is required only if you marked its field as required. See [Build from saved requests](/design/from-requests/).
 - **Negative cases.** For each required input, Luvin generates a case that leaves it out, **Without the required input "…"**, and checks that the API rejects it. See [Cases](/test/cases/).
 
-Anything you leave unmarked is optional.
+Anything you leave unmarked is optional. Until you answer, the step has no negative cases.
 
 <Aside type="note">
-This applies to steps that come from **Collection requests**. A step from a contract operation never asks, because the contract already says what is required. A request generated from a contract also comes with its required fields marked. See [Generate requests from a contract](/requests/generate-from-contract/).
+This applies to steps that come from **Collection requests**. A step from a contract operation is never marked, because the contract already says what is required. A request generated from a contract also comes with its required fields marked. See [Generate requests from a contract](/requests/generate-from-contract/).
 </Aside>
+
+## See which steps are missing the answer
+
+A step built from a request that nobody has answered for shows **required not marked** on its card. Point at it to read why: **Which fields the API requires isn’t marked yet: without them there are no negative cases for this step.**
+
+When there is at least one, a bar at the top of the canvas sums them up: **2 step(s) without required fields marked: without them there are no negative cases for those steps.** The bar goes away when every step has an answer.
+
+A request with nothing to mark, for example one whose only fields are in the path, is never flagged.
+
+![The bar 1 step(s) without required fields marked, with Mark, above a step built from the request Create order](/media/en/design-required-bar.webp)
 
 ## Mark the required fields
 
-### The first time you use a request
+### All the pending steps at once
 
 <Steps>
-1. In the **Design** tab, drag a request from **Collection requests** onto the canvas.
-2. The dialog **What does the API require in «Create order»?** opens.
+1. In the bar at the top of the canvas, click **Mark**.
+2. The dialog lists every pending request, one after the other, under its name. Its title says how many: **Which fields does the API require in these 2 requests?** With one request, it names it: **What does the API require in «Create order»?**
 </Steps>
 
-### Later, from the step
+### One step
 
 <Steps>
 1. Click the step that comes from a request. Its panel starts with **From the request “Create order”**.
-2. On the right of that line, click **Mark required fields**. After you have answered once, the link reads **Required fields (3)**, with the number you marked. Pointing at it shows *Which fields of this request the API requires*.
+2. On the right of that line, click **Mark required fields**. Under it, the panel says why: **Without them there are no negative cases for this step (for example, “without bank it must be rejected”).**
 </Steps>
 
-The dialog is the same in both cases.
+After you have answered once, the link reads **Required fields (3)**, with the number you marked. Click it to change your answer. Pointing at it shows *Which fields of this request the API requires*.
 
 ![The top of the panel of a step built from a request: From the request “Create order” and the link Required fields (1)](/media/en/design-request-step.webp)
 
@@ -85,15 +97,15 @@ Each row has a box, the name of the field, the value the request sends now and t
 
 <Steps>
 1. Tick the fields the API requires.
-2. To change them all at once, click **Mark all** or **None**.
+2. To change them all at once, click **Mark all** or **None**. With several requests, each one has its own **Mark all** and **None**.
 3. Click **Save**.
 </Steps>
 
-The first time, the other button reads **Not now**: it closes the dialog without an answer, and Luvin asks again the next time you add that request to a workflow. Later, the button reads **Cancel**. Esc also closes the dialog.
+**Cancel**, the **×** or Esc close the dialog without saving. The steps stay marked until you answer.
 
 Saving with no box ticked is an answer too: it says that nothing is required beyond the path parameters.
 
-![The dialog What does the API require in «Create order»?: Mark all and None, the Body group with customer required and currency optional, and Not now and Save](/media/en/design-required-fields.webp)
+![The dialog What does the API require in «Create order»?: Mark all and None, the Body group with customer required and currency optional, and Cancel and Save](/media/en/design-required-fields.webp)
 
 ## Where it is saved
 
