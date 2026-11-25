@@ -75,7 +75,7 @@ Open the **Body** tab and choose the type from the menu at the top.
 |---|---|---|---|
 | **Form** | **Multipart Form** | A table of fields. Each field is **Text** or **File**. | `multipart/form-data` |
 | **Form** | **Form URL Encoded** | A table of fields. | `application/x-www-form-urlencoded` |
-| **Raw** | **JSON** | An editor. **Beautify** formats the JSON. | `application/json` |
+| **Raw** | **JSON** | An editor that accepts comments. **Beautify** indents the JSON. | `application/json` |
 | **Raw** | **XML** | An editor. | `application/xml` |
 | **Raw** | **Text** | An editor. | `text/plain` |
 | **Raw** | **SPARQL** | An editor. | `application/sparql-query` |
@@ -96,14 +96,71 @@ To upload a file, see [Send a file](/requests/send-files/).
 
 GraphQL is not a body type. It is its own kind of request: see [GraphQL](/requests/graphql/).
 
+### Comments in a JSON body
+
+A JSON body accepts comments, as in Postman: `//` until the end of the line, and `/* … */` for a block. Luvin removes them when it sends the request, and also in **Copy as cURL**. A `//` inside a string, such as `"https://shop.test"`, is text, not a comment.
+
+```json
+{
+  // the test customer of the shop
+  "customerId": {{customerId}},
+  "items": [
+    { "sku": "TSHIRT-M", "qty": 2 } /* add more later */
+  ]
+}
+```
+
+Luvin sends:
+
+```json
+{
+  "customerId": 42,
+  "items": [
+    { "sku": "TSHIRT-M", "qty": 2 }
+  ]
+}
+```
+
+A `{{variable}}` can go without quotes when its value is a number, as `{{customerId}}` above.
+
+**Beautify** only fixes the indentation: comments stay where they were, `{{variables}}` without quotes are kept, and numbers are not rewritten (`1.0` stays `1.0`). If the JSON has an error, it changes nothing and says **Couldn’t format: the JSON has an error (check commas, braces and quotes)**. The message goes away when you edit the text.
+
+![A JSON body with a // comment and a /* */ comment, a missing comma, and the message Couldn’t format: the JSON has an error](/media/en/json-body-comments.webp)
+
 ## Variables and generators
 
-Any field accepts `{{variables}}`: the URL, params, headers, the authorization fields and the body. Luvin replaces them with the values of the active environment when you send.
+Any field accepts `{{variables}}`: the URL, params, headers, the authorization fields and the body. When you send, Luvin replaces each one with its value, from wherever the variable lives: this request, the collection, the active environment or the global environment. See [Where a variable lives](/environments/variable-levels/).
 
-- Type `{{` in a field to see the variables of the active environment and the generators.
-- Move the mouse over a `{{name}}` to see its value. If it does not exist in the environment, the card says so and offers **Create variable** or **Create secret**.
-- If a field you are about to send uses a `{{name}}` that is neither in the active environment nor a generator, a yellow strip under the URL bar says, for example, *`{{apiKey}}` doesn’t exist in the “local” environment: it will be sent as written.* Click **Open the environment** to add it.
-- A generator produces a new value on every send, for example `{{$randomEmail}}` or `{{uuid}}`.
+The body editor works like the other fields. Type `{{` to see the suggestions, and point at a `{{name}}`, or put the cursor inside it, to open its card. The same goes for the query and the variables of a [GraphQL](/requests/graphql/) request and the messages of a [WebSocket](/requests/websocket/). The message of a gRPC request does not replace variables.
+
+### Create a variable while you write
+
+Example: the body of **Log in** has `"email": "{{loginEmail}}"`, and `loginEmail` does not exist yet.
+
+<Steps>
+
+1. Look at `{{loginEmail}}`. It is red with a dashed border: no variable has that name.
+2. Point at it. Its card opens with an empty field, **Value (kept in this request)**.
+3. Type `ana@shop.test`. The variable exists as soon as you type: it is a variable of this request, and the card says **R Request** at the top right. The name turns green.
+4. To keep it somewhere else, click **Add to** and choose a level, for example the collection environment. The value moves there.
+
+</Steps>
+
+![The JSON body of POST login with {{loginEmail}} in red with a dashed border, and its card with the field Value (kept in this request) and Add to](/media/en/var-card-missing.webp)
+
+Values that should change per environment, such as a password, belong in an environment. See [Where a variable lives](/environments/variable-levels/#create-a-variable-from-its-card).
+
+### Before you send
+
+If the request uses a `{{name}}` that exists nowhere, a yellow strip under the URL bar says, for example, *`{{apiKey}}` doesn’t exist in the “local” environment: it will be sent as written.* **Create in “local”** creates every missing variable at once, empty, in the active environment, and opens the environment on the first one. Names that look like credentials, such as `password`, `token` or `apiKey`, are created as secrets.
+
+### Variables in request
+
+On the right of the request tabs, **Variables in request** shows how many variables the request uses. The number turns red when one is missing. Click it to open the [Variables panel](/environments/variable-levels/#the-variables-panel), with the request's own variables on top. The link of the same name at the bottom of a card opens the panel on that variable.
+
+### Generators
+
+A generator produces a new value on every send, for example `{{$randomEmail}}` or `{{uuid}}`.
 
 ```json
 {

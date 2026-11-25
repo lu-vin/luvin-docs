@@ -1,6 +1,6 @@
 ---
 title: Organizar un workflow
-description: Reordena, renombra y elimina pasos, deshaz y rehaz cambios, y elimina un workflow que ya no necesitas.
+description: Reordena pasos, cambia su título y su id, quítalos, deshaz y rehaz cambios, y elimina un workflow que ya no necesitas.
 sidebar:
   order: 12
 ---
@@ -11,7 +11,7 @@ Cuando un workflow ya tiene pasos, querrás mover algunos, renombrar otros y qui
 
 ## Ejemplo: mueve un paso por encima del que lee
 
-En **Pokemon card**, `getSpecies` lee `$steps.getPokemon.outputs.id`. Arrastra `getSpecies` por encima de `getPokemon`.
+En **Pokemon card**, el paso 2 `getSpecies` lee el `id` del paso 1, `getPokemon`: su chip dice **← id · de 1**.
 
 <Steps>
 1. Arrastra la tarjeta `getSpecies` hacia arriba y suéltala sobre `getPokemon`.
@@ -21,21 +21,22 @@ En **Pokemon card**, `getSpecies` lee `$steps.getPokemon.outputs.id`. Arrastra `
 
 ## Reordena pasos
 
-Los pasos se ejecutan de arriba hacia abajo, en el orden en que aparecen. Hay tres formas de mover uno.
+Los pasos se ejecutan de arriba hacia abajo, en el orden en que aparecen. Hay cuatro formas de mover uno.
 
 | Cómo | Pasos |
 |---|---|
 | Arrastrar | Arrastra la tarjeta hacia arriba o hacia abajo en el lienzo y suéltala entre otras dos tarjetas. |
-| Flechas de la tarjeta | Apunta a la tarjeta y haz clic en **↑** o **↓**. |
-| Flechas del panel | Haz clic en el paso y luego en **Mover arriba** o **Mover abajo**, en la parte de arriba de su panel. |
+| Teclado | Elige el paso y presiona **⌥↑** o **⌥↓** (Alt+↑ o Alt+↓). |
+| Clic derecho | Haz clic derecho en la tarjeta y elige **Mover arriba** o **Mover abajo**. |
+| El panel | Haz clic en el paso, luego en **⋯** al pie de su panel, y en **Mover arriba** o **Mover abajo**. |
 
-La flecha que subiría el primer paso, o bajaría el último, está apagada.
+**Mover arriba** está apagado en el primer paso, y **Mover abajo** en el último.
 
-Solo cuenta la posición vertical. Mover una tarjeta hacia los lados cambia el dibujo, no el orden, y **Reordenar** devuelve el dibujo a su lugar.
+Solo cuenta la posición vertical. Mover una tarjeta hacia los lados cambia el dibujo, no el orden, y **Reordenar**, en **Ver**, devuelve el dibujo a su lugar.
 
 ### Cuando el orden nuevo rompe una conexión
 
-Un paso solo puede usar datos de pasos que se ejecutan antes que él. Si mueves un paso por encima de otro del que toma datos, aparece una barra: **Revisa el orden:** y el detalle, por ejemplo **«getBenefits» usa datos de «getCards», que ahora se ejecuta después**. Luvin no cambia las conexiones. Haz clic en **Deshacer** en la barra, o mueve también el otro paso. Deshacer el movimiento, desde la barra, desde **Deshacer** sobre el lienzo o con ⌘ + Z, también quita la barra. La [pestaña YAML](/es/design/arazzo-editor/) y el panel del paso también muestran el error **Usa un output de «getCards», que se ejecuta después.**
+Un paso solo puede usar datos de pasos que se ejecutan antes que él. Si mueves un paso por encima de otro del que toma datos, aparece una barra: **Revisa el orden:** y el detalle, por ejemplo **«getBenefits» usa datos de «getCards», que ahora se ejecuta después**. Luvin no cambia las conexiones. Haz clic en **Deshacer** en la barra, o mueve también el otro paso. Deshacer el movimiento, desde la barra, desde **↶** sobre el lienzo o con ⌘ + Z, también quita la barra. La [pestaña YAML](/es/design/arazzo-editor/) y el panel del paso también muestran el error **Usa un output de «getCards», que se ejecuta después.**
 
 ![La barra Revisa el orden: «getOrder» usa datos de «createOrder», que ahora se ejecuta después, con Deshacer y Cerrar](/media/es/design-order-warning.webp)
 
@@ -43,48 +44,71 @@ Un paso solo puede usar datos de pasos que se ejecutan antes que él. Si mueves 
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-organize.webp" src="/media/es/design-organize.mp4"></video>
 
-## Renombra un paso
+## Dale a un paso un título y un id
+
+Un paso tiene un título, que es lo que muestra la tarjeta, y un id, que es lo que usan las expresiones para leer sus outputs (`$steps.getPokemon.outputs.id`).
+
+### Cambia el título
 
 <Steps>
 1. Haz clic en el paso.
-2. Haz clic en su nombre, arriba en el panel.
-3. Escribe el nombre nuevo y pulsa Enter, o haz clic fuera.
+2. Haz clic en el título, arriba en su panel. Si no tiene, muestra en gris el resumen de la operación.
+3. Escribe una frase corta, por ejemplo «Consulta el Pokémon».
 </Steps>
 
-Un nombre puede tener letras, números, `-` y `_`, sin espacios, y no puede repetirse en el workflow. Si no cumple estas reglas, Luvin muestra un error sobre el lienzo y conserva el nombre anterior.
+El título se guarda como la `description` del paso, mientras escribes.
 
-Renombrar es seguro. Luvin actualiza todos los lugares que apuntan al paso: los valores que leen sus outputs (`$steps.nombre.outputs…`), las acciones que saltan a él y el `dependsOn` de otros pasos.
-
-Para renombrar el workflow completo, consulta [Crear un workflow](/es/design/create/).
-
-## Elimina un paso
+### Cambia el id
 
 <Steps>
 1. Haz clic en el paso.
-2. Pulsa Delete o Backspace, o haz clic en la papelera (**Quitar el paso**) en la parte de arriba de su panel.
+2. Bajo el título, haz clic en el id con **✎**. Su ayuda dice **Cambiar el id del paso (lo usan las expresiones; se actualiza en todo el Arazzo)**.
+3. Escribe el id nuevo y presiona Enter, o haz clic fuera.
 </Steps>
+
+Un id puede tener letras, números, `-` y `_`, sin espacios, y no puede repetirse en el workflow. Si no cumple estas reglas, Luvin muestra un error sobre el lienzo y conserva el id anterior.
+
+Cambiar el id es seguro. Luvin actualiza todos los lugares que apuntan al paso: los valores que leen sus outputs (`$steps.id.outputs…`), las rutas que van a él y el `dependsOn` de otros pasos.
+
+Para renombrar el workflow completo, lee [Crear un workflow](/es/design/create/).
+
+## Quita un paso
+
+<Steps>
+1. Empieza de una de estas formas:
+   - haz clic en **×** (**Quitar el paso**) en el encabezado de la tarjeta;
+   - elige el paso y presiona **⌫** (Retroceso) o Supr;
+   - haz clic derecho en la tarjeta y elige **Eliminar el paso**, o usa **⋯** al pie de su panel.
+2. Una ventana pregunta **¿Quitar el paso 2?** y lista **Esto se rompe en el workflow**: los pasos que usan sus datos, las rutas que van a él, los pasos que dependen de él y los outputs del workflow que salen de él. Si no se rompe nada, dice **Ningún otro paso usa sus datos ni tiene rutas hacia él.**
+3. Haz clic en **Quitar el paso**, o en **Cancelar**.
+</Steps>
+
+![La ventana ¿Quitar el paso 2? con Esto se rompe en el workflow: el paso 3 usa sus datos, y los botones Cancelar y Quitar el paso](/media/es/design-remove-confirm.webp)
+
+**Cancelar** tiene el foco, así que Enter no quita nada. Con varios pasos elegidos, la ventana dice **¿Quitar 3 pasos?** y el botón, **Quitar 3 pasos**.
 
 El paso desaparece del lienzo y del archivo.
 
-Puede que otros pasos usaran sus datos. En ese caso una barra roja sobre el lienzo los nombra: **Otros pasos usaban lo que quitaste y quedaron sin ese dato: createOrder.** Luvin conserva sus referencias, que ahora no apuntan a nada. Cada uno de esos pasos muestra **1 error(es)** en su tarjeta, y su panel muestra un error como **Usa $steps.getPokemon.outputs.id, pero el paso "getPokemon" no existe.** Dale a esos valores otro origen (consulta [Conectar datos entre pasos](/es/design/wire-data/)), o haz clic en **Deshacer** para recuperar el paso.
+Si otros pasos usaban sus datos, una barra roja sobre el lienzo los nombra: **Otros pasos usaban lo que quitaste y quedaron sin ese dato: createOrder.** Luvin conserva sus referencias, que ahora no apuntan a nada. Sus chips se ponen rojos y dicen **falta**, la tarjeta muestra **1 error(es)** y el panel muestra un error como **Usa $steps.getPokemon.outputs.id, pero el paso "getPokemon" no existe.** Dale a esos valores otro origen (lee [Conectar datos entre pasos](/es/design/wire-data/)), o deshaz para recuperar el paso.
 
-![Después de eliminar listProducts: la barra roja nombra a createOrder, y su tarjeta tiene borde rojo y dice 1 error(es), porque leía el sku del paso eliminado](/media/es/design-dangling.webp)
+![Después de quitar listProducts: la barra roja nombra a createOrder, y su tarjeta tiene borde rojo y dice 1 error(es), porque leía el sku del paso quitado](/media/es/design-dangling.webp)
 
-## Teclado y clic derecho en el lienzo
+## Clic derecho en el lienzo
 
-| Sobre | Haz | Qué pasa |
-|---|---|---|
-| Una línea de datos | Clic en la línea o en su etiqueta, y luego **Supr** o **Retroceso** | Se quita la conexión: el parámetro queda sin origen. La línea se resalta mientras está seleccionada. |
-| Una línea de datos | Clic derecho | **Quitar esta conexión** |
-| Una flecha del orden | Clic derecho | **Insertar un paso aquí** |
-| Un paso | Clic derecho | **Ver el detalle del paso**, **Insertar un paso después**, **Mover arriba**, **Mover abajo**, **Eliminar el paso** |
-| El fondo | Clic derecho | **Agregar un paso al final**, **Ajustar a la vista**, y mostrar u ocultar las acciones según la respuesta y el flujo de datos |
+| Sobre | Qué ofrece |
+|---|---|
+| Una línea de datos | **Quitar esta conexión**. También puedes hacer clic en la línea y presionar Supr o Retroceso. |
+| Una flecha del orden | **Insertar un paso aquí** |
+| Un paso | **Ver el detalle del paso**, **Copiar**, **Pegar después de este paso** (si copiaste pasos), **Duplicar**, **Sumar a la selección**, **Extraer a un workflow…**, las opciones de ejecución, **Agregar ruta…**, **Insertar un paso después**, **Mover arriba**, **Mover abajo** y **Eliminar el paso** |
+| El fondo | **Agregar un paso al final**, **Ajustar a la vista**, **Ocultar las acciones según la respuesta** (o **Mostrar…**) y las tres opciones de **Datos** |
 
-**Deshacer** recupera lo que quites así.
+Las opciones de ejecución se explican en [Depurar un workflow](/es/test/debug/). **Copiar**, **Duplicar** y **Extraer** están en [Copiar, duplicar y extraer pasos](/es/design/copy-and-extract/), y **Agregar ruta…** en [Agregar o cambiar una ruta](/es/design/branch-menu/).
+
+Deshacer recupera lo que quites así.
 
 ## Deshacer y rehacer
 
-Sobre el lienzo, **Deshacer** y **Rehacer** retroceden y avanzan por los cambios que hiciste en la pestaña **Diseño**: agregar, mover, renombrar y eliminar pasos, conexiones, valores y outputs.
+Sobre el lienzo, **↶** (**Deshacer**) y **↷** (**Rehacer**) retroceden y avanzan por los cambios que hiciste en la pestaña **Diseño**: agregar, mover, renombrar y quitar pasos, conexiones, valores, outputs y rutas.
 
 | Acción | macOS | Windows |
 |---|---|---|

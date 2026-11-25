@@ -75,7 +75,7 @@ Abre la pestaña **Body** y elige el tipo en el menú de arriba.
 |---|---|---|---|
 | **Formulario** | **Multipart Form** | Una tabla de campos. Cada campo es **Texto** o **Archivo**. | `multipart/form-data` |
 | **Formulario** | **Form URL Encoded** | Una tabla de campos. | `application/x-www-form-urlencoded` |
-| **Texto** | **JSON** | Un editor. **Formatear** da formato al JSON. | `application/json` |
+| **Texto** | **JSON** | Un editor que acepta comentarios. **Formatear** ordena la sangría del JSON. | `application/json` |
 | **Texto** | **XML** | Un editor. | `application/xml` |
 | **Texto** | **Texto** | Un editor. | `text/plain` |
 | **Texto** | **SPARQL** | Un editor. | `application/sparql-query` |
@@ -96,14 +96,71 @@ Para subir un archivo, mira [Envía un archivo](/es/requests/send-files/).
 
 GraphQL no es un tipo de body. Es su propio tipo de request: mira [GraphQL](/es/requests/graphql/).
 
+### Comentarios en un body JSON
+
+Un body JSON acepta comentarios, como en Postman: `//` hasta el final de la línea, y `/* … */` para un bloque. Luvin los quita al enviar el request, y también en **Copiar como cURL**. Un `//` dentro de un string, como `"https://shop.test"`, es texto, no un comentario.
+
+```json
+{
+  // el cliente de prueba de la tienda
+  "customerId": {{customerId}},
+  "items": [
+    { "sku": "TSHIRT-M", "qty": 2 } /* después agrego más */
+  ]
+}
+```
+
+Luvin envía:
+
+```json
+{
+  "customerId": 42,
+  "items": [
+    { "sku": "TSHIRT-M", "qty": 2 }
+  ]
+}
+```
+
+Una `{{variable}}` puede ir sin comillas cuando su valor es un número, como `{{customerId}}` arriba.
+
+**Formatear** solo arregla la sangría: los comentarios quedan donde estaban, las `{{variables}}` sin comillas se mantienen y los números no se reescriben (`1.0` sigue siendo `1.0`). Si el JSON tiene un error, no cambia nada y dice **No se pudo formatear: el JSON tiene un error (revisa comas, llaves y comillas)**. El mensaje se va cuando editas el texto.
+
+![Un body JSON con un comentario // y otro /* */, una coma que falta, y el mensaje No se pudo formatear: el JSON tiene un error](/media/es/json-body-comments.webp)
+
 ## Variables y generadores
 
-Cualquier campo acepta `{{variables}}`: la URL, los params, los headers, los campos de autorización y el body. Luvin las reemplaza con los valores del ambiente activo cuando envías.
+Cualquier campo acepta `{{variables}}`: la URL, los params, los headers, los campos de autorización y el body. Al enviar, Luvin reemplaza cada una por su valor, esté donde esté la variable: en este request, en la colección, en el ambiente activo o en el ambiente global. Mira [Dónde vive una variable](/es/environments/variable-levels/).
 
-- Escribe `{{` en un campo para ver las variables del ambiente activo y los generadores.
-- Pasa el mouse sobre un `{{nombre}}` para ver su valor. Si no existe en el ambiente, la tarjeta lo dice y ofrece **Crear variable** o **Crear secreto**.
-- Si un campo que vas a enviar usa un `{{nombre}}` que no está en el ambiente activo ni es un generador, una franja amarilla bajo la barra de la URL dice, por ejemplo, *`{{apiKey}}` no existe en el ambiente «local»: se enviará tal cual.* Haz clic en **Abrir el ambiente** para agregarlo.
-- Un generador produce un valor nuevo en cada envío, por ejemplo `{{$randomEmail}}` o `{{uuid}}`.
+El editor del body funciona igual que los demás campos. Escribe `{{` para ver las sugerencias, y pasa el mouse sobre un `{{nombre}}`, o pon el cursor dentro de él, para abrir su tarjeta. Lo mismo vale para la query y las variables de un request [GraphQL](/es/requests/graphql/) y para los mensajes de un [WebSocket](/es/requests/websocket/). El mensaje de un request gRPC no reemplaza variables.
+
+### Crear una variable mientras escribes
+
+Ejemplo: el body de **Iniciar sesión** tiene `"email": "{{loginEmail}}"`, y `loginEmail` todavía no existe.
+
+<Steps>
+
+1. Mira `{{loginEmail}}`. Está en rojo y con borde punteado: ninguna variable tiene ese nombre.
+2. Pasa el mouse sobre él. Se abre su tarjeta con un campo vacío, **Valor (queda en este request)**.
+3. Escribe `ana@shop.test`. La variable existe apenas escribes: es una variable de este request, y la tarjeta dice **R Request** arriba a la derecha. El nombre se pone verde.
+4. Para guardarla en otro lugar, haz clic en **Agregar a** y elige un nivel, por ejemplo el ambiente de la colección. El valor se mueve allá.
+
+</Steps>
+
+![El body JSON de POST login con {{loginEmail}} en rojo con borde punteado, y su tarjeta con el campo Valor (queda en este request) y Agregar a](/media/es/var-card-missing.webp)
+
+Los valores que cambian según el ambiente, como una contraseña, van en un ambiente. Mira [Dónde vive una variable](/es/environments/variable-levels/#crear-una-variable-desde-su-tarjeta).
+
+### Antes de enviar
+
+Si el request usa un `{{nombre}}` que no existe en ningún lado, una franja amarilla bajo la barra de la URL dice, por ejemplo, *`{{apiKey}}` no existe en el ambiente «local»: se enviará tal cual.* **Crear en «local»** crea de una vez todas las variables que faltan, vacías, en el ambiente activo, y abre el ambiente en la primera. Los nombres que parecen credenciales, como `password`, `token` o `apiKey`, se crean como secretos.
+
+### Variables en el request
+
+A la derecha de las pestañas del request, **Variables en el request** muestra cuántas variables usa el request. El número se pone en rojo cuando falta alguna. Haz clic para abrir el [panel Variables](/es/environments/variable-levels/#el-panel-variables), con las variables propias del request arriba. El enlace del mismo nombre, abajo en una tarjeta, abre el panel en esa variable.
+
+### Generadores
+
+Un generador produce un valor nuevo en cada envío, por ejemplo `{{$randomEmail}}` o `{{uuid}}`.
 
 ```json
 {

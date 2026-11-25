@@ -21,7 +21,7 @@ import { Steps, LinkButton, LinkCard, CardGrid } from '@astrojs/starlight/compon
 3. Under **Quick actions**, click **Import Arazzo or contracts** and choose the downloaded `.yaml` files together.
 4. In the sidebar, open the workflow **Wrong password**.
 5. In the run bar, choose **Real API**.
-6. Press **Run**. The results open at the bottom.
+6. Press **Run**. Each step shows its result on the canvas; **Results ▴**, in the result bar, opens the full results. See [Run on the canvas](/test/run-on-canvas/).
 
 </Steps>
 
@@ -96,6 +96,20 @@ You can also leave a workflow written for success, such as the login of [Log in 
 </Steps>
 
 The case ends as **Passed**. The step `login` shows **Responded 400 (expected)** and the note **This is what the case tests**, because here the error is what the case wants.
+
+## From a Postman request that expects an error
+
+If your collection already has a request that tests the error, Luvin keeps that intent when the request becomes a step. Say the request **Wrong password** has this test script in Postman:
+
+```js
+pm.test("rejects a wrong password", function () {
+  pm.response.to.have.status(400);
+});
+```
+
+Add it to a workflow (see [Build from saved requests](/design/from-requests/)). The step gets the success criterion `$statusCode == 400` instead of a 2xx, so it passes when the API answers 400. The same happens with `expect(res.status).to.equal(400)` in Bruno.
+
+Luvin reads the script without running it. It uses the status only when the script expects exactly one. A script that accepts 200 or 201 gives no hint, and the step keeps the usual criterion.
 
 ## Try this
 

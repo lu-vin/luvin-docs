@@ -1,17 +1,17 @@
 ---
 title: De la operación al paso
-description: Qué partes de una operación OpenAPI deciden el paso que escribe Luvin, cómo lista la paleta las operaciones, cómo se conectan los datos a partir de los schemas de respuesta y cómo escribir contratos que diseñen bien.
+description: Qué partes de una operación OpenAPI deciden el paso que escribe Luvin, cómo lista ＋ Paso las operaciones, cómo se conectan los datos a partir de los schemas de respuesta y cómo escribir contratos que diseñen bien.
 sidebar:
   order: 8
 ---
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Cuando arrastras una operación al lienzo, Luvin escribe un paso a partir del contrato, con reglas fijas. Nada se adivina con IA. Mientras mejor el contrato, menos corriges a mano. Esta página lo mira desde el lado del contrato: qué campo del contrato se vuelve qué parte del paso.
+Cuando agregas una operación a un workflow, Luvin escribe un paso a partir del contrato, con reglas fijas. Nada se adivina con IA. Mientras mejor el contrato, menos corriges a mano. Esta página lo mira desde el lado del contrato: qué campo del contrato se vuelve qué parte del paso.
 
 ## Ejemplo: agregar getPokemonSpecies después de getPokemon
 
-En **Pokemon card**, `getPokemon` ya se ejecuta. Arrastras `GET /pokemon-species/{idOrName}` debajo de él.
+En **Pokemon card**, `getPokemon` ya se ejecuta. Agregas `GET /pokemon-species/{idOrName}` después de él con **＋ Paso**.
 
 <Tabs>
 <TabItem label="En el contrato">
@@ -77,11 +77,11 @@ En **Pokemon card**, `getPokemon` ya se ejecuta. Arrastras `GET /pokemon-species
 
 Cuando agregas un paso, los ejemplos del contrato no se escriben en él. Se vuelven los valores iniciales de los inputs nuevos. Después, en el body del panel del paso, **Rellenar con el ejemplo** pone el ejemplo del contrato en los campos vacíos, y **Crear inputs** convierte cada campo vacío en un input con ese ejemplo. Mira [Schemas, inputs y casos](/es/contracts/schemas-and-cases/) y [Parámetros y body](/es/design/parameters-and-body/).
 
-## La paleta Operaciones
+## Dónde se listan las operaciones
 
-La paleta a la izquierda de la pestaña **Diseño** tiene un grupo por contrato, con el nombre de su fuente y la cantidad de operaciones. Cada fila muestra el método, la ruta y el `summary`.
+**＋ Paso**, arriba a la izquierda del lienzo de la pestaña **Diseño**, abre una búsqueda con un grupo por contrato, con el nombre de su fuente. Cada fila muestra el método, la ruta y el `summary`. Mira [Agregar pasos](/es/design/add-steps/).
 
-![La paleta Operaciones de la Pokédex: la búsqueda, los workflows de otros archivos Arazzo y las operaciones del contrato pokeapi](/media/es/design-palette.webp)
+![La búsqueda de ＋ Paso de la Pokédex: sugeridos, los patrones, los workflows de otros archivos Arazzo y las operaciones del contrato pokeapi](/media/es/design-palette.webp)
 
 | Se muestra | No se muestra |
 |---|---|
@@ -89,7 +89,7 @@ La paleta a la izquierda de la pestaña **Diseño** tiene un grupo por contrato,
 | | Los contratos que no cargaron. Un contrato que cargó pero al que le faltan archivos de `$ref` sí se muestra, sin las partes de esos archivos. |
 | | Los contratos que Luvin arma a partir de tus requests. Sus operaciones están en **Requests de la colección**. |
 
-La búsqueda **Buscar operación…** filtra por `operationId`, ruta, `summary` y `tags`. Buscar `pokemon` encuentra cada operación que tenga esa palabra en su ruta o en su tag. Si no hay ningún grupo que mostrar, la paleta dice *La colección no tiene contratos OpenAPI. Agrega uno para ver sus operaciones aquí.*
+La búsqueda **Buscar operación…** filtra por `operationId`, ruta, `summary` y `tags`. Buscar `pokemon` encuentra cada operación que tenga esa palabra en su ruta o en su tag. Si no hay nada que mostrar, dice *La colección no tiene contratos OpenAPI ni AsyncAPI. Agrega uno para ver sus operaciones aquí.*
 
 ## Cómo se conectan los datos
 
@@ -112,7 +112,7 @@ Los campos salen del schema de la respuesta de éxito, hasta tres niveles. Una l
 | Haz | Porque |
 |---|---|
 | Dale a cada operación un `operationId` corto y único | Nombra el paso y mantiene estable el puntero cuando cambian las rutas. |
-| Escribe un `summary` | Describe el paso y se ve en la paleta. |
+| Escribe un `summary` | Describe el paso y se ve en **＋ Paso**. |
 | Marca `required` con honestidad, en parámetros y campos del body | Los datos obligatorios se conectan; los opcionales quedan fuera. Los inputs obligatorios también producen los casos de "input que falta". |
 | Documenta el status de éxito que de verdad devuelves, como `201` para una creación | Se vuelve el criterio de éxito. |
 | Documenta los errores, cada uno con una `description` | Se vuelven los errores que puedes manejar y los casos por respuesta. |

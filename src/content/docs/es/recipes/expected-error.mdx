@@ -21,7 +21,7 @@ import { Steps, LinkButton, LinkCard, CardGrid } from '@astrojs/starlight/compon
 3. En **Acciones rápidas**, haz clic en **Importar Arazzo o contratos** y elige juntos los archivos `.yaml` descargados.
 4. En la barra lateral, abre el workflow **Wrong password**.
 5. En la barra de ejecución, elige **API real**.
-6. Pulsa **Ejecutar**. Los resultados se abren abajo.
+6. Pulsa **Ejecutar**. Cada paso muestra su resultado en el lienzo; **Resultados ▴**, en la barra de resultado, abre los resultados completos. Mira [Ejecutar sobre el lienzo](/es/test/run-on-canvas/).
 
 </Steps>
 
@@ -96,6 +96,20 @@ También puedes dejar un workflow escrito para el éxito, como el login de [Inic
 </Steps>
 
 El caso termina como **Pasó**. El paso `login` muestra **Respondió 400 (esperado)** y la nota **Es lo que prueba el caso**, porque aquí el error es justo lo que el caso quiere.
+
+## Desde un request de Postman que espera un error
+
+Si tu colección ya tiene un request que prueba el error, Luvin respeta esa intención cuando el request se vuelve un paso. Supón que el request **Wrong password** tiene este script de prueba en Postman:
+
+```js
+pm.test("rejects a wrong password", function () {
+  pm.response.to.have.status(400);
+});
+```
+
+Agrégalo a un workflow (mira [Armar desde requests guardados](/es/design/from-requests/)). El paso recibe el criterio de éxito `$statusCode == 400` en lugar de un 2xx, así que pasa cuando la API responde 400. Lo mismo pasa con `expect(res.status).to.equal(400)` en Bruno.
+
+Luvin lee el script sin ejecutarlo. Usa el status solo cuando el script espera exactamente uno. Un script que acepta 200 o 201 no da ninguna pista, y el paso conserva el criterio de siempre.
 
 ## Pruébalo
 

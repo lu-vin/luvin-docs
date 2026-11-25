@@ -1,45 +1,91 @@
 ---
 title: Connect data between steps
-description: How Luvin decides where each value comes from, what the ? mark means and how to change a source yourself.
+description: How Luvin decides where each value comes from, how the canvas shows it in chips, and how to change a source yourself.
 sidebar:
   order: 4
 ---
 
-import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 Every step needs values: an id in the path, a field in the body. Connecting data means saying where each value comes from. Luvin does it when you add a step. Read this page to review its choices and change them.
 
 ## Example: the species of a Pokémon
 
-In **Pokemon card**, the step `getSpecies` needs the `idOrName` of the path. It takes the `id` that `getPokemon` returned.
+In **Pokemon card**, the step `getSpecies` needs the `idOrName` of the path. It takes the `id` that `getPokemon`, step 1, returned.
 
 <Tabs>
   <TabItem label="In the app">
 
-  In the step panel, under **Parameters** and **Path**, the row `idOrName` has a **Source** list that reads `getPokemon › id`. On the card, the same value shows `getPokemon › id`, and a dashed line joins it to the output of the first card.
+On the card of `getSpecies`, under **Parameters**, the row `idOrName` shows the chip **← id · from 1**: the value `id`, from step 1. Click the card and the step panel opens over the canvas. In the **Data** tab, under **Receives** and **Path**, the list of `idOrName` shows `id`, in the group of `getPokemon`.
 
-  ![The step panel with the parameters of a step and the list that sets where each value comes from](/media/en/step-panel.webp)
+![The card of getSpecies with the chip ← id · from 1, and its step panel open on the Data tab](/media/en/step-panel.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
 
-```yaml title="pokemon.arazzo.yaml" {6,10}
+```yaml title="pokemon.arazzo.yaml" {4,10}
+- stepId: getPokemon
+  # ...
+  outputs:
+    id: $response.body#/id
 - stepId: getSpecies
   operationId: $sourceDescriptions.pokeapi.getPokemonSpecies
   parameters:
     - name: idOrName
       in: path
       value: $steps.getPokemon.outputs.id
-- stepId: getPokemon
-  # ...
-  outputs:
-    id: $response.body#/id
 ```
 
   </TabItem>
 </Tabs>
 
 The line `value:` is the source. The line `id:` is the output that Luvin added to `getPokemon` so the next steps can read it.
+
+## Read the data on the canvas
+
+Each card says where each value comes from, in a chip next to the parameter. You do not need to follow a line.
+
+| Chip | What it means |
+|---|---|
+| **← pokemon · Start** | The input `pokemon` of the workflow. |
+| **← id · from 1** | The output `id` of step 1. |
+| **← strongAgainst · Type explorer** | An output of a workflow this one [depends on](/design/dependencies/). |
+| `20`, `fire` | A fixed value. It has no arrow. |
+
+Point at a chip to see where the value comes from and its expression in Arazzo. After a run, the tooltip also shows the last value.
+
+Some chips warn you:
+
+| Chip | What happened | What to do |
+|---|---|---|
+| Red, **missing** | The step the value came from is gone, or the input does not exist in this workflow. | Pick another source, or undo the change. For an input, add it in **Start**. |
+| Amber, with ⚠ | A route can skip the step that gives this value, so the value may arrive empty. | Point at the chip: it says which route and what to change. See [To review](/design/review/). |
+| `?` in front | Luvin connected it but is less sure. See the `?` mark below. | Check it, and choose the source yourself if it is wrong. |
+
+A required value with no source shows **no source** in red. A minimized card sums them up, for example **2 required without a value**.
+
+In the **Run** view, each chip shows the value it ran with, for example **← id = 25**. See [Results on the canvas](/test/run-on-canvas/).
+
+![The card of getWeakness with the chip ← mainType · from 1, its tooltip with the expression, and the data line to step 1](/media/en/design-data-chips.webp)
+
+### Data lines
+
+The canvas does not draw an arrow for every value. A line joins the output and the parameter only when you need it:
+
+- **When a step is selected**: the lines of that step, the ones it receives and the ones it gives.
+- **When you point at a chip**: the line of that value.
+
+To change it, click **Data** in **View**, above the canvas on the right, and choose under **Data lines**:
+
+| Option | What you see |
+|---|---|
+| **When a step is selected** | Only that step's lines. This is the default. |
+| **Always** | All the lines, without labels. |
+| **Never** | Only the line of the value under the pointer. |
+
+Luvin remembers your choice on this computer. It does not change the file. The same options are in the menu you get with a right-click on the background of the canvas.
+
+![The menu of View with Show the routes and the three options for the data lines](/media/en/design-view-data.webp)
 
 ## The rules Luvin follows
 
@@ -50,18 +96,21 @@ For each required value of a new step, Luvin looks at the earlier steps, the clo
 | 1 | An earlier step already has an output with the same name. | `orderId` takes the output `orderId` of "create order". |
 | 2 | An earlier step returns a field with the same name. | `email` takes the `email` of the response. |
 | 3 | A composed name matches. | `customerId` takes the field `customer/id`, or the `id` returned by a step that is about "customer", such as `createCustomer`. |
-| 4 | A path parameter that looks like an identifier takes the `id` of the step right before it. | The `idOrName` of `/pokemon-species/{idOrName}` takes the `id` returned by `getPokemon`. |
+| 4 | A path parameter that looks like an identifier takes the `id` of the step right before it. If the name says what it identifies, such as `userId`, that step has to be about the same thing. | The `idOrName` of `/pokemon-species/{idOrName}` takes the `id` returned by `getPokemon`. A `userId` does not take the `id` of a product. |
 | 5 | The workflow has an input with the same name. | `currency` takes the input `currency`. |
 
 If no rule matches, Luvin creates a new input with that name. An *input* is a value the workflow asks for when it runs.
 
 - Names are compared without capitals or separators: `customer_id` and `customerId` are the same.
+- An `id` inside an object of the body is named after its object: the `id` in `products/0/id` is matched as `productId`.
 - Types must fit: texts and numbers are interchangeable, anything else has to be the same type.
 - When the source is a field of a response, Luvin also adds an *output* to that earlier step.
 
+Steps built from saved requests have one more rule, before all of these: the scripts of the collection. See [Build from saved requests](/design/from-requests/).
+
 ## The `?` mark
 
-Rule 4 is the only one Luvin is less sure about. A value connected by it shows a `?` in front on the card, for example `? getPokemon › id`.
+Rule 4 is the only one Luvin is less sure about. A value connected by it shows a `?` in front of its chip on the card.
 
 <Aside type="caution" title="Review every ?">
 In the Pokédex, add `GET /type/{idOrName}` after two other steps and Luvin proposes the `id` of the previous step. That is not a type. The right source is the field `types/type/name` of `getPokemon`. Choose it by hand, as shown below.
@@ -74,14 +123,14 @@ The mark goes away when you choose the source yourself. It is a reminder while y
 ## Change where a value comes from
 
 <Steps>
-1. Click the step on the canvas. Its panel opens on the right.
-2. Under **Parameters**, find the value. Values are grouped as **Path**, **Query**, **Headers** and **Body**.
-3. Open the list below its name (**Source**) and choose an option.
+1. Click the step on the canvas. Its panel opens over the canvas, on the **Data** tab.
+2. Under **Receives**, find the value. Values are grouped as **Path**, **Query**, **Headers**, **Cookies** and **Body**.
+3. Open the list under its name and choose an option.
 </Steps>
 
 | Option | What it does |
 |---|---|
-| **No source (missing)** or **Don't send** | Removes the value. The first appears on required values, the second on optional ones. A required value with no source shows **no source** on the card. |
+| **No source (missing)** or **Don't send** | Removes the value. The first appears on required values, the second on optional ones. |
 | `$inputs.name`, under **Inputs** | Uses an input the workflow already has. |
 | **New input “name”** | Creates a required input with the name of the value and uses it. |
 | An output, under the name of an earlier step | Uses a value that step already exposes. |
@@ -92,45 +141,45 @@ The mark goes away when you choose the source yourself. It is a reminder while y
 
 The list only offers steps that run before this one.
 
-![The Source list of idOrName in getType open: No source, the input, New input, then the outputs and response fields of Get pokemon, some of them from a list](/media/en/design-source-options.webp)
+![The list of idOrName in getType open: No source, the input, New input, then the outputs and response fields of Get pokemon, some of them from a list](/media/en/design-source-options.webp)
 
-You should see the new source on the card, without the `?`, and a data line from the earlier step.
+You should see the new chip on the card, without the `?`.
 
 ## Connect by dragging
 
-Each input in **Start**, each output of a step and each parameter has a dot on its right.
+Each input in **Start**, each output of a step and each parameter has a dot on the right of its row.
 
 <Steps>
 1. Drag from the dot of an input or an output to the dot of a parameter of a later step.
-2. Release. The parameter now shows the new source.
+2. Release. The parameter now shows the new chip.
 </Steps>
 
-To remove a connection, click its line and press Delete or Backspace. If you replace an input by dragging and no other step uses it, Luvin removes it from the workflow.
+You can only drop on a step that runs later. If you replace an input this way and no other step uses it, Luvin removes it from the workflow.
+
+To remove a connection:
+
+<Steps>
+1. Click the step that receives the value, so its lines show.
+2. Right-click the line and choose **Remove this connection**. You can also click the line and press Delete or Backspace.
+</Steps>
 
 ## A field of an output that is an object
 
 When a previous step returns an object, for example a reused workflow that returns `customer` with `bank`, `segment` and `address`, choose which field a parameter receives here, in the design. Nothing is asked when you run.
 
-1. Click the step and find the parameter in its panel.
-2. Open its source list. Under the previous step you see `customer (the whole object)` and one row per field: `customer › bank`, `customer › segment`, `customer › address › city`.
+<Steps>
+1. Click the step and find the parameter in the **Data** tab.
+2. Open its list. Under the previous step you see `customer (the whole object)` and one row per field: `customer › bank`, `customer › segment`, `customer › address › city`.
 3. Choose `customer › bank`.
+</Steps>
 
-The parameter's value becomes `$steps.info.outputs.customer.bank`, and on the canvas its data line is labelled `customer.bank`. Luvin finds the fields by following the output to the step that produces it and reading the response schema of its contract, also through a called workflow. Fields inside a list are not listed: from a list you choose the item when you run. See [Choose an item from a list](/test/lists/).
+The parameter's value becomes `$steps.info.outputs.customer.bank`. Luvin finds the fields by following the output to the step that produces it and reading the response schema of its contract, also through a called workflow. Fields inside a list are not listed: from a list you choose the item when you run. See [Choose an item from a list](/test/lists/).
 
 ## Values that come from a list
 
-A field inside a list is shown without its position: `cards/bank`, not `cards/0/bank`. In the **Source** list it reads **cards/bank (from a list: you choose which at run time)**.
+A field inside a list is shown without its position: `cards/bank`, not `cards/0/bank`. In the list it reads **cards/bank (from a list: you choose which at run time)**.
 
 You do not choose the item when you design. When you run a case, Luvin pauses after the step that returned the list and asks which item to continue with. See [Choose an item from a list](/test/lists/).
-
-![The outputs of listProducts: the note that items/sku comes from one item of items, the whole list tag and the button to expose the whole list](/media/en/design-list-outputs.webp)
-
-## Read the data lines
-
-Each connection is a dashed line from an output, or from an input, to the parameter it feeds. The label next to the parameter is the name of the value that arrives.
-
-- Drag the vertical part of a line to move it away from another one.
-- **Reset layout** puts the cards and the lines back.
 
 ## Suggestions you can accept
 
@@ -152,6 +201,7 @@ This is most common in workflows built from requests. See [Build from saved requ
   <LinkCard title="Common design situations" href="/design/common-situations/" />
   <LinkCard title="Parameters and body" href="/design/parameters-and-body/" />
   <LinkCard title="Outputs" href="/design/outputs/" />
-  <LinkCard title="Log in and use the token" description="A recipe that passes a token from one step to the next." href="/recipes/login-token/" />
+  <LinkCard title="The canvas" href="/design/canvas/" />
+  <LinkCard title="Pass the login token to the next steps" description="A login step gives its token to the steps of the same API." href="/authorization/token-from-login/" />
   <LinkCard title="Inputs" href="/test/inputs/" />
 </CardGrid>

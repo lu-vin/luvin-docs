@@ -20,6 +20,8 @@ sidebar:
 | **Workspace** | Una carpeta que contiene colecciones. |
 | **Request** | Una sola llamada a una API guardada por separado, fuera de un workflow. |
 | **Simulación** | Una ejecución que se responde con los ejemplos del contrato, sin llamadas de red. |
+| **Script** | JavaScript que corre antes de enviar un request o después de su respuesta, como en Postman y Bruno. Puede estar en un request, una carpeta o la colección. Mira [Scripts](/es/requests/scripts/). |
+| **Valor actual** | El valor que un script (o tú, a mano) le da a una variable en este equipo. Le gana al valor del archivo y nunca llega a git. |
 | **Secreto** | Una variable cuyo valor nunca se escribe en los archivos del workspace. Solo se escribe su nombre. |
 | **API real** | Un modo de ejecución que llama a la API con las URLs base y las credenciales del ambiente activo. |
 | **Reutilizable** | Un parámetro o una acción declarados una vez en `components` y usados por referencia desde varios pasos. |

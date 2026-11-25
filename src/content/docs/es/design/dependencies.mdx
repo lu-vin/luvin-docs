@@ -44,13 +44,13 @@ Una versión ejecutable: [Un workflow inicia sesión, otros reutilizan su token]
 
 <Steps>
 1. Abre el workflow que necesita los datos y ve a la pestaña **Diseño**.
-2. Haz clic en la tarjeta **Inicio**. Su panel se abre a la derecha.
+2. Haz clic en **Inicio**, el botón verde de arriba del lienzo. Su panel se abre encima del lienzo, a la derecha.
 3. Bajo **Depende de**, abre **Agregar un workflow…** y elige un workflow.
 </Steps>
 
-Aparece una tarjeta **Depende de** sobre **Inicio**. Lista cada workflow y sus outputs. Si un workflow no tiene outputs, la tarjeta dice **sin outputs declarados**: abre ese workflow y agrega outputs en su tarjeta **Fin del workflow**. Consulta [Outputs](/es/design/outputs/).
+Aparece una tarjeta **⇡ Depende de** sobre **Inicio**. Lista cada workflow y sus outputs. Si un workflow no tiene outputs, la tarjeta dice **sin outputs declarados**: abre ese workflow y agrega outputs en su tarjeta **Fin del workflow**. Consulta [Outputs](/es/design/outputs/).
 
-El panel dice **Este Arazzo no tiene otros workflows.** cuando el archivo tiene un solo workflow. Agrega otro con **+ Workflow**. Consulta [Crear un workflow](/es/design/create/).
+El panel dice **Este Arazzo no tiene otros workflows.** cuando el archivo tiene un solo workflow. Agrega otro primero. Consulta [Crear un workflow](/es/design/create/).
 
 Para dejar de depender de un workflow, haz clic en la papelera junto a su nombre en el mismo panel.
 
@@ -62,14 +62,18 @@ Para dejar de depender de un workflow, haz clic en la papelera junto a su nombre
 
 Los outputs de los workflows de los que dependes están disponibles para todos los pasos, como `$workflows.<workflow>.outputs.<nombre>`. Hay dos formas de conectar uno:
 
-- En el panel del paso, abre **Origen** de un parámetro. Cada dependencia tiene un grupo, **Workflow «Type explorer» (depende de)**, con sus outputs.
+- En el panel del paso, en la pestaña **Datos**, abre la lista de un parámetro. Cada dependencia tiene un grupo, **Workflow «Type explorer» (depende de)**, con sus outputs.
 - Arrastra desde el punto de un output de la tarjeta **Depende de** hasta un parámetro de un paso. [Conectar datos entre pasos](/es/design/wire-data/) explica ambas formas.
+
+En la tarjeta, el parámetro muestra de dónde viene el dato, por ejemplo **← strongAgainst · Type explorer**.
 
 ## Llama a un workflow como un paso
 
 <Steps>
-1. En la paleta **Operaciones**, abre **Workflows de este Arazzo**. Lista los otros workflows del archivo, cada uno marcado **FLOW**.
-2. Arrastra uno al lienzo, o haz clic en **+** de su fila.
+1. Haz clic en el paso después del cual va la llamada. Si no eliges ninguno, va al final.
+2. Haz clic en **＋ Paso** en la barra de herramientas, arriba del lienzo, o pulsa `/`.
+3. En el menú, ve a **Workflows de este Arazzo**. Lista los otros workflows del archivo, cada uno marcado **WORKFLOW**. Escribe parte de su nombre para filtrar.
+4. Haz clic en el workflow.
 </Steps>
 
 El paso lleva el nombre del workflow. Luvin hace las conexiones por ti:
@@ -77,9 +81,17 @@ El paso lleva el nombre del workflow. Luvin hace las conexiones por ti:
 - Cada input obligatorio del workflow llamado se vuelve un parámetro del paso, tomado de un paso anterior o de un input de este workflow, como en cualquier otro paso. El panel los lista bajo **Inputs del workflow**.
 - Cada output del workflow llamado se vuelve un output del paso, para que los pasos siguientes lo lean.
 
-El panel del paso muestra **llama al workflow typeExplorer** bajo el nombre. Para un workflow de otro archivo Arazzo agrega ese archivo, por ejemplo **llama al workflow login · auth.arazzo.yaml**, y lista los inputs que pide ese workflow, igual que para uno de este archivo. Si el workflow no existe, agrega **no existe**.
+La tarjeta muestra **WORKFLOW** y **⤷ llama al workflow typeExplorer**, y también el panel del paso, debajo del título. Para un workflow de otro archivo Arazzo agrega ese archivo, por ejemplo **llama al workflow login · auth.arazzo.yaml**, y lista los inputs que pide ese workflow, igual que para uno de este archivo. Si el workflow no existe, agrega **no existe**.
 
 ![El panel de un paso que llama a browseProducts: llama al workflow browseProducts, el input limit en Inputs del workflow y los outputs sku y price](/media/es/design-call-workflow.webp)
+
+### Ver los pasos del workflow llamado
+
+Cuando el workflow llamado está en el mismo archivo, su tarjeta tiene un enlace, **▸ Ver sus 2 pasos**, con la cantidad de pasos que tiene. Haz clic para listarlos en la tarjeta, cada uno con su número, método y título, sin salir del lienzo. **▾ Ocultar sus pasos** los vuelve a plegar.
+
+Los workflows de otros archivos Arazzo no se listan así. Abre ese archivo para verlos.
+
+![Un paso que llama a browseProducts con sus pasos desplegados: 1 GET Lista los productos y 2 GET Detalle de un producto](/media/es/design-sub-steps.webp)
 
 ## Usa un workflow de otro archivo Arazzo
 
@@ -89,7 +101,7 @@ El workflow que necesitas puede estar en otro archivo Arazzo de la misma colecci
   <TabItem label="En la app">
 
 <Steps>
-1. Abre la pestaña **Diseño** del workflow y haz clic en la tarjeta **Inicio**.
+1. Abre la pestaña **Diseño** del workflow y haz clic en **Inicio**.
 2. Bajo **Depende de**, abre **Agregar un workflow…**. La lista tiene un grupo **De este archivo** y un grupo por cada otro archivo Arazzo, por ejemplo **De auth.arazzo.yaml**.
 3. Elige el workflow del otro archivo.
 </Steps>
@@ -98,7 +110,7 @@ Luvin agrega el otro archivo a `sourceDescriptions` como una fuente de `type: ar
 
 ![La tarjeta Depende de sobre Inicio: el workflow login de auth.arazzo.yaml y su output token](/media/es/design-depends-card.webp)
 
-Para llamarlo como paso, abre la paleta **Operaciones**. El grupo **De otros archivos Arazzo** lista esos workflows, cada uno marcado **FLOW**. Arrastra uno al lienzo. Luvin agrega la fuente de la misma manera.
+Para llamarlo como paso, haz clic en **＋ Paso**. El grupo **De otros archivos Arazzo** del menú lista esos workflows, cada uno marcado **WORKFLOW** con su archivo. Haz clic en uno. Luvin agrega la fuente de la misma manera.
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -132,7 +144,7 @@ Los workflows de una fuente `arazzo` se llaman `$sourceDescriptions.<fuente>.<wo
 |---|---|
 | `dependsOn` de un workflow | Lo ejecuta primero, una sola vez, junto con los workflows de los que depende en su propio archivo. Lee sus outputs como `$workflows.<workflowId>.outputs.<nombre>`, solo con el id del workflow. |
 | `workflowId` de un paso | Lo llama en ese punto. Lee sus outputs como `$outputs.<nombre>` en los `outputs` del paso. |
-| `workflowId` de una acción `goto` o `retry` | Lo ejecuta cuando la acción se activa. Mira [Éxito y errores](/es/design/success-and-errors/). |
+| `workflowId` de una acción `goto` o `retry` | Lo ejecuta cuando se toma la ruta. Mira [Agregar o cambiar una ruta](/es/design/branch-menu/). |
 
 Un workflow llamado como paso usa su propio valor por defecto o de ejemplo para cada input que el paso no pasa.
 

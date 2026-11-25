@@ -1,0 +1,57 @@
+---
+title: The YAML next to the canvas
+description: Open the Arazzo file next to the canvas with { } YAML, see the lines of the selected step, and select a step from its lines.
+sidebar:
+  order: 13.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Everything you build on the canvas is standard Arazzo. **\{ \} YAML** shows that text next to the canvas, so you see what each change writes without leaving the diagram.
+
+## Example: see what a route writes
+
+<Steps>
+1. Open **Pokemon card** and click **Design**.
+2. Click **\{ \} YAML** at the top left of the canvas. The file opens on the right, with line numbers.
+3. Click the card of step 2. Its lines are marked and scroll into view.
+4. Add a route to step 2, for example **Retry** if it responds 429. See [Add or change a route](/design/branch-menu/).
+</Steps>
+
+The `onFailure` of step 2 appears in the YAML as soon as you click **Add**.
+
+![The YAML of pokemon.arazzo.yaml next to the canvas, with the lines of step 2 marked](/media/en/design-yaml-peek.webp)
+
+## What the panel shows
+
+| Part | What it is |
+|---|---|
+| Header | The name of the file, the Arazzo version and **updates with the canvas**. **×** closes it. |
+| Body | The whole file, with line numbers. The lines of the selected step are marked. |
+| Foot | **Select a step and its lines are marked; click a line to select its step.** and **Edit in YAML** |
+
+It is the same text the canvas writes, not a copy: every change on the canvas shows here at once.
+
+## Go from the canvas to the YAML and back
+
+- **Select a step** on the canvas: its lines are marked and scroll into view.
+- **Select Start**: the rules for every step (`successActions` and `failureActions`) are marked.
+- **Click a line** inside a step: that step is selected on the canvas.
+
+## Edit the text
+
+The panel is for reading. To edit, click **Edit in YAML**: the [YAML tab](/design/arazzo-editor/) opens on the same file, with validation and autocompletion. The canvas draws the changes when you come back.
+
+## Open and close it
+
+- **\{ \} YAML** opens and closes it. While a panel is open on the right, including this one, the button shows only **\{ \}**.
+- **Esc** or **×** closes it.
+
+The YAML takes the place of the step panel: while it is open, clicking a card marks its lines instead of opening its panel. Close the YAML to see the panel again. Drag its left edge to make it wider or narrower.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="The YAML tab" href="/design/arazzo-editor/" />
+  <LinkCard title="The canvas" href="/design/canvas/" />
+</CardGrid>

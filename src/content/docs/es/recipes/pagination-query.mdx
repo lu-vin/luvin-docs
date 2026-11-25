@@ -134,6 +134,20 @@ Los outputs del workflow son `total` = 194, `firstTitle`, `secondPageFirstTitle`
 Las expresiones de Arazzo leen valores; no calculan. No puedes escribir `skip` = `skip` anterior + `limit`. Por eso `nextSkip` es un input: tú decides dónde empieza la página siguiente. Para recorrer una lista completa repetirías el paso con un `skip` nuevo cada vez.
 :::
 
+## Por qué esta receta no usa «Recorrer todas las páginas»
+
+En la pestaña **Diseño**, **＋ Paso** tiene un patrón, **Recorrer todas las páginas**, en **Patrones · Arazzo estándar**. Repite un paso mientras la respuesta diga que hay una página siguiente:
+
+- Busca en la respuesta un campo de página siguiente: `next`, `nextCursor`, `next_cursor`, `nextPageToken`, `next_page_token`, `cursor` o `nextPage`.
+- Escribe una ruta de éxito que vuelve al mismo paso mientras ese campo tenga valor, por ejemplo `$response.body#/next != null`.
+- Si la operación tiene un parámetro de query para el cursor, como `cursor`, `pageToken` o `after`, cada vuelta lo manda con lo que dio la página anterior.
+
+Eso es paginación por cursor, y es Arazzo estándar. DummyJSON, en cambio, pagina por desplazamiento: mandas `skip` y `limit`, y la respuesta trae `total`, `skip` y `limit`, pero ningún campo de página siguiente. El `skip` siguiente sería `skip + limit`, y las condiciones de Arazzo no suman.
+
+Si aplicas el patrón a `GET /products` aquí, Luvin no encuentra un campo de página siguiente y escribe la condición sobre `next`. El aviso lo dice: *«List products, one page at a time» repite mientras «next» tenga valor. Si la API llama distinto a la página siguiente, cámbialo en sus rutas.* DummyJSON nunca devuelve `next`, así que la condición no se cumple y el paso se ejecuta una vez: el bucle para en la primera página.
+
+Por eso esta receta lee cada página con su propio paso y un input. Con una API que devuelve un campo de página siguiente o un cursor, usa el patrón. Ver [Patrones de Arazzo estándar](/es/design/patterns/).
+
 ## Pruébalo
 
 - **Una página cerca del final.** Pon `nextSkip` en `190` (el catálogo tiene 194 productos). `nextPage` sigue respondiendo 200 y su `firstTitle` ahora es *Rolex Cellini Moonphase*.
@@ -146,4 +160,5 @@ Las expresiones de Arazzo leen valores; no calculan. No puedes escribir `skip` =
 <LinkCard title="Parámetros y body" description="De dónde vienen los valores de query, ruta y header." href="/es/design/parameters-and-body/" />
 <LinkCard title="Criterios de éxito" description="Las condiciones que deciden si un paso pasó." href="/es/reference/criteria/" />
 <LinkCard title="Elige un elemento de una lista" description="Cuando la lista alimenta un paso posterior." href="/es/recipes/list-pick/" />
+<LinkCard title="Patrones de Arazzo estándar" description="Recorrer todas las páginas con un cursor." href="/es/design/patterns/" />
 </CardGrid>

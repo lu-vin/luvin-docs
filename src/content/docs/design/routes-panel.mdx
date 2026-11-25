@@ -1,0 +1,171 @@
+---
+title: The Routes panel and rules for every step
+description: Read, reorder, change and remove the routes of a step in the Success and routes tab, and set rules that apply to every step from Start.
+sidebar:
+  order: 7.3
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The card shows what each route does. The **Success and routes** tab of the step panel is where you manage them: what counts as success, the routes in the order they are checked, and the rules the step inherits from the workflow. The rules themselves live in the panel of **Start**.
+
+## Example: a specific route before a general one
+
+`createOrder` has two failure routes: one for any error, and one for 409 that goes back to the product list. Arazzo takes the **first** route that applies, so the general one, listed first, always wins and the 409 route never runs.
+
+<Steps>
+1. Click the card of `createOrder`. Its panel opens over the canvas.
+2. Click the tab **Success and routes · 2**.
+3. Under **Routes**, find **If it fails with 409**. It is number 2.
+4. Click **↑**. Its tooltip says **Check it earlier**.
+</Steps>
+
+![The Success and routes tab of createOrder: Routes, in order, with If it fails with 409, its sentence, its Arazzo line and the warning about the loop](/media/en/design-routes-panel.webp)
+
+The 409 route is now number 1, on the card and in the file.
+
+<Tabs>
+<TabItem label="Before">
+
+```yaml
+onFailure:
+  - name: stop
+    type: end
+  - name: on409
+    type: goto
+    stepId: listProducts
+    criteria:
+      - condition: $statusCode == 409
+```
+
+</TabItem>
+<TabItem label="After">
+
+```yaml
+onFailure:
+  - name: on409
+    type: goto
+    stepId: listProducts
+    criteria:
+      - condition: $statusCode == 409
+  - name: stop
+    type: end
+```
+
+</TabItem>
+</Tabs>
+
+## Open the tab
+
+<Steps>
+1. In the **Design** tab, click a card, or click **⤢** in its header (**Open in the panel**).
+2. Click **Success and routes**. The number next to it is how many routes the step has.
+</Steps>
+
+The panel opens over the canvas, and the canvas moves just enough to keep the card in view. **Esc** or **×** closes it. Going to a route warning from [To review](/design/review/) opens this tab for you.
+
+## It succeeds if
+
+The first section, **It succeeds if** · **all are met**, lists the success criteria of the step, one per row, with their type: **simple**, **jsonpath**, **regex** or **xpath**.
+
+- The first row is the status: `$statusCode ==` and a list with the 2xx statuses the contract documents. Choose the one you expect. A new step starts with the lowest one, or 200 if the contract documents none.
+- The other rows are the criteria written in the YAML, for example `$response.body#/capture_rate >= 0` or a JSONPath. **Edit in the YAML** takes you there to change them. See [Check more than the status](/recipes/criteria/).
+
+A messaging step has no status. Its row explains what counts as success for a message, with **Edit in the YAML**. See [Messaging steps](/design/messaging/).
+
+If a criterion can never hold, a box **To review** appears above it, with **Change it** when Luvin can rewrite it. See [A JSONPath condition that never holds](/design/review/#a-jsonpath-condition-that-never-holds).
+
+## Routes
+
+The section **Routes** · **in order; the first that matches wins** lists the routes of the step, on success and on failure, in the order of the Arazzo. Each one has:
+
+| Part | Example |
+|---|---|
+| A number | Its place in its list. |
+| A title | **If it fails with 429**, **If it fails: other error**, **If it passes** or **If it passes and** followed by the condition. |
+| What it does, in one sentence | *Retries up to 3 · every 2 s.* |
+| Its Arazzo, in one line | `onFailure · type: retry · retryAfter: 2 · retryLimit: 3 · criteria: $statusCode == 429` |
+| Buttons | **↑** (**Check it earlier**), **↓** (**Check it later**), **✎** (**Change the route**) and **✕** (**Remove the route**). |
+
+Routes on success and routes on failure are separate lists in Arazzo: ↑ and ↓ move a route only within its own list.
+
+**✎** opens the route editor with that route. **✕** removes it at once and shows **Route removed.** with **Undo**. See [Add or change a route](/design/branch-menu/).
+
+Each route also has **▷ Probe**, which makes it run without calling the API, and a mark that says whether a run already took it. See [Probe routes and coverage](/test/probe-routes/).
+
+When a route has a problem, such as a target step that no longer exists or a loop with no limit, a line **⚠** under it says what happens and what to do. See [To review](/design/review/).
+
+### No routes yet
+
+Without routes of its own, the section says *No routes of its own: if it passes, it goes on to the next step; if it fails, the Start rules apply and, if none applies, the workflow fails.*
+
+### Statuses without a route
+
+Below the routes, each status the contract declares and nothing handles has a row with **Ends**, **Retries** and **Choose what to do**. See [Declared statuses without a route](/design/branch-other-status/#declared-statuses-without-a-route-one-click).
+
+### Add a route
+
+At the end of the section, **＋ What to do if it fails** and **＋ Detour if it passes and a condition holds** open the route editor. A messaging step only has the second one.
+
+### Reusable routes
+
+A route can be a reusable of the file, defined once and used in several steps. It shows **♻** and its name, with **Detach**, which gives the step its own copy. A failure route for a single status that is not a reusable has **Save as reusable**. See [Reusables](/design/reusables/).
+
+## From the workflow
+
+When the workflow has rules, the tab ends with **From the workflow** · **for every step, after its own**. Each rule shows its status, what it does and its Arazzo line.
+
+The step uses them only when none of its own routes applies. To handle that status differently in this step only, click **Change it for this step only**: Luvin copies the rule into the routes of the step, where you can change it.
+
+## Rules for every step
+
+Some responses mean the same in every call of an API: a 429 when you go over the rate limit, a 503 during maintenance. Instead of one route per step, give the workflow a rule.
+
+<Steps>
+1. Click **Start**, the green button at the top of the canvas. Its panel opens.
+2. Find **If any step fails**.
+3. Click **＋ Rule for every step**. The route editor opens, titled **Rule for every step**.
+4. Type the status, choose what to do, and click **Add**.
+</Steps>
+
+![The Start panel: under If any step fails, the rule 401 → ends the workflow (End) as failed, and ＋ Rule for every step](/media/en/design-start-rules.webp)
+
+The editor offers the same options as for a step, except **Go to another step**: a rule belongs to the whole workflow, not to one place in it.
+
+<Tabs>
+<TabItem label="In the app">
+
+**Start** now says **· 1 rule**. The panel lists `429 ↻ retries up to 3 · every 2 s`, with **↑**, **↓**, **✎** and **✕**. On every card, **On failure** ends with **If none of these applies, it uses the Start rules (429)**.
+
+</TabItem>
+<TabItem label="In the YAML">
+
+```yaml title="shop.arazzo.yaml" {3-9}
+workflows:
+  - workflowId: placeOrder
+    failureActions:
+      - name: retry429
+        type: retry
+        retryAfter: 2
+        retryLimit: 3
+        criteria:
+          - condition: $statusCode == 429
+    steps:
+      # …
+```
+
+</TabItem>
+</Tabs>
+
+Rules on success (`successActions`) written in the YAML show in the same list, and you can reorder, change and remove them the same way. Without rules, the section says **No rules: each step decides on its own.**
+
+The panel of **Start** also has the inputs of the workflow, the workflows it depends on and the reusables of the file. See [Workflows that use other workflows](/design/dependencies/) and [Reusables](/design/reusables/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" />
+  <LinkCard title="To review" href="/design/review/" />
+  <LinkCard title="Probe routes" href="/test/probe-routes/" />
+</CardGrid>

@@ -25,7 +25,7 @@ El workspace **Pagos** tiene dos colecciones, `checkout` y `refunds`, y las prue
 <Steps>
 
 1. Las dos colecciones piden un token al mismo servidor. En el panel **Ambientes**, en **Ambientes globales**, haz clic en **+**, ponle de nombre `intg` y agrega `authHost` = `auth.intg.empresa.com`. Agrega un global `prod` con su propio `authHost`.
-2. `checkout` usa la versión `v2` de la API en todos sus ambientes. En su resumen, en **Variables de la colección**, agrega `apiVersion` = `v2`.
+2. `checkout` usa la versión `v2` de la API en todos sus ambientes. Abre la colección, haz clic en su pestaña **Variables** y agrega `apiVersion` = `v2`. Mira [Variables de la colección](/es/workspaces/collection-overview/#variables-de-la-colección).
 3. El request **Crear orden** envía `POST {{baseUrl}}/{{apiVersion}}/orders/{{orderId}}`. Pasa el mouse por `{{orderId}}`, escribe `ORD-1001` en la tarjeta y queda como variable solo de ese request.
 4. Elige `prod` en el ambiente de la colección: el ambiente global también pasa a `prod`, así que `authHost` toma el valor de `prod`.
 
@@ -42,6 +42,8 @@ Cuando un nombre está en varios lugares, gana el más específico. Del que gana
 | 3 | El ambiente activo de la colección (sus variables, secretos y URLs base) | Siempre |
 | 4 | Variables de la colección | Siempre |
 | 5 | El ambiente global activo | Siempre |
+
+Un **valor actual** que guarda un script (por ejemplo `pm.environment.set("token", …)`) no cambia este orden: reemplaza, solo en tu computadora, el valor del archivo en su mismo nivel. Consulta [Scripts](/es/requests/scripts/).
 
 En el [runner](/es/runner/open-and-environment/) y en las pruebas de carga, la fila de datos y los valores que se guardan durante la corrida van encima de todos estos. Los pasos de un workflow usan los niveles 1, 3, 4 y 5: no son requests guardados, así que no tienen variables de request.
 
@@ -60,7 +62,7 @@ Fuera de un request, por ejemplo en un workflow, presiona **Enter** para crearla
 
 ## El panel Variables
 
-Haz clic en **{ }** en la barra de pestañas para abrir el panel **Variables** a la derecha de cualquier vista.
+Haz clic en `{ }` en la barra de pestañas para abrir el panel **Variables** a la derecha de cualquier vista.
 
 - **Variables del request**, arriba, son las del request abierto. Escribe en la fila vacía para agregar una, y pasa el mouse por una fila para ver **−** y quitarla.
 - **Todas las variables**, debajo, muestra cada nivel con su letra, del que gana al que pierde: valores guardados, el ambiente de la colección (con sus URLs base y sus secretos), las variables de la colección y el ambiente global.

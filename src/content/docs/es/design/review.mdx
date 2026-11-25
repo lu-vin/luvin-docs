@@ -1,0 +1,150 @@
+---
+title: Por revisar
+description: Lo que Luvin encuentra leyendo el Arazzo como lo ejecutaría, antes de que lo ejecutes, y cómo arreglar cada aviso.
+sidebar:
+  order: 7.6
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Algunos errores pasan todas las validaciones del schema de Arazzo y recién aparecen al ejecutar el workflow: una ruta que salta el paso que entrega un dato, una ruta a un paso que ya no está, una condición que nunca se puede cumplir. **Por revisar** lee el Arazzo como lo haría el runner y te los muestra en el lienzo, con qué hacer.
+
+Los avisos nunca bloquean: puedes ejecutar el workflow igual.
+
+## Ejemplo: una condición JSONPath que en realidad es una comparación
+
+En un workflow sobre la PokéAPI, `getSpecies` revisa la tasa de captura con un criterio JSONPath:
+
+```yaml title="pokemon.arazzo.yaml" {4-6}
+- stepId: getSpecies
+  successCriteria:
+    - condition: $statusCode == 200
+    - context: $response.body
+      condition: $.capture_rate >= 0
+      type: jsonpath
+```
+
+El schema lo acepta. Pero `$.capture_rate >= 0` no es una consulta JSONPath: no encuentra nada, así que el criterio nunca se cumple y el paso falla siempre, responda lo que responda la API.
+
+<Steps>
+1. Arriba del lienzo, la barra muestra el chip ámbar **⚠ 1 por revisar**.
+2. Haz clic en él. El menú **Por revisar · Luvin lee el Arazzo como lo ejecutaría** muestra: **Paso 2: el criterio «$.capture_rate >= 0» no es JSONPath válido y nunca se cumple: el paso falla siempre.** Debajo: **Escríbela como condición simple: «$response.body#/capture_rate >= 0». Así la evalúa cualquier herramienta de Arazzo.**
+3. Haz clic en el aviso. Luvin elige `getSpecies` y abre su pestaña **Éxito y rutas**, donde el mismo aviso tiene el botón **Cambiarla**.
+4. Haz clic en **Cambiarla**.
+</Steps>
+
+![El menú del chip ⚠ 1 por revisar · 3 sin ruta: el criterio JSONPath del paso 2 que nunca se cumple, y los status sin ruta](/media/es/design-review-menu.webp)
+
+<Tabs>
+<TabItem label="Después">
+
+```yaml title="pokemon.arazzo.yaml" {4}
+- stepId: getSpecies
+  successCriteria:
+    - condition: $statusCode == 200
+    - condition: $response.body#/capture_rate >= 0
+```
+
+</TabItem>
+</Tabs>
+
+El aviso desaparece. ⌘Z (Ctrl+Z) deshace el cambio.
+
+![La pestaña Éxito y rutas de getSpecies: el cuadro Por revisar con el botón Cambiarla, y el criterio marcado con ⚠](/media/es/design-review-fix.webp)
+
+## El chip y su menú
+
+El chip está en la barra del lienzo, en ámbar, cuando hay algo que revisar. Cuenta dos cosas:
+
+- **N por revisar**: problemas que cambian lo que hace la ejecución.
+- **N sin ruta**: status que el contrato declara y que nada maneja. Son informativos.
+
+Por ejemplo, **⚠ 1 por revisar · 4 sin ruta**. Con el panel del paso abierto, el chip muestra solo el total; pasa el ratón por encima para leer los dos números.
+
+Haz clic en el chip para abrir la lista. Cada aviso dice qué pasa y, debajo, qué hacer. Haz clic en uno para ir ahí: Luvin elige el paso, lo trae a la vista y abre la pestaña donde se arregla. **Datos** para un dato, **Éxito y rutas** para una ruta o una condición. Un aviso sobre los outputs del workflow elige **Fin del workflow**.
+
+El chip se oculta mientras el lienzo muestra los resultados de una ejecución. Ver [Resultados en el lienzo](/es/test/run-on-canvas/).
+
+## Qué encuentra
+
+| Aviso | Nivel | Dónde más lo ves |
+|---|---|---|
+| [Un dato que una ruta puede saltar](#un-dato-que-una-ruta-puede-saltar) | Advertencia | El chip del dato queda en ámbar con ⚠; un recuadro en la pestaña **Datos** del paso, o en el panel de **Fin del workflow**. |
+| [Una ruta a un paso que ya no está](#una-ruta-a-un-paso-que-ya-no-está) | Error | ⚠ en la fila de la ruta. |
+| [Un bucle que solo corta el runner](#un-bucle-que-solo-corta-el-runner) | Advertencia | ⚠ en la fila de la ruta. |
+| [Un status sin ruta](#un-status-sin-ruta) | Información | La fila roja `✕ sin ruta: el workflow falla` en la tarjeta. |
+| [Una condición JSONPath que nunca se cumple](#una-condición-jsonpath-que-nunca-se-cumple) | Error | ⚠ junto al criterio o en la fila de la ruta; un recuadro en **Éxito y rutas** con **Cambiarla**. |
+
+Pasa el ratón por un ⚠ para leer el aviso y qué hacer.
+
+### Un dato que una ruta puede saltar
+
+Una ruta que salta hacia adelante se saltea los pasos del medio. Si un paso posterior usa un dato que entrega uno de ellos, ese dato llega vacío cuando se toma la ruta.
+
+> **Paso 4: «orderId» viene del paso 3, que la ruta «si responde 409» del paso 2 salta.**
+> Si se toma esa ruta, aquí llega sin valor. Cambia la ruta para que no salte el paso 3, o toma el dato de otro paso.
+
+En la tarjeta, el chip de ese dato queda en ámbar, por ejemplo `← orderId · de 3 ⚠`.
+
+También se revisan los outputs del workflow, en el panel de **Fin del workflow**. En **Pokemon card**, con una ruta que lleva el 404 del paso 2 a un paso de abajo:
+
+- **Fin: el output «weakTo» viene del paso 3, que la ruta «si responde 404» del paso 2 salta.**
+- **Fin: el output «weakTo» viene del paso 3, y la ruta «si pasa» del paso 2 termina antes.**, cuando una ruta termina el workflow con éxito antes del paso que lo entrega.
+
+Qué hacer: **Si se toma esa ruta, el workflow entrega ese output vacío. Cambia la ruta o quita el output.** Un parámetro de un paso no tiene valor por defecto en Arazzo, así que el arreglo está en la ruta o en el origen del dato. Ver [Conectar datos entre pasos](/es/design/wire-data/).
+
+### Una ruta a un paso que ya no está
+
+> **Paso 2: la ruta «si responde 404» va al paso «listPokemon», que ya no está.**
+> Elige otro paso en la ruta, o quítala.
+
+Pasa cuando quitas o renombras el destino fuera del lienzo, por ejemplo en la pestaña YAML. La fila de la ruta dice **va a un paso que ya no está (listPokemon)**. Haz clic en su lápiz para elegir otro paso, o quítala. Ver [Agregar o cambiar una ruta](/es/design/branch-menu/).
+
+### Un bucle que solo corta el runner
+
+Una ruta que vuelve a un paso anterior, o al mismo, no tiene límite en Arazzo. Luvin corta una ejecución a las 200 ejecuciones. Cuando la ruta depende solo del status, la API puede responder lo mismo cada vez:
+
+> **Paso 3: la ruta «si responde 401» vuelve al paso 1 sin límite. Si la API sigue respondiendo igual, el runner la corta a las 200 ejecuciones y el workflow falla.**
+> Usa «Reintentar» o «Renovar y reintentar», que tienen un límite de intentos, o pon una condición sobre la respuesta que deje de cumplirse.
+
+Una ruta de éxito sin ninguna condición vuelve siempre: **Paso 3: la ruta «si pasa» siempre vuelve al paso 1. Nada la corta antes de las 200 ejecuciones del runner, y el workflow falla.**
+
+Un bucle que mira un campo de la respuesta no se avisa. Por ejemplo, una paginación que repite el paso mientras `$response.body#/next != null` para sola en la última página. Ver [Patrones de Arazzo estándar](/es/design/patterns/).
+
+### Un status sin ruta
+
+> **Paso 2: la API puede responder 404 y no hay ruta: el workflow falla.**
+> Elige qué hacer con el 404, o déjalo así si ese fallo es lo esperado.
+
+Son las filas rojas de la tarjeta. No hace falta manejarlas todas: están para que decidas. Ver [Una ruta para cualquier status](/es/design/branch-other-status/#status-declarados-sin-ruta-un-clic).
+
+### Una condición JSONPath que nunca se cumple
+
+Un criterio de tipo `jsonpath` escrito como comparación, como `$.legendary == true` o `$.capture_rate >= 0`, no es una consulta JSONPath válida. El runner no encuentra nada, así que:
+
+| Dónde está | Qué pasa | Aviso |
+|---|---|---|
+| Criterios de éxito de un paso | El paso falla siempre. | **Paso 1: el criterio «$.legendary == true» no es JSONPath válido y nunca se cumple: el paso falla siempre.** |
+| Una ruta de un paso | La ruta no se toma nunca. | **Paso 1: la condición «$.legendary == true» de la ruta «ifLegendary» no es JSONPath válido y nunca se cumple: la ruta no se toma nunca.** |
+| Una regla del workflow | La regla no se aplica nunca. | **Inicio: la condición «$.legendary == true» de la regla «…» no es JSONPath válido y nunca se cumple: la regla no se aplica nunca.** El ⚠ va en su fila del panel de **Inicio**. |
+
+Ninguna herramienta de Arazzo va a cumplir estas condiciones, así que Luvin no las ejecuta como comparaciones: propone la forma estándar.
+
+Cuando el `context` es `$response.body` o `$message.payload`, **Cambiarla** reescribe solo esa condición como condición simple, `$response.body#/legendary == true`, y quita su `context` y su `type`. El resto del YAML, con sus comentarios, queda igual.
+
+Con cualquier otro `context`, no hay arreglo de un clic. El aviso dice qué hacer: **Escríbela como condición simple sobre el body («$response.body#/campo == valor»), o como una consulta JSONPath que encuentre algo.**
+
+Las consultas JSONPath válidas no se avisan. `$.abilities[?(@.is_hidden == false)]` se cumple cuando encuentra al menos una habilidad que no es oculta. Ver [Comprueba más que el status](/es/recipes/criteria/).
+
+<Aside type="tip">
+Después de **Cambiarla**, **▷ Probar** también puede simular la ruta: responde con ese valor en el body y sigue el camino. Ver [Probar rutas y cobertura](/es/test/probe-routes/).
+</Aside>
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="El panel Rutas y las reglas para todos los pasos" href="/es/design/routes-panel/" />
+  <LinkCard title="Criterios de éxito" href="/es/reference/criteria/" />
+  <LinkCard title="Comprueba más que el status" href="/es/recipes/criteria/" />
+</CardGrid>

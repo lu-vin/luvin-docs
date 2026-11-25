@@ -1,0 +1,143 @@
+---
+title: Probar rutas y cobertura
+description: Prueba cada ruta de un paso con una respuesta simulada, sin esperar a que la API falle, y mira qué rutas ya tomó alguna ejecución o prueba.
+sidebar:
+  order: 13
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Las rutas de error son las que menos se prueban: para recorrerlas, la API tiene que fallar. **▷ Probar**, en cada ruta de un paso, simula la respuesta que hace tomar esa ruta y recorre el camino. No llama a la API. El chip de cobertura, **◎ Rutas probadas**, dice qué rutas ya tomó alguna ejecución o prueba.
+
+## Ejemplo: prueba el 404 de Pokemon card
+
+`getPokemon` tiene una ruta: si responde 404, `pokemonNotFound` termina el workflow.
+
+<Steps>
+1. Abre **Pokemon card** en la pestaña **Diseño**.
+2. En la tarjeta de `getPokemon`, busca la fila de la ruta del 404 y pulsa **▷ Probar**.
+3. El lienzo pasa a **Ejecución**. La tarjeta dice **✕ 404 → termina**, y la fila dice **tomada** y **✓ probada**.
+4. La barra de resultado dice **Probada: 404 → pokemonNotFound · terminó el workflow con error**. La prueba es un chip más en la barra: **▷ Prueba: 404 → pokemonNotFound**.
+5. En la barra de herramientas del lienzo, el chip dice **◎ Rutas probadas 1/1**.
+</Steps>
+
+No necesitaste un Pokémon que no existe, ni conexión a internet.
+
+![Después de ▷ Probar en la ruta del 404 de getPokemon: la tarjeta dice ✕ 404 → termina, la fila de la ruta dice tomada y ✓ probada, la barra de herramientas muestra ◎ 1/1 y la barra dice Probada: 404 → pokemonNotFound](/media/es/test-probe-route.webp)
+
+## Dónde se prueba una ruta
+
+| Dónde | Qué ves |
+|---|---|
+| Una fila de ruta en la tarjeta del paso | **▷ Probar**, y **✓ probada** o **sin probar** cuando ya se ejecutó algo. |
+| La pestaña **Éxito y rutas** del panel del paso | Cada ruta con **▷ Probar**, su etiqueta, y **＋ Crear caso** o el caso que ya la prueba. |
+| El menú de cobertura | Las rutas sin probar, cada una con **▷ Probar** y **＋ Crear caso**. Mira [El menú de cobertura](#el-menú-de-cobertura). |
+
+## Qué responde el paso
+
+Luvin arma la respuesta que hace tomar la ruta, con el ejemplo del contrato para ese status:
+
+| La ruta | El paso responde |
+|---|---|
+| Tiene un status, por ejemplo `$statusCode == 404` | Ese status. |
+| Tiene un valor del body, por ejemplo `$response.body#/is_legendary == true` | Ese valor en el body. |
+| **Si pasa**, sin status | El status de éxito del paso, o el primer 2xx que documenta el contrato, o 200. |
+| **Si falla**, sin condición (atrapa todo) | El primer error que documenta el contrato y que no toma una ruta anterior. Si no hay ninguno, 500. |
+| Un paso que recibe un mensaje | Un mensaje con los valores de la condición. Una ruta sin condición no recibe mensaje, así que el paso llega a su tiempo de espera. |
+
+Los demás pasos responden como en [simulación](/es/test/simulation/).
+
+Lo que hace una prueba y lo que no:
+
+- Siempre corre en simulación, aunque la barra de ejecución diga **API real**.
+- Ejecuta el **Camino feliz**, con sus inputs, más la respuesta simulada.
+- No pregunta qué elemento de una lista usar: sigue con el elemento que indica el diseño, como el Runner. Mira [Elige un elemento de una lista](/es/test/lists/).
+- No se detiene en las pausas. Mira [Depurar un workflow](/es/test/debug/).
+- No va al historial y no cambia con qué compara **⇄ Comparar**. Los resultados de los demás casos se quedan.
+- Una prueba nueva reemplaza a la anterior.
+
+Cuando no se toma la ruta, la barra dice por qué, por ejemplo **No se tomó «pokemonNotFound»: el paso 1 dice ✕ 500**.
+
+## Cuándo Probar está desactivado
+
+**▷ Probar** no se puede pulsar mientras algo se ejecuta. En estos casos queda desactivado, con el motivo escrito al lado:
+
+| Situación | Motivo |
+|---|---|
+| El paso llama a otro workflow | *Este paso llama a otro workflow: su respuesta no se puede simular desde aquí.* |
+| La condición no es un status ni «valor == …», por ejemplo `!= null` o `> 3` | *Luvin no puede simular esta condición (solo un status o «valor == …»). Pruébala con un caso con datos.* |
+| El paso envía un mensaje | El mismo motivo: no hay respuesta que simular. |
+
+Para una condición que Luvin no puede simular, agrega un [caso con datos propios](/es/test/custom-cases/) que la provoque contra la API real.
+
+## Cobertura de rutas
+
+El chip **◎ Rutas probadas 2/5** aparece en la barra de herramientas del lienzo después de la primera ejecución o prueba. Cuenta las rutas de los pasos que tomó algún caso o prueba en esta sesión.
+
+- También cuentan los casos que ejecutas con **Ejecutar**, no solo las pruebas.
+- Las reglas del workflow, en **Inicio**, se cuentan aparte.
+- Cuando cambias las rutas, la cuenta vuelve a empezar. El chip sigue a la vista, con **0/5**.
+- La cobertura vive en la sesión. No se guarda al cerrar Luvin.
+
+En cada fila de ruta, **✓ probada** o **sin probar** dice lo mismo.
+
+## El menú de cobertura
+
+Haz clic en el chip. El menú se titula **Cobertura de rutas · 2 de 5 probadas** y tiene estas secciones:
+
+| Sección | Qué lista |
+|---|---|
+| **Sin probar · 3** | Cada ruta que ningún caso ni prueba tomó, con su paso, **▷ Probar** y **＋ Crear caso**, o el caso que ya la prueba (**caso: …**). Cuando no falta ninguna: **✓ Todas las rutas de los pasos se probaron.** |
+| **Probadas · 2** | Cada ruta tomada, con el caso o la prueba que la tomó primero: **por «Camino feliz»**. |
+| **Lo que hizo cada caso · 3** | Cada caso o prueba de la barra, con las rutas que tomó, o **siguió el camino normal: no tomó ninguna ruta**. |
+| **Errores sin ruta · 3** | Cada status que documenta el contrato y que ninguna ruta maneja: **404 ✕ falla**, con su paso y **Elegir qué hacer**. |
+
+Al final, **Reglas del workflow: 1 de 1 probadas**, cuando el workflow tiene reglas.
+
+Haz clic en una ruta para ir a su paso. **Elegir qué hacer** elige el paso, para que decidas qué ruta agregar para ese status. Mira [Rutas](/es/design/branches/).
+
+En **Pokemon card**, después de ejecutar sus dos casos, el menú dice **Cobertura de rutas · 1 de 1 probadas**, y **Errores sin ruta** lista el 404 de `getSpecies`, `getWeakness` y `getAbility`: el contrato lo documenta y el workflow no lo maneja.
+
+![El menú de cobertura de Pokemon card: Cobertura de rutas · 1 de 1 probadas, la ruta probada y con qué prueba, lo que hizo cada caso, y tres errores 404 sin ruta con Elegir qué hacer](/media/es/test-coverage-menu.webp)
+
+## Guarda una prueba como caso
+
+**＋ Crear caso** guarda un caso que prueba la ruta. Úsalo cuando quieres que **Ejecutar** pase por esa ruta cada vez.
+
+<Steps>
+1. Abre el menú de cobertura, o la pestaña **Éxito y rutas** del paso.
+2. Pulsa **＋ Crear caso** en la ruta.
+3. El caso aparece en la pestaña **Casos**, en **Casos por respuesta**, con el nombre del paso y de la ruta, por ejemplo **Paso 2: 404 → otroError**.
+</Steps>
+
+**＋ Crear caso** solo aparece cuando ningún caso prueba todavía la ruta. Los **Casos por respuesta** que se generan solos ya cubren las rutas con status, así que sirve sobre todo para las rutas sin condición.
+
+El caso se guarda en el archivo de escenarios, junto al Arazzo, así que va a git con él. Dice qué responde el paso y qué ruta espera:
+
+```yaml title="pokemon.escenarios.yaml"
+cases:
+  - workflow: pokemonCard
+    name: "Paso 2: 404 → otroError"
+    inputs: {}
+    simulate:
+      step: getSpecies
+      status: 404
+    expect:
+      step: getSpecies
+      action: otroError
+```
+
+Mira [Importa y exporta casos](/es/test/adjust-cases/#importa-y-exporta-casos).
+
+<Aside type="caution" title="Una prueba demuestra el diseño, no tu API">
+Una ruta probada muestra qué hace el workflow cuando el paso responde eso. No demuestra que tu API lo responda alguna vez. Para revisarlo contra la API real, usa un [caso por respuesta con datos](/es/test/adjust-cases/#ejecuta-un-caso-por-respuesta-contra-la-api-real).
+</Aside>
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Resultados en el lienzo" href="/es/test/run-on-canvas/" />
+  <LinkCard title="Rutas" description="Qué pasa después de cada paso, y cómo agregar una ruta." href="/es/design/branches/" />
+  <LinkCard title="Simulación" href="/es/test/simulation/" />
+  <LinkCard title="Casos" href="/es/test/cases/" />
+</CardGrid>

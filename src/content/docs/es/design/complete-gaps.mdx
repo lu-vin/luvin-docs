@@ -22,7 +22,7 @@ La pestaña **Resumen** también lo lista como error: **El contrato exige el par
 
 ## Cuándo aparece la barra
 
-La barra aparece sobre el lienzo en la pestaña **Diseño**, y sobre los campos en la pestaña **Inputs**. Solo se muestra cuando Luvin encuentra algo que completar. Un workflow al que no le falta nada no la muestra.
+La barra aparece arriba del lienzo en la pestaña **Diseño**, y sobre los campos en la pestaña **Inputs**. Solo se muestra cuando Luvin encuentra algo que completar. Un workflow al que no le falta nada no la muestra.
 
 Suele aparecer cuando algo cambia debajo del workflow:
 
@@ -33,11 +33,11 @@ La barra no aparece mientras el YAML no se puede leer. Arregla primero el YAML.
 
 ![La barra A este workflow le faltan datos después de borrar el input username que usa el paso login: Se usan inputs que el workflow no declara: username, con Completar](/media/es/design-gaps-bar.webp)
 
-Lo mismo pasa cuando borras un input en el panel de **Inicio** mientras un paso todavía lo lee.
+Lo mismo pasa cuando borras un input en el panel de **Inicio** mientras un paso todavía lo lee. En la tarjeta de ese paso, el valor muestra un chip rojo con **falta**.
 
 ## Qué detecta Luvin
 
-La barra tiene hasta dos frases. Cada una es un problema distinto.
+La barra tiene hasta dos frases. Cada una es un problema distinto. Debajo recuerda qué hace **Completar**: **Completar los declara como inputs (con el tipo del contrato) o los conecta con un paso anterior, sin rehacer los pasos. Se puede deshacer.**
 
 | Frase | Qué significa |
 |---|---|
@@ -78,13 +78,13 @@ Abre el paso después y revisa de dónde viene cada valor. Una fuente que Luvin 
 
 <Steps>
 1. Haz clic en **Completar** en la barra de la pestaña **Diseño**.
-2. Si no te gusta el resultado, haz clic en **Deshacer** sobre el lienzo, o pulsa ⌘ + Z (Ctrl + Z).
+2. Si no te gusta el resultado, haz clic en ↶ (**Deshacer**) en la barra de herramientas, arriba del lienzo, o pulsa ⌘ + Z (Ctrl + Z).
 </Steps>
 
-**Rehacer** lo trae de vuelta. Mira [Organizar un workflow](/es/design/organize/).
+↷ (**Rehacer**) lo trae de vuelta. Mira [Organizar un workflow](/es/design/organize/).
 
 <Aside type="note">
-La barra también está en la pestaña **Inputs**, con el mismo botón **Completar**. **Deshacer** es un botón de la pestaña **Diseño**, así que si quieres poder deshacer, haz clic en **Completar** en **Diseño**.
+La barra también está en la pestaña **Inputs**, con el mismo botón **Completar**. Deshacer y rehacer son de la pestaña **Diseño**, así que si quieres poder deshacer, haz clic en **Completar** en **Diseño**.
 </Aside>
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-gaps.webp" src="/media/es/design-gaps.mp4"></video>

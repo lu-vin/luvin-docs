@@ -9,6 +9,8 @@ import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starli
 
 Casi siempre necesitas más de un ambiente: tu equipo, un servidor de pruebas compartido, producción. Un ambiente nuevo empieza como copia del activo, así que solo cambias lo que difiere.
 
+Esta página trata de los ambientes de una colección. Los ambientes globales, que comparten todas las colecciones del workspace, se crean, se renombran y se eliminan en el panel **Ambientes**, en **Ambientes globales**: mira [Ambientes globales](/es/environments/variable-levels/#ambientes-globales).
+
 ## Ejemplo: agrega staging a la tienda
 
 La colección de la tienda tiene `local`, con la URL base `shop` en `http://localhost:8080`, la variable `clientId` y el secreto `clientSecret`.
@@ -33,7 +35,7 @@ La colección de la tienda tiene `local`, con la URL base `shop` en `http://loca
 
 <Steps>
 
-1. Abre el ambiente activo: haz clic en la pastilla de arriba a la derecha y elige **Configurar ambiente…**.
+1. Abre el ambiente activo: haz clic en la mitad izquierda de la pastilla de arriba a la derecha (el ambiente de la colección, con el ícono de base de datos) y elige **Configurar ambiente…**.
 2. Haz clic en **+ Nuevo**, al final de la fila de ambientes.
 3. Escribe el nombre y pulsa **Enter**.
 
@@ -107,7 +109,7 @@ El color se ve en todos los lugares donde aparece el ambiente:
 
 | Lugar | Cómo |
 |---|---|
-| La pastilla de arriba a la derecha | Toda la pastilla toma el color. Sin color, es verde de Luvin. |
+| La pastilla de arriba a la derecha | Su mitad izquierda, la del ambiente de la colección, toma el color. Sin color, es verde de Luvin. |
 | El panel **Ambientes** | El punto de la fila. |
 | La pestaña del ambiente | El punto del título y el de la fila de ambientes. |
 | La lista **Ambiente** del runner | La lista toma el color del activo. |

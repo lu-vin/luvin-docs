@@ -11,6 +11,8 @@ After a response arrives, a request can do two more things. It can **save values
 
 Use them when one request feeds the next (log in, then call with the token) and when "it answered" is not enough to say "it worked".
 
+For what these tabs cannot do, such as signing a request or a test with a condition, a request also has a **Scripts** tab, with JavaScript as in Postman. Both work together: see [Scripts or the Variables and Checks tabs?](/requests/scripts/#scripts-or-the-variables-and-checks-tabs)
+
 ## The two tabs
 
 | Tab | What it does | When it runs | Where you see the result |
@@ -77,6 +79,8 @@ To send both in order with one click, use the runner: see [Read the check result
 
 </Steps>
 
+If the request, its folder or its collection has [scripts](/requests/scripts/), the **Before request** scripts run before step 1, and the **After response** scripts run after step 4. They see what the **Variables** tab just saved.
+
 ## In the request file
 
 Variables and checks are saved in the request file, so they travel with the collection in git. The value a variable saved is never written there. For **Get pokemon**:
@@ -118,13 +122,14 @@ The name of each `op` is in [The checks, one by one](/requests/check-operators/)
 | Know exactly when each check passes, with examples | [The checks, one by one](/requests/check-operators/) |
 | Read the status, a header, a field or an item of a list | [Response expressions](/requests/check-expressions/) |
 | Understand the chip, the **Checks** tab, the runner and the history | [Read the check results](/requests/check-results/) |
-| Bring the tests you already have in Postman or Bruno | [Checks from Postman and Bruno](/requests/checks-from-postman/) |
+| Write JavaScript before the request or after the response, as in Postman | [Scripts](/requests/scripts/) |
+| Know what a Bruno `assert` becomes, or turn a Postman test into a check | [Bruno asserts and Postman tests](/requests/checks-from-postman/) |
 
 ## Related
 
 <CardGrid>
   <LinkCard title="Save values from a response" href="/requests/save-variables/" />
   <LinkCard title="Check the response" href="/requests/checks/" />
-  <LinkCard title="Read a response in detail" href="/requests/response-details/" />
+  <LinkCard title="Scripts" href="/requests/scripts/" />
   <LinkCard title="Variables and secrets" href="/environments/variables-and-secrets/" />
 </CardGrid>

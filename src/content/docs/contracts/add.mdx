@@ -48,7 +48,7 @@ sourceDescriptions:
 </TabItem>
 </Tabs>
 
-The row now shows ✓ and the name of the source, `pokeapi`. Its operations are in the **Operations** palette of the **Design** tab.
+The row now shows ✓ and the name of the source, `pokeapi`. Its operations are in **＋ Step**, in the **Design** tab.
 
 ## Create a new contract
 
@@ -170,7 +170,7 @@ A workflow file names its contracts in `sourceDescriptions`, each with an addres
 
 ### A contract added after the workflow file
 
-A workflow file that already exists doesn't list contracts you add later, so the new contract shows ○. You don't need to edit the YAML: its operations are in the **Operations** palette of every workflow, in their own group with the mark **new**. Add one, with **+** or by dragging it, and Luvin adds the contract to the `sourceDescriptions` of that workflow file, with its path relative to the file:
+A workflow file that already exists doesn't list contracts you add later, so the new contract shows ○. You don't need to edit the YAML: its operations are in **＋ Step** of every workflow, in their own group with the mark **new**. Add one and Luvin adds the contract to the `sourceDescriptions` of that workflow file, with its path relative to the file:
 
 ```yaml title="pokemon.arazzo.yaml" {5-7}
 sourceDescriptions:

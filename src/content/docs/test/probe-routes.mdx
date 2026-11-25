@@ -1,0 +1,143 @@
+---
+title: Probe routes and coverage
+description: Test each route of a step with a simulated response, without waiting for the API to fail, and see which routes some run or probe has already taken.
+sidebar:
+  order: 13
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The error routes are the ones tested the least: to go through them, the API has to fail. **▷ Probe**, on each route of a step, simulates the response that makes that route run and follows the path. It does not call the API. The coverage chip, **◎ Routes tested**, says which routes some run or probe has taken.
+
+## Example: probe the 404 of Pokemon card
+
+`getPokemon` has a route: if it answers 404, `pokemonNotFound` ends the workflow.
+
+<Steps>
+1. Open **Pokemon card** in the **Design** tab.
+2. On the card of `getPokemon`, find the row of the 404 route and press **▷ Probe**.
+3. The canvas switches to **Run**. The card says **✕ 404 → ends**, and the row says **taken** and **✓ tested**.
+4. The result bar says **Probed: 404 → pokemonNotFound · ended the workflow with an error**. The probe is one more chip in the bar: **▷ Probe: 404 → pokemonNotFound**.
+5. In the toolbar of the canvas, the chip says **◎ Routes tested 1/1**.
+</Steps>
+
+You did not need a Pokémon that does not exist, or an internet connection.
+
+![After ▷ Probe on the 404 route of getPokemon: the card says ✕ 404 → ends, the route row says taken and ✓ tested, the toolbar shows ◎ 1/1 and the bar says Probed: 404 → pokemonNotFound](/media/en/test-probe-route.webp)
+
+## Where to probe a route
+
+| Where | What you see |
+|---|---|
+| A route row on the step card | **▷ Probe**, and **✓ tested** or **not tested** once something has run. |
+| The **Success and routes** tab of the step panel | Each route with **▷ Probe**, its tag, and **＋ Create case** or the case that already tests it. |
+| The coverage menu | The routes not tested, each with **▷ Probe** and **＋ Create case**. See [The coverage menu](#the-coverage-menu). |
+
+## What the step answers
+
+Luvin builds the response that makes the route run, with the example of the contract for that status:
+
+| The route | The step answers |
+|---|---|
+| Has a status, for example `$statusCode == 404` | That status. |
+| Has a value of the body, for example `$response.body#/is_legendary == true` | That value in the body. |
+| **If it passes**, with no status | The status of the step's success, or the first 2xx the contract documents, or 200. |
+| **If it fails**, with no condition (it catches everything) | The first error the contract documents that an earlier route does not take. If there is none, 500. |
+| A step that receives a message | A message with the values of the condition. A route with no condition gets no message, so the step reaches its timeout. |
+
+The other steps answer as in [simulation](/test/simulation/).
+
+What a probe does and does not do:
+
+- It always runs in simulation, also when the run bar says **Real API**.
+- It runs the **Happy path**, with its inputs, plus the simulated response.
+- It does not ask which item of a list to use: it continues with the item the design points to, like the Runner. See [Choose an item from a list](/test/lists/).
+- It does not stop at pauses. See [Debug a workflow](/test/debug/).
+- It does not go to the history, and it does not change what **⇄ Compare** compares with. The results of the other cases stay.
+- A new probe replaces the previous one.
+
+When the route is not taken, the bar says why, for example **«pokemonNotFound» was not taken: step 1 says ✕ 500**.
+
+## When Probe is off
+
+**▷ Probe** cannot be pressed while something runs. In these cases it stays off, and the reason is written next to it:
+
+| Situation | Reason |
+|---|---|
+| The step calls another workflow | *This step calls another workflow: its response cannot be simulated from here.* |
+| The condition is not a status or «value == …», for example `!= null` or `> 3` | *Luvin cannot simulate this condition (only a status or «value == …»). Test it with a data case.* |
+| The step sends a message | The same reason: there is no response to simulate. |
+
+For a condition Luvin cannot simulate, add a [custom data case](/test/custom-cases/) that causes it against the real API.
+
+## Route coverage
+
+The chip **◎ Routes tested 2/5** appears in the toolbar of the canvas after the first run or probe. It counts the routes of the steps that some case or probe took in this session.
+
+- The cases you run with **Run** count too, not only the probes.
+- The rules of the workflow, in **Start**, are counted apart.
+- When you change the routes, the count starts over. The chip stays in sight, with **0/5**.
+- The coverage lives in the session. It is not saved when you close Luvin.
+
+On each route row, **✓ tested** or **not tested** says the same.
+
+## The coverage menu
+
+Click the chip. The menu is titled **Route coverage · 2 of 5 tested**, and it has these sections:
+
+| Section | What it lists |
+|---|---|
+| **Not tested · 3** | Each route no case or probe has taken, with its step, **▷ Probe** and **＋ Create case**, or the case that already tests it (**case: …**). When none is missing: **✓ Every step route has been tested.** |
+| **Tested · 2** | Each route taken, with the case or probe that took it first: **by «Happy path»**. |
+| **What each case did · 3** | Each case or probe of the bar, with the routes it took, or **followed the normal path: took no route**. |
+| **Errors without a route · 3** | Each status the contract documents that no route handles: **404 ✕ fails**, with its step and **Choose what to do**. |
+
+At the end, **Workflow rules: 1 of 1 tested**, when the workflow has rules.
+
+Click a route to go to its step. **Choose what to do** selects the step, so you decide which route to add for that status. See [Routes](/design/branches/).
+
+In **Pokemon card**, after running its two cases, the menu says **Route coverage · 1 of 1 tested**, and **Errors without a route** lists the 404 of `getSpecies`, `getWeakness` and `getAbility`: the contract documents it and the workflow does not handle it.
+
+![The coverage menu of Pokemon card: Route coverage · 1 of 1 tested, the route tested and by which probe, what each case did, and three 404 errors without a route with Choose what to do](/media/en/test-coverage-menu.webp)
+
+## Keep a probe as a case
+
+**＋ Create case** saves a case that tests the route. Use it when you want **Run** to go through that route every time.
+
+<Steps>
+1. Open the coverage menu, or the **Success and routes** tab of the step.
+2. Press **＋ Create case** on the route.
+3. The case appears in the **Cases** tab, in **Cases by response**, named after the step and the route, for example **Step 2: 404 → otherError**.
+</Steps>
+
+**＋ Create case** only appears when no case tests the route yet. The generated **Cases by response** already cover the routes that have a status, so it is most useful for routes without a condition.
+
+The case is saved in the scenarios file, next to the Arazzo, so it goes to git with it. It says what the step answers and which route it expects:
+
+```yaml title="pokemon.escenarios.yaml"
+cases:
+  - workflow: pokemonCard
+    name: "Step 2: 404 → otherError"
+    inputs: {}
+    simulate:
+      step: getSpecies
+      status: 404
+    expect:
+      step: getSpecies
+      action: otherError
+```
+
+See [Import and export cases](/test/adjust-cases/#import-and-export-cases).
+
+<Aside type="caution" title="A probe proves the design, not your API">
+A probed route shows what the workflow does when the step answers that. It does not prove that your API ever answers it. To check it against the real API, use a [response case with data](/test/adjust-cases/#run-a-response-case-against-the-real-api).
+</Aside>
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Results on the canvas" href="/test/run-on-canvas/" />
+  <LinkCard title="Routes" description="What happens after each step, and how to add a route." href="/design/branches/" />
+  <LinkCard title="Simulation" href="/test/simulation/" />
+  <LinkCard title="Cases" href="/test/cases/" />
+</CardGrid>

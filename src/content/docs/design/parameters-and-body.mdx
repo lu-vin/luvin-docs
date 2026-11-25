@@ -5,9 +5,9 @@ sidebar:
   order: 5
 ---
 
-import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A step sends two kinds of data: parameters (in the path, the query or the headers) and, for some operations, a request body. You edit both in the step panel, under **Parameters**.
+A step sends two kinds of data: parameters (in the path, the query or the headers) and, for some operations, a request body. You edit both in the step panel, in the **Data** tab, under **Receives**.
 
 ## Example: the body of Create order
 
@@ -16,9 +16,9 @@ In the PayPal example, **Create order** sends a body built from three inputs. Th
 <Tabs>
   <TabItem label="In the app">
 
-  Under **Body** `application/json`, each field has a **Source** list. `purchase_units/amount/currency_code` reads the input `currency`, `purchase_units/amount/value` reads `amount`, and `purchase_units/description` reads `description`. Fields inside lists are edited with **Edit as JSON**.
+  Under **Body · application/json**, each field has a list that says where its value comes from. `purchase_units/amount/currency_code` reads the input `currency`, `purchase_units/amount/value` reads `amount`, and `purchase_units/description` reads `description`. Fields inside lists are edited with **Edit as JSON**.
 
-  ![The step panel with the fields of the request body and the buttons Fill with the example, Create inputs and Edit as JSON](/media/en/step-body.webp)
+  ![The Data tab of the step panel with the fields of the request body and the buttons Fill with the example, Create inputs and Edit as JSON](/media/en/step-body.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -43,32 +43,43 @@ In the PayPal example, **Create order** sends a body built from three inputs. Th
 ## Open the step panel
 
 <Steps>
-1. In the **Design** tab, click a step on the canvas.
+1. In the **Design** tab, click a step on the canvas. You can also click ⤢ (**Open in the panel**) on its card.
 </Steps>
 
-The panel opens on the right. At the top it has the name of the step, its path and a box for its description: **What this step does (for whoever reads the workflow)**.
+The panel opens over the canvas, on the right, and the canvas moves so the card stays in view. Its top shows:
+
+- **Step N of M** and the state of the step, for example **✓ ready** or **⚠ 1 to fix**.
+- The title of the step, in a box you can edit. It is the `description` of the step in the file.
+- The method and path, the **id** with ✎ to rename it, the **source** (the contract) and **See in YAML**.
+
+Below come four tabs: **Data**, **Success and routes**, **Authorization** (only on HTTP steps) and **Response**. This page is about **Data**. The other tabs are explained in [Success and errors](/design/success-and-errors/), [Pass the login token to the next steps](/authorization/token-from-login/) and [Results on the canvas](/test/run-on-canvas/).
+
+At the bottom, **▷ Run only this step** and **⏸ Pause here** are for debugging: see [Debug a workflow](/test/debug/). **⋯** has the same actions as the step menu on the canvas. To close the panel, click its **×**, press Esc or click an empty spot of the canvas.
+
+You can drag the left edge of the panel to make it wider. Double-click the edge to go back to the original width.
 
 ## Edit a parameter
 
-Parameters are grouped by where they travel: **Path**, **Query**, **Headers** and **Cookies**. The number next to each title is how many parameters the group has.
+Under **Receives**, parameters are grouped by where they travel: **Path**, **Query**, **Headers** and **Cookies**. A step that calls another workflow has **Workflow inputs** instead. The number next to each title is how many the group has.
 
-Each parameter is a row with its name and a list, **Source**, that says where its value comes from. [Connect data between steps](/design/wire-data/) explains every option of that list.
+Each parameter is a row with its name and a list under it that says where its value comes from. [Connect data between steps](/design/wire-data/) explains every option of that list.
 
 | Mark | Meaning |
 |---|---|
 | `*` | The contract requires this value. |
 | **extra** | The contract does not declare it. Someone added it by hand, for example in the YAML. |
-| ♻ | It comes from a [reusable](/design/reusables/). |
+| ♻ name | It comes from a [reusable](/design/reusables/). |
+| **last: 25** | The value it got in the last run. |
 
-If the operation has no parameters and no body, the panel says **This operation takes no parameters.**
+The header that carries the authorization is not listed here. It is in the **Authorization** tab. See [Pass the login token to the next steps](/authorization/token-from-login/).
 
-For query parameters in action, see [Query parameters and paging](/recipes/pagination-query/).
+If the step receives nothing, the tab says **It receives no data.**
+
+For query parameters in action, see [Page through a list](/recipes/pagination-query/).
 
 ### A value inside a text
 
-Some values mix fixed text with data, such as a token after `Bearer`. Choose **Fixed value…** and write the expression between braces inside the text: `Bearer {$steps.login.outputs.token}`. Luvin replaces it when the step runs. The canvas draws no data line for it, because the value is not only the output.
-
-![The Authorization header of createOrder with the fixed value Bearer and the token of the login step](/media/en/design-token-header.webp)
+Some values mix fixed text with data, such as a search text that includes a type. Choose **Fixed value…** and write the expression between braces inside the text: `type:{$inputs.type}`. Luvin replaces it when the step runs. The card shows the whole text as a fixed value, because the value is not only the expression.
 
 ## Send an optional parameter
 
@@ -76,21 +87,21 @@ Optional parameters are not sent until you give them a source. They stay folded 
 
 <Steps>
 1. Click **Edit** on that line. A row appears for each optional parameter.
-2. In the row you want, open **Source** and choose where the value comes from, for example **Fixed value…** and then `20`.
+2. In the row you want, open its list and choose where the value comes from, for example **Fixed value…** and then `20`.
 3. Click **Hide the ones not sent** to fold the rest again.
 </Steps>
 
-To stop sending it, choose **Don't send** in its **Source** list.
+To stop sending it, choose **Don't send** in its list.
 
 ![The optional query parameters limit and offset unfolded, each with Don’t send, and the link Hide the ones not sent](/media/en/design-optional-params-open.webp)
 
 ## Fill in the request body
 
-When the operation takes a body, a last group appears: **Body**, followed by its format, for example `application/json`.
+When the operation takes a body, a last group appears under **Receives**: **Body**, followed by its format, for example **Body · application/json**.
 
 - The group lists every field the contract declares, required and optional.
 - A field inside an object is shown with its path: `amount/value`.
-- Each field has the same **Source** list as a parameter. Optional fields without a value fold away.
+- Each field has the same list as a parameter. Optional fields without a value fold away.
 - A fixed value you type in a number field is sent as a number. `true` or `false` in a yes/no field is sent as a boolean.
 
 Three buttons above the fields work on the whole body:
@@ -143,7 +154,7 @@ This is the body of **Create order** in the PayPal example:
 
 If the text is not valid JSON, the box shows **The JSON isn't valid:** with the reason, and nothing changes. To remove the body, empty the box and click **Apply**.
 
-To build a body from random data, see [Generated data in the body](/recipes/generated-data/).
+To build a body from random data, see [Send generated data](/recipes/generated-data/).
 
 ![The Edit as JSON box of createOrder with an address object and a lines list, and the Cancel and Apply buttons](/media/en/design-body-json.webp)
 
@@ -152,32 +163,32 @@ To build a body from random data, see [Generated data in the body](/recipes/gene
 A fixed value is always the same. Turn it into an input when you want cases to try other values: empty, invalid, other data.
 
 <Steps>
-1. On the canvas, point at the fixed value on the step's card. **→ input** appears next to it.
+1. On the canvas, point at the row of the fixed value on the step's card. **→ input** appears next to it.
 2. Click **→ input**.
 </Steps>
 
 The workflow gets a new input with the current value as its value, so it runs as before, and the step now reads the input.
 
-To do several at once, use the **Start** card: **Choose variable data…** when the workflow has no inputs, or **+ Turn another fixed value into an input** when it has some. A dialog, **Data to vary per case**, lists every fixed value. Tick the ones you want and click **Turn into inputs**. If the same value is used in several steps, a single input feeds them all.
+To do several at once, use the **Start** button at the top of the canvas: under it, **Choose variable data…** when the workflow has no inputs, or **+ Turn another fixed value into an input** when it has some. A dialog, **Data to vary per case**, lists every fixed value. Tick the ones you want and click **Turn into inputs**. If the same value is used in several steps, a single input feeds them all.
 
 ![The card of createOrder with the → input button next to the fixed value of currency](/media/en/design-promote-one.webp)
 
 ![The dialog Data to vary per case: each fixed value with where it is, its value and the input it would become](/media/en/design-pick-data.webp)
 
-You should see the new inputs on **Start**, and the values on the card now read them.
+You should see the new inputs in **Start**, and the values on the card now show chips such as **← currency · Start**.
 
-![Start with the inputs currency and city, created from fixed values, and their data lines](/media/en/design-promoted.webp)
+![Start with the inputs currency and city, created from fixed values, and the cards that read them](/media/en/design-promoted.webp)
 
 ### Turn an input back into a fixed value
 
 There is no single button for this. Do it in two moves:
 
 <Steps>
-1. Click the step and, in the **Source** list of the value, choose **Fixed value…**. Type the value. The field stays in view while you edit it, also when it is optional.
+1. Click the step and, in the list of the value, choose **Fixed value…**. Type the value. The field stays in view while you edit it, also when it is optional.
 2. Click **Start** and delete the input with its bin, if no other step uses it.
 </Steps>
 
-If you delete an input that a step still uses, the bar **This workflow is missing data** appears. See [Complete missing data](/design/complete-gaps/). Right after turning values into inputs, **Undo** also brings the fixed values back.
+If you delete an input that a step still uses, the bar **This workflow is missing data** appears. See [Complete missing data](/design/complete-gaps/). Right after turning values into inputs, ↶ (**Undo**) also brings the fixed values back.
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-promote.webp" src="/media/en/design-promote.mp4"></video>
 
@@ -185,7 +196,8 @@ If you delete an input that a step still uses, the bar **This workflow is missin
 
 <CardGrid>
   <LinkCard title="Outputs" href="/design/outputs/" />
+  <LinkCard title="Connect data between steps" href="/design/wire-data/" />
   <LinkCard title="Inputs" href="/test/inputs/" />
   <LinkCard title="Cases" href="/test/cases/" />
-  <LinkCard title="Generated data in the body" href="/recipes/generated-data/" />
+  <LinkCard title="Send generated data" href="/recipes/generated-data/" />
 </CardGrid>

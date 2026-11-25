@@ -44,13 +44,13 @@ A runnable version: [One workflow logs in, others reuse its token](/recipes/depe
 
 <Steps>
 1. Open the workflow that needs the data, and go to the **Design** tab.
-2. Click the **Start** card. Its panel opens on the right.
+2. Click **Start**, the green button at the top of the canvas. Its panel opens over the canvas, on the right.
 3. Under **Depends on**, open **Add a workflow…** and choose a workflow.
 </Steps>
 
-A card **Depends on** appears above **Start**. It lists each workflow and its outputs. If a workflow has no outputs, the card says **no declared outputs**: open that workflow and add outputs on its **End of workflow** card. See [Outputs](/design/outputs/).
+A card **⇡ Depends on** appears above **Start**. It lists each workflow and its outputs. If a workflow has no outputs, the card says **no declared outputs**: open that workflow and add outputs on its **End of workflow** card. See [Outputs](/design/outputs/).
 
-The panel says **This Arazzo has no other workflows.** when the file has only one workflow. Add another with **+ Workflow**. See [Create a workflow](/design/create/).
+The panel says **This Arazzo has no other workflows.** when the file has only one workflow. Add another first. See [Create a workflow](/design/create/).
 
 To stop depending on a workflow, click the bin next to its name in the same panel.
 
@@ -62,14 +62,18 @@ To stop depending on a workflow, click the bin next to its name in the same pane
 
 The outputs of the workflows you depend on are available to every step, as `$workflows.<workflow>.outputs.<name>`. There are two ways to connect one:
 
-- In the step panel, open **Source** for a parameter. Each dependency has a group, **Workflow “Type explorer” (depends on)**, with its outputs.
+- In the step panel, in the **Data** tab, open the list of a parameter. Each dependency has a group, **Workflow “Type explorer” (depends on)**, with its outputs.
 - Drag from the dot of an output in the **Depends on** card to a parameter of a step. [Connect data between steps](/design/wire-data/) explains both ways.
+
+On the card, the parameter shows where the value comes from, for example **← strongAgainst · Type explorer**.
 
 ## Call a workflow as a step
 
 <Steps>
-1. In the **Operations** palette, open **Workflows in this Arazzo**. It lists the other workflows of the file, each marked **FLOW**.
-2. Drag one onto the canvas, or click **+** on its row.
+1. Click the step after which the call should go. With no step selected, it goes at the end.
+2. Click **＋ Step** in the toolbar at the top of the canvas, or press `/`.
+3. In the menu, go to **Workflows in this Arazzo**. It lists the other workflows of the file, each marked **WORKFLOW**. Type part of its name to filter.
+4. Click the workflow.
 </Steps>
 
 The step is named after the workflow. Luvin does the wiring for you:
@@ -77,9 +81,17 @@ The step is named after the workflow. Luvin does the wiring for you:
 - Each required input of the called workflow becomes a parameter of the step, taken from an earlier step or from an input of this workflow, as for any other step. The panel lists them under **Workflow inputs**.
 - Every output of the called workflow becomes an output of the step, so the next steps can read it.
 
-The step panel shows **calls workflow typeExplorer** under the name. For a workflow of another Arazzo file it adds that file, for example **calls workflow login · auth.arazzo.yaml**, and lists the inputs that workflow asks for, the same as for one of this file. If the workflow does not exist, it adds **missing**.
+The card shows **WORKFLOW** and **⤷ calls workflow typeExplorer**, and so does the step panel, under the title. For a workflow of another Arazzo file it adds that file, for example **calls workflow login · auth.arazzo.yaml**, and lists the inputs that workflow asks for, the same as for one of this file. If the workflow does not exist, it adds **missing**.
 
 ![The panel of a step that calls browseProducts: calls workflow browseProducts, the input limit under Workflow inputs and the outputs sku and price](/media/en/design-call-workflow.webp)
+
+### See the steps of the called workflow
+
+When the called workflow is in the same file, its card has a link, **▸ See its 2 steps**, with the number of steps it has. Click it to list them on the card, each with its number, method and title, without leaving the canvas. **▾ Hide its steps** folds them again.
+
+Workflows of other Arazzo files are not listed this way. Open that file to see them.
+
+![A step that calls browseProducts with its steps unfolded: 1 GET List products and 2 GET Product detail](/media/en/design-sub-steps.webp)
 
 ## Use a workflow of another Arazzo file
 
@@ -89,7 +101,7 @@ The workflow you need can be in a different Arazzo file of the same collection, 
   <TabItem label="In the app">
 
 <Steps>
-1. Open the **Design** tab of the workflow, and click the **Start** card.
+1. Open the **Design** tab of the workflow, and click **Start**.
 2. Under **Depends on**, open **Add a workflow…**. The list has a group **In this file** and one group per other Arazzo file, **In auth.arazzo.yaml** for example.
 3. Choose the workflow of the other file.
 </Steps>
@@ -98,7 +110,7 @@ Luvin adds the other file to `sourceDescriptions` as a source of `type: arazzo`,
 
 ![The Depends on card above Start: the workflow login of auth.arazzo.yaml and its output token](/media/en/design-depends-card.webp)
 
-To call it as a step instead, open the **Operations** palette. The group **From other Arazzo files** lists those workflows, each marked **FLOW**. Drag one onto the canvas. Luvin adds the source the same way.
+To call it as a step instead, click **＋ Step**. The group **From other Arazzo files** of the menu lists those workflows, each marked **WORKFLOW** with its file. Click one. Luvin adds the source the same way.
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -132,7 +144,7 @@ The workflows of an `arazzo` source are named `$sourceDescriptions.<source>.<wor
 |---|---|
 | `dependsOn` of a workflow | Runs it first, once, with the workflows it depends on in its own file. Read its outputs as `$workflows.<workflowId>.outputs.<name>`, with the workflow id only. |
 | `workflowId` of a step | Calls it at that point. Read its outputs as `$outputs.<name>` in the step's `outputs`. |
-| `workflowId` of a `goto` or `retry` action | Runs it when the action fires. See [Success and errors](/design/success-and-errors/). |
+| `workflowId` of a `goto` or `retry` action | Runs it when the route is taken. See [Add or change a route](/design/branch-menu/). |
 
 A workflow called as a step uses its own default or example value for every input the step does not pass.
 

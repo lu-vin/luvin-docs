@@ -1,0 +1,180 @@
+---
+title: Pass the login token to the next steps
+description: A login step gives its token to the steps of the same API, written in standard Arazzo. Luvin reads it from a Postman or Bruno script and connects it as you build.
+sidebar:
+  order: 23
+---
+
+import { Steps, Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Most private APIs work the same way: a login returns a token, and every other call sends it in the `Authorization` header. In a workflow, the login is a step, and its token goes to the steps that come after it. Use this when the API has its own login call, so the workflow runs on its own, with an empty environment and no token pasted before.
+
+Luvin writes it in the Arazzo file, as a parameter of each step that uses the token. Another Arazzo tool runs the file the same way.
+
+## Example: a shop with a login
+
+A shop API has a login that answers `{"accessToken": "eyJ…"}`, and the steps **List products** and **Create order** need `Authorization: Bearer <token>`. This is how the workflow is saved:
+
+```yaml title="shop.arazzo.yaml"
+- stepId: login
+  outputs:
+    token: $response.body#/accessToken
+- stepId: listProducts
+  parameters:
+    - name: Authorization
+      in: header
+      value: Bearer {$steps.login.outputs.token}
+- stepId: createOrder
+  parameters:
+    - name: Authorization
+      in: header
+      value: Bearer {$steps.login.outputs.token}
+```
+
+| Line | What it does |
+|---|---|
+| `token: $response.body#/accessToken` | The login step declares the token as its output `token`. |
+| `Bearer {$steps.login.outputs.token}` | Each step that uses it sends it in `Authorization`. The braces mark an expression inside a text. |
+
+If the contract asks for an API key instead, for example in the header `X-Shop-Key`, the token goes in that header without `Bearer`: `value: $steps.login.outputs.token`.
+
+You never write these lines by hand. The three ways below write them for you.
+
+## Where a step gets its authorization
+
+Each step that calls an HTTP API has an **Authorization** tab in its panel. It says where its authorization comes from, and lets you change it.
+
+<Steps>
+
+1. Open the workflow in the **Design** tab and click a step.
+2. In the panel, click the **Authorization** tab.
+3. Open the list and choose where the authorization comes from.
+
+</Steps>
+
+| Option | What the step sends |
+|---|---|
+| **From the workflow** | The default. The authorization of that API in the workflow's **Authorization** tab or, if it has none, the credentials of the contract in the environment. The tab says which one, for example *Uses Bearer Token &#123;&#123;accessToken&#125;&#125; · set for every workflow.* |
+| **Token from «Log in»** | The token of an earlier step. The options are grouped by step, with its title. A field of the response that is not an output yet is listed too: choosing it declares the output. |
+| **Token from workflow …** | The output of a workflow this one depends on (`dependsOn`). It is written as `$workflows.<id>.outputs.<name>`. |
+| **None** | Nothing: neither the workflow's authorization nor the contract credentials. |
+| **Fixed value (written in the YAML)** | Shown only when someone wrote the header by hand in the YAML. Luvin shows it and does not overwrite it. |
+
+With a token, the tab says it in plain words, for example *Uses the token from «Log in» as Bearer in Authorization.*, and adds that it wins over the workflow's authorization. **See how it looks in the Arazzo** opens the full parameter, with **Copy**.
+
+When you choose the token of a step, that step (the login) is set to **None**: its token does not exist yet when it runs, and an old one could make the login fail. You can change it.
+
+The step's own choice always wins: first the step, then the authorization of the API in the workflow, then the contract credentials.
+
+<Aside type="note">
+Arazzo cannot say that a step goes with no authorization. **None** is saved in `flow-auth.yaml`, next to the rest of the workflow authorization. See [Authorization of a workflow](/authorization/workflow/#example-the-paypal-setup-as-saved).
+</Aside>
+
+![The Authorization tab of 02 - Create order: Token from «01 - Login», the sentence Uses the token from «01 - Login» as Bearer in Authorization, and See how it looks in the Arazzo open](/media/en/auth-step-token.webp)
+
+## Give the token to the next steps in one action
+
+From the login step, one action passes its token to every step after it that needs it.
+
+<Steps>
+
+1. On the canvas, click the login step.
+2. In the **Data** tab of the panel, find the outputs (**Gives**).
+3. Press **🔑 Use «token» as authorization in the following steps**.
+
+   If more than one output could be the token, the line says **Use as authorization in the next steps:** with one chip per output. Click the one that is the token.
+
+</Steps>
+
+A notice says which steps got it: *Now 2 step(s) use the token from «Log in»: List products, Create order. «Log in» goes without authorization (it is the one that gives it).* **Undo** reverts it.
+
+The token reaches the steps that:
+
+- come after the login;
+- call an API that asks for authorization: its contract declares `security`, or the API has an authorization in the workflow (for example, the one of the request it was built from);
+- are still on **From the workflow**.
+
+Steps on **None**, or with another token chosen, are not touched. If no step qualifies, the notice says *No step after «Log in» asks for authorization: nothing was connected.* Then choose the token in the **Authorization** tab of each step.
+
+Steps you add later, after the login, get the token by themselves.
+
+The login step now says *Signs in: gives its token to 2 step(s) (List products, Create order).* **Stop using as authorization** takes the token out of those steps, and they go back to **From the workflow**.
+
+![The login step after Use «token» as authorization: the notice with Undo, and under Gives the line Signs in: gives its token to 2 step(s)](/media/en/auth-token-share.webp)
+
+## Set it once for the whole API
+
+The workflow's **Authorization** tab can say it too, once per API. Both ways write the same lines.
+
+<Steps>
+
+1. Open the workflow and click the **Authorization** tab.
+2. On the card of the API, choose **This workflow only**.
+3. In **Type**, choose **Token from a step of this workflow**.
+4. In **Step and token**, choose the login and its token, for example **Log in › token**. The token Luvin recognized says **· the login token**.
+
+</Steps>
+
+The card shows **In use: token from «Log in» · set in this workflow**, and below:
+
+- where the token goes (with Bearer, `Authorization: Bearer token`);
+- which steps use it, with *Steps you add later get it automatically.*;
+- the steps of that API that use another authorization, if any;
+- *«Log in» goes without authorization: it is the one that gives the token.*
+
+Here the token goes to every step of that API that asks for authorization, also the ones that used another token. Choosing another **Type** takes it out of those steps.
+
+A step exists only in its workflow, so under **All workflows** this type is not offered. To share one login across workflows, put the login in its own workflow and make the others depend on it. See [Reuse a login with dependsOn](/recipes/depends-on/).
+
+![The Authorization tab of the workflow: This workflow only, Type Token from a step of this workflow, Step and token Log in › token, and the steps that use it](/media/en/auth-token-tab.webp)
+
+## Luvin connects it while you build
+
+When you build a workflow from the requests of a Postman or Bruno collection, you usually do nothing: Luvin recognizes the token and connects it. It works even if you never sent the login.
+
+Luvin reads the script of the login request. It does not run it. Take a login whose script is:
+
+```js
+const body = pm.response.json();
+pm.environment.set("accessToken", body.data.access_token);
+```
+
+and other requests that use `Bearer {{accessToken}}`. Luvin follows the variable `accessToken` to the field `data/access_token` of the response. When you add the first step after the login that needs authorization, the notice says *Luvin connected the token from «01 - Login»: it read it from the login script (without running it). 1 step(s) use it: 02 - Instrument. «01 - Login» goes without authorization.* **Undo** reverts it.
+
+How Luvin recognizes the token, from most to least sure:
+
+1. **The login script.** It reads `pm.environment.set`, `pm.collectionVariables.set`, `pm.globals.set`, `pm.variables.set`, `bru.setEnvVar` and `bru.setVar`, and follows the value through simple variables up to the response (`pm.response.json()`, `res.body`, `res.getBody()`, `JSON.parse(responseBody)`). If the other requests use a variable in their authorization, only the `set` of that variable counts.
+2. **The name of the field**, once Luvin knows the response: `access_token`, `accessToken`, `token`, `jwt`, `id_token`, `authToken` and similar, at any depth. Never `refresh_token`, `token_type` or an expiry.
+
+A script it does not understand is ignored. If two fields are equally good, Luvin does not choose: the **Authorization** tab of the next step proposes it, for example *«Log in» returns a token (access_token).*, with the button **Use the token from «Log in» in this and the following steps**.
+
+<video controls muted playsinline preload="metadata" poster="/media/en/token-from-script.webp" src="/media/en/token-from-script.mp4"></video>
+
+## On the canvas
+
+- The login card shows **🔑 signs in**. Pointing at it says how many steps get its token.
+- Each step that uses the token shows **🔑**.
+- The token lines are hidden so they do not cover the data. They show when you select the login, when you point at a 🔑, or when you press **Authorization** in the **View** bar. The number next to it counts the steps that use a token.
+- A step whose API asks for authorization and has none shows **🔑 no authorization**: no token from a step, no workflow authorization and no environment credentials.
+
+![The login card with 🔑 signs in and its token lines, and Authorization 2 on in View](/media/en/auth-token-canvas.webp)
+
+## When you run
+
+- **The login needs no confirmation.** Signing in does not modify data, so a run against the real API does not ask about it. Other `POST`, `PUT` and `DELETE` steps still ask.
+- **The case Without credentials** does not expect the login to reject you: the login is public. It expects `401` or `403` from the first step that uses authorization and is not a sign-in or on **None**. That includes steps built from requests. See [Cases](/test/cases/).
+
+## Good to know
+
+- The output that Luvin declares for the token is called `token`. If `token` is already taken by another field, it is `accessToken`, or else a name from the field's path.
+- The token goes where the API asks for it: `Authorization` with `Bearer ` by default, or the header or query of the API key that the contract declares or that the API has in the workflow.
+- Each run uses the token its own login just returned, not one saved in the environment.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Log in and use the token" href="/recipes/login-token/" description="A recipe you can run against DummyJSON." />
+  <LinkCard title="Build from saved requests" href="/design/from-requests/" description="How requests become steps and how their data is wired." />
+  <LinkCard title="Authorization of a workflow" href="/authorization/workflow/" description="The Authorization tab, per API and per workflow." />
+  <LinkCard title="Reuse a login with dependsOn" href="/recipes/depends-on/" description="One login workflow for many workflows." />
+</CardGrid>

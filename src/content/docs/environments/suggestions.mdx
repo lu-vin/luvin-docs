@@ -16,7 +16,7 @@ Open the PayPal example, then a workflow, and its **Authorization** tab. The fie
 <Steps>
 
 1. Look at the two fields. Until you fill them in the environment, both names are amber: they exist in `Sandbox` but are empty.
-2. Point at `{{clientId}}`. A card opens with **variable**, the name, an empty value field, and *Value in the “Sandbox” environment*.
+2. Point at `{{clientId}}`. A card opens with the name, **E Environment** at the top right (it lives in the environment), and an empty value field.
 3. Paste your client ID in the card's field. The name turns green, and the value is saved in `Sandbox`, as if you had typed it in the environment.
 4. Clear **Client ID** and type `{{cl`. The list shows `clientId` with its value, and `clientSecret` marked **secret**, with its value hidden as `••••••`.
 5. Press **Enter**. `{{clientId}}` is back in the field.
@@ -41,13 +41,13 @@ Each row has a kind, the name, and a detail:
 
 | Kind | What it is | Detail |
 |---|---|---|
-| **variable** | A variable of the active environment, or a value saved by a request | Its value, cut at 40 characters, or *(empty)* |
-| **secret** | A secret of the active environment, or a saved value marked secret | `••••••`, or *(empty)* |
+| **variable** | A variable of this request, of the active environment, of the collection or of the global environment, or a value saved by a request | Its value, cut at 40 characters, or *(empty)* |
+| **secret** | A secret of the active environment or of the global environment, or a saved value marked secret | `••••••`, or *(empty)* |
 | **base URL** | A base URL of the active environment, from a contract or your own | The address |
 | **dynamic** | A Postman-compatible dynamic variable, such as `$randomEmail` | What it produces, and an example: *Email · e.g. Daniela.Rojas42@yahoo.com* |
 | **generator** | One of Luvin's own generators, such as `email` or `number:8` | What it produces |
 
-The names of the active environment come first, then the dynamic variables, then the generators. A generator that has the same name as a variable is left out, because the variable wins. At most 60 rows show at once: type more letters to find the rest. Type `{{$` to see only the dynamic variables.
+Your variables come first, then the dynamic variables, then the generators. A generator that has the same name as a variable is left out, because the variable wins. At most 60 rows show at once: type more letters to find the rest. Type `{{$` to see only the dynamic variables.
 
 ![Typing in the email input: the suggestions list the dynamic variables with an example of each](/media/en/test-inputs-generators.webp)
 
@@ -57,14 +57,14 @@ Each `{{name}}` in a field gets a color:
 
 | Color | Meaning | What happens when it is sent |
 |---|---|---|
-| Green | The variable exists in the active environment and has a value. | Replaced by the value. |
+| Green | The variable exists and has a value. | Replaced by the value. |
 | Amber | The variable exists but is empty. | Replaced by nothing. |
 | Purple | A generator or a dynamic variable. | Replaced by a new value. |
-| Red | No variable, base URL or generator has that name in the active environment. | Sent as written, `{{name}}` included. |
+| Red, with a dashed border | No variable, base URL or generator has that name: not in the request, the active environment, the collection or the global environment. | Sent as written, `{{name}}` included. |
 
 The color follows the active environment. A name that is green in `staging` can be red in `local` if `local` does not have it. Switch environments and the colors change at once.
 
-In a request, Luvin also warns you before you send it. When the URL, the ticked params, the path variables, the ticked headers, the body or the authorization (in GraphQL, also the query and its variables) use a red name, a yellow strip under the URL bar says, for example: *`{{apiKey}}` doesn’t exist in the “local” environment: it will be sent as written.* **Open the environment** opens it so you can add the variable. A value saved by a request counts as known. Workflows have no strip: the field shows the name in red.
+In a request, Luvin also warns you before you send it. When the URL, the ticked params, the path variables, the ticked headers, the body or the authorization (in GraphQL, also the query and its variables) use a red name, a yellow strip under the URL bar says, for example: *`{{apiKey}}` doesn’t exist in the “local” environment: it will be sent as written.* **Create in “local”** creates every missing name at once, empty, in that environment, and opens it on the first one. Names that look like credentials, such as `password`, `token` or `apiKey`, are created as secrets. A value saved by a request counts as known. Workflows have no strip: the field shows the name in red.
 
 Fields that hide what you type, such as a password, are not colored. A secret field of the **Authorization** tab shows its text, with colors, as soon as it holds a `{{name}}`.
 
@@ -72,31 +72,49 @@ Fields that hide what you type, such as a password, are not colored. A secret fi
 
 Point at a colored name, or put the cursor inside it, and a card opens below it. It floats over the page, so nothing moves.
 
+At the top right, the card says where the variable lives, with a letter as in the Variables panel: **R Request**, **E Environment**, **C Collection**, **G Global**, or **↺ Saved** for a value saved from a response. A secret says **Secret** or **Global secret**, and a base URL says **base URL**.
+
 | The name is | The card shows |
 |---|---|
-| A variable or a base URL | Its kind and its value, in a field you can edit. Below: *Value in the “staging” environment* and **Open environment**. |
+| A variable or a base URL | Its value, in a field you can edit. Below, a link to where it lives: **Open environment** or **Open the collection**. |
 | A secret | The same, with the value hidden. |
+| A value saved from a response | Its value, which the card does not edit. If no response has filled it yet: *Filled when you send “Log in”.*, with **Open “Log in”**. |
 | A generator or a dynamic variable | *⚡ is generated when running*. |
-| Unknown | *does not exist in “staging”*, with **Create variable** and **Create secret**. |
+| Unknown | A field to type its value. See [Create a missing variable](#create-a-missing-variable). |
 
-What you type in the card goes straight to the active environment. For a value saved by a request (**Saved now**), it changes that saved value instead. **Create variable** and **Create secret** add an empty one with that name to the active environment. The name turns amber; type its value in the card and it turns green.
+What you type in the card changes the variable where it lives: in the request, in the active environment, in the collection or in the global environment.
 
-<Aside type="caution" title="It changes the environment, not the field">
-Editing a value in the card changes it for every request and workflow that uses that name in this environment. To use a different value in one place only, type the value in the field instead of the variable.
+The last link of the card, **Variables in request →** in a request or **Variables →** elsewhere, opens the [Variables panel](/environments/variable-levels/#the-variables-panel) on that variable.
+
+<Aside type="caution" title="It changes the variable, not the field">
+Editing a value in the card changes it for every request and workflow that uses that variable. To use a different value in one place only, type the value in the field instead of the variable.
 </Aside>
+
+### Create a missing variable
+
+The card of an unknown name has an empty value field, and works like Postman's:
+
+- **In a request**, the field says **Value (kept in this request)**. Type the value: the variable exists as soon as you type, as a variable of this request.
+- **Elsewhere**, for example in a workflow, the field says **Value in “staging” (Enter to create it)**. Press **Enter** to create it in the active environment. A name that looks like a credential, such as `clientSecret`, is created as a secret.
+- **Add to** creates it, with the value you typed, in the level you choose: the collection environment, as a variable or a secret, the collection, or the global environment. If a variable with that name is already there, its value changes instead.
+
+![The card of {{loginEmail}}, a name that does not exist yet, in the body of a request: the field Value (kept in this request) and Add to](/media/en/var-card-missing.webp)
+
+Where to put each value is in [Where a variable lives](/environments/variable-levels/).
 
 ## Fields with suggestions
 
 Suggestions, colors and the card work in:
 
 - The URL of a request, its params, headers, path variables and form fields.
+- The body editor of a request (JSON, XML, Text and SPARQL), the query and variables of a GraphQL request, and the messages of a WebSocket.
 - Every field of the **Authorization** tab, of a request, of the collection or of a workflow.
 - **Inputs** and the data of each case.
 - The value of a parameter of a step, in the **Design** tab.
 - The fields of **Try it out**.
 - The base URLs and credentials of the environment.
 
-The body editor of a request and the YAML editor of an Arazzo file do not suggest or color names. A `{{name}}` you write there is still replaced when it goes out.
+The YAML editor of an Arazzo file and the message of a gRPC request do not suggest or color names. A `{{name}}` you write in the YAML is still replaced when it goes out. The gRPC message is sent as written.
 
 ## Related
 

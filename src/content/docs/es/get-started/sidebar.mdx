@@ -16,15 +16,16 @@ Arriba de la barra lateral hay cuatro íconos. Cada uno muestra un panel que usa
 | Ícono | El panel muestra |
 |---|---|
 | **Colecciones** | El árbol de tus colecciones: archivos Arazzo, workflows, pasos, requests, **+ Nuevo workflow**, **+ Nuevo request** y **Agregar archivos a la colección**. Debajo, la sección **Contratos**. |
-| **Ambientes** | Los ambientes de la colección abierta. Consulta [El panel Ambientes](#el-panel-ambientes). |
+| **Ambientes** | Los ambientes globales del workspace y los ambientes de la colección abierta. Consulta [El panel Ambientes](#el-panel-ambientes). |
 | **Historial** | Las últimas 50 entradas del historial de la colección. **Ver todo** abre la pestaña **Historial**. Consulta [Historial](/es/workspaces/history/). |
 | **Mock servers** | Los mock servers de la colección, cada uno con su estado y su puerto. **+** crea uno. Consulta [Mock servers](/es/mocks/overview/). |
 
 - Luvin recuerda en este equipo el panel que elegiste.
 - Un punto verde en el ícono **Mock servers** indica que hay un mock encendido, aunque esté abierto otro panel.
 - Sin una colección abierta no hay íconos: la barra lateral muestra solo tus colecciones.
+- Arrastra el borde derecho de la barra lateral para cambiar su ancho, de 200 a 560 px. Haz doble clic en el borde para volver al ancho de siempre. Luvin lo recuerda en este equipo.
 
-El ambiente activo, además, siempre se ve arriba a la derecha de la ventana. Consulta [Recorrido por la interfaz](/es/get-started/interface/#barra-superior).
+Los ambientes activos, además, siempre se ven arriba a la derecha de la ventana. Consulta [Recorrido por la interfaz](/es/get-started/interface/#barra-superior).
 
 ## Lee el árbol
 
@@ -113,13 +114,27 @@ El **+** del encabezado de **Contratos** (**Agregar contrato**) ofrece **Nuevo c
 
 ## El panel Ambientes
 
-Haz clic en el ícono **Ambientes** arriba de la barra lateral. Su título muestra el nombre de la colección abierta.
+Haz clic en el ícono **Ambientes** arriba de la barra lateral. Tiene dos listas, y una fila para las variables de la colección.
+
+**Ambientes globales**, arriba, bajo el nombre del workspace. Valen en todas las colecciones del workspace. Consulta [Ambientes globales](/es/environments/variable-levels/#ambientes-globales).
+
+- Haz clic en una fila para usar ese ambiente global. Otro clic lo deja sin ninguno. Su tooltip dice **Usar este ambiente global (otro clic: ninguno)**.
+- En el activo, **Configurar** abre el panel Variables, donde editas sus valores.
+- El **+** del encabezado (**Nuevo ambiente global**) crea uno, lo deja activo y abre el panel Variables. El primero toma el nombre del ambiente activo de la colección.
+- Haz doble clic en una fila para renombrarla. El **⋯** de una fila ofrece **Renombrar** y **Eliminar ambiente…**, que pregunta *¿Eliminar el ambiente global «intg» y sus secretos de este equipo?*
+- Si no hay ninguno, la lista dice *Valen en todas las colecciones del workspace. Crea uno con +.*
+
+**Ambientes**, debajo, bajo el nombre de la colección abierta:
 
 - El punto lleno marca el ambiente activo. Un punto de color muestra su [color](/es/environments/manage/#ponle-un-color).
 - Haz clic en una fila para usar ese ambiente y abrirlo. Su tooltip dice **Usar y abrir este ambiente**.
 - En el activo, **Configurar** lo abre de nuevo.
 - El **+** del encabezado (**Nuevo ambiente**) crea uno, lo deja activo y lo abre.
 - El **⋯** de una fila ofrece **Eliminar ambiente…**.
+
+Al final, **Variables de la colección** abre la pestaña **Variables** del [resumen de la colección](/es/workspaces/collection-overview/#variables-de-la-colección). El número de al lado es cuántas hay.
+
+![El panel Ambientes de la barra lateral: Ambientes globales del workspace Demo con local, Ambientes de la colección Shop con local, y Variables de la colección con 1 var.](/media/es/sidebar-envs-globals.webp)
 
 ## Sin workspace
 

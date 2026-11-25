@@ -21,6 +21,8 @@ The examples use the Pokédex and PayPal examples that come with Luvin, and a sm
 | [A rejection must return a given status](#a-rejection-must-return-a-given-status) | Yes, you choose the status | Yes |
 | [A situation of your own](#a-situation-of-your-own-custom-data-case) | No, you add it | Yes |
 | [An error response, against the real API](#an-error-response-against-the-real-api) | Yes, you give the data | Yes |
+| [Every route, without the API failing](#every-route-without-the-api-failing) | No, you press **▷ Probe** | No |
+| [Another value in one step, without changing the inputs](#another-value-in-one-step-without-changing-the-inputs) | No, you pause the step | Depends on the case |
 | [A case without one input](#a-case-without-one-input) | No, you omit it | Depends on the case |
 | [Fixed data or new data on every run](#fixed-data-or-new-data-on-every-run) | — | — |
 | [Real API or Simulation](#real-api-or-simulation) | — | — |
@@ -85,16 +87,16 @@ Luvin only generates this case for inputs that have allowed options, a number or
 
 ## A call without credentials
 
-**What it proves:** the protected operations are really protected. Luvin runs the workflow without credentials and expects the first protected step to answer 401 or 403.
+**What it proves:** the protected operations are really protected. Luvin runs the workflow without credentials and expects the first protected step to answer 401 or 403. A sign-in step and the steps set to **None** are not the ones checked: a login is public.
 
 <Steps>
 
-1. In the **Cases** tab, open the **Security** group. It exists only if a contract protects at least one step, as in PayPal's **Create order**.
+1. In the **Cases** tab, open the **Security** group. It exists when at least one step sends credentials: a contract protects it, as in PayPal's **Create order**, or its API has an authorization set in Luvin (in the collection, the request or the **Authorization** tab of the workflow).
 2. Run **Without credentials** against the **Real API**.
 
 </Steps>
 
-**What you should see:** **Passed** if the step answered 401 or 403. If it answered anything else, the case **fails**, because an operation the contract protects let the request in.
+**What you should see:** **Passed** if the step answered 401 or 403. If it answered anything else, the case **fails**, because a protected operation let the request in.
 
 ![The cases of PayPal's Create order: Without the required input "amount", Without credentials, and a case by response](/media/en/test-paypal-cases.webp)
 
@@ -113,7 +115,7 @@ Luvin only generates this case for inputs that have allowed options, a number or
 
 ![A case by response that passed: getProduct simulated a 404 and the action productNotFound ended the workflow](/media/en/test-verdict-passed.webp)
 
-Which responses have no action yet? Open the **Overview** tab and its **Response coverage** section. Every **✕ Unhandled** row is an error the workflow does not treat. See [The Overview tab](/test/overview-tab/#response-coverage).
+Which responses have no action yet? Open the **Overview** tab and its **Response coverage** section. Every **✕ Unhandled** row is an error the workflow does not treat. See [The Overview tab](/test/overview-tab/#response-coverage). On the canvas, after a run or a probe, the menu of the chip **◎ Routes tested** lists them under **Errors without a route**. See [Probe routes and coverage](/test/probe-routes/).
 
 ![Response coverage of Pokemon card: 5 of 8 documented responses handled, three 404s unhandled](/media/en/test-coverage.webp)
 
@@ -183,6 +185,35 @@ See [Custom data cases](/test/custom-cases/).
 
 A case by response set to **Real API** calls the API even when the run bar is on **Simulation**. See [Adjust a case](/test/adjust-cases/#run-a-response-case-against-the-real-api).
 
+## Every route, without the API failing
+
+**What it proves:** each route of a step does what you expect when the step answers that: it ends the workflow, retries or goes to another step. It also works for routes without a status and for conditions on the body, which the generated cases do not cover.
+
+<Steps>
+
+1. Open the workflow in the **Design** tab.
+2. On the card of the step, find the route row, for example the 404 of `getPokemon` in **Pokemon card**.
+3. Press **▷ Probe** on that row.
+
+</Steps>
+
+**What you should see:** the result bar says how it ended, for example **Probed: 404 → pokemonNotFound · ended the workflow with an error**, and the row says **✓ tested**. It always runs in simulation. The chip **◎ Routes tested 1/1** counts the routes some case or probe has taken in the session, and its menu lists the routes not tested and the errors without a route. See [Probe routes and coverage](/test/probe-routes/).
+
+## Another value in one step, without changing the inputs
+
+**What it proves:** how one step behaves with a value you choose, at that point of the chain, with what the earlier steps really returned. For example, a cart with a quantity out of stock.
+
+<Steps>
+
+1. In the **Design** tab, select the step and press **F9**, or **⏸ Pause here** in its panel.
+2. Press **Run**. The run stops before that step and its panel shows **Receives**: each parameter and each field of the JSON body.
+3. Change the value, for example `products/0/quantity` = `500`.
+4. Press **▷ Continue**.
+
+</Steps>
+
+**What you should see:** the step runs with that value, keeping its type: the request that was sent carries `"quantity": 500`, a number. The Arazzo and the inputs do not change. To repeat only that step afterwards, use **▷ Run only this step**. See [Debug a workflow](/test/debug/).
+
 ## A case without one input
 
 **What it proves:** what happens when an optional input is not sent, or when a case needs other data than the default.
@@ -244,7 +275,7 @@ See [Simulation](/test/simulation/).
 
 <Steps>
 
-1. At the top right of the window, open the active environment and choose another one. **Configure environment…** at the end of the list opens it.
+1. At the top right of the window, click the left half of the pill, the collection environment with the database icon, and choose another one. **Configure environment…** at the end of the list opens it.
 2. Choose **Real API** and press **Run**.
 
 </Steps>
@@ -300,7 +331,7 @@ See [Run](/test/run/#when-a-workflow-depends-on-another) and the recipe [Reuse a
 |---|---|
 | OAuth 2.0 with client credentials, as the PayPal example | Set it in the **Authorization** tab of the workflow. Luvin requests the token before the calls and renews it on its own. |
 | OAuth 2.0 where a person signs in | The run bar says *This workflow signs in with OAuth 2.0 to: …*. Press **Sign in**, or press **Run** and the sign-in opens first. If you cancel it, nothing runs. |
-| A login call of its own | Put the login in a workflow and make the others depend on it. It runs first, under **Preparation**. |
+| A login call of its own | Add the login as the first step and pass its token to the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/). To share one login between several workflows, put it in a workflow of its own and make the others depend on it: it runs first, under **Preparation**. |
 
 ![The Authorization tab of a workflow, with one card per API](/media/en/workflow-auth.webp)
 
@@ -361,6 +392,8 @@ The case could not be judged: the API did not respond, the workflow stopped befo
 </Steps>
 
 ![The Response tab of the failed step: the field sku, marked in red, has the value unknown](/media/en/test-step-response.webp)
+
+In the **Design** tab, the failed step is red on the canvas, and the **Response** tab of its panel says why it failed, what it received and what to do. See [Results on the canvas](/test/run-on-canvas/#the-response-tab-of-a-step).
 
 See [Read a step result](/test/step-results/).
 

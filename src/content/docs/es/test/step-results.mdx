@@ -37,7 +37,7 @@ De izquierda a derecha, una tarjeta muestra el número del paso, su estado, su n
 | **Exitoso** | El paso cumplió todos sus criterios. |
 | **Exitoso con advertencias** | Los criterios se cumplieron, con algo para revisar: la respuesta no coincide con el contrato, no se encontró un output que usan pasos posteriores, o se simuló un paso de mensajería. |
 | **Falló** | El paso no cumplió sus criterios, o no hubo respuesta. |
-| **No ejecutado** | El workflow se detuvo o terminó antes de este paso. |
+| **No ejecutado** | El workflow se detuvo o terminó antes de este paso, o el paso quedó fuera de una ejecución parcial: *No se ejecutó: queda fuera de lo que se pidió ejecutar.* |
 
 Pueden aparecer dos etiquetas más: **Simulado**, e **Intento 2** cuando el paso se reintentó. Un paso de mensajería muestra **Enviado**, **Mensaje recibido** o **Sin mensaje** en lugar del status HTTP.
 
@@ -111,6 +111,10 @@ Si el paso responde otra cosa, la nota dice **No respondió lo que espera el cas
 
 Cuando la ejecución se pausó para que [eligieras un elemento de una lista](/es/test/lists/), el paso que devolvió la lista tiene una nota, **Elegido al ejecutar**, con el elemento y el valor que recibió cada parámetro. **De la lista** significa que la lista tenía un solo elemento y se usó sin preguntar.
 
+## Un valor editado en una pausa
+
+Cuando [pausaste antes de un paso](/es/test/debug/) y cambiaste lo que recibe, la pestaña **Petición** muestra el request tal como se envió, con el valor que escribiste. En el lienzo, el chip de ese valor dice, por ejemplo, `= 150 ✎`.
+
 ## Los secretos van ocultos
 
 - Los secretos y credenciales del ambiente aparecen como `••••` en requests, respuestas y outputs.
@@ -123,6 +127,7 @@ Mira [Privacidad](/es/reference/privacy/).
 
 <CardGrid>
   <LinkCard title="Lee los resultados" href="/es/test/results/" />
+  <LinkCard title="Resultados en el lienzo" href="/es/test/run-on-canvas/" />
   <LinkCard title="Reportes" href="/es/test/reports/" />
   <LinkCard title="Éxito y errores" href="/es/design/success-and-errors/" />
 </CardGrid>

@@ -1,0 +1,222 @@
+---
+title: La API de los scripts
+description: Cada objeto y método de pm, bru, req y res que puede usar un script de Luvin, las librerías que trae y lo que no está disponible.
+sidebar:
+  order: 15
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Los scripts de Luvin usan la API de Postman (`pm.*`) y la de Bruno (`bru.*`, `req`, `res`). Esta página lista todo lo que un script puede usar. Lo que no está aquí falla con un mensaje claro, por ejemplo `` `pm.vault.get` todavía no está en Luvin. ``
+
+Para saber dónde van los scripts y cuándo corren, mira [Scripts](/es/requests/scripts/).
+
+## Postman: pm
+
+### Variables
+
+| Objeto | Métodos | Lee y escribe |
+|---|---|---|
+| `pm.variables` | `get`, `has`, `set`, `unset`, `clear`, `toObject`, `replaceIn` | `get` encuentra el valor en cualquier nivel, como lo haría `{{nombre}}`. `set` dura solo este envío. |
+| `pm.environment` | `get`, `has`, `set`, `unset`, `clear`, `toObject`, `replaceIn`, `name` | El ambiente activo. `set` guarda un valor actual en este equipo. |
+| `pm.collectionVariables` | `get`, `has`, `set`, `unset`, `clear`, `toObject`, `replaceIn` | Las variables de la colección. `set` guarda un valor actual en este equipo. |
+| `pm.globals` | `get`, `has`, `set`, `unset`, `clear`, `toObject`, `replaceIn` | El ambiente global activo. `set` guarda un valor actual en este equipo. |
+| `pm.iterationData` | `get`, `has`, `toObject` | La fila del archivo de datos en el runner. Vacío cuando pulsas **Enviar**. |
+
+`replaceIn("{{baseUrl}}/orders")` devuelve el texto con sus `{{variables}}` reemplazadas. Los valores siempre se guardan como texto: un objeto se guarda como JSON. Mira [Las variables que guarda un script](/es/requests/scripts/#las-variables-que-guarda-un-script).
+
+### El request
+
+En un script **Antes del request**, los cambios a `pm.request` se envían. En uno **Después de la respuesta**, es el request que se envió, para leerlo.
+
+| Miembro | Qué hace |
+|---|---|
+| `pm.request.name` | El nombre del request. |
+| `pm.request.method` | El método. Puedes asignar otro: `pm.request.method = "POST"`. |
+| `pm.request.url` | La URL como está escrita, con sus `{{variables}}`. `toString()`, `getHost()`, `getPath()`, `getQueryString()`, `update(url)` y `query` (una lista, mira abajo). También puedes asignarle una URL nueva. |
+| `pm.request.headers` | Los headers, como lista (mira abajo). |
+| `pm.request.addHeader`, `upsertHeader`, `removeHeader`, `getHeaders` | Atajos para los headers. |
+| `pm.request.body` | `mode` (`raw`, `urlencoded`, `formdata`, `file` o `none`), `raw` (se puede asignar), `urlencoded` y `formdata` (listas), `update(…)` y `toString()`. |
+
+Una lista (`headers`, `url.query`, `body.urlencoded`, `body.formdata`) tiene `get`, `has`, `all`, `toObject`, `each`, `count`, `add`, `upsert` y `remove`. Los nombres se comparan sin importar mayúsculas: `headers.get("content-type")` encuentra `Content-Type`.
+
+```js
+// Antes del request: un header con la firma del body
+const secret = pm.environment.get("clientSecret");
+const signature = CryptoJS.HmacSHA256(pm.request.body.raw, secret).toString();
+pm.request.headers.upsert({ key: "X-Signature", value: signature });
+```
+
+### La respuesta
+
+Solo en un script **Después de la respuesta**.
+
+| Miembro | Qué da |
+|---|---|
+| `pm.response.code` | El status, por ejemplo `200`. |
+| `pm.response.status` | El texto del status, por ejemplo `OK`. |
+| `pm.response.responseTime` | El tiempo en milisegundos. |
+| `pm.response.responseSize` | El tamaño del body. |
+| `pm.response.headers` | Los headers, como lista. |
+| `pm.response.json()` | El body como objeto. Falla si el body no es JSON. |
+| `pm.response.text()` | El body como texto. |
+| `pm.cookies` | `get`, `has` y `toObject`: las cookies que puso esta respuesta. |
+
+### Pruebas
+
+| Miembro | Qué hace |
+|---|---|
+| `pm.test(nombre, fn)` | Una prueba. Pasa si `fn` no lanza un error. `fn` puede ser `async`. |
+| `pm.test.skip(nombre, fn)` | Una prueba que no corre. |
+| `pm.expect(valor)` | El `expect` de Chai, con todas sus cadenas: `.to.eql()`, `.to.have.property()`, `.to.have.lengthOf()`, `.to.be.oneOf()`… |
+
+Afirmaciones sobre la respuesta completa:
+
+| Afirmación | Pasa cuando |
+|---|---|
+| `pm.response.to.have.status(201)` | El status es `201`. Con texto, como `status("Created")`, compara el texto del status. |
+| `pm.response.to.have.header("X-Id")`, `header("X-Id", "7")` | El header está, y tiene ese valor. |
+| `pm.response.to.have.body()`, `body("texto")`, `body(/regex/)` | El body no está vacío, es ese texto o coincide. |
+| `pm.response.to.have.jsonBody()`, `jsonBody("data.id")`, `jsonBody("data.id", 7)` | El body es JSON, tiene esa ruta, o ese valor en la ruta. |
+| `pm.response.to.have.responseTime.below(500)`, `.above(…)` | El tiempo está debajo o encima del número. |
+| `pm.response.to.be.ok`, `.success` | El status es `2XX`. |
+| `.info`, `.redirection`, `.clientError`, `.serverError`, `.error` | `1XX`, `3XX`, `4XX`, `5XX`, `4XX` o `5XX`. |
+| `.accepted`, `.badRequest`, `.unauthorized`, `.forbidden`, `.notFound`, `.rateLimited` | `202`, `400`, `401`, `403`, `404`, `429`. |
+| `pm.response.to.be.json` | El body es un JSON válido. |
+
+### Otros miembros
+
+| Miembro | Qué hace |
+|---|---|
+| `pm.info.requestName` | El nombre del request. |
+| `pm.info.eventName` | `prerequest` o `test`, como en Postman. |
+| `pm.info.iteration` | La iteración del runner, desde `0`. |
+| `pm.sendRequest(request, callback)` | Envía otro request. Mira abajo. |
+| `pm.execution.skipRequest()` | En un script **Antes del request**: el request no se envía. |
+
+### pm.sendRequest
+
+Funciona con un callback `(err, res)` y también como promesa, así que `await` también sirve.
+
+```js
+// Antes del request: pide un token y úsalo
+const res = await pm.sendRequest({
+  url: pm.variables.replaceIn("{{baseUrl}}/auth/token"),
+  method: "POST",
+  header: { "Content-Type": "application/json" },
+  body: { mode: "raw", raw: JSON.stringify({ user: "ana" }) },
+});
+pm.environment.set("token", res.json().access_token);
+```
+
+- `request` puede ser una URL como texto, o un objeto con `url`, `method`, `header` (una lista de `{ key, value }`, un objeto, o un texto con un `Nombre: valor` por línea) y `body`.
+- `body.mode` puede ser `raw`, `urlencoded`, `graphql` o `formdata`. Un `formdata` envía solo campos de texto, no archivos.
+- La respuesta tiene `code`, `status`, `responseTime`, `headers`, `json()` y `text()`.
+- Las `{{variables}}` del request no se reemplazan: usa `pm.variables.replaceIn` o `get`.
+- Cada uno tiene un límite de 30 segundos. Aparece en la pestaña **Network** de las Dev Tools, con los secretos tapados.
+
+### La API antigua de Postman
+
+Muchas colecciones todavía usan la API que tenía Postman antes de `pm`. Luvin también la corre:
+
+| API antigua | Qué es |
+|---|---|
+| `tests["nombre"] = condición` | Una prueba que pasa cuando la condición es verdadera. |
+| `responseBody`, `responseCode.code`, `responseHeaders`, `responseTime`, `responseCookies` | La respuesta. |
+| `postman.setEnvironmentVariable`, `getEnvironmentVariable`, `clearEnvironmentVariable`, `clearEnvironmentVariables` | Como `pm.environment`. |
+| `postman.setGlobalVariable`, `getGlobalVariable`, `clearGlobalVariable`, `clearGlobalVariables` | Como `pm.globals`. |
+| `postman.getResponseHeader(nombre)`, `postman.getResponseCookie(nombre)` | Un header o una cookie de la respuesta. |
+| `environment`, `globals`, `data`, `iteration`, `request` | Las variables, la fila de datos, la iteración y el request, para leerlos. |
+| `xml2Json(texto)` | Un texto XML como objeto. |
+
+## Bruno: bru, req y res
+
+### bru
+
+| Método | Qué hace |
+|---|---|
+| `bru.getVar`, `setVar`, `hasVar`, `deleteVar` | Variables de ejecución: valores guardados que duran mientras la colección está abierta. |
+| `bru.getEnvVar`, `setEnvVar` | El ambiente activo. `setEnvVar` guarda un valor actual en este equipo. |
+| `bru.getEnvName()` | El nombre del ambiente activo. |
+| `bru.getCollectionVar` | Una variable de la colección. |
+| `bru.getGlobalEnvVar`, `setGlobalEnvVar` | El ambiente global activo. |
+| `bru.getRequestVar` | Una variable del request. |
+| `bru.getRequestName()` | El nombre del request. |
+| `bru.interpolate(texto)` | El texto con sus `{{variables}}` reemplazadas. |
+| `bru.sleep(ms)` | Espera. Úsalo con `await`. |
+| `bru.sendRequest(config, callback)` | Envía otro request, con `method`, `url`, `headers` y `data`. La respuesta tiene `status`, `statusText`, `headers` y `data`. |
+| `bru.cookies.get`, `has` | Las cookies que puso esta respuesta. |
+| `bru.isSafeMode()` | Siempre `true`: Luvin siempre corre los scripts aislados, como el modo seguro de Bruno. |
+
+### req
+
+`req.url`, `req.method`, `req.headers`, `req.body`, y los métodos `getUrl`, `setUrl`, `getMethod`, `setMethod`, `getName`, `getHeader`, `getHeaders`, `setHeader`, `setHeaders`, `deleteHeader`, `getBody` y `setBody`. `getBody()` devuelve el body JSON como objeto. `req.getExecutionMode()` devuelve `runner` en el runner y en las pruebas de rendimiento, y `standalone` cuando pulsas **Enviar**.
+
+### res
+
+Solo después de la respuesta: `res.status`, `res.statusText`, `res.headers`, `res.body` (el JSON como objeto, o el texto), `res.responseTime`, y `getStatus`, `getStatusText`, `getHeader`, `getHeaders`, `getBody` y `getResponseTime`.
+
+### test y expect
+
+`test(nombre, fn)` y `expect(valor)` funcionan como `pm.test` y `pm.expect`.
+
+```js
+// Después de la respuesta, al estilo de Bruno
+test("order created", () => {
+  expect(res.getStatus()).to.equal(201);
+  expect(res.getBody().id).to.be.a("number");
+});
+bru.setVar("orderId", res.getBody().id);
+```
+
+## Librerías y globales
+
+Luvin trae las librerías que más usan los scripts de Postman y Bruno. Cárgalas con `require`:
+
+| `require(…)` | Qué es |
+|---|---|
+| `chai` | Afirmaciones. `pm.expect` y `expect` ya la usan. |
+| `crypto-js` | Hashes y firmas (HMAC, SHA-256, MD5, AES…). También está como el global `CryptoJS`. |
+| `lodash` | Utilidades para listas y objetos. También está como el global `_`. |
+| `moment` | Fechas. |
+| `uuid` | `v4()` da un UUID al azar. |
+| `nanoid` | `nanoid()` da un id al azar. |
+| `axios` | El cliente HTTP de Bruno, sobre el mismo envío que `bru.sendRequest`: `axios.get`, `post`, `put`, `patch`, `delete`, `head` y `axios(config)`. |
+| `atob`, `btoa` | Base64. También están como globales. |
+
+Otros globales: `console` (`log`, `info`, `warn`, `error`, `debug`), `setTimeout`, `setInterval`, `clearTimeout` y `clearInterval`. Una sola espera dura como máximo 30 segundos. Un script puede usar `await` suelto, como en Postman.
+
+<Aside type="caution">
+`uuid` y `nanoid` usan `Math.random`. Sirven para datos de prueba, no para crear secretos.
+</Aside>
+
+## Lo que no está disponible
+
+Esto falla con el mensaje `` `nombre` todavía no está en Luvin. ``:
+
+| No disponible | En su lugar |
+|---|---|
+| `pm.execution.setNextRequest`, `postman.setNextRequest`, `bru.setNextRequest`, `bru.runner` | Elige el orden en [el runner](/es/runner/requests/), o arma un [workflow](/es/design/from-requests/) para ramas y repeticiones. |
+| `pm.vault` | Guarda el valor como [secreto](/es/environments/variables-and-secrets/) del ambiente y léelo con `pm.environment.get`. |
+| `pm.visualizer` | Lee la respuesta en su pestaña **Body**. |
+| `pm.cookies.jar()`, `bru.cookies.jar()` | Lee las cookies de la respuesta con `pm.cookies.get`. Luvin guarda las cookies de cada respuesta para los requests siguientes: mira [Cookies y ejemplos guardados](/es/requests/cookies-and-examples/). |
+| `require` de cualquier otra librería, como `ajv`, `tv4`, `xml2js` o `cheerio` | Para XML, `xml2Json`. Para un esquema, revisa la respuesta contra su [contrato](/es/contracts/response-check/). |
+
+Lo mismo pasa con cualquier otro miembro de `pm`, `bru`, `req` o `res` que no esté en esta página, como `pm.response.to.have.jsonSchema` o `bru.getProcessEnv`. Tampoco hay `fetch` ni `XMLHttpRequest`: usa `pm.sendRequest`, `bru.sendRequest` o `axios`.
+
+Otras diferencias con Postman:
+
+- `pm.request.url` y `pm.request.headers` muestran el request como está escrito, con sus `{{variables}}`. La autorización y los headers automáticos todavía no están: Luvin los agrega después de los scripts.
+- En un request GraphQL, un script puede leer el body, pero sus cambios no se envían.
+- `pm.info.iterationCount` siempre vale `1`.
+
+Cuando importas una colección, su resumen avisa de muchas de estas cosas antes de importar. Mira [Importar de Postman o Bruno](/es/get-started/import/#los-scripts-se-traen-completos).
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Scripts" href="/es/requests/scripts/" description="Dónde van, en qué orden corren, la confianza y la seguridad." />
+  <LinkCard title="Variables y comprobaciones" href="/es/requests/variables-and-checks/" />
+  <LinkCard title="Asserts de Bruno y tests de Postman" href="/es/requests/checks-from-postman/" />
+  <LinkCard title="Niveles de las variables" href="/es/environments/variable-levels/" />
+</CardGrid>

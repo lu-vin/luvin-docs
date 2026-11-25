@@ -1,6 +1,6 @@
 ---
 title: Common design situations
-description: A catalog of the situations you meet when you design a workflow, each with the steps in the designer, the resulting Arazzo and a link to the detailed page.
+description: A catalog of the situations you meet when you design a workflow, each with the steps on the canvas, the resulting Arazzo and a link to the detailed page.
 sidebar:
   order: 1.5
 ---
@@ -12,26 +12,18 @@ This page answers "how do I…?" for the situations people meet most when they d
 The examples use the Pokédex example of the app and a generic shop: log in, list products, create an order and read it back.
 
 <Aside type="tip" title="Canvas or YAML">
-Most situations are done on the canvas. A few, such as criteria on the body or actions on success, are written in the [YAML tab](/design/arazzo-editor/). Each situation says which one. Whatever you write by hand is kept when you go back to the canvas.
+Most situations are done on the canvas. A few, such as criteria on the body or failure routes on a field of the response, are written in the [YAML tab](/design/arazzo-editor/). Each situation says which one. Whatever you write by hand is kept when you go back to the canvas, and **\{ \} YAML** shows the file next to the canvas while you work.
 </Aside>
 
 ## Pass data from one step to the next
 
-### A token from the login goes in a header of the next steps
+### The token of the login goes to the next steps
 
-The login returns `accessToken`, and the next calls need `Authorization: Bearer <token>`.
+The login returns `accessToken`, and the next calls need it as their authorization.
 
-<Steps>
-1. Click the `login` step. Under **Outputs**, tick `accessToken`. The card now shows the output `token`.
-2. Click the step that needs the token, for example `createOrder`.
-3. Under **Parameters** › **Headers**, open the **Source** list of `Authorization` and choose **Fixed value…**.
-4. Type `Bearer {$steps.login.outputs.token}`. The braces mark an expression inside a text.
-5. Do the same in each later step that needs the token.
-</Steps>
+When Luvin recognizes the token in the response of the login, or in the script of a Postman or Bruno request, it connects it as you add the steps. A notice says how many steps use it, with **Undo**. Otherwise, click the login step and, in **Gives**, choose the field to use as authorization in the following steps.
 
-You should see the text in the field and, on the card, the value `Bearer {$steps.login.outputs…`.
-
-![The step panel of createOrder: the Authorization header with a fixed value that contains the token of the login step](/media/en/design-token-header.webp)
+The login card shows **🔑 signs in**, and each step that uses the token shows **🔑**. The header is in the **Authorization** tab of each step, not under **Headers**.
 
 ```yaml
 - stepId: login
@@ -44,19 +36,21 @@ You should see the text in the field and, on the card, the value `Bearer {$steps
       value: Bearer {$steps.login.outputs.token}
 ```
 
-The canvas draws no data line for a value written inside a text: the line is only drawn when the whole value is the output. The header only appears in the panel if the contract declares it. If it does not, add the parameter in the YAML tab. To send the token without writing it in each step, use the [authorization of the workflow](/authorization/workflow/) instead. Runnable example: [Log in and use the token](/recipes/login-token/).
+The **Sign in and use the token** pattern of **＋ Step** does the same in one move. Details: [Pass the login token to the next steps](/authorization/token-from-login/).
 
 ### An id from a response goes in the path of the next step
 
 You add `GET /pokemon-species/{idOrName}` after `GET /pokemon/{idOrName}`, and the second needs the `id` of the first.
 
 <Steps>
-1. Add the two operations with **+** or by dragging them onto the canvas.
-2. Look at the second card. Its `idOrName` shows `? getPokemon › id`: Luvin connected it for you and added the output `id` to the first step.
-3. If the source is not the one you want, click the step and choose another one in its **Source** list.
+1. Add the two operations with **＋ Step**.
+2. Look at the second card. Its `idOrName` shows the chip **← id · from 1**, with a `?` in front: Luvin connected it for you and added the output `id` to the first step.
+3. If the source is not the one you want, click the step and, in its **Data** tab, choose another one in the **Source** list.
 </Steps>
 
-![A new workflow with two steps: Start has the input idOrName, the first step reads it and exposes id](/media/en/design-auto-wired.webp)
+Click the second card to see the data line from the output `id` of step 1 to `idOrName`.
+
+![A new workflow with two steps: Start has the input idOrName, the first step reads it and gives id, and the second shows the chip ← id · from 1](/media/en/design-auto-wired.webp)
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-wire.webp" src="/media/en/design-wire.mp4"></video>
 
@@ -72,7 +66,7 @@ The `?` means Luvin is less sure: review it. Details: [Connect data between step
 
 ### A value nobody provides becomes an input
 
-When no earlier step returns a value the step needs, Luvin creates an input of the workflow with the name of the value. In the image above, **Start** lists `idOrName`, created when you added the first step.
+When no earlier step returns a value the step needs, Luvin creates an input of the workflow with the name of the value. In the image above, **Start** has `idOrName`, created when you added the first step.
 
 To do it yourself, open the **Source** list of the value and choose **New input “name”**. The input is created as required.
 
@@ -107,11 +101,11 @@ A step sends `currency: EUR` always. You want cases that try other currencies.
 To go back, there is no single button. Do it in two moves:
 
 <Steps>
-1. Click the step and, in the **Source** list of the value, choose **Fixed value…**. Type the value. The field stays in view while you edit it, also when it is optional.
+1. Click the step and, in the **Source** list of the value, choose **Fixed value…**. Type the value.
 2. Click **Start** and delete the input with its bin.
 </Steps>
 
-If you delete an input that a step still uses, the bar **This workflow is missing data** appears. Right after turning values into inputs, **Undo** also brings back the fixed values.
+If you delete an input that a step still uses, the bar **This workflow is missing data** appears. Right after turning values into inputs, **↶ Undo** also brings back the fixed values.
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-promote.webp" src="/media/en/design-promote.mp4"></video>
 
@@ -140,7 +134,7 @@ Details: [Parameters and body](/design/parameters-and-body/#turn-a-fixed-value-i
 2. Under `listProducts`, choose **items/sku (from a list: you choose which at run time)**.
 </Steps>
 
-The field is shown without its position: `items/sku`. In the file Luvin writes the first position, and when you run a case it pauses after the step and asks which item to continue with. The outputs panel also lets you expose the **whole list**.
+The field is shown without its position: `items/sku`. In the file Luvin writes the first position, and when you run a case it pauses after the step and asks which item to continue with. The outputs of the step also let you expose the **whole list**.
 
 ![The outputs of listProducts: the note about the list, the whole list tag and items/sku ticked](/media/en/design-list-outputs.webp)
 
@@ -157,7 +151,7 @@ Details: [Outputs](/design/outputs/#fields-that-are-lists) and [Choose an item f
 The order has an `address` object and a list of `lines`.
 
 <Steps>
-1. Click the step. Under **Body**, fields inside objects appear with their path: `address/city`, `address/zip`. Give each one a source.
+1. Click the step. In the **Data** tab, under **Body**, fields inside objects appear with their path: `address/city`, `address/zip`. Give each one a source.
 2. For the list, click **Edit as JSON**, write the items and click **Apply**. Use `"$inputs.name"` or `"$steps.step.outputs.value"` as values.
 </Steps>
 
@@ -177,7 +171,7 @@ Details: [Parameters and body](/design/parameters-and-body/#edit-the-body-as-jso
 
 ### The same operation twice in one workflow
 
-You want to read a Pokémon, and later another one. Add the same operation again from the palette. The new step gets a number: `getPokemon2`. Each step has its own parameters and outputs, so later steps can read `$steps.getPokemon.outputs…` or `$steps.getPokemon2.outputs…`.
+You want to read a Pokémon, and later another one. Add the same operation again with **＋ Step**, or select the step and press **⌘D** to duplicate it. The new step gets another id: `getPokemon2` when you add it, `getPokemon_2` when you duplicate it. Each step has its own parameters and outputs, so later steps can read either one.
 
 ```yaml
 - stepId: getPokemon
@@ -186,17 +180,17 @@ You want to read a Pokémon, and later another one. Add the same operation again
   operationId: $sourceDescriptions.pokeapi.getPokemon
 ```
 
-To give it a clearer name, click the step and change its name at the top of the panel. Details: [Add steps](/design/add-steps/).
+To give it a clearer title or id, click the step and change them at the top of its panel. Details: [Organize a workflow](/design/organize/).
 
 ## Change the order or undo
 
-### Reorder, delete, undo and redo
+### Reorder, remove, undo and redo
 
 <Steps>
-1. Point at a card and click **↑** or **↓**, or drag it above or below another card.
+1. Drag a card above or below another card, or select it and press **⌥↑** or **⌥↓**.
 2. If the step now runs before the one that gives it data, the bar **Check the order:** says so. Click **Undo** in the bar.
-3. To delete a step, click it and press Delete, or click the bin at the top of its panel. A red bar names the steps that used its data, and each of them shows **1 error(s)** on its card.
-4. **Undo** and **Redo** above the canvas (⌘ + Z and ⇧ + ⌘ + Z) step through your changes.
+3. To remove a step, click **×** on its card, or select it and press **⌫**. A window lists what breaks; click **Remove the step**.
+4. **↶ Undo** and **↷ Redo** above the canvas (⌘ + Z and ⇧ + ⌘ + Z) step through your changes.
 </Steps>
 
 ![The Check the order bar: getOrder uses data from createOrder, which now runs after it](/media/en/design-order-warning.webp)
@@ -205,15 +199,25 @@ To give it a clearer name, click the step and change its name at the top of the 
 
 Details: [Organize a workflow](/design/organize/).
 
+### Copy steps to another workflow, or make them a workflow of their own
+
+<Steps>
+1. Shift + click the steps. A bar says **3 steps selected**.
+2. To copy them, press **⌘C**, open the other workflow, select a step and press **⌘V**. Ids that exist get `_2`.
+3. To reuse them, click **⇪ Extract to a workflow** (only consecutive steps), give it a name, read the preview and click **Extract**.
+</Steps>
+
+Details: [Copy, duplicate and extract steps](/design/copy-and-extract/).
+
 ## Decide what counts as success
 
 ### Success by status
 
-Click the step and, under **It's a success if it responds**, click the status you expect. Luvin writes `$statusCode == 201`.
+Click the step, open the **Success and routes** tab and, under **It succeeds if**, choose the status you expect after `$statusCode ==`. Luvin writes `$statusCode == 201`.
 
 ### Success by a condition on the response
 
-The canvas edits the status. Conditions on the body or the headers are written in the YAML tab, inside `successCriteria`. All the criteria must hold. The panel lists them under the status with **Edit in the YAML**.
+The canvas edits the status. Conditions on the body or the headers are written in the YAML tab, inside `successCriteria`. All the criteria must hold. The card and the panel list them with their type, and the panel offers **Edit in the YAML**.
 
 | Kind | Example |
 |---|---|
@@ -222,11 +226,15 @@ The canvas edits the status. Conditions on the body or the headers are written i
 | JSONPath | `- context: $response.body`<br />`  condition: $.abilities[?(@.is_hidden == false)]`<br />`  type: jsonpath` |
 | XPath (XML responses) | `- context: $response.body`<br />`  condition: /order/status`<br />`  type: xpath` |
 
-![The panel of getSpecies: the success status and an extra criterion with Edit in the YAML](/media/en/design-criteria-panel.webp)
+A JSONPath written as a comparison, such as `$.legendary == true`, is never met. **⚠ to review** flags it and offers **Change it**, which rewrites it as `$response.body#/legendary == true`. See [To review](/design/review/).
+
+![The Success and routes tab of getSpecies: the status after $statusCode == and an extra criterion with its type and Edit in the YAML](/media/en/design-criteria-panel.webp)
 
 Details: [Success and errors](/design/success-and-errors/), [Success criteria](/reference/criteria/) and the recipe [Check more than the status](/recipes/criteria/).
 
-## Decide what happens on an error
+## Decide what happens after a step
+
+Each step can have routes: what to do if it fails, and where to go if it passes and a condition holds. They are rows on the card, in red (**On failure**) and green (**If it passes and matches**), with an arrow on the left to where they go.
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-errors.webp" src="/media/en/design-errors.mp4"></video>
 
@@ -235,9 +243,11 @@ Details: [Success and errors](/design/success-and-errors/), [Success criteria](/
 "The Pokémon does not exist" is a known outcome, not a crash.
 
 <Steps>
-1. Click the step. Under **If it responds with an error**, find the status, for example **404**.
-2. Open its list and choose **End the workflow**.
+1. On the card, find the red row **404 · no route**, and click **Choose what to do**. Or click **＋ What to do if it fails** and type `404`.
+2. Click **End the workflow**, check the preview and click **Add**.
 </Steps>
+
+The arrow of the route goes to **End of workflow**.
 
 ```yaml
 onFailure:
@@ -247,29 +257,29 @@ onFailure:
       - condition: $statusCode == 404
 ```
 
-Luvin also generates a case that simulates the 404 and checks that the action fires. Runnable example: [Expect an error](/recipes/expected-error/).
+Luvin also generates a case that simulates the 404 and checks that the route runs. Runnable example: [Expect an error](/recipes/expected-error/).
 
 ### Retry with a wait and a limit
 
-Choose **Retry (up to 3 times)** for the status, for example **429**. Luvin writes 3 tries and 1 second between them. To change the numbers, edit `retryLimit` and `retryAfter` in the YAML tab, or save the action as a [reusable](/design/reusables/): its panel has both fields. Luvin never waits more than 10 seconds between two tries against the real API.
+In the route editor, choose **Retry**. It starts at a wait of 2 seconds and up to 3 times; change both numbers before you click **Add**. In the panel, a status without a route also has **Retries**, which writes the same in one click. Luvin never waits more than 10 seconds between two tries against the real API.
 
 ```yaml
 onFailure:
-  - name: on429
+  - name: retry429
     type: retry
-    retryAfter: 5
-    retryLimit: 4
+    retryAfter: 2
+    retryLimit: 3
     criteria:
       - condition: $statusCode == 429
 ```
 
-To log in again before the retry, add `stepId` or `workflowId` to the action in the YAML. See [Retries and slow calls](/design/success-and-errors/#retries-and-slow-calls).
+To sign in again before the retry, choose **Renew and retry** and the login workflow. See [Add or change a route](/design/branch-menu/).
 
-### Jump to another step
+### Go to another step
 
-Choose **Go to “step”** for the status. The list offers every other step of the workflow. With **Actions by response** on, the card shows the row and an orange line goes to the target step.
+Choose **Go to another step** and the step in **Go to step**. On the card, a red dashed arrow goes from the row to that step. A route that goes back shows the runner's limit: **(the runner stops at 200 executions)**.
 
-![The canvas: the 409 row of createOrder says go to listProducts and an orange dashed line runs up to that step](/media/en/design-jump-line.webp)
+![The canvas: the 409 row of createOrder goes to listProducts, with a red dashed arrow on the left of the cards](/media/en/design-jump-line.webp)
 
 ```yaml
 onFailure:
@@ -280,40 +290,106 @@ onFailure:
       - condition: $statusCode == 409
 ```
 
-### Jump to another workflow
+To send an error to a step that does not exist yet, choose **or a new step…**. See [A new step for a route](/design/branch-new-step/).
 
-The list of the panel only offers steps. To continue in another workflow, write `workflowId` instead of `stepId` in the YAML. The run continues in that workflow, and the results say **Continues in workflow "…"**.
+### Continue in another workflow
+
+Choose **Continue in another workflow** and the workflow, of this file or another Arazzo file of the collection. The arrow ends in a box below **End of workflow**: **↗ Continues in «…»**. Control does not come back.
 
 ```yaml
 onFailure:
-  - name: notifySupport
+  - name: on500
     type: goto
     workflowId: reportProblem
     criteria:
       - condition: $statusCode == 500
 ```
 
-For a workflow of another Arazzo file, use `$sourceDescriptions.<source>.<workflowId>`.
+For a workflow of another Arazzo file, Luvin adds that file to the sources and writes `$sourceDescriptions.<source>.<workflowId>`.
 
-### Actions on success
+### Detour when the step passes and a condition holds
 
-`onSuccess` is written in the YAML. It takes the same types: `end`, `goto` and `retry`. The panel says **This step uses things the canvas doesn’t edit (onSuccess)**. The card lists the action in the same section as the error actions; an `end` on success reads **end ✓**.
+The species is legendary, and you want to skip to another step. `getSpecies` has the output `isLegendary`, which reads `$response.body#/is_legendary`.
+
+<Steps>
+1. On the card of `getSpecies`, click **＋ Detour if it passes and a condition holds**.
+2. In **If the value**, choose the output `isLegendary`, and type `true` after **is**.
+3. Choose **Go to another step**, **Continue in another workflow** or **End successfully**, and click **Add**.
+</Steps>
 
 ```yaml
-- stepId: findItem
-  onSuccess:
-    - name: done
-      type: end
+onSuccess:
+  - name: ifIs_legendary
+    type: goto
+    stepId: getLegend
+    criteria:
+      - condition: $response.body#/is_legendary == true
 ```
 
-Runnable example: [Retry, jump and end on errors](/recipes/error-branches/).
+If a detour skips a step whose data a later step uses, **⚠ to review** warns you. Runnable example: [Retry, jump and end on errors](/recipes/error-branches/).
+
+### A rule for every step
+
+A 429 can happen in any step. Instead of a route in each one, click **Start** and, under **If any step fails**, click **＋ Rule for every step**. Each card reminds you: **If none of these applies, it uses the Start rules (429)**.
+
+```yaml
+failureActions:
+  - name: retry429
+    type: retry
+    retryAfter: 2
+    retryLimit: 3
+    criteria:
+      - condition: $statusCode == 429
+```
+
+Details: [The Routes panel and rules for every step](/design/routes-panel/).
+
+### Order and check the routes
+
+The **Success and routes** tab of a step lists its routes in order: the first that matches wins. Use **↑** and **↓** to reorder, **✎** to change and **✕** to remove. The chip **⚠ to review** lists the routes that skip data, go to a step that is gone, loop with no limit, or never match. See [To review](/design/review/).
+
+## Repeat a step or wait
+
+### Go through every page
+
+Click **＋ Step**, then **Go through every page** under **Patterns · standard Arazzo**, then the operation. The step repeats while the response has a next page, and sends the cursor of the previous round.
+
+```yaml
+onSuccess:
+  - name: siguientePagina
+    type: goto
+    stepId: listProducts
+    criteria:
+      - condition: $response.body#/nextCursor != null
+```
+
+APIs that page with `skip` and `limit` cannot be looped this way in Arazzo. Details: [Standard Arazzo patterns](/design/patterns/).
+
+### Wait until a job finishes
+
+Choose **Wait until it finishes** and the operation that reads the job. The step passes when `status` says `done`, or when a field such as `completed` is `true`, and retries every 2 seconds, up to 10 times, while it is not.
+
+```yaml
+successCriteria:
+  - condition: $statusCode == 200
+  - condition: $response.body#/completed == true
+onFailure:
+  - name: mientrasPendiente
+    type: retry
+    retryAfter: 2
+    retryLimit: 10
+    criteria:
+      - condition: $response.body#/completed == false
+```
+
+Details: [Standard Arazzo patterns](/design/patterns/#wait-until-it-finishes).
 
 ## Keep values
 
 ### Outputs of a step and outputs of the workflow
 
 <Steps>
-1. Click the step. Under **Outputs**, tick the response fields you want. Each one appears on the card with a dot.
+1. Click the step. In the **Data** tab, under **Gives**, click **＋ Output**, tick the response fields you want and click **Done**. Each one appears under **Outputs** on the card.
 2. Click **End of workflow** and, under **Workflow outputs**, tick what the workflow returns. Click a name to change it.
 </Steps>
 
@@ -340,7 +416,7 @@ Details: [Outputs](/design/outputs/).
 <Steps>
 1. Click **Start**. Under **Depends on**, open **Add a workflow…**.
 2. Choose a workflow under **In this file** or under the group of another file, such as **In auth.arazzo.yaml**.
-3. A **Depends on** card appears above **Start** with the outputs of that workflow. Use them from the **Source** list of any value, or drag their dot.
+3. A **⇡ Depends on** card appears above **Start** with the outputs of that workflow. Use them from the **Source** list of any value, or drag their dot.
 </Steps>
 
 ![The Add a workflow list with the groups In this file and In auth.arazzo.yaml](/media/en/design-depends-options.webp)
@@ -359,7 +435,7 @@ For a workflow of the same file, `dependsOn` has only its id: `dependsOn: [brows
 
 ### Call a workflow as a step
 
-In the palette, open **Workflows in this Arazzo** (or **From other Arazzo files**) and click **+** on the workflow. The new step lists the inputs of that workflow under **Workflow inputs**, wired like any other value, and its outputs.
+Click **＋ Step** and choose the workflow under **Workflows in this Arazzo** (or **From other Arazzo files**). The new step lists the inputs of that workflow under **Workflow inputs**, wired like any other value, and its outputs. On the card, **▸ See its N steps** lists the steps it runs.
 
 ![The panel of a step that calls the workflow browseProducts: its input limit and its outputs sku and price](/media/en/design-call-workflow.webp)
 
@@ -377,13 +453,13 @@ In the palette, open **Workflows in this Arazzo** (or **From other Arazzo files*
 
 ## Define once, use in several steps
 
-### Reusable failure actions and parameters
+### Reusable failure routes and parameters
 
 <Steps>
-1. Set the action of an error, for example **Retry** on **429**, or give a parameter a value.
-2. Click ♻ (**Save as reusable**) on that row, type a name and click **Save**.
-3. In another step, the list of that status offers it under **Reusables**. You can also drag it from the **Reusables** group of the palette onto a card.
-4. Click the ♻ badge to edit it once for every step. **Used in** lists the steps.
+1. Give a step a failure route on one status, for example **Retry** on **429**, or give a parameter a value.
+2. Save it: **Save as reusable** under the route in the **Success and routes** tab, or ♻ on the parameter in the **Data** tab. Type a name and save.
+3. Apply it to another step: drag it from **Reusables**, in the **Start** panel, onto the card, or pick it under **Or apply a reusable:** in the route editor.
+4. Click it in **Start** to edit it once for every step. **Used in** lists the steps.
 </Steps>
 
 ![The panel of the reusable unauthorized of PayPal: ends the workflow on a 401 and is used in five steps](/media/en/design-reusable-panel.webp)
@@ -405,19 +481,19 @@ onFailure:
   - reference: $components.failureActions.tooManyRequests
 ```
 
-Details: [Reusables](/design/reusables/).
+On the card, a reusable route has the mark ♻. Details: [Reusables](/design/reusables/).
 
 ## Messages and events
 
 ### Send and receive messages
 
 <Aside type="caution">
-Messaging steps are always simulated. Luvin does not connect to brokers (Kafka, AMQP, MQTT…) yet: the step uses the examples of the AsyncAPI contract, also when you run against the real API.
+Messaging steps are always simulated. Luvin does not connect to brokers (Kafka, AMQP, MQTT…): the step uses the examples of the AsyncAPI contract, also when you run against the real API.
 </Aside>
 
-Drag the AsyncAPI operation from the palette, as with any operation: it is tagged **SEND** or **RECEIVE**. Luvin writes `action`, the correlation id and, for a receive, `timeout: 5000`. Outputs are edited in the panel. Criteria on the message, such as the one below, are written in the YAML tab. See [Add a messaging step](/design/messaging/#add-a-messaging-step).
+Add the AsyncAPI operation with **＋ Step**, as with any operation: it is tagged **SEND** or **RECEIVE**. Luvin writes `action`, the correlation id and, for a receive, `timeout: 5000`. Outputs are edited in the panel. Criteria on the message, such as the one below, and failure routes are written in the YAML tab. See [Add a messaging step](/design/messaging/#add-a-messaging-step).
 
-![The panel of awaitConfirmation, a receive step: it says the canvas does not edit its channel, correlation and timeout, and lists its criterion on the message and its output entryNumber](/media/en/design-messaging-receive.webp)
+![The panel of awaitConfirmation, a receive step, with its criterion on the message and its output entryNumber](/media/en/design-messaging-receive.webp)
 
 ```yaml
 - stepId: awaitConfirmation
@@ -437,10 +513,9 @@ Details: [Messaging steps](/design/messaging/).
 
 <Steps>
 1. Create a workflow with **+** › **New Arazzo**.
-2. In the palette, open **Collection requests** and add your requests with **+** or by dragging them.
-3. The first time you use each request, mark what the API requires and click **Save**.
-4. Click a step and **Try this step**, or run the workflow once against the real API, so Luvin learns the responses.
-5. The bar **Luvin found 1 connection(s) between steps** proposes the connections. Click **Connect**.
+2. On the empty canvas, click **Build from the collection's requests** and click your requests in order. You can also drag them from the tree of the sidebar.
+3. Click a step and **Try this step**, or run the workflow once against the real API, so Luvin learns the responses.
+4. The bar **Luvin found 1 connection(s) between steps** proposes the connections. Click **Connect**.
 </Steps>
 
 ![The bar Luvin found 1 connection(s) between steps: the orderId of getOrder would come from the id of createOrder](/media/en/design-connections-bar.webp)
@@ -451,7 +526,7 @@ Details: [Build from saved requests](/design/from-requests/).
 
 ### Mark the required fields of a request
 
-A request does not say which fields the API requires. The dialog **What does the API require in «…»?** asks it the first time. To change it later, click the step and then **Required fields (n)** at the top of the panel.
+A request does not say which fields the API requires. Its card shows **required not marked**, and a bar above the canvas says how many steps are missing the answer, with **Mark**. Click **Mark**, tick the required fields and click **Save**. To change it later, click the step and then **Required fields (n)** at the top of its panel.
 
 ![The dialog What does the API require in «Create order»? with customer ticked as required](/media/en/design-required-fields.webp)
 
@@ -466,7 +541,7 @@ Details: [Mark the required fields of a request](/design/required-fields/).
 
 ### Complete the missing data
 
-After a contract changes, or after you edit the YAML, a step may use an input the workflow does not declare, or not send something the contract requires. The bar **This workflow is missing data** says what. Click **Complete**. **Undo** reverts it.
+After a contract changes, or after you edit the YAML, a step may use an input the workflow does not declare, or not send something the contract requires. The bar **This workflow is missing data** says what. Click **Complete**. **↶ Undo** reverts it.
 
 ![The bar This workflow is missing data: it uses inputs the workflow does not declare, username, with the Complete button](/media/en/design-gaps-bar.webp)
 
@@ -477,7 +552,7 @@ Details: [Complete missing data](/design/complete-gaps/).
 ### Edit the YAML by hand
 
 <Steps>
-1. Open the **YAML** tab. It is the same file the canvas edits.
+1. Open the **YAML** tab, or **\{ \} YAML** › **Edit in YAML**. It is the same file the canvas edits.
 2. Type. After `$`, `$steps.` or `$inputs.` the editor suggests what exists.
 3. Check the badge above the text and the **Problems** list below it.
 4. Go back to **Design**. What you wrote stays, also after you change other things on the canvas.
@@ -487,13 +562,13 @@ Details: [Complete missing data](/design/complete-gaps/).
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-yaml.webp" src="/media/en/design-yaml.mp4"></video>
 
-Details: [The YAML tab](/design/arazzo-editor/).
+Details: [The YAML tab](/design/arazzo-editor/) and [The YAML next to the canvas](/design/yaml-side-by-side/).
 
 ## Related
 
 <CardGrid>
   <LinkCard title="Design a workflow" href="/design/overview/" />
+  <LinkCard title="The canvas" href="/design/canvas/" />
   <LinkCard title="Recipes" description="Runnable examples of these situations." href="/recipes/overview/" />
   <LinkCard title="Specification support" href="/reference/support/" />
-  <LinkCard title="Glossary" href="/reference/glossary/" />
 </CardGrid>

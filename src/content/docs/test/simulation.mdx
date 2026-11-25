@@ -101,6 +101,8 @@ A **message case** is for a step that receives a message. Luvin simulates a mess
 
 Response cases are simulated by default. To check the same thing against your API, switch the case to **Real API** and give it data. See [Adjust a case](/test/adjust-cases/).
 
+To go through one route without running the cases, press **▷ Probe** on that route in the **Design** tab. It simulates the response that triggers the route in the same way, always in simulation, also when the run bar says **Real API**. See [Probe routes and coverage](/test/probe-routes/).
+
 ## Messaging steps are always simulated
 
 Luvin does not connect to message brokers such as Kafka, AMQP or MQTT. Steps that send or receive a message through an AsyncAPI channel are simulated **in every run**, also when the run bar says **Real API**.
@@ -130,10 +132,13 @@ When a step returns a list that later steps use, the run pauses so you choose an
 
 Against the **Real API** the dialog always appears, also with one item. See [Choose an item from a list](/test/lists/).
 
+A route probe (**▷ Probe**) never shows the dialog: it continues with the item the design points to.
+
 ## Next
 
 <CardGrid>
   <LinkCard title="Run" href="/test/run/" />
   <LinkCard title="Cases" href="/test/cases/" />
+  <LinkCard title="Probe routes and coverage" href="/test/probe-routes/" />
   <LinkCard title="Read the results" href="/test/results/" />
 </CardGrid>

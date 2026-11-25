@@ -16,15 +16,16 @@ At the top of the sidebar there are four icons. Each one shows a panel that uses
 | Icon | The panel shows |
 |---|---|
 | **Collections** | The tree of your collections: Arazzo files, workflows, steps, requests, **+ New workflow**, **+ New request** and **Add files to the collection**. Below it, the **Contracts** section. |
-| **Environments** | The environments of the open collection. See [The Environments panel](#the-environments-panel). |
+| **Environments** | The global environments of the workspace and the environments of the open collection. See [The Environments panel](#the-environments-panel). |
 | **History** | The latest 50 entries of the collection's history. **See all** opens the **History** tab. See [History](/workspaces/history/). |
 | **Mock servers** | The mock servers of the collection, each with its state and port. **+** creates one. See [Mock servers](/mocks/overview/). |
 
 - Luvin remembers the panel you chose on this computer.
 - A green dot on the **Mock servers** icon means a mock is running, even when another panel is open.
 - With no collection open, there are no icons: the sidebar shows only your collections.
+- Drag the right border of the sidebar to change its width, from 200 to 560 px. Double-click the border to go back to the default width. Luvin remembers it on this computer.
 
-The active environment is also always visible at the top right of the window. See [A tour of the interface](/get-started/interface/#top-bar).
+The active environments are also always visible at the top right of the window. See [A tour of the interface](/get-started/interface/#top-bar).
 
 ## Read the tree
 
@@ -113,13 +114,27 @@ The **+** in the header of **Contracts** (**Add contract**) offers **New OpenAPI
 
 ## The Environments panel
 
-Click the **Environments** icon at the top of the sidebar. Its title shows the name of the open collection.
+Click the **Environments** icon at the top of the sidebar. It has two lists, and a row for the collection variables.
+
+**Global environments**, on top, under the name of the workspace. They apply in every collection of the workspace. See [Global environments](/environments/variable-levels/#global-environments).
+
+- Click a row to use that global environment. Click it again to use none. Its tooltip says **Use this global environment (click again: none)**.
+- On the active one, **Configure** opens the Variables panel, where you edit its values.
+- The **+** in the header (**New global environment**) creates one, makes it active and opens the Variables panel. The first one takes the name of the active collection environment.
+- Double-click a row to rename it. The **⋯** of a row offers **Rename** and **Delete environment…**, which asks *Delete the global environment “intg” and its secrets on this device?*
+- With none, the list says *They apply in every collection of the workspace. Create one with +.*
+
+**Environments**, below, under the name of the open collection:
 
 - The filled dot marks the active environment. A colored dot shows its [color](/environments/manage/#give-it-a-color).
 - Click a row to use that environment and open it. Its tooltip says **Use and open this environment**.
 - On the active one, **Configure** opens it again.
 - The **+** in the header (**New environment**) creates one, makes it active and opens it.
 - The **⋯** of a row offers **Delete environment…**.
+
+At the bottom, **Collection variables** opens the **Variables** tab of the [collection overview](/workspaces/collection-overview/#collection-variables). The number next to it is how many there are.
+
+![The Environments panel of the sidebar: Global environments of the workspace Demo with local, Environments of the collection Shop with local, and Collection variables with 1 var.](/media/en/sidebar-envs-globals.webp)
 
 ## Without a workspace
 

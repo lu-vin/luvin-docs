@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A workflow is a chain of API calls where each step can use data from the previous ones. You build it in the **Design** tab by dragging operations onto a canvas, and Luvin writes the file for you.
+A workflow is a chain of API calls where each step can use data from the previous ones. You build it in the **Design** tab, on a canvas where each step is a card, and Luvin writes the file for you in standard Arazzo.
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-workflow.webp" src="/media/en/design-workflow.mp4"></video>
 
@@ -18,9 +18,9 @@ A workflow is a chain of API calls where each step can use data from the previou
 <Tabs>
   <TabItem label="In the app">
 
-The canvas shows **Start** with the input `pokemon`, then four cards joined by arrows, then **End of workflow**. The second card, `getSpecies`, shows the parameter `idOrName` with the source `getPokemon › id`.
+The canvas shows the green **▶ Start · 1 input**, then four cards, then **■ End of workflow**. The second card shows the parameter `idOrName` with the chip **← id · from 1**: its value is the `id` that step 1 gives.
 
-![The Design tab with the operations palette on the left, the canvas with wired steps in the centre and the step panel on the right](/media/en/builder.webp)
+![The Design tab: the floating toolbar, the canvas with full step cards and the step panel open over the right side](/media/en/builder.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -54,7 +54,7 @@ The canvas shows **Start** with the input `pokemon`, then four cards joined by a
 | **Input** | A value the workflow asks for when it runs, for example the name of a Pokémon. |
 | **Output** | A value a step takes from its response so the next steps can use it. |
 | **Success criterion** | The rule that says a step went well, for example "it responds 200". |
-| **Action** | What happens when a step answers with an error: end, retry or go to another step. |
+| **Route** | What happens after a step: if it fails, or if it passes and a condition holds. It can retry, go to another step, continue in another workflow or end. |
 
 A *contract* is the OpenAPI or AsyncAPI file that describes an API. The [glossary](/reference/glossary/) has every term.
 
@@ -69,69 +69,50 @@ The canvas shows the workflow from top to bottom. **Design** is the tab a workfl
 
 ## The parts of the Design tab
 
-| Area | Where | What it is for |
+The canvas fills the tab. Its tools float over it.
+
+| Part | Where | What it is for |
 |---|---|---|
-| **Operations** palette | Left | Everything you can add: the operations of each contract, **Collection requests**, **Reusables** and **Workflows in this Arazzo**. Search, drag or press **+**. The arrow in its header hides it. |
-| Canvas | Centre | The workflow as cards joined by arrows: **Start** with the inputs, one card per step, and **End of workflow** with the outputs. |
-| Step panel | Right | Opens when you click a card. Here you edit parameters, body, success, errors and outputs. Click an empty spot of the canvas to close it. |
-| Toolbar | Above the canvas | **Undo**, **Redo** and **+ Workflow**. |
+| Toolbar | Top left | **↶ Undo**, **↷ Redo**, **Design** and **Run**, **＋ Step**, search, **⚠ to review**, **\{ \} YAML** and **⋯**. |
+| **View** | Top right | What the canvas draws: the routes, the data lines and whether cards are full or minimized. |
+| Canvas | Centre | **Start**, one card per step and **End of workflow**, from top to bottom. |
+| Step panel | Over the right side | Opens when you click a card, with the tabs **Data**, **Success and routes**, **Authorization** and **Response**. |
+| Zoom and minimap | Bottom | Zoom in and out, **⤢ Fit**, and the map of the whole workflow. |
 
-Drag the dividers between the three areas to resize them. Double-click a divider to go back to the original size.
+Each card shows the full step: its parameters with where each value comes from, its success criteria, its outputs and its routes. A card can be minimized with **–**.
 
-### What a step card shows
+![A full step card: number and title, method and path, Parameters with their chips, Success criteria, Outputs and the On failure section in red](/media/en/design-card.webp)
 
-- Its position in the run and its name. Point at the card to see the arrows **↑** and **↓** that move it.
-- **modifies data** when the operation is a POST, PUT, PATCH or DELETE.
-- The method and path of the operation, and the contract it comes from.
-- **Parameters**: each value and where it comes from. `pokemon` is an input, `getPokemon › id` is an output of another step, and anything else is a fixed value.
-- **Success criteria** and **Outputs**.
-- **On failure**: what happens on each error.
-
-![The card of getPokemon: number and name, method and path, its parameters with their source, its success criteria, its outputs and the On failure section](/media/en/design-card.webp)
-
-### Show: the two layers
-
-Above the canvas, **Show:** has two switches.
-
-| Switch | What it does |
-|---|---|
-| **Actions by response** | Adds the **On failure** section to each card and draws the jumps to other steps. The number is how many actions the workflow defines. |
-| **Data flow** | The number is how many connections carry data from one step to another. In the diagram of the **Overview** tab it shows or hides those lines. In **Design** the data lines are always drawn, because that is where you edit them. |
-
-To the right, the legend explains the dots: green is **success** and orange is **jumps to another step**.
-
-![A card with Actions by response on: the On failure section lists 401 end, 429 retries ×3, 409 go to listProducts and 400 no action](/media/en/design-actions-canvas.webp)
-
-### Move around the canvas
-
-- Drag the background to move. Use the buttons in the corner to zoom in, zoom out and fit the whole workflow in view.
-- Drag a card or the vertical part of a line to tidy the drawing. **Reset layout** appears above the canvas and puts everything back.
-
-<Aside type="note">
-Moving a card sideways only changes the drawing. Moving it above or below another step changes the order of the run. See [Organize a workflow](/design/organize/).
-</Aside>
+[The canvas](/design/canvas/) explains each part, the window controls of the cards, the **View** options, the search and the keyboard shortcuts.
 
 ## In this section
 
 | To do this | Read |
 |---|---|
 | Find how to do a common task, with its YAML | [Common design situations](/design/common-situations/) |
+| Read the canvas and move around it | [The canvas](/design/canvas/) |
 | Start a new workflow | [Create a workflow](/design/create/) |
 | Add calls | [Add steps](/design/add-steps/) |
 | Pass data from one step to the next | [Connect data between steps](/design/wire-data/) |
 | Fill in what a call sends | [Parameters and body](/design/parameters-and-body/) |
 | Keep values from a response | [Outputs](/design/outputs/) |
-| Decide what counts as success and what to do on errors | [Success and errors](/design/success-and-errors/) |
+| Decide what counts as success | [Success and errors](/design/success-and-errors/) |
+| Decide what happens after a step | [Routes: what happens after each step](/design/branches/) |
+| See what the Arazzo would do wrong before running it | [To review](/design/review/) |
+| Go through pages, wait for a job or sign in | [Standard Arazzo patterns](/design/patterns/) |
 | Define something once and use it in several steps | [Reusables](/design/reusables/) |
 | Use one workflow from another | [Workflows that use other workflows](/design/dependencies/) |
+| Copy steps, or turn some into their own workflow | [Copy, duplicate and extract steps](/design/copy-and-extract/) |
 | Send and receive messages | [Messaging steps](/design/messaging/) |
 | Work without contracts | [Build from saved requests](/design/from-requests/) |
-| Reorder, rename, delete, undo | [Organize a workflow](/design/organize/) |
+| Reorder, rename, remove, undo | [Organize a workflow](/design/organize/) |
+| See the file while you design | [The YAML next to the canvas](/design/yaml-side-by-side/) |
 | Edit the file by hand | [The YAML tab](/design/arazzo-editor/) |
 
 ## Next
 
 <CardGrid>
+  <LinkCard title="The canvas" href="/design/canvas/" />
   <LinkCard title="Create a workflow" href="/design/create/" />
   <LinkCard title="Common design situations" description="How to do each common task, with its YAML." href="/design/common-situations/" />
   <LinkCard title="Quick start" description="If you have not run the example yet." href="/get-started/quick-start/" />

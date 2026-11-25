@@ -1,6 +1,6 @@
 ---
 title: Build your first workflow from the contract
-description: Create a workflow in the Pokédex example by dragging two operations onto the canvas, run it in Simulation and against the real API, and read the Arazzo file Luvin wrote.
+description: Create a workflow in the Pokédex example by adding operations to the canvas, run it in Simulation and against the real API, and read the Arazzo file Luvin wrote.
 sidebar:
   order: 1
 ---
@@ -19,9 +19,9 @@ If you have not run the example yet, the [Quick start](/get-started/quick-start/
 ## 2. Create a new workflow
 
 1. In the sidebar, click **Pokemon card** and open the **Design** tab.
-2. Click **+ Workflow** in the toolbar above the canvas.
+2. Click **+** (**Create or import**) to the right of the open tabs, and choose **New workflow in this file**.
 
-A workflow called **New workflow** is added to the same file and opens in **Design**. The canvas says **Drag the first operation here**.
+A workflow called **New workflow** is added to the same file and opens in **Design**. The canvas shows the card **Build your workflow**.
 
 3. Click the name, type `Species lookup` and press Enter. A line under the field shows **id in the Arazzo:** `speciesLookup`.
 
@@ -29,28 +29,27 @@ See [Create a workflow](/design/create/) for more on names and descriptions.
 
 ## 3. Add the first step
 
-The **Operations** palette, on the left, lists the operations of the contract `pokeapi`.
+The empty canvas shows the card **Build your workflow**.
 
-1. Type `pokemon` in **Search operation…**.
-2. Drag `GET /pokemon/{idOrName}` onto the canvas.
+1. Click **Add the first step**, or **＋ Step** at the top left. A search opens with the operations of the contract `pokeapi`.
+2. Type `pokemon/{` in **Search operation…** and click `GET /pokemon/{idOrName}`.
 
-The canvas shows a step called `getPokemon`. Nothing in the workflow provides the value `idOrName`, so Luvin created an input with that name. The **Start** card now lists `idOrName`, and the step uses it. An *input* is a value you give when you run.
+The canvas shows a step called `getPokemon`. Nothing in the workflow provides the value `idOrName`, so Luvin created an input with that name. **Start** now says **1 input**, and the step shows the chip **← idOrName · Start**. An *input* is a value you give when you run.
 
-![The Design tab: the operations palette, the canvas with connected steps and the panel of a step](/media/en/builder.webp)
+![The Design tab: the canvas with the step cards and the panel of a step open over the right side](/media/en/builder.webp)
 
 ## 4. Add the second step and see the wiring
 
-1. Search `species` and drag `GET /pokemon-species/{idOrName}` below `getPokemon`.
-2. Click the new step, `getPokemonSpecies`. Its panel opens on the right.
-3. Under **Parameters**, look at **Path**. The value `idOrName` reads `? getPokemon › id`.
+1. With `getPokemon` selected, click **＋ Step**, type `species` and click `GET /pokemon-species/{idOrName}`. The step goes right after `getPokemon`.
+2. Look at the card of the new step, `getPokemonSpecies`. Under **Parameters**, `idOrName` shows the chip **← id · from 1**, with a `?` in front.
 
-Luvin connected the `id` that `getPokemon` returns to the path of the second step, and added the output `id` to `getPokemon`. The dashed line on the canvas is that data travelling. The `?` means Luvin is less sure about this rule. Here it is right. [Connect data between steps](/design/wire-data/) lists the rules.
+Luvin connected the `id` that `getPokemon` returns to the path of the second step, and added the output `id` to `getPokemon`. With the step selected, a line on the right of the cards goes from that output to the parameter. The `?` means Luvin is less sure about this rule. Here it is right. [Connect data between steps](/design/wire-data/) lists the rules.
 
 ## 5. Add a step that needs a choice
 
-1. Search `type` and drag `GET /type/{idOrName}` below `getPokemonSpecies`.
-2. Click the new step, `getType`. Its `idOrName` reads `? getPokemonSpecies › id`. That is wrong: a type is not a species id.
-3. Open the list under `idOrName` (**Source**) and choose `types/type/name (from a list: you choose which at run time)`, under `getPokemon`.
+1. With `getPokemonSpecies` selected, click **＋ Step**, type `type` and click `GET /type/{idOrName}`.
+2. Click the new step, `getType`. Its `idOrName` shows **← id · from 2**, with a `?`. That is wrong: a type is not a species id.
+3. In the **Data** tab of its panel, open the list under `idOrName` (**Source**) and choose `types/type/name (from a list: you choose which at run time)`, under `getPokemon`.
 
 The `?` disappears. A Pokémon can have several types, so Luvin cannot choose one for you: it will ask when you run.
 
@@ -95,7 +94,7 @@ The run goes on. See [Choose an item from a list](/test/lists/) for what the dia
 
 1. Click the **YAML** tab.
 
-This is the file Luvin wrote while you dragged. It is standard [Arazzo](https://spec.openapis.org/arazzo/latest.html). The part for your first two steps looks like this:
+This is the file Luvin wrote while you added the steps. It is standard [Arazzo](https://spec.openapis.org/arazzo/latest.html). The part for your first two steps looks like this:
 
 ```yaml
 - workflowId: speciesLookup
@@ -135,7 +134,7 @@ The Pokédex is an example saved inside Luvin. To keep your own workflows in fil
 
 ## What you learned
 
-- Dragging an operation creates a step that is already filled in from the contract.
+- Adding an operation creates a step that is already filled in from the contract.
 - Luvin connects the data between steps by rules and marks with `?` the one it is less sure about.
 - A value nobody provides becomes an input.
 - **Simulation** answers from the contract. **Real API** calls the service, and pauses to ask you when a step returns a list that later steps use.

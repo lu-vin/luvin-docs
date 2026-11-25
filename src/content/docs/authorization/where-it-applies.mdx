@@ -36,12 +36,12 @@ Luvin keeps authorization in four places. Each one answers a different question:
     <Steps>
 
     1. Click the name of the collection in the sidebar. The collection overview opens.
-    2. Find the **Authorization** card.
+    2. Click the **Authorization** tab.
     3. Choose a **Type**.
 
     </Steps>
 
-    From a request that inherits, **Configure in the collection** takes you to the same card.
+    From a request that inherits, **Configure in the collection** takes you to the same tab.
   </TabItem>
   <TabItem label="Workflow">
     <Steps>
@@ -71,6 +71,7 @@ Luvin keeps authorization in four places. Each one answers a different question:
 - **One-off call or exploring an API:** the request.
 - **All your saved requests share one login:** the collection, and leave the requests on **Inherit from collection**.
 - **A workflow needs a token that expires or is requested at run time:** the workflow tab with **OAuth 2.0**.
+- **The API has its own login call that returns a token:** a login step in the workflow that gives its token to the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/).
 - **The contract already says what it needs and a pasted token is enough:** the environment credentials.
 
 The collection's authorization is for single requests. A workflow uses it only if an API is set to **Inherit from collection** in the workflow tab.

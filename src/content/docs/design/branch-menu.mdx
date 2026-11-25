@@ -1,167 +1,165 @@
 ---
-title: The branch menu
-description: Each option of the menu that opens from a row of On failure, what it writes in the Arazzo and how to change or remove a branch.
+title: Add or change a route
+description: Open the route editor from the card, the step menu or Start, choose one of the Arazzo actions and check how it looks in Arazzo before you add it.
 sidebar:
   order: 7.2
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The branch menu decides, from the card itself, what the workflow does when a step gets an error. It opens from the rows of **On failure** and has one option per thing the workflow can do: a new step, a jump to a later step, end, retry, or remove what is there.
+The route editor writes every Arazzo action without YAML: retry, renew and retry, go to another step, continue in another workflow and end. It asks for the status or the condition, explains each option in one line and shows how the route looks in Arazzo while you fill it in.
 
-## Example: retry a 404 of getWeakness
+## Example: retry a 503 of getPokemon
+
+The PokéAPI can answer 503 when it is busy. Retry twice, waiting two seconds.
 
 <Steps>
 1. Open **Pokemon card** and click the **Design** tab.
-2. On the card of `getWeakness`, find the row `404 → no action` **fails**.
-3. Click the **+** at the end of the row. A menu opens, titled **If it responds 404**.
-4. Click **Retry (up to 3 times)**.
+2. On the card of `getPokemon`, at the end of **On failure**, click **＋ What to do if it fails**. The editor opens. Its title is the step number and title, followed by **what to do if it fails**.
+3. In **If it responds**, type `503`.
+4. Click **Retry**. The editor shows **Wait** `2` **s, up to** `3` **times**.
+5. Change `3` to `2`.
+6. Check the preview and click **Add**.
 </Steps>
 
+![The route editor of step 1 of Pokemon card: If it responds 503, Retry, Wait 2 s, up to 2 times, and the preview of the onFailure](/media/en/design-route-dialog.webp)
+
+The card gets the row `503 ↻ retries up to 2 · every 2 s`, with a blue loop back into the card. A notice says **Route added.** with **Undo**.
+
 <Tabs>
-<TabItem label="On the card">
+<TabItem label="How it looks in Arazzo (onFailure)">
 
-The row now reads `404 → on404` **retries ×3**. The **+** has become a pencil.
-
-</TabItem>
-<TabItem label="In the YAML">
-
-```yaml title="pokemon.arazzo.yaml" {3-9}
-- stepId: getWeakness
+```yaml title="pokemon.arazzo.yaml"
+- stepId: getPokemon
   # …
   onFailure:
-    - name: on404
+    - name: retry503
       type: retry
-      retryAfter: 1
-      retryLimit: 3
+      retryAfter: 2
+      retryLimit: 2
       criteria:
-        - condition: $statusCode == 404
+        - condition: $statusCode == 503
 ```
 
 </TabItem>
 </Tabs>
 
-## Open the menu
+![The card of getPokemon after adding the route: under On failure, the 404 that ends the workflow and the blue row 503 that retries up to 2 times](/media/en/design-route-card.webp)
 
-The rows are in the section **On failure** of each card. **Actions by response**, above the canvas, must be on to see them. It is on by default.
+## Open the editor
 
-| Row | Button at the end | Tooltip |
+| From | What it opens |
+|---|---|
+| **＋ What to do if it fails**, at the end of **On failure** on the card | A route for when the step fails (`onFailure`). |
+| **＋ Detour if it passes and a condition holds**, on the card | A route for when the step passes and a value of its response holds (`onSuccess`). |
+| **Choose what to do**, on a red row `422 ✕ no route: the workflow fails` | A failure route with that status already filled in. |
+| The pencil at the end of a route row | That route, to change it. Its tooltip says **Change the route**. |
+| **Add route…** in the right-click menu of a card, or the **R** key with a step selected | A failure route for that step. |
+| **＋ What to do if it fails** and **＋ Detour if it passes and a condition holds** in the **Success and routes** tab of the step panel | The same as on the card. |
+| **＋ Rule for every step**, in the panel of **Start** | A rule of the workflow. See [Rules for every step](/design/routes-panel/#rules-for-every-step). |
+
+## 1. Say when the route applies
+
+### If it fails: a status
+
+**If it responds** takes a three-digit status, for example `404`. Next to it, **the contract says:** lists the error statuses the contract declares for the operation. Click one to use it.
+
+You can type any status, also one the contract does not declare. See [A route for any status](/design/branch-other-status/).
+
+### If it passes: a condition on a value
+
+**If the value** lists the outputs of the step. Choose one, and type what it must be next to **is**. It starts with `true`.
+
+For example, with the output `isLegendary` of `getSpecies` and the value `true`, the route applies when the species is legendary. Luvin writes the condition on the response, `$response.body#/is_legendary == true`.
+
+If the step has no outputs, the editor says **The step has no outputs: declare one to use it in the condition.** See [Outputs](/design/outputs/).
+
+<Aside type="note">
+The editor writes equality conditions (`==`). For `!=`, `>`, a `regex`, an `xpath` or several conditions at once, write the route in the [YAML tab](/design/arazzo-editor/). The card and the panel still show it, and you can reorder or remove it.
+</Aside>
+
+## 2. Choose what to do
+
+Under **What to do**, each option says what it is for.
+
+| Option | What it does | Offered |
 |---|---|---|
-| A documented error with no action: `404 → no action` **fails** | **+** | **What to do if it responds 404** |
-| A status with an action: `404 → on404` **end ✕** | A pencil | **Change what to do if it responds 404** |
-| A status the contract does not document | **+ If it responds another status…**, at the end of the section | See [Statuses the contract doesn't document](/design/branch-other-status/) |
+| **Retry** | *Calls the same step again, with a wait and a limit. For 429, 500 or 503.* | On failure |
+| **Renew and retry** | *Runs another workflow (the login, for example) and retries the step. For 401.* | On failure, when there is another workflow |
+| **Go to another step** | *Jumps to a step of this workflow, forward or back.* | On a step, not in a rule |
+| **Continue in another workflow** | *Hands control to another workflow, from this file or another. It does not come back.* | When there is another workflow |
+| **End the workflow** | *Ends here (End). The workflow ends as failed.* | On failure |
+| **End successfully** | *Ends here (End) even if steps remain.* | If it passes |
 
-The menu opens below the button. It closes when you choose an option, press **Esc**, click outside it or scroll the canvas.
+After you choose, the editor asks only for what that option needs. **change**, next to the option, goes back to the list.
 
-![The card of getProduct with the row 404 → no action fails and its + menu open: If it responds 404, + A new step…, Go to “Create order”, End the workflow and Retry (up to 3 times)](/media/en/design-branch-menu.webp)
+### Retry
 
-Some rows have no button:
+**Wait** `2` **s, up to** `3` **times**. Change both numbers as you need. Luvin waits at most 10 seconds between two tries against the real API, even if you write more, and does not wait in simulation.
 
-- A row that groups several statuses, or one with no status, such as `other error`.
-- A row of `onSuccess`, such as `success → done` **end ✓**.
-- Any row of a step that calls another workflow, of a messaging step or of a step whose operation is not in a contract.
+### Renew and retry
 
-Edit those in the [YAML tab](/design/arazzo-editor/).
+- **First, run**: the workflow to run before the retry, from this file or from another Arazzo file of the collection. Each option shows its name and where it is.
+- **Retry up to** `1` **times**.
 
-## The options, one by one
+It writes a `retry` with `workflowId` and `retryAfter: 0`. The outputs of that workflow are available to the step when it is called again. Runnable example: [Log in and use the token](/recipes/login-token/).
 
-The menu lists its options in this order. Each option except **+ A new step…** is a single change: **Undo** above the canvas, or ⌘Z (Ctrl+Z), reverts it.
+### Go to another step
 
-### + A new step…
+**Go to step** lists the other steps of the workflow, with their number and title. A step above makes a loop: the row says **goes back to step 1 · …**, and [To review](/design/review/) warns if nothing on the response stops it.
 
-Adds a step that runs only for this response and connects it to the branch. It opens a dialog with the palette, puts the step at the end of the workflow and ends the happy path before it. It is the first option and has the focus when the menu opens.
+On a failure route with a status, **or a new step…** adds a step only for that response. See [A new step for a route](/design/branch-new-step/).
 
-Read [A new step for an error](/design/branch-new-step/) for the whole flow.
+### Continue in another workflow
 
-### Go to “step”
+**Continue in** lists the workflows of this file and of the other Arazzo files of the collection. The canvas draws an exit box **Continues in «…»** next to the end.
 
-One option per step that comes **after** this one, with its name in words: for `getWeakness`, the menu of `getSpecies` shows **Go to “Get weakness”**. The last step of a workflow has none.
+When you pick a workflow from another file, Luvin adds that file to the sources of this Arazzo, of type `arazzo`, and writes `workflowId: $sourceDescriptions.<source>.<workflow>`.
 
-The run jumps to that step and goes on from there, skipping the steps in between.
+### End the workflow, End successfully
 
-```yaml {3-5}
-onFailure:
-  - name: on404
-    type: goto
-    stepId: getWeakness
-    criteria:
-      - condition: $statusCode == 404
-```
+Nothing more to fill in. The note says where the arrow goes: **The arrow will go to End. The workflow ends here as failed.**, or, for a route on success, **The arrow will go to End. The workflow ends successfully even if steps remain.**
 
-The row reads `404 → on404` **go to getWeakness**, and an orange dashed line runs along the left from the row to the card of `getWeakness`.
+### Apply a reusable instead
 
-To jump to an earlier step, for example to poll until something is ready, use the step panel: its list offers every other step of the workflow. A loop that runs more than 200 steps stops with **The run was stopped: possible infinite loop of goto/retry actions.**
+On a failure route of a step, when the file has reusable error actions for that status, the list ends with **Or apply a reusable:** and one button per reusable, marked ♻. Clicking one applies it to the step and closes the editor. See [Reusables](/design/reusables/).
 
-### End the workflow
+## 3. Check it and add it
 
-The run stops at this step as a known outcome. The steps below do not run.
-
-```yaml {3}
-onFailure:
-  - name: on404
-    type: end
-    criteria:
-      - condition: $statusCode == 404
-```
-
-The row reads `404 → on404` **end ✕**. In the results, the step shows **↪ End of workflow (action "on404")**.
-
-### Retry (up to 3 times)
-
-The run calls the step again. The menu always writes the same defaults:
-
-| Field | Value | Meaning |
-|---|---|---|
-| `retryAfter` | `1` | Seconds to wait before each try. With the real API, Luvin never waits more than 10 seconds. In Simulation it does not wait. |
-| `retryLimit` | `3` | Tries after the first call. If all fail, the step fails and the results say **The 3 retries were exhausted**. |
-
-The row reads `404 → on404` **retries ×3**. To use other numbers, change them in the YAML tab, or save the action as a [reusable](/design/reusables/), whose panel has both fields. See [Retries and slow calls](/design/success-and-errors/#retries-and-slow-calls).
-
-### Remove the branch
-
-Shows only when the status already has an action. It removes the action that handles `404`, whatever its name: `on404`, one you wrote by hand such as `pokemonNotFound`, or a reusable whose criterion is `$statusCode == 404`. If the step has no other action on failure, `onFailure` goes away too. The row goes back to `404 → no action` **fails**, or disappears if the contract does not document that status.
-
-It does not remove a step created with **+ A new step…**, nor the `done` that came with it. See [Remove a branch to a new step](/design/branch-new-step/#remove-a-branch-to-a-new-step).
-
-## Change a branch
+**How it looks in Arazzo (onFailure)**, or `onSuccess`, `failureActions` or `successActions`, shows the route as it will be written, with its name. While something is missing, it says **The condition or the target is missing.** and **Add** stays off.
 
 <Steps>
-1. Click the pencil of the row. The same menu opens, now with **Remove the branch** at the end.
-2. Choose another option.
+1. Read the preview.
+2. Click **Add** for a new route, or **Save** when you changed one.
 </Steps>
 
-Luvin replaces the action that handles that status in its place in the list, so its position does not change. An action with another name, such as `pokemonNotFound` in `getPokemon`, keeps its name: the row reads `404 → pokemonNotFound` **retries ×3**. A reusable becomes an action of its own named `on404`; the reusable stays in **Reusables** for the other steps that use it.
+A notice says **Route added.** or **Route changed.**, with **Undo**. You can also undo with ⌘Z (Ctrl+Z).
 
-## The menu and the step panel
+### Names
 
-Both write the same action. Each one has something the other does not:
+Luvin names each new route from what it does: `on404` (go to a step or end), `retry503`, `renew401`, or `if` plus the field for a condition on success, such as `ifIs_legendary`. If the name is taken in the same list, it adds `_2`, `_3`… When you change a route, it keeps its name, also a name you wrote yourself.
 
-| | Card menu | Step panel |
-|---|---|---|
-| Where | **On failure**, on the card | **If it responds with an error**, in the panel |
-| A new step for the error | **+ A new step…** | No |
-| Go to | Only later steps | Any other step, earlier ones too |
-| Reusable actions | No | A **Reusables** group, when one handles that status |
-| Statuses the contract does not document | **+ If it responds another status…** | Only those that already have an action |
-| No action | **Remove the branch** | **No action (the workflow fails)** |
+### One route per condition
 
-## Troubleshooting
+Arazzo takes the first route whose conditions hold. A second route with the same condition would never run, so when you add a route for a status that already has one, Luvin replaces that route in its place instead of adding another.
 
-**The action of a status changed its name.** It was a reusable: changing the branch replaces the reference with an action of the step, named `on404`. Undo with ⌘Z if you wanted to change the reusable for every step instead; open it in **Reusables**.
+## Change or remove a route
 
-**The row has no + or pencil.** See the list in [Open the menu](#open-the-menu). Check also that you are in the **Design** tab: the diagram of the **Overview** tab only shows the branches.
+<Steps>
+1. Click the pencil at the end of the row, on the card or in the **Success and routes** tab of the step panel.
+2. Change the status, the condition, the option or its fields. The preview updates.
+3. Click **Save**, or **Remove the route** to delete it.
+</Steps>
 
-**The menu has no Go to option.** The step is the last one, so there is no later step. Use the step panel to jump to an earlier one.
+**Remove the route** shows **Route removed.** with **Undo**. To change the order in which routes are checked, use the ↑ ↓ arrows of the Routes panel: see [The Routes panel and rules for every step](/design/routes-panel/).
 
-<Aside type="tip">
-Each branch also gets a generated case that simulates that response, for example **getWeakness responds 404 → on404**. Run it to check the branch without making the API fail. See [Cases](/test/cases/).
-</Aside>
+To close the editor without changes, click **Cancel**.
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="Error branches" href="/design/branches/" />
-  <LinkCard title="A new step for an error" href="/design/branch-new-step/" />
-  <LinkCard title="Statuses the contract doesn't document" href="/design/branch-other-status/" />
-  <LinkCard title="Success and errors" href="/design/success-and-errors/" />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="The Routes panel and rules for every step" href="/design/routes-panel/" />
+  <LinkCard title="A new step for a route" href="/design/branch-new-step/" />
+  <LinkCard title="Retry, jump and end on errors" href="/recipes/error-branches/" />
 </CardGrid>

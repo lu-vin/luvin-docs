@@ -1,24 +1,24 @@
 ---
-title: Ramas de error
-description: Qué es una rama, cómo sigue una ejecución después de cada tipo de acción en Arazzo y dónde se crean y se leen las ramas en Luvin.
+title: "Rutas: qué pasa después de cada paso"
+description: Qué es una ruta, cómo avanza una ejecución después de cada acción de Arazzo y cómo el lienzo dibuja cada ruta con su color y su destino real.
 sidebar:
   order: 7.1
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Una rama dice qué hace el workflow cuando un paso recibe una respuesta concreta, por ejemplo «si `getSpecies` responde 404, termina el workflow». Sin una rama, cualquier error detiene el workflow con una falla genérica. Agrega una rama para cada error que tu aplicación trata distinto, así el resultado es conocido y queda probado.
+Una ruta dice qué hace el workflow después de un paso, según cómo le fue. Por ejemplo: "si `getPokemon` responde 404, termina el workflow", o "si el Pokémon es legendario, ve al paso 4". Sin rutas, un paso que pasa sigue al siguiente, y un paso que falla detiene el workflow con un fallo genérico.
 
-Esta página explica cómo avanza una ejecución de un paso a otro. Las páginas que siguen muestran cómo crear cada rama desde el lienzo.
+En Arazzo, las rutas son las acciones de un paso (`onSuccess` y `onFailure`) y las reglas del workflow (`successActions` y `failureActions`). El lienzo las muestra todas, y Luvin las escribe por ti como Arazzo estándar.
 
-## Ejemplo: terminar ante un 404
+## Ejemplo: terminar con un 404
 
-En **Pokemon card**, `getPokemon` ya tiene una rama: cuando el Pokémon no existe, el workflow termina ahí en vez de fallar.
+En **Pokemon card**, `getPokemon` ya tiene una ruta: cuando el Pokémon no existe, el workflow termina ahí.
 
 <Tabs>
 <TabItem label="En el lienzo">
 
-La tarjeta de `getPokemon`, en la pestaña **Diseño**, tiene una sección **Si falla** con la fila `404 → pokemonNotFound` **fin ✕**.
+La tarjeta de `getPokemon`, en la pestaña **Diseño**, tiene una sección **Si falla** con la fila `404 → termina el workflow (Fin) como fallido`. Una flecha roja punteada sale de esa fila y baja por la izquierda hasta **Fin del workflow**.
 
 </TabItem>
 <TabItem label="En el YAML">
@@ -36,80 +36,133 @@ La tarjeta de `getPokemon`, en la pestaña **Diseño**, tiene una sección **Si 
 </TabItem>
 </Tabs>
 
-## Cómo avanza una ejecución por los pasos
+## Cómo avanza una ejecución
 
-En Arazzo, un paso tiene éxito o falla:
+Un paso **pasa** cuando se cumplen todos sus criterios de éxito, por ejemplo `$statusCode == 200`. **Falla** cuando alguno no se cumple, por ejemplo porque la API respondió 404.
 
-- **Tiene éxito** cuando se cumplen todos sus criterios de éxito, por ejemplo `$statusCode == 200`.
-- **Falla** cuando un criterio no se cumple, por ejemplo porque la API respondió 404.
+Después, la ejecución mira las rutas del paso:
 
-Luego la ejecución mira las acciones del paso. Después de un éxito lee `onSuccess`; después de una falla lee `onFailure`. Toma la **primera** acción de la lista cuyos criterios se cumplen todos, y hace lo que esa acción dice. Una acción sin criterios vale para cualquier respuesta.
+- Si pasó, lee `onSuccess`. Si falló, lee `onFailure`.
+- Las revisa **en orden** y toma la **primera** cuyas condiciones se cumplen todas. Una ruta sin condiciones sirve para cualquier respuesta.
+- Si ninguna ruta propia del paso aplica, usa las reglas del workflow, de la misma forma.
 
-| El paso | Acción que se aplica | Qué hace la ejecución después |
+| El paso | Ruta que aplica | Qué hace la ejecución después |
 |---|---|---|
-| Tiene éxito | Ninguna | Sigue con el siguiente paso de la lista. Después del último, el workflow termina. |
-| Tiene éxito | `end` | Termina el workflow aquí. Los pasos de abajo no se ejecutan. |
-| Tiene éxito | `goto` | Salta al paso que nombra. |
+| Pasa | Ninguna | Sigue al paso siguiente. Después del último, el workflow termina. |
+| Pasa | Terminar (`end`) | Termina el workflow aquí, con éxito. Los pasos de abajo no se ejecutan. |
+| Pasa | Ir a otro paso (`goto` + `stepId`) | Salta a ese paso y sigue desde ahí. |
 | Falla | Ninguna | Se detiene. El workflow falla con el error del paso. |
-| Falla | `end` | Se detiene en este paso, como un resultado conocido. Los pasos de abajo no se ejecutan. |
-| Falla | `retry` | Llama al paso otra vez, hasta `retryLimit` veces. Si sigue fallando, el workflow falla. |
-| Falla | `goto` | Sigue desde el paso que nombra y, desde ahí, sigue el orden de la lista. |
+| Falla | Terminar (`end`) | Se detiene en este paso. El workflow queda como fallido, con un motivo conocido. |
+| Falla | Reintentar (`retry`) | Vuelve a llamar al paso, hasta `retryLimit` veces, esperando `retryAfter` segundos. Si sigue fallando, el workflow falla. |
+| Falla | Ir a otro paso (`goto` + `stepId`) | Salta a ese paso, anterior o posterior, y sigue desde ahí. |
+| Cualquiera | Seguir en otro workflow (`goto` + `workflowId`) | Pasa el control a ese workflow. No vuelve: el resultado de ese workflow es el de este. |
+| Falla | Renovar y reintentar (`retry` + `workflowId`) | Ejecuta antes otro workflow, por ejemplo el login, y vuelve a llamar al paso. |
 
-De esto salen dos reglas, y Luvin las aplica por ti cuando armas ramas en el lienzo:
+De aquí salen dos cosas:
 
-- **El orden de la lista es el orden de la ejecución.** Un paso puesto después del último paso del camino feliz igual se ejecuta después de él, salvo que algo termine la ejecución antes. Por eso Luvin agrega una acción llamada `done` cuando pone un paso al final para un error. Mira [Un paso nuevo para un error](/es/design/branch-new-step/).
-- **Un salto no vuelve.** Cuando el destino de un `goto` tiene éxito, la ejecución sigue con el paso que está debajo del destino, no con el paso que saltó.
+- **El orden de los pasos es el orden de la ejecución.** Un paso que está después del último del camino feliz igual se ejecuta después de él, salvo que algo termine antes la ejecución. Por eso Luvin agrega una acción llamada `done` cuando pone un paso al final para una ruta. Ver [Un paso nuevo para una ruta](/es/design/branch-new-step/).
+- **Un salto no vuelve.** Cuando el destino de un `goto` pasa, la ejecución sigue con el paso que está debajo del destino, no con el paso que saltó.
 
-### Qué ves en los resultados
+## Las rutas en la tarjeta
 
-| Qué pasó | Línea bajo el paso |
+Cada tarjeta muestra sus rutas en dos secciones, en el orden del Arazzo:
+
+| Sección | Qué muestra |
 |---|---|
-| Se activó una acción `end` | **↪ Fin del workflow (acción "pokemonNotFound")** |
-| Se activó una acción `goto` | **↪ Va al paso "listPokemon" (acción "on404")** |
-| Se activó una acción `retry` | **↪ Reintento 1 de 3 (acción "on429")** |
-| Fallaron todos los reintentos | **↪ Se agotaron los 3 reintentos** |
+| **Si pasa y se cumple** (verde) | Desvíos para cuando el paso pasa y además se cumple una condición de su respuesta (`onSuccess`). Si ninguna se cumple, sigue al paso siguiente. |
+| **Si falla** (roja) | Qué hace el workflow cuando el paso no cumple sus criterios de éxito (`onFailure`). |
 
-Los pasos que no se ejecutaron dicen por qué:
+Cada fila es una ruta: el status o la condición, una flecha y lo que hace, en palabras. Por ejemplo:
 
-| Por qué | Mensaje |
+| Fila | Qué significa |
 |---|---|
-| Un paso anterior falló, o un `end` lo detuvo después de un error | **No se ejecutó porque el paso "getPokemon" falló.** |
-| Un `end` o un `goto` los saltó en una ejecución que salió bien | **No se ejecutó: el workflow terminó antes por una acción end/goto.** |
+| `404 → termina el workflow (Fin) como fallido` | Con un 404, el workflow termina aquí. |
+| `429 ↻ reintenta hasta 3 · cada 2 s` | Con un 429, se vuelve a llamar al paso. |
+| `401 ↻ ejecuta «Login» y reintenta (hasta 1)` | Con un 401, se ejecuta el workflow `login` y después se vuelve a llamar al paso. |
+| `409 → va al paso 2 · List products` | Con un 409, la ejecución salta al paso 2. |
+| `éxito → termina con éxito (Fin)` | Cuando el paso pasa, el workflow termina. |
+| `500 ✕ sin ruta: el workflow falla` | El contrato dice que la API puede responder 500 y nada lo maneja. |
 
-Una ejecución que da vueltas con saltos o reintentos más de 200 veces se detiene con **Se detuvo la ejecución: posible ciclo infinito de acciones goto/retry.**
+Una fila que viene de un [reutilizable](/es/design/reusables/) empieza con ♻. Pasa el ratón por el título de una sección para leer qué significa.
 
-## Qué puedes armar desde el lienzo
+### Status sin ruta
 
-| Tipo de rama | Dónde | Lee |
+Cada status que el contrato declara para la operación y que ninguna ruta ni regla maneja aparece como una fila roja: `422 ✕ sin ruta: el workflow falla`, con el botón **Elegir qué hacer**. Abre el editor de rutas con ese status ya puesto. Ver [Agregar o cambiar una ruta](/es/design/branch-menu/).
+
+No hace falta manejarlos todos. Maneja las respuestas que tu aplicación trata distinto, como "no encontrado" o "no aprobado". Estas filas también se cuentan en [Por revisar](/es/design/review/) como **sin ruta**.
+
+### Reglas para todos los pasos
+
+Cuando el workflow tiene reglas, la sección **Si falla** de cada tarjeta termina con una línea como **Si nada de esto aplica, usa las reglas de Inicio (429)**. **reglas de Inicio** es un enlace: abre el panel de **Inicio**, donde están las reglas. Ver [El panel Rutas y las reglas para todos los pasos](/es/design/routes-panel/#reglas-para-todos-los-pasos).
+
+## Las flechas
+
+Cada ruta tiene una flecha que sale de su fila, va por el lado **izquierdo** de las tarjetas y entra a su destino real. Las líneas de datos van por la derecha: la izquierda es control y la derecha, datos. Las flechas no llevan etiqueta: la fila dice qué hace la ruta.
+
+| Escenario | Color | Adónde llega la flecha |
 |---|---|---|
-| Terminar, reintentar o ir a un paso posterior, para un estado que documenta el contrato | El **+** o el lápiz de una fila de **Si falla** | [El menú de una rama](/es/design/branch-menu/) |
-| Lo mismo, para un estado que el contrato no documenta | **+ Si responde otro status…** | [Estados que el contrato no documenta](/es/design/branch-other-status/) |
-| Un paso nuevo solo para esa respuesta | **+ Un paso nuevo…** en el menú | [Un paso nuevo para un error](/es/design/branch-new-step/) |
-| Terminar, reintentar o ir a cualquier paso, también a los anteriores | El panel del paso, **Si responde con error** | [Éxito y errores](/es/design/success-and-errors/) |
-| Acciones de éxito, acciones que dependen de un campo de la respuesta, varios estados en una acción | La pestaña **YAML** | [La pestaña YAML](/es/design/arazzo-editor/) |
+| Sigue al paso siguiente | Gris, el eje | La tarjeta siguiente |
+| Pasa y se cumple una condición | Verde | El paso destino, o **Fin del workflow** si termina |
+| Falla y va a otro paso o termina | Roja, punteada | El paso destino, o **Fin del workflow** |
+| Reintenta | Azul | Un lazo que vuelve a la misma tarjeta |
+| Sigue en otro workflow | Ámbar | Una salida junto al final, **Sigue en «…»** |
 
-Cada rama que creas con el menú de la tarjeta o con las acciones del panel del paso, salvo un reutilizable, se escribe igual: una acción llamada `on` seguido del estado, como `on404`, con el criterio `$statusCode == 404`. Cuando cambias una rama que ya tenía una acción con otro nombre, Luvin conserva ese nombre.
+**Ver → Rutas**, arriba a la derecha del lienzo, tiene la misma leyenda, con la línea **La API puede responderlo y no hay ruta: el workflow falla** para los status sin ruta. Desmarca **Mostrar las rutas** para ocultar las secciones y las flechas cuando solo quieras leer los datos. El menú del clic derecho del lienzo hace lo mismo con **Ocultar las acciones según la respuesta**.
+
+### Seguir en otro workflow
+
+Una ruta de tipo `goto` con `workflowId` no apunta a un paso de este workflow. El lienzo dibuja una salida debajo de **Fin del workflow**, por ejemplo:
+
+> **↗ Sigue en «Suggest name»**
+> workflow de este archivo · desde el paso 1 si 404 · no vuelve
+
+Si el workflow está en otro archivo Arazzo, la salida dice **otra fuente:** y el nombre de esa fuente.
+
+![El 404 del paso 4 sigue en Browse products: una flecha ámbar desde esa fila hasta la caja ↗ Sigue en «Browse products», debajo del Fin del workflow](/media/es/design-route-exit.webp)
+
+### Bucles
+
+Una ruta puede volver a un paso anterior, o al mismo. Arazzo no le pone límite. La fila lo dice, por ejemplo **vuelve al paso 1 · Consulta el Pokémon (el runner corta a las 200 ejecuciones)**. Una ejecución que da demasiadas vueltas con saltos o reintentos se detiene con **Se detuvo la ejecución: posible ciclo infinito de acciones goto/retry.**
+
+Cuando un bucle depende solo del status, [Por revisar](/es/design/review/) lo avisa. Un bucle que mira un campo de la respuesta, como una paginación que para cuando ya no hay página siguiente, es la forma normal de repetir un paso en Arazzo y no se avisa. Ver [Patrones de Arazzo estándar](/es/design/patterns/).
 
 <Aside type="note">
-Solo los pasos de operación tienen ramas en el lienzo. Un paso que llama a otro workflow, un paso de mensajería (un mensaje no tiene estado) y un paso cuya operación no está en ningún contrato de la colección no tienen **+** en **Si falla**.
+Un paso que llama a otro workflow no tiene **＋ Qué hacer si falla** en su tarjeta: usa **Agregar ruta…** en su menú del clic derecho. Un paso de mensajería tampoco lo tiene, porque un mensaje no tiene status. Sus rutas dependen del mensaje y se escriben en la pestaña YAML. Ver [Pasos de mensajería](/es/design/messaging/).
 </Aside>
 
-## Dónde lees las ramas
+## Dónde agregas y cambias rutas
 
-<Steps>
-1. **En la tarjeta.** Con **Acciones según la respuesta** activado, sobre el lienzo, cada tarjeta lista sus ramas y los errores documentados sin acción. Un salto se dibuja como una línea naranja punteada. Mira [Mira las acciones en el lienzo](/es/design/success-and-errors/#mira-las-acciones-en-el-lienzo).
-2. **En el panel del paso.** **Si responde con error** lista una fila por estado, con la acción elegida.
-3. **En la pestaña Resumen.** **Cobertura de respuestas** dice, para cada estado que documenta el contrato, si algo lo maneja.
-4. **En la pestaña Casos.** Cada rama recibe su propio caso generado, por ejemplo **getSpecies responde 404 → on404**, que simula esa respuesta y comprueba que la acción se active. Mira [Casos](/es/test/cases/).
-</Steps>
+| Para esto | Dónde | Lee |
+|---|---|---|
+| Agregar una ruta para un status, o para una condición sobre la respuesta | **＋ Qué hacer si falla** y **＋ Desviar si pasa y se cumple una condición** en la tarjeta, **Agregar ruta…** (R) en el menú del paso | [Agregar o cambiar una ruta](/es/design/branch-menu/) |
+| Usar un status que el contrato no declara | Escríbelo en **Si responde** | [Una ruta para cualquier status](/es/design/branch-other-status/) |
+| Llevar una respuesta a un paso que se ejecuta solo para ella | **o un paso nuevo…** en el editor de rutas | [Un paso nuevo para una ruta](/es/design/branch-new-step/) |
+| Ordenar, cambiar o quitar rutas; reglas para todos los pasos | La pestaña **Éxito y rutas** del panel del paso, y el panel de **Inicio** | [El panel Rutas y las reglas para todos los pasos](/es/design/routes-panel/) |
+| Repetir un paso hasta que no haya más páginas, o hasta que un trabajo termine | **＋ Paso → Patrones · Arazzo estándar** | [Patrones de Arazzo estándar](/es/design/patterns/) |
+| Condiciones con `regex`, `xpath` o varios valores a la vez | La pestaña **YAML** | [La pestaña YAML](/es/design/arazzo-editor/) |
 
-![Tarjetas en el lienzo con Acciones según la respuesta encendido: getProduct tiene 404 → on404 ir a openTicket, con una línea naranja discontinua hasta openTicket, y createOrder tiene éxito → done fin ✓ y 409 → sin acción falla](/media/es/design-branch-done.webp)
+## Qué ves al ejecutar
+
+Después de una ejecución, la flecha de la ruta que tomó el caso se anima y las demás se apagan. Su fila dice **tomada**, y los pasos que saltó dicen **saltado (ruta del paso 2)**. Ver [Resultados en el lienzo](/es/test/run-on-canvas/). Para que una ruta se ejecute sin llamar a la API, usa **▷ Probar** en su fila: ver [Probar rutas y cobertura](/es/test/probe-routes/).
+
+En los resultados, cada ruta que se activó deja una línea debajo de su paso:
+
+| Qué pasó | Línea debajo del paso |
+|---|---|
+| Se activó una ruta `end` | **Fin del workflow (acción "pokemonNotFound")** |
+| Se activó una ruta `goto` | **Va al paso "listPokemon" (acción "on404")** |
+| Se activó una ruta `retry` | **Reintento 1 de 3 (acción "retry429")** |
+| Fallaron todos los reintentos | **Se agotaron los 3 reintentos** |
+
+Los pasos que no se ejecutaron dicen por qué: **No se ejecutó porque el paso "getPokemon" falló.**, o **No se ejecutó: el workflow terminó antes por una acción end/goto.** en una ejecución que salió bien.
+
+Cada ruta también te da una prueba: la pestaña **Casos** tiene un caso generado para ella, como **getSpecies responde 404 → on404**, que simula esa respuesta y comprueba que la ruta se active. Ver [Casos](/es/test/cases/).
 
 ## Relacionado
 
 <CardGrid>
-  <LinkCard title="El menú de una rama" href="/es/design/branch-menu/" />
-  <LinkCard title="Un paso nuevo para un error" href="/es/design/branch-new-step/" />
-  <LinkCard title="Insertar un paso" href="/es/design/insert-step/" />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" />
+  <LinkCard title="El panel Rutas y las reglas para todos los pasos" href="/es/design/routes-panel/" />
+  <LinkCard title="Por revisar" href="/es/design/review/" />
   <LinkCard title="Reintenta, salta y termina ante errores" href="/es/recipes/error-branches/" />
 </CardGrid>

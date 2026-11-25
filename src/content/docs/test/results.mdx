@@ -9,6 +9,8 @@ import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs
 
 The results of a run show, for every case, whether it did what was expected and why. They open on their own when you run, at the bottom of the workflow.
 
+In the **Design** tab the run is drawn on the canvas instead, with a result bar over it, and these full results open with **Results ▴**. See [Results on the canvas](/test/run-on-canvas/).
+
 ## Example: Pokemon card
 
 After a run of **Pokemon card** in **Simulation**, the results show a summary and one row per case.
@@ -48,7 +50,7 @@ Before the first run, the bar says *This workflow hasn't run yet*. After a run, 
 
 | Element | What it does |
 |---|---|
-| **Result**, with an arrow | Collapses the results into a bar, or shows them again. They open again every time you run. |
+| **Result**, with an arrow | Collapses the results into a bar, or shows them again. They open again every time you run, except in the **Design** tab. |
 | ✓ ✕ ! ? with a number | How many cases passed, failed, ended in a warning or were inconclusive. |
 | *3 of 5 cases run.* | The progress of the run. |
 | **Rerun** | Runs the selected cases again, like the **Run** button. |
@@ -58,6 +60,8 @@ Before the first run, the bar says *This workflow hasn't run yet*. After a run, 
 Drag the border between the workflow and the results to resize them.
 
 Each workflow keeps the results of its last run. A new run of that workflow replaces them.
+
+A route probe and a partial run (only, up to or from a step) add one more case to the list, with ▷ at the start of its name, for example **▷ Probe: 404 → pokemonNotFound** or **▷ Only step 2 · Happy path**. The other cases keep their results, and these runs are not saved in the history. See [Probe routes and coverage](/test/probe-routes/) and [Debug a workflow](/test/debug/).
 
 ## The summary
 
@@ -147,6 +151,7 @@ In the **Simple (product)** interface, steps show readable names and the technic
 ## Next
 
 <CardGrid>
+  <LinkCard title="Results on the canvas" description="The run on each step card, and the comparison with the previous one." href="/test/run-on-canvas/" />
   <LinkCard title="Read a step result" description="Request, response, criteria and failures." href="/test/step-results/" />
   <LinkCard title="Reports" description="Share the results." href="/test/reports/" />
 </CardGrid>

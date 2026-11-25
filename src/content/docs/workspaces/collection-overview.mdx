@@ -1,15 +1,15 @@
 ---
 title: The collection overview
-description: What each card of the collection overview shows, how to open it, and what the numbers on Home count.
+description: The collection view, organized in tabs like Postman (Overview, Authorization, Scripts and Variables), with its documentation on the side, and what the numbers on Home count.
 sidebar:
   order: 8
 ---
 
 import { Steps, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The collection overview is one page that summarizes a collection: where it is, its version, its authorization, its environments, workflows and contracts. Open it when you join a project, or when you hand a collection to someone else.
+The collection view is the place for everything that belongs to a whole collection: its summary, the authorization its requests inherit, its scripts and its variables. It is organized in tabs, as in Postman, and its documentation stays on the right. Open it when you join a project, or when you hand a collection to someone else.
 
-![The overview of a collection, with its cards on the left and its documentation on the right](/media/en/collection-overview.webp)
+![The overview of a collection, with its tabs on the left and its documentation on the right](/media/en/collection-overview.webp)
 
 ## Open it
 
@@ -19,21 +19,68 @@ Use any of these:
 - In the sidebar, click the name of a collection, or open its **⋯** menu and choose **Collection overview**.
 - Click the tab with the collection name, if it is already open.
 
-The overview opens in a tab named after the collection. The **Documentation** panel on the right is explained in [Write documentation](/workspaces/documentation/).
+The view opens in a tab named after the collection, on **Overview**. Some links open it on another tab: the collection's authorization from a workflow, or **Collection variables** in the **Environments** panel of the sidebar, which opens **Variables**.
 
-## The cards
+## The header
 
-| Card | What it shows and does |
+At the top, the name of the collection and three buttons:
+
+| Button | What it does |
 |---|---|
-| **Location** | The folder of the collection. **Show in Finder** (**Show in file explorer**) opens it in your file manager. **Open in Terminal** opens a terminal there. The collections of the bundled examples live in a folder of the app data on this computer, so these links work for them too. |
-| **Version** | The version your team gives the collection, or **Not set**. See [Set the version](/workspaces/collections/#set-the-version). |
-| **Authorization** | The authorization of the requests set to **Inherit from collection**. See [Collection authorization](/workspaces/collection-authorization/). |
-| **Environments** | The environments with their colors, and the link `2 environment(s) · configure`, which opens the active one. |
-| **Workflows** | How many workflows, Arazzo files and test cases, for example `4 workflow(s) in 1 Arazzo file(s) · 12 test case(s)`. After you run cases it adds the last run: ✓ passed, ✕ failed, ! warning, ? inconclusive. Links open the first six workflows. |
-| **Contracts** | How many contracts loaded, for example `3 of 3 loaded`, and a link to each one. |
-| **Share** | A reminder that the collection is a folder you can share with git, and **Copy path**. |
+| **Show in Finder** (**Show in file explorer** on Windows) | Opens the collection folder in your file manager. |
+| **Open in Terminal** | Opens a terminal in that folder. It is hidden in the Simple interface. |
+| **Copy path** | Copies the path of the folder. The button says **✓ Copied** for a moment. |
+
+The collections of the bundled examples live in a folder of the app data on this computer, so these buttons work for them too.
+
+## The tabs
+
+| Tab | What it has |
+|---|---|
+| **Overview** | A summary of the collection. See below. |
+| **Authorization** | The authorization that requests set to **Inherit from collection** use. See [Collection authorization](/workspaces/collection-authorization/). |
+| **Scripts** | Scripts that run in every request of the collection: before the scripts of each folder and of the request, and after each response in the same order. See [Scripts](/requests/scripts/). |
+| **Variables** | The collection variables: values that are the same in all its environments. See [Collection variables](#collection-variables). |
+
+A dot next to **Authorization**, **Scripts** or **Variables** means that tab has something set, as in Postman. For example, the dot on **Authorization** appears as soon as you choose a type other than **No Auth**.
+
+## Overview
+
+From top to bottom:
+
+- **The name and the folder.** The path fits in one line. If it is long, the start is cut, so you always see the end of it. Point at it to read the whole path.
+- **The version.** Click **Set version** (or the version, if there is one), type it and click **Save**. Esc cancels. See [Set the version](/workspaces/collections/#set-the-version).
+- **The counts**: how many requests, workflows, contracts and environments the collection has.
+- **Workflows.** One row per workflow, with its number of steps. Click a row to open the workflow. Below, a line such as `4 workflow(s) in 1 Arazzo file(s) · 12 test case(s)`. After you run cases, the title adds the last run: ✓ passed, ✕ failed, ! warning, ? inconclusive.
+- **Contracts.** One row per contract file, with its type (`openapi` or `asyncapi`). Click a row to open the contract.
+- **Environments.** The environments with their colors, and the link `2 environment(s) · configure`, which opens the active one.
 
 The counts of the last run come from this session. They are not saved.
+
+## Collection variables
+
+The **Variables** tab is a table with **Name** and **Value**. Use it for values that do not change between environments, such as `apiVersion` = `v2`.
+
+<Steps>
+
+1. Open the collection and click the **Variables** tab.
+2. Click **+ Add variable**. An empty row appears.
+3. Type the name, for example `apiVersion`, and the value, `v2`. Luvin saves it by itself.
+
+</Steps>
+
+- A name can have letters, numbers, `_`, `.` and `-`, with no spaces. Otherwise the row says **Use letters, numbers, _ . or -, no spaces**. Two rows with the same name say **There is already a variable with this name**.
+- The trash button (**Delete**) removes a row.
+- Collection variables cannot be secret. What changes between environments, such as URLs, credentials and secrets, goes in an environment: the link under the table opens it.
+- If an environment has a variable with the same name, the environment wins.
+
+![The Variables tab of the collection, with the variable apiVersion set to v2](/media/en/collection-variables.webp)
+
+Every request and workflow of the collection can use them as `{{apiVersion}}`. Which value wins, and the other places a variable can live, are in [Where a variable lives](/environments/variable-levels/).
+
+## The documentation
+
+The **Documentation** panel stays on the right whatever tab you are on. Write the README of the collection there, or generate it from its Arazzo files. See [Write documentation](/workspaces/documentation/). Drag the line between the tabs and the panel to change its width.
 
 ## The numbers on Home
 
@@ -47,6 +94,7 @@ A collection with no Arazzo shows a notice on **Home**: import them with **Impor
 
 <CardGrid>
   <LinkCard title="Collections" href="/workspaces/collections/" />
+  <LinkCard title="Collection authorization" href="/workspaces/collection-authorization/" />
+  <LinkCard title="Where a variable lives" href="/environments/variable-levels/" />
   <LinkCard title="Write documentation" href="/workspaces/documentation/" />
-  <LinkCard title="What is on disk" href="/workspaces/files/" />
 </CardGrid>

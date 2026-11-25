@@ -72,85 +72,67 @@ You need a workspace open. If none is, Luvin says **Open or create a workspace t
    | Postman | **Choose .json files**: the exported collection (v2.0 or v2.1). Choose the environment files too, to bring their variables |
    | Bruno | **Choose folder**: the collection folder as Bruno keeps it in git (with `.bru` files). Or **Choose .json** for the file Bruno exports |
 
-   You can also drop the files on the dialog.
-3. Read the summary. For each collection it shows the number of requests, folders, examples and environments, and the collection authorization if there is one.
-4. Change the collection name if you want.
+   You can also drop the files on the dialog. A Postman or Bruno JSON (a collection, an environment or a Bruno export) dropped anywhere on the window opens this dialog too, even in a workspace with no open collection: the window says **Drop to import from Postman or Bruno**. Other files in the same drop go to the collection.
+3. Read the summary. For each collection it shows the number of requests, folders, examples and environments, the collection authorization if there is one, and how many scripts come with it.
+4. Change the collection name if you want. If the workspace already has a collection with that name, choose what to do first: see [When the collection already exists](#when-the-collection-already-exists).
 5. Click **Import (N requests)**.
 
 </Steps>
 
 To pick other files, click **Choose other files**.
 
+Luvin opens the new collection. If it has scripts, Luvin asks **Do you trust this collection?**: see [Trust a collection](/requests/scripts/#trust-a-collection).
+
+![The dialog Do you trust this collection? over the imported collection Shop API, with the buttons Not now and Trust](/media/en/scripts-trust-dialog.webp)
+
 ### What is imported and what is not
 
 | Imported | Not imported (the summary lists it before you import) |
 |---|---|
-| Folders and requests, with descriptions | **Pre-request scripts**, and script logic that cannot be converted (see below) |
-| Saved examples | Authorization types with no equivalent: those requests have no authorization |
-| Authorization of the collection, folder and request | Body types with no equivalent: the body is left empty |
-| Environments and their variables | Variables with an invalid name, and disabled variables |
+| Folders and requests, with descriptions | Authorization types with no equivalent: those requests have no authorization |
+| Saved examples | Body types with no equivalent: the body is left empty |
+| Authorization of the collection, folder and request | Variables with an invalid name, and disabled variables |
+| Environments and their variables | |
 | Collection variables | |
-| The common parts of the scripts that run after the response, as variables and checks (see below) | |
+| Scripts of the collection, its folders and its requests, whole (see below) | |
+| Bruno `vars:post-response` and `assert` blocks, as variables and checks | |
 
 - A variable marked as secret stays a secret. Bruno does not save its secrets' values, so they arrive empty: type them again in the environment.
-- Collection variables are added to every environment that does not define them. If no environment came, Luvin creates one called `local`.
+- Each variable lands on its level. Postman collection variables and Bruno's collection `vars:pre-request` become [collection variables](/environments/variable-levels/); the secret ones go to the collection's environments as secrets, because a collection variable is never secret. A Postman globals file becomes a global environment of the workspace; if one with that name exists, only the variables it lacks are added. Bruno's `vars:pre-request` of a request become that request's variables.
 
-### Scripts become variables and checks
+### Scripts come over whole
 
-Luvin does not run scripts. When you import, it reads the scripts that run after the response and turns the common lines into the **Variables** and **Checks** tabs of each request. See [Variables and checks](/requests/variables-and-checks/).
+Pre-request and post-response scripts come over as they are, to the **Scripts** tab of the same level: the collection, each folder and each request. They run as in Postman or Bruno, in the same order, once you trust the collection. Most scripts run without changes. See [Scripts](/requests/scripts/).
 
-| From | What is converted |
+| From | Before request | After response |
+|---|---|---|
+| Postman | **Pre-request** | **Post-response** (**Tests**) |
+| Bruno | `script:pre-request` | `script:post-response`, then `tests` |
+
+Bruno's `vars:post-response` and `assert` blocks have no code: they become the **Variables** and **Checks** tabs of each request. See [Bruno asserts and Postman tests](/requests/checks-from-postman/).
+
+The summary of each collection, before you import, says:
+
+- *2 script(s) come over whole, to the Scripts tab of the collection, its folders and its requests. They run as in the original once you trust the collection.* Each level counts up to two: its before-request script and its after-response script.
+- *3 Bruno variable(s) and assertion(s) went to the Variables and Checks tabs of each request.*
+- A warning when some scripts use something Luvin does not have, with the names: *Some scripts use something Luvin does not have yet (pm.vault): they still run, but that part warns and fails.* See [What is not available](/requests/scripts-api/#what-is-not-available).
+
+![The summary of the import of Shop API: 3 requests, 1 folder, 1 collection variable, and 5 scripts that come over whole to the Scripts tab](/media/en/import-scripts-summary.webp)
+
+### When the collection already exists
+
+If the workspace already has a collection with the same name (capitals do not matter), the summary says **A collection “Shop API” already exists in this workspace.** and offers two options:
+
+| Option | What happens |
 |---|---|
-| Postman | The **Tests** script of each request |
-| Bruno | The `vars:post-response` and `assert` blocks, and the `tests` and `script:post-response` scripts, from the folder or from the `.json` export |
+| **Import as a copy, with the name above** (the default) | A new collection. Its name gets `_v1`, `_v2`… so it does not clash, such as `Shop API_v1`. You can change it in the name field. |
+| **Replace the content of “Shop API”** | The existing collection is updated with the import. *Its requests, folders, environments, variables, authorization and scripts are replaced. Its workflows, contracts, mocks and history stay. If it brings scripts, it asks again whether you trust it.* The name field is locked. |
 
-For example, this Postman test:
+![The summary of a second import of Shop API: A collection “Shop API” already exists in this workspace, with Import as a copy (Shop API_v1) chosen and Replace the content of “Shop API”](/media/en/import-duplicate.webp)
 
-```js
-const jsonData = pm.response.json();
-pm.environment.set("pokemonId", jsonData.id);
-pm.test("Status is 200", function () {
-  pm.response.to.have.status(200);
-});
-pm.test("It is Pikachu", function () {
-  pm.expect(jsonData.name).to.eql("pikachu");
-});
-```
+Use **Replace** when you export a newer version of the same Postman collection: your workflows built on it stay.
 
-becomes the variable `pokemonId` ← `res.body.id`, and two checks: `res.status` **equals** `200` and `res.body.name` **equals** `pikachu`.
-
-What Luvin converts:
-
-| Script | Becomes |
-|---|---|
-| `pm.environment.set("x", …)`, also with `collectionVariables`, `globals` or `variables`; `bru.setVar("x", …)`, `bru.setEnvVar("x", …)` | A variable `x` |
-| `pm.response.json().id`, `jsonData.id` (after `const jsonData = pm.response.json()`), `res.body.id`, `res.getBody().id`, `res("id")` | `res.body.id` |
-| `pm.response.code`, `res.status`, `res.getStatus()` | `res.status` |
-| `pm.response.responseTime`, `res.getResponseTime()` | `res.responseTime` |
-| `pm.response.headers.get("X-Id")`, `res.getHeader("X-Id")`, `res.headers["X-Id"]` | `res.headers.x-id` |
-| `pm.response.to.have.status(200)` | `res.status` **equals** `200` |
-| `pm.response.to.be.ok` | `res.status` **is at least** `200` and **is less than** `300` |
-| `pm.response.to.have.header("X-Id")` | `res.headers.x-id` **exists** |
-| `pm.response.to.be.json` | `res.headers.content-type` **contains** `json` |
-| `expect(…).to.eql(…)`, `.to.equal(…)`, `.to.not.equal(…)` | **equals**, **does not equal** |
-| `.to.be.above(…)`, `.to.be.at.least(…)`, `.to.be.below(…)`, `.to.be.at.most(…)` | **is greater than**, **is at least**, **is less than**, **is at most** |
-| `.to.include(…)`, `.to.not.include(…)`, `.to.match(/…/)` | **contains**, **does not contain**, **matches (regex)** |
-| `.to.exist`, `.to.not.exist`, `.to.be.null`, `.to.be.empty`, `.to.not.be.empty`, `.to.be.ok` | **exists**, **does not exist**, **is null**, **is empty**, **is not empty**, **is truthy** |
-| `.to.be.a("string")`, `"number"`, `"boolean"`, `"array"`, `"object"` | **is text**, **is a number**, **is true/false**, **is a list**, **is an object** |
-| Bruno `assert`: `res.status: eq 200` | `res.status` **equals** `200` (the Bruno operators with the same name as a Luvin check) |
-
-What Luvin does not convert:
-
-- **Pre-request scripts**, and scripts of a folder or of the whole collection.
-- **Blocks with conditions or loops**: everything inside `if`, `else`, `for`, `while`, `switch`, `try`, `catch` or `do` is skipped as a whole. A check that only made sense under a condition ("if it is a 404, the error says…") would otherwise fail on every `200`.
-- Any other line Luvin does not recognize.
-
-The summary of each collection, before you import, tells you both:
-
-- *N variable(s) and check(s) converted from the scripts (Variables and Checks tabs of each request).*
-- *N script(s) have parts that could not be converted (pre-request or JavaScript logic): they are not imported, because Luvin does not run scripts. The common parts (saving a variable, checking the status or a field) were converted.* It counts scripts, not lines.
-
-After importing, open the **Checks** tab of a request to review what came, and add by hand what was skipped.
+Open tabs are kept per collection. When you switch to another collection and come back, its tabs are as you left them, and a copy never shows the tabs of the original.
 
 <Aside>
 If you choose only environment files, Luvin says **Those are only environments: choose the collection too.** If it finds no collection, it says **No Postman or Bruno collection was found in what you chose.**

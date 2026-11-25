@@ -11,6 +11,8 @@ Cuando llega la respuesta, un request puede hacer dos cosas más. Puede **guarda
 
 Úsalas cuando un request alimenta al siguiente (inicias sesión y después llamas con el token) y cuando "respondió" no alcanza para decir "funcionó".
 
+Para lo que estas pestañas no pueden hacer, como firmar un request o una prueba con una condición, un request también tiene una pestaña **Scripts**, con JavaScript como en Postman. Las dos cosas trabajan juntas: mira [¿Scripts o las pestañas Variables y Comprobaciones?](/es/requests/scripts/#scripts-o-las-pestañas-variables-y-comprobaciones)
+
 ## Las dos pestañas
 
 | Pestaña | Qué hace | Cuándo se ejecuta | Dónde ves el resultado |
@@ -77,6 +79,8 @@ Para enviar los dos en orden con un clic, usa el runner: mira [Lee los resultado
 
 </Steps>
 
+Si el request, su carpeta o su colección tienen [scripts](/es/requests/scripts/), los scripts **Antes del request** corren antes del paso 1, y los de **Después de la respuesta** corren después del paso 4. Ven lo que la pestaña **Variables** acaba de guardar.
+
 ## En el archivo del request
 
 Las variables y las comprobaciones se guardan en el archivo del request, así que viajan con la colección en git. El valor que guardó una variable nunca se escribe ahí. Para **Get pokemon**:
@@ -118,13 +122,14 @@ El nombre de cada `op` está en [Las comprobaciones, una por una](/es/requests/c
 | Saber exactamente cuándo pasa cada comprobación, con ejemplos | [Las comprobaciones, una por una](/es/requests/check-operators/) |
 | Leer el status, un header, un campo o un elemento de una lista | [Expresiones de la respuesta](/es/requests/check-expressions/) |
 | Entender el chip, la pestaña **Comprobaciones**, el runner y el historial | [Lee los resultados de las comprobaciones](/es/requests/check-results/) |
-| Traer los tests que ya tienes en Postman o Bruno | [Comprobaciones desde Postman y Bruno](/es/requests/checks-from-postman/) |
+| Escribir JavaScript antes del request o después de la respuesta, como en Postman | [Scripts](/es/requests/scripts/) |
+| Saber en qué se convierte un `assert` de Bruno, o pasar un test de Postman a una comprobación | [Asserts de Bruno y tests de Postman](/es/requests/checks-from-postman/) |
 
 ## Relacionado
 
 <CardGrid>
   <LinkCard title="Guarda valores de una respuesta" href="/es/requests/save-variables/" />
   <LinkCard title="Comprueba la respuesta" href="/es/requests/checks/" />
-  <LinkCard title="Lee una respuesta en detalle" href="/es/requests/response-details/" />
+  <LinkCard title="Scripts" href="/es/requests/scripts/" />
   <LinkCard title="Variables y secretos" href="/es/environments/variables-and-secrets/" />
 </CardGrid>

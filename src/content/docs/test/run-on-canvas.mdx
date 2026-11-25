@@ -1,0 +1,141 @@
+---
+title: Results on the canvas
+description: Run from the Design tab and read the result on each step card, the floating result bar, the Response tab of a step and the comparison with the previous run.
+sidebar:
+  order: 12
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+When you run from the **Design** tab, the canvas shows what happened. Each step card says how it ended, each data chip shows the value the step received, and the route the case took is marked. A bar at the bottom of the canvas lists the cases. You read the run on the diagram, and the full results stay one click away.
+
+## Example: Pokemon card in simulation
+
+<Steps>
+1. Open **Pokemon card**. It opens in the **Design** tab.
+2. In the run bar, choose **Simulation** and press **Run 2 cases**.
+3. The canvas switches from **Design** to **Run**, at the top left. While a step runs, its card says **↻ running…**.
+4. When it ends, the bar at the bottom says **✓ 2 of 2 cases passed**, with one chip per case: **Happy path ✓** and **getPokemon responds 404 → pokemonNotFound ✓**.
+5. Click the chip of the 404 case. The card of `getPokemon` says **✕ 404 → ends**, its 404 route says **taken**, and the other steps say **did not run**. The step panel opens on that step, in the **Response** tab.
+</Steps>
+
+That case passes: it expects `getPokemon` to answer 404 and the route `pokemonNotFound` to end the workflow. The card is red because the step failed, and the route that handled it is the one marked **taken**.
+
+<video controls muted playsinline preload="metadata" poster="/media/en/test-canvas-run.webp" src="/media/en/test-canvas-run.mp4"></video>
+
+## Design and Run
+
+The switch at the top left of the canvas has two views:
+
+| View | What the canvas shows |
+|---|---|
+| **Design** | The workflow, as you build it. No results. |
+| **Run** | On each step, what happened in the chosen case. |
+
+The switch appears once the workflow has results. Every run moves the canvas to **Run**. When you edit the workflow, it goes back to **Design**.
+
+## What each card says
+
+| On the card | Meaning |
+|---|---|
+| **✓ 200 · 182 ms** | The step passed: its status and how long it took. A simulated step says **✓ 200 · simulated** instead of a time. |
+| **✓ 200 · 3 attempts** | It passed after retrying. |
+| **✕ 503 · 4 attempts** | It failed, also after its retries. |
+| **✕ 404 → ends** | It failed and a route ended the workflow. |
+| **↪ 404 → suggestName** | It failed, but a route handled it and the workflow went on (amber). It does not count as a failure. |
+| **skipped (route of step 2)** | A route of step 2 jumped over this step. |
+| **did not run** | The workflow stopped or ended before this step. |
+| **↻ running…** | The step is running now. |
+| **↻ attempt 2 of 4** | A route is retrying the step. **↻ runs «Renew token»** when it runs another workflow first. |
+| **⏸ paused** | The run is paused before this step. See [Debug a workflow](/test/debug/). |
+
+A step that ran several times in a loop adds the count, for example **· ×3**.
+
+The rows of the card change too:
+
+- The route the case took says **taken**.
+- Each data chip shows the value the step received, for example `← id = 25`. Rest the pointer on a chip to read where the value comes from and its last value.
+- A value you changed in a pause shows **✎**.
+
+## The result bar
+
+The bar floats at the bottom of the canvas. From left to right:
+
+![Pokemon card after running its two cases in Simulation: the card of getPokemon says ✓ 200 · simulated, and the result bar says ✓ 2 of 2 cases passed, with one chip per case, Repeat, Report and Results](/media/en/test-canvas-run.webp)
+
+| Element | What it does |
+|---|---|
+| **✓ 2 of 2 cases passed** or **✕ 1 of 3 cases failed** | How the run ended. While it runs: **Running «Happy path»…**. When it is paused: **⏸ Paused before step 2** and **▷ Continue**. |
+| One chip per case | Its name and a mark: ✓ passed, ✕ failed, ! warning or inconclusive, … not finished. Click a chip to see the path of that case on the canvas. Rest the pointer on it to read why it did not pass. |
+| **⇄ Compare** | Marks what changed since the previous run of that case. See below. |
+| **↻ Repeat** | Runs the selected cases again, like **Run**. |
+| **Report** | Downloads the HTML report. See [Reports](/test/reports/). |
+| **Results ▴** | Opens the full results below the canvas, the same detail as in the other tabs. **Results ▾** closes it. See [Read the results](/test/results/). |
+
+With the step panel open the bar is shorter: the word **Case** and **Report** are hidden. **Report** is still in the full results.
+
+In the **Design** tab, the full results do not open on their own: the canvas tells the run. Press **Results ▴** when you need the detail of every step.
+
+## Choose a case
+
+Click the chip of a case. The canvas draws its path and selects the step where it went off the normal path:
+
+- the step that failed;
+- if none failed, the first step that a route handled or diverted.
+
+The step panel opens on that step. If it failed, it opens in the **Response** tab.
+
+While a run is in progress, the canvas follows the case that is running. Once it ends, it shows the case you chose, or the first one that failed.
+
+## The Response tab of a step
+
+Select a step and open **Response** in its panel. It says what the step answered in the chosen case: **Case «Happy path»**, the status, the time (or **simulated**) and the number of attempts.
+
+![The Response tab of getPokemon after it answered 404 for missingno: Why it failed, with $statusCode == 200 that was 404, What it received and the Body with Copy as cURL](/media/en/test-canvas-failed-response.webp)
+
+When the step failed, it adds:
+
+| Section | What it shows |
+|---|---|
+| **Why it failed** | Each criterion that was not met, for example `$statusCode == 200` with **was 503**. Then **Its route retried 3 times and kept responding 503.**, or **No route of the step or the workflow handles 404.** |
+| **What it received** | Each value the step received, where it came from, and **✎** if you edited it in a pause. |
+| **Body** | The body of the response, with **Copy as cURL**. |
+| **What to do** | **▷ Run from this step**, to repeat from here. **Retry more (×5, every 5 s)** when a retry route was taken: it changes that route in the Arazzo to retry every 5 s, up to 5 times. **＋ Route if it responds 404…** when no route handles that status: it opens the route editor for that status. |
+
+When a route handled the failure, the tab says **The route «…» handled it. It does not count as a failure.**
+
+**See the full request and response**, folded at the end, opens the same step card as in the full results: criteria, request, response, contract and outputs. See [Read a step result](/test/step-results/).
+
+To add a route by hand, see [Routes](/design/branches/). To repeat part of the workflow, see [Debug a workflow](/test/debug/#run-only-up-to-or-from-a-step).
+
+## Compare with the previous run
+
+Luvin keeps the previous run of each workflow while the app is open. After you run again, **⇄ Compare** appears in the bar.
+
+<Steps>
+1. Run the workflow. For example, **Pokemon card** in **Simulation**.
+2. Change something: a route, an input or the environment. Editing moves the canvas back to **Design**.
+3. Run again.
+4. Choose a case in the bar and press **⇄ Compare**.
+</Steps>
+
+The button now says how many steps changed, for example **⇄ 3 changes**, or **⇄ No changes**. Each step that changed shows what it did before, next to its result: **before: ✓ 200**. Press the button again to hide the marks.
+
+![A shop workflow run again with a product that does not exist: the bar says ⇄ 2 changes, the first step says ✕ 404 next to before: ✓ 200, and the second says did not run next to before: ✓ 200](/media/en/test-canvas-compare.webp)
+
+- It compares the same case, step by step.
+- The previous run lives in memory: it is lost when you close Luvin. To look at older runs, use the [history of runs](/workspaces/history-runs/).
+- A route probe and a partial run (only, up to or from a step) do not change what is compared, and they have no **⇄ Compare**.
+
+## Run from other tabs
+
+The canvas is only in the **Design** tab. If you run from **Cases** or **Inputs**, the full results open at the bottom as always, and the canvas shows the same run the next time you open **Design**.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Probe routes and coverage" description="Test each route with a simulated response." href="/test/probe-routes/" />
+  <LinkCard title="Debug a workflow" description="Pause, edit and continue; run only, up to or from a step." href="/test/debug/" />
+  <LinkCard title="Read the results" href="/test/results/" />
+  <LinkCard title="Run" href="/test/run/" />
+</CardGrid>

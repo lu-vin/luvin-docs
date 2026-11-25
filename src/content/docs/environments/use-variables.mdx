@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-You write a variable as its name between double braces, `{{name}}`. When a request or a step goes out, Luvin replaces it with the value from the active environment. The same request then works in every environment.
+You write a variable as its name between double braces, `{{name}}`. When a request or a step goes out, Luvin replaces it with its value, usually from the active environment. The same request then works in every environment. A variable can also live in the request, in the collection or in a global environment: see [Where a variable lives](/environments/variable-levels/).
 
 ## Example: one request, three kinds of values
 
@@ -87,15 +87,20 @@ Luvin follows up to five levels. Two variables that name each other stop there i
 
 ## Which value wins
 
-The same name can exist in several places. When it does, the one lower in this table wins:
+The same name can exist in several places. When it does, the one higher in this table wins:
 
 | Source | Example | Lasts |
 |---|---|---|
-| Luvin's generators | `{{email}}`, `{{uuid}}` | Always available |
-| Base URLs of the active environment | `{{baseUrl}}`, `{{pokeapi}}` | While the environment is active |
-| Variables and secrets of the active environment | `{{clientId}}` | While the environment is active |
-| Values saved by requests (**Saved now**) | `{{token}}` saved from a login response | Until you switch environments, open another collection or click **Clear all** |
 | Columns of a data file in the Runner | `{{customerId}}` from a CSV | During that run |
+| Values saved by requests (**Saved now**) | `{{token}}` saved from a login response | Until you switch environments, open another collection or click **Clear all** |
+| Request variables | `{{orderId}}` in the request **Create order** | Only in that request |
+| Variables and secrets of the active collection environment | `{{clientId}}` | While the environment is active |
+| Base URLs of the active collection environment | `{{baseUrl}}`, `{{pokeapi}}` | While the environment is active |
+| Collection variables | `{{apiVersion}}` | Always |
+| The active global environment | `{{authHost}}` | While it is active |
+| Luvin's generators | `{{email}}`, `{{uuid}}` | Always available |
+
+The levels and how to create a variable in each one are in [Where a variable lives](/environments/variable-levels/).
 
 Some consequences:
 

@@ -94,7 +94,7 @@ Some cases are left out on purpose:
 
 - An input that goes in the path gets no "missing" case. Without it the URL points to another resource (`/pokemon/` instead of `/pokemon/pikachu`), which usually exists.
 - An invalid-value case exists only for inputs with allowed options, a number or yes/no type, or a pattern.
-- **Without credentials** exists when at least one step sends credentials: because its contract protects it, or because its API has an authorization set in Luvin. That includes a step built from a request, with the request's authorization or the one it inherits from the collection, and an API with its own authorization in the workflow's **Authorization** tab. The case targets the first of those steps and sends none of them.
+- **Without credentials** exists when at least one step sends credentials: because its contract protects it, or because its API has an authorization set in Luvin. That includes a step built from a request, with the request's authorization or the one it inherits from the collection, and an API with its own authorization in the workflow's **Authorization** tab. The case sends no credentials and expects the rejection from the first of those steps that is not a sign-in step (a login is public) and is not set to **None** in its authorization. A login step in the same workflow still runs, but the token it gives is not sent. See [Pass the login token to the next steps](/authorization/token-from-login/).
 
 ## Choose which cases run
 

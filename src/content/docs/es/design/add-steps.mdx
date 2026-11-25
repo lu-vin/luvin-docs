@@ -1,24 +1,28 @@
 ---
 title: Agregar pasos
-description: Agrega operaciones desde la paleta o con un + en el lienzo, y mira qué completa Luvin en cada paso nuevo.
+description: Agrega una operación, un request o un workflow con ＋ Paso, con el + de una flecha o arrastrando un request, y mira qué completa Luvin en cada paso nuevo.
 sidebar:
   order: 3
 ---
 
-import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Un paso es una llamada del workflow. Los pasos se agregan desde la paleta **Operaciones**, a la izquierda de la pestaña **Diseño**. Cada operación que agregas se vuelve un paso que ya viene completado a partir de su contrato.
+Un paso es una llamada del workflow. Los pasos se agregan con **＋ Paso**, arriba a la izquierda del lienzo. Abre una búsqueda con todo lo que puedes agregar: las operaciones de tus contratos, los requests de la colección, otros workflows y patrones estándar. Cada cosa que eliges se vuelve un paso que ya viene completado.
 
 ## Ejemplo: agrega getPokemon
 
-Arrastra `GET /pokemon/{idOrName}` desde la paleta al lienzo vacío.
+<Steps>
+1. Abre un workflow vacío de la colección Pokédex. El lienzo muestra la tarjeta **Arma tu workflow**.
+2. Haz clic en **Agregar el primer paso**, o presiona **/**.
+3. Escribe `pokemon/{` y haz clic en la fila `GET /pokemon/{idOrName}`.
+</Steps>
 
 <Tabs>
   <TabItem label="En la app">
 
-El lienzo recibe la tarjeta `getPokemon`, con el método **GET** y la ruta `/pokemon/{idOrName}`. Su panel se abre a la derecha. **Inicio** ahora lista el input `idOrName`, y el parámetro lo lee.
+El lienzo recibe la tarjeta `getPokemon`, con el método **GET** y la ruta `/pokemon/{idOrName}`. Su panel se abre a la derecha. **Inicio** ahora dice **1 input**, y el parámetro muestra el chip **← idOrName · Inicio**.
 
-![La pestaña Diseño: paleta de operaciones, lienzo con pasos conectados y panel del paso](/media/es/builder.webp)
+![La pestaña Diseño con la tarjeta getPokemon y su panel abierto sobre el lienzo](/media/es/builder.webp)
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -39,44 +43,60 @@ El lienzo recibe la tarjeta `getPokemon`, con el método **GET** y la ruta `/pok
 
 ## Antes de empezar
 
-La paleta lista las operaciones de los contratos OpenAPI de tu colección. Si dice **La colección no tiene contratos OpenAPI. Agrega uno para ver sus operaciones aquí.**, haz una de estas cosas primero:
+**＋ Paso** lista las operaciones de los contratos OpenAPI y AsyncAPI de tu colección, y sus requests. Si dice **La colección no tiene contratos OpenAPI ni AsyncAPI. Agrega uno para ver sus operaciones aquí.**, haz antes una de estas cosas:
 
-- Agrega un contrato. Consulta [Agregar un contrato](/es/contracts/add/).
-- Usa los requests que ya tienes. Consulta [Armar desde requests guardados](/es/design/from-requests/).
+- Agrega un contrato. Lee [Agregar un contrato](/es/contracts/add/).
+- Usa los requests que ya tienes. Lee [Armar desde requests guardados](/es/design/from-requests/).
 
-## Busca una operación
+## La búsqueda de ＋ Paso
 
-La paleta tiene un grupo por contrato, con su nombre y la cantidad de operaciones que tiene. Cada fila muestra el método, la ruta y el resumen de la operación.
+Haz clic en **＋ Paso**, o presiona **/** en cualquier parte del lienzo. Se abre un menú flotante con una búsqueda, **Buscar operación…**, y estos grupos:
+
+| Grupo | Qué tiene | Cuándo aparece |
+|---|---|---|
+| **Sugeridos · usan datos que ya tienes** | Hasta cuatro operaciones con un parámetro que se llama como un output de un paso que ya está. Cada una dice por qué, por ejemplo **usa id del paso 1**. | Antes de escribir, si hay coincidencias |
+| **Patrones · Arazzo estándar** | **Recorrer todas las páginas**, **Esperar hasta que termine** e **Iniciar sesión y usar el token**. Lee [Patrones de Arazzo estándar](/es/design/patterns/). | Cuando hay operaciones o requests |
+| **Requests de la colección** | Los requests guardados, por carpeta. | Cuando la colección tiene requests |
+| **Workflows de este Arazzo** | Los otros workflows del mismo archivo, llamados como un paso. | Cuando el archivo tiene otros workflows |
+| **De otros archivos Arazzo** | Los workflows de los otros archivos Arazzo de la colección. | Cuando hay otros archivos |
+| Un grupo por contrato | Sus operaciones, con método, ruta y resumen. Un contrato que este Arazzo todavía no usa lleva la marca **nuevo**: al agregar una de sus operaciones, el contrato se suma a las fuentes del archivo. | Siempre |
+
+La búsqueda mira la ruta, el id de la operación, el resumen y las etiquetas de cada operación, y el nombre y la URL de cada request.
 
 <Steps>
-1. Haz clic en el nombre de un grupo para plegarlo o desplegarlo.
-2. Escribe en **Buscar operación…** para filtrar. La búsqueda mira la ruta, el id de la operación, el resumen y las etiquetas.
+1. Escribe para filtrar, o muévete con ↑ y ↓.
+2. Haz clic en una fila, o presiona Enter. Enter en la búsqueda agrega la primera coincidencia.
 </Steps>
 
-![La paleta Operaciones de la Pokédex: la búsqueda, los workflows de otros archivos Arazzo y las operaciones del contrato pokeapi](/media/es/design-palette.webp)
+Para cerrar sin agregar nada, presiona **Esc** o haz clic fuera del menú. El pie del menú lo recuerda: **↵ agregar el primero** y **Esc cerrar**.
 
-## Agrégala al workflow
+Las operaciones de los contratos AsyncAPI están en la misma lista, con la etiqueta **SEND** o **RECEIVE**. Agregar una escribe un paso de mensajería. Lee [Pasos de mensajería](/es/design/messaging/#agrega-un-paso-de-mensajería).
+
+![La búsqueda de ＋ Paso de la Pokédex: sugeridos, los patrones, los workflows de otros archivos Arazzo y las operaciones del contrato pokeapi](/media/es/design-palette.webp)
+
+## Dónde queda el paso nuevo
 
 | Cómo | Dónde queda el paso |
 |---|---|
-| Arrastra la operación al lienzo | Debajo del paso sobre el que la sueltas. Si la sueltas encima del primer paso, queda como el primero. |
-| Haz clic en **+** de su fila | Al final del camino feliz: justo después del paso que lo termina con `done`, que pasa al paso nuevo. Sin pasos de rama, es el final del workflow. |
-| Haz clic en el **+** de una flecha del lienzo y luego en la operación | Entre las dos tarjetas que une esa flecha. |
+| **＋ Paso** sin ningún paso elegido | Al final del camino feliz: justo después del paso que lo termina con `done`, que pasa al paso nuevo. Sin pasos para errores, es el final del workflow. El menú se titula **Agregar un paso**. |
+| **＋ Paso** con un paso elegido | Justo después de ese paso. El menú se titula **Insertar un paso**. Con **Inicio** elegido, queda primero. |
+| El **+** de una flecha del lienzo | Entre las dos tarjetas que une esa flecha. Lee [Insertar un paso](/es/design/insert-step/). |
+| Arrastrar un request del árbol de la barra lateral al lienzo | Debajo del paso sobre el que lo sueltas. Si lo sueltas encima del primer paso, queda como el primero. |
 
-Después de agregarlo, el paso nuevo queda seleccionado, su panel se abre a la derecha y el lienzo se desplaza para mantenerlo a la vista.
+Después de agregarlo, el paso nuevo queda elegido, su panel se abre a la derecha y el lienzo se mueve para mantenerlo a la vista.
 
-### Inserta un paso entre otros dos
+## Un workflow vacío
 
-Cada flecha del lienzo, desde **Inicio** hasta **Fin del workflow**, tiene un **+** en el medio. Su tooltip dice **Insertar un paso aquí**.
+Un workflow vacío muestra la tarjeta **Arma tu workflow** en el centro del lienzo:
 
-<Steps>
-1. Haz clic en el **+** de la flecha donde va el paso. Se abre un diálogo con el título **Insertar un paso** y la paleta adentro.
-2. Haz clic en una operación, un request o un workflow. Toda la fila se puede pulsar.
-</Steps>
+| Opción | Qué hace |
+|---|---|
+| **Agregar el primer paso** | Abre la búsqueda de ＋ Paso. |
+| **Armar con requests de la colección** | Abre la búsqueda y la deja abierta: cada request en el que haces clic se agrega al final, en orden, y Luvin propone las conexiones. Aparece si la colección tiene requests. Lee [Armar desde requests guardados](/es/design/from-requests/). |
 
-El paso queda entre las dos tarjetas. El **+** bajo **Inicio** lo deja como el primer paso; el **+** sobre **Fin del workflow**, como el último. Si el paso de arriba termina el camino feliz con una acción llamada `done`, `done` pasa al paso nuevo, así que el paso nuevo igual se ejecuta.
+Debajo dice **También puedes arrastrar un request desde el árbol de la izquierda.**
 
-[Insertar un paso](/es/design/insert-step/) tiene todas las posiciones, el YAML antes y después, y en qué se diferencia insertar de arrastrar. Un diálogo parecido se abre cuando llevas un error a un paso nuevo: mira [Un paso nuevo para un error](/es/design/branch-new-step/).
+![Un workflow vacío: la tarjeta Arma tu workflow con Agregar el primer paso y Armar con requests de la colección](/media/es/design-empty-workflow.webp)
 
 ## Qué recibe automáticamente un paso nuevo
 
@@ -93,51 +113,39 @@ Luvin lee el contrato y completa el paso con reglas. No se adivina nada con IA.
 Dos cosas **no** se agregan por ti:
 
 - **Outputs**, salvo los que necesitan las conexiones. Consulta [Outputs](/es/design/outputs/).
-- **Acciones ante errores**. El panel del paso lista cada error documentado para que elijas tú. Consulta [Éxito y errores](/es/design/success-and-errors/).
+- **Rutas**. La tarjeta lista en rojo cada status de error que documenta el contrato y que nada maneja, para que elijas qué hacer. Consulta [Éxito y errores](/es/design/success-and-errors/).
 
 ### Un ejemplo
 
 Parte de un workflow vacío en la colección Pokédex.
 
 <Steps>
-1. Arrastra `GET /pokemon/{idOrName}` al lienzo. Obtienes el paso `getPokemon`. Nada provee `idOrName` todavía, así que **Inicio** ahora lista un input nuevo, `idOrName`, y el paso lo usa.
-2. Arrastra `GET /pokemon-species/{idOrName}` debajo. Obtienes el paso `getPokemonSpecies`. Su `idOrName` muestra `? getPokemon › id`: Luvin lo conectó con el `id` que devuelve el primer paso, y `getPokemon` ahora tiene un output llamado `id`.
+1. Haz clic en **＋ Paso** y elige `GET /pokemon/{idOrName}`. Obtienes el paso `getPokemon`. Nada provee `idOrName` todavía, así que **Inicio** ahora lista un input nuevo, `idOrName`, y el paso lo usa.
+2. Con `getPokemon` elegido, haz clic en **＋ Paso** y elige `GET /pokemon-species/{idOrName}`. Obtienes el paso `getPokemonSpecies`. Su `idOrName` muestra el chip **← id · de 1** con una `?` delante: Luvin lo conectó con el `id` que devuelve el primer paso, y `getPokemon` ahora tiene un output llamado `id`.
 </Steps>
 
 La `?` significa que Luvin está menos seguro de esa conexión. [Conectar datos entre pasos](/es/design/wire-data/) explica las reglas y cómo cambiar un origen.
 
-![El workflow después de agregar dos operaciones: Inicio tiene el input nuevo idOrName, getPokemon lo lee y expone id, y una línea de datos baja hasta getPokemonSpecies](/media/es/design-auto-wired.webp)
+![El workflow después de agregar dos operaciones: Inicio tiene el input nuevo idOrName, getPokemon lo lee y entrega id, y getPokemonSpecies muestra el chip ← id · de 1](/media/es/design-auto-wired.webp)
 
 El panel del paso nuevo se abre enseguida. Su `idOrName` lee el output `id` de `getPokemon`:
 
-![El panel de getPokemonSpecies recién agregado: idOrName sale de id, el éxito es 200 y el 404 todavía no tiene acción](/media/es/design-new-step-panel.webp)
+![El panel de getPokemonSpecies recién agregado, en la pestaña Datos: idOrName sale del id del paso 1](/media/es/design-new-step-panel.webp)
 
 ## Otras cosas que puedes agregar
 
-La paleta tiene tres grupos más cuando corresponden. Se agregan igual: arrastrando, o con **+**.
-
-| Grupo | Qué agrega | Lee |
+| Desde | Qué agrega | Lee |
 |---|---|---|
 | **Requests de la colección** | Un request guardado, enviado tal cual es. | [Armar desde requests guardados](/es/design/from-requests/) |
-| **Workflows de este Arazzo** | Otro workflow del mismo archivo, llamado como un paso. | [Workflows que usan otros workflows](/es/design/dependencies/) |
-| **Reutilizables** | Una acción de error o un parámetro guardado para usar en varios pasos. Se aplica a un paso, no se agrega como uno. | [Reutilizables](/es/design/reusables/) |
+| **Workflows de este Arazzo** o **De otros archivos Arazzo** | Otro workflow, llamado como un paso. | [Workflows que usan otros workflows](/es/design/dependencies/) |
+| **Patrones · Arazzo estándar** | Un paso con sus rutas ya escritas: páginas, espera o login. | [Patrones de Arazzo estándar](/es/design/patterns/) |
+| Copiar y pegar | Pasos copiados de este workflow o de otro. | [Copiar, duplicar y extraer pasos](/es/design/copy-and-extract/) |
 
-Las operaciones de los contratos AsyncAPI también están en la paleta, con la etiqueta **SEND** o **RECEIVE**. Agregar una escribe un paso de mensajería. Mira [Pasos de mensajería](/es/design/messaging/#agrega-un-paso-de-mensajería).
+Los reutilizables no se agregan como pasos: se aplican a un paso. Lee [Reutilizables](/es/design/reusables/).
 
-![La paleta de un workflow de una tienda: Workflows de este Arazzo, De otros archivos Arazzo y las operaciones del contrato store](/media/es/design-palette-workflows.webp)
+### Los requests y sus campos obligatorios
 
-### La pregunta sobre los campos obligatorios
-
-Un request guardado no tiene un contrato que diga cuáles de sus campos exige la API. La primera vez que agregas un request a un workflow, un diálogo pregunta **¿Qué exige la API en «…»?** con todos los campos del request.
-
-<Steps>
-1. Marca los campos que la API exige. **Marcar todos** y **Ninguno** cambian todos a la vez. Los parámetros de la ruta siempre son obligatorios.
-2. Haz clic en **Guardar**, o en **Ahora no** para decidir más tarde.
-</Steps>
-
-Tu respuesta se guarda en el request y vale para todos los workflows que lo usen. Las operaciones de un contrato nunca muestran este diálogo: el contrato ya dice qué es obligatorio.
-
-![El diálogo ¿Qué exige la API en «Crear pedido»? con los campos del body customer, marcado como obligatorio, y currency](/media/es/design-required-fields.webp)
+Un request guardado no tiene un contrato que diga cuáles de sus campos exige la API. Agregarlo no pregunta nada: su tarjeta muestra **obligatorios sin marcar**, y una barra sobre el lienzo junta esos pasos, con **Marcar**. Lee [Marca los campos obligatorios de un request](/es/design/required-fields/).
 
 ## Si el lienzo dice que al workflow le faltan datos
 

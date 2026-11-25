@@ -1,33 +1,34 @@
 ---
-title: Un paso nuevo para un error
-description: Lleva un error a un paso que se ejecuta solo ante esa respuesta, dónde lo pone Luvin, por qué agrega una acción llamada done y cómo deshacerlo.
+title: Un paso nuevo para una ruta
+description: Lleva una respuesta a un paso que se ejecuta solo para ella, dónde lo pone Luvin, por qué agrega una acción llamada done y cómo deshacerlo.
 sidebar:
-  order: 7.4
+  order: 7.5
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A veces un error necesita su propia llamada. Cuando no se encuentra la especie de un Pokémon, quizás quieras listar Pokémon; cuando se rechaza un pedido, quizás quieras leer por qué. **+ Un paso nuevo…** agrega ese paso y lo conecta con el error de una vez, sin tocar los pasos del camino feliz.
+A veces una respuesta necesita su propia llamada. Cuando no se encuentra la especie de un Pokémon, quizás quieras listar Pokémon; cuando se rechaza un pedido, quizás quieras leer por qué. **o un paso nuevo…**, en el editor de rutas, agrega ese paso y lo conecta con la ruta de una vez, sin tocar los pasos del camino feliz.
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-branch.webp" src="/media/es/design-branch.mp4"></video>
 
-## Ejemplo: lista Pokémon cuando no se encuentra la especie
+## Ejemplo: listar Pokémon cuando no se encuentra la especie
 
 <Steps>
 1. Abre **Pokemon card** y haz clic en la pestaña **Diseño**.
-2. En la tarjeta de `getSpecies`, haz clic en el **+** de la fila `404 → sin acción` **falla**. Se abre el menú **Si responde 404**.
-3. Haz clic en **+ Un paso nuevo…**. Se abre un diálogo con el título **Paso nuevo si responde 404**.
-4. En el grupo **pokeapi**, haz clic en la fila `GET /pokemon`. Toda la fila se puede pulsar.
+2. En la tarjeta de `getSpecies`, haz clic en **＋ Qué hacer si falla**. Si el contrato declara el 404 y todavía nada lo maneja, también puedes hacer clic en **Elegir qué hacer** en su fila roja.
+3. En **Si responde**, escribe `404` o haz clic en él junto a **el contrato dice:**.
+4. Haz clic en **Ir a otro paso**.
+5. Al lado de **Ir al paso**, haz clic en **o un paso nuevo…**. El editor se cierra y se abre un buscador con el título **Paso nuevo si responde 404**.
+6. Haz clic en la fila `GET /pokemon`. Toda la fila se puede pulsar.
 </Steps>
 
-El diálogo se cierra. Lo que ves:
+El buscador se cierra. Lo que ves:
 
-- Una tarjeta nueva abajo, `listPokemon`, seleccionada y con su panel abierto a la derecha.
-- En la tarjeta de `getSpecies`, la fila `404 → on404` **ir a listPokemon**, y una línea naranja punteada que baja hasta `listPokemon`.
-- En la tarjeta de `getAbility`, una fila nueva `éxito → done` **fin ✓**.
-- Cuando seleccionas `getAbility`, su panel muestra el aviso **Este paso usa cosas que el lienzo no edita (onSuccess).** con **Editar en el YAML**: el panel no edita acciones de éxito.
+- Una tarjeta nueva abajo, `listPokemon`, elegida y con su panel abierto.
+- En la tarjeta de `getSpecies`, la fila `404 → va al paso 5 · …`, y una flecha roja punteada que baja por la izquierda hasta `listPokemon`.
+- En la tarjeta de `getAbility`, una fila nueva en **Si pasa y se cumple**: `éxito → termina con éxito (Fin)`, con una flecha verde hasta **Fin del workflow**.
 
-![El lienzo después de agregar el paso: getProduct tiene 404 → on404 ir a openTicket, con una línea naranja discontinua hasta la tarjeta nueva openTicket al final, y createOrder, el último paso del camino feliz, tiene éxito → done fin ✓](/media/es/design-branch-done.webp)
+![El lienzo después de agregar el paso: getSpecies tiene la ruta del 404 hacia la tarjeta nueva de abajo, con una flecha roja punteada por la izquierda, y el último paso del camino feliz tiene la ruta de éxito que termina el workflow, con una flecha verde hasta Fin del workflow](/media/es/design-branch-done.webp)
 
 <Tabs>
 <TabItem label="Antes">
@@ -86,56 +87,57 @@ steps:
 
 La descripción de `listPokemon` es el resumen de la operación en el contrato del ejemplo.
 
-## El diálogo
+## El buscador
 
-El diálogo tiene una línea de ayuda, *Elige la operación, el request o el workflow. Queda al final del workflow y conectado a esta rama; el camino feliz termina antes de llegar a él.*, y la paleta debajo.
+Es el mismo buscador de **＋ Paso**, con una línea de ayuda: *Elige la operación, el request o el workflow. Queda al final del workflow y conectado a esta rama; el camino feliz termina antes de llegar a él.*
 
-![El diálogo Paso nuevo si responde 404 con su línea de ayuda, Buscar operación… y las operaciones de los contratos catalog y support; la fila POST /tickets Abre un ticket de soporte está resaltada](/media/es/design-branch-pick.webp)
+![El buscador Paso nuevo si responde 404 con su línea de ayuda, Buscar operación… y las operaciones de los contratos de la colección](/media/es/design-branch-pick.webp)
 
 | Parte | Qué tiene |
 |---|---|
-| Búsqueda | **Buscar operación…**, igual que en la paleta de la izquierda. |
-| **Requests de la colección** | Tus requests HTTP guardados, cuando la colección tiene alguno. |
-| **Workflows de este Arazzo** | Los demás workflows del archivo, llamados como un paso. |
+| **Buscar operación…** | Filtra todos los grupos por ruta, id de operación, resumen o tag. |
+| **Sugeridos · usan datos que ya tienes** | Operaciones que reciben un dato que un paso anterior ya entrega. Solo antes de escribir. |
+| **Requests de la colección** | Tus requests HTTP guardados, si la colección tiene. |
+| **Workflows de este Arazzo** | Los otros workflows del archivo, llamados como un paso. |
 | **De otros archivos Arazzo** | Workflows de otros archivos Arazzo de la colección. |
 | Un grupo por contrato | Sus operaciones. |
-| **Reutilizables** | No está en el diálogo: un reutilizable se aplica a un paso, no es un paso. |
+
+**Patrones · Arazzo estándar** no aparece aquí: un patrón se agrega con **＋ Paso**. Ver [Patrones de Arazzo estándar](/es/design/patterns/).
 
 Cómo elegir:
 
-- Haz clic en cualquier parte de una fila, o
-- Llega a una fila con Tab y pulsa Enter o la barra espaciadora, o
-- Haz clic en el **+** al final de la fila. Su tooltip dice **Paso nuevo si responde 404**.
+- Haz clic en cualquier parte de una fila, o en el **+** del final. Su tooltip dice **Paso nuevo si responde 404**.
+- O muévete con ↑ ↓ y presiona Enter. Enter en el buscador agrega la primera fila que coincide.
 
-Las filas no se pueden arrastrar desde el diálogo. Para cerrarlo sin agregar nada, haz clic en **×**, pulsa **Esc** o haz clic fuera de él. No cambia nada.
+Para cerrarlo sin agregar nada, presiona **Esc** o haz clic afuera. No cambia nada.
 
 ## Qué hace Luvin, en orden
 
 <Steps>
-1. **Agrega el paso al final del workflow**, después del paso que ahora es el último. Luvin lo completa con las mismas reglas que cualquier paso nuevo: nombre, descripción, criterio de éxito, parámetros obligatorios y body. Mira [Qué recibe automáticamente un paso nuevo](/es/design/add-steps/#qué-recibe-automáticamente-un-paso-nuevo).
-2. **Conecta la rama.** El paso que recibió el error obtiene una acción `on404` de tipo `goto` que apunta al paso nuevo. Si ya tenía un `on404`, Luvin lo reemplaza.
-3. **Termina el camino feliz antes del paso nuevo.** El paso que queda justo encima del nuevo recibe una acción de éxito llamada `done`, de tipo `end`.
-4. **Selecciona el paso nuevo** y abre su panel, para que revises sus datos.
+1. **Agrega el paso al final del workflow**, después del que ahora es el último. Luvin lo completa con las mismas reglas que cualquier paso nuevo: nombre, descripción, criterio de éxito, parámetros obligatorios y body. Ver [Qué recibe automáticamente un paso nuevo](/es/design/add-steps/#qué-recibe-automáticamente-un-paso-nuevo).
+2. **Conecta la ruta.** El paso que recibió la respuesta queda con una ruta `on404` de tipo `goto` que apunta al paso nuevo. Si ya tenía una ruta para el 404, Luvin cambia esa, en su lugar, y conserva su nombre.
+3. **Termina el camino feliz antes del paso nuevo.** El paso justo encima del nuevo recibe una ruta de éxito llamada `done`, de tipo `end`.
+4. **Elige el paso nuevo** y abre su panel, para que revises sus datos.
 </Steps>
 
-Si elegiste un request guardado que nunca se usó en un workflow, luego se abre el diálogo **¿Qué exige la API en «…»?**. Mira [La pregunta sobre los campos obligatorios](/es/design/add-steps/#la-pregunta-sobre-los-campos-obligatorios).
+Si elegiste un request guardado, su tarjeta puede mostrar **obligatorios sin marcar**: di qué campos exige la API cuando quieras. Ver [Marca los campos obligatorios de un request](/es/design/required-fields/).
 
 ## Por qué `done`
 
-En Arazzo, cuando un paso tiene éxito, la ejecución sigue con el siguiente paso de la lista. El paso nuevo ahora es el siguiente después de `getAbility`. Sin `done`, una ejecución en la que todo sale bien pasaría de `getAbility` a `listPokemon`, un paso pensado solo para el 404.
+En Arazzo, cuando un paso pasa, la ejecución sigue con el siguiente de la lista. El paso nuevo ahora es el siguiente de `getAbility`. Sin `done`, una ejecución donde todo sale bien pasaría de `getAbility` a `listPokemon`, un paso pensado solo para el 404.
 
 | Ejecución | Sin `done` | Con `done` |
 |---|---|---|
 | Todo sale bien | `getPokemon` → `getSpecies` → `getWeakness` → `getAbility` → `listPokemon` | `getPokemon` → `getSpecies` → `getWeakness` → `getAbility`, y termina |
-| `getSpecies` responde 404 | `getPokemon` → `getSpecies` → `listPokemon` | Lo mismo |
+| `getSpecies` responde 404 | `getPokemon` → `getSpecies` → `listPokemon` | Igual |
 
 En una ejecución que sale bien, `listPokemon` muestra **No se ejecutó: el workflow terminó antes por una acción end/goto.** Es lo esperado.
 
-Cuando la ejecución toma la rama, `getSpecies` muestra su 404 y **↪ Va al paso "listPokemon" (acción "on404")**. `getWeakness` y `getAbility` no se ejecutan. Después de `listPokemon`, el workflow termina, porque es el último paso.
+Cuando la ejecución toma la ruta, `getSpecies` muestra su 404 y **Va al paso "listPokemon" (acción "on404")**. `getWeakness` y `getAbility` no se ejecutan. Después de `listPokemon`, el workflow termina, porque es el último paso.
 
 ### Cuándo Luvin no agrega `done`
 
-Luvin deja el paso de arriba como está cuando ya sale por su cuenta al tener éxito: cuando tiene una acción de éxito de tipo `end` o `goto` sin criterios. Por ejemplo, un paso escrito así conserva su propia acción y no recibe `done`:
+Luvin deja el paso de arriba como está cuando ya sale por su cuenta al pasar: cuando tiene una ruta de éxito de tipo `end` o `goto` sin condiciones. Por ejemplo, un paso escrito así conserva su ruta y no recibe `done`:
 
 ```yaml
 onSuccess:
@@ -143,9 +145,9 @@ onSuccess:
     type: end
 ```
 
-## Varios pasos de rama
+## Varios pasos para rutas
 
-Cada paso de rama nuevo también va al final, así que el paso que era el último antes de él, que es el paso de rama anterior, recibe su propio `done`.
+Cada paso nuevo para una ruta también va al final, así que el que era el último antes, que es el paso de la ruta anterior, recibe su propio `done`.
 
 Siguiendo el ejemplo, lleva también el 404 de `getAbility` a `GET /pokemon`. Luvin llama al paso nuevo `listPokemon2`, porque `listPokemon` ya existe:
 
@@ -170,60 +172,60 @@ Siguiendo el ejemplo, lleva también el 404 de `getAbility` a `GET /pokemon`. Lu
     # …
 ```
 
-Cada paso de rama termina el workflow cuando tiene éxito, así que una rama nunca sigue de largo hasta la siguiente.
+Cada uno de estos pasos termina el workflow cuando pasa, así que uno nunca sigue de largo al siguiente.
 
 ## Revisa el paso nuevo
 
 <Steps>
 1. Mira el panel del paso nuevo. Cada parámetro obligatorio tiene un origen.
-2. Revisa de dónde sale cada valor. Luvin puede tomar datos de cualquier paso que esté encima del nuevo, también de pasos que la rama se salta. En el ejemplo, `getWeakness` y `getAbility` nunca se ejecutan cuando `getSpecies` responde 404, así que sus outputs están vacíos en ese camino.
-3. Si un valor sale de un paso que se salta, cambia su origen a un paso que se ejecuta antes del error, o a un input. Mira [Conectar datos entre pasos](/es/design/wire-data/).
-4. Abre la pestaña **Casos**. El caso generado **getSpecies responde 404 → on404** simula el 404 y comprueba que la ejecución vaya a `listPokemon`.
+2. Revisa de dónde sale cada dato. Luvin puede tomar datos de cualquier paso de arriba, también de pasos que la ruta salta. En el ejemplo, `getWeakness` y `getAbility` nunca se ejecutan cuando `getSpecies` responde 404, así que en ese camino sus outputs quedan vacíos.
+3. Si un dato viene de un paso saltado, su chip queda en ámbar con ⚠, y [Por revisar](/es/design/review/) dice qué ruta lo salta. Cambia su origen a un paso que se ejecute antes de la ruta, o a un input. Ver [Conectar datos entre pasos](/es/design/wire-data/).
+4. Abre la pestaña **Casos**. El caso generado **getSpecies responde 404 → on404** simula el 404 y comprueba que la ejecución vaya a `listPokemon`. Para seguir el camino en el lienzo sin llamar a la API, usa **▷ Probar** en la ruta: ver [Probar rutas y cobertura](/es/test/probe-routes/).
 </Steps>
 
 ## Deshacer
 
 | Qué elegiste | Cómo deshacerlo todo |
 |---|---|
-| Una operación o un workflow | **Deshacer** una vez, o ⌘Z (Ctrl+Z). El paso, la rama y `done` desaparecen juntos. |
-| Un request guardado | **Deshacer** dos veces. La primera quita la rama y `done`; la segunda, el paso. |
+| Una operación o un workflow | **Deshacer** una vez, o ⌘Z (Ctrl+Z). El paso, la ruta y `done` se van juntos. |
+| Un request guardado | **Deshacer** dos veces. La primera quita la ruta y `done`; la segunda, el paso. |
 
 **Rehacer**, o ⇧⌘Z (Ctrl+Shift+Z), los vuelve a poner.
 
-### Quita una rama a un paso nuevo
+### Quitar una ruta a un paso nuevo
 
-Más tarde, cuando ya no puedes deshacer, quita las tres partes:
+Más tarde, cuando ya no puedes deshacer, quita las partes tú:
 
 <Steps>
-1. Haz clic en el lápiz de la fila `404 → on404` y elige **Quitar la rama**. O elige otra acción.
-2. Selecciona el paso de rama y quítalo con **Quitar el paso**, en su panel, o con la tecla Suprimir.
-3. En la pestaña YAML, borra la acción `done` del paso de arriba, si quieres que el camino feliz siga hasta un paso que agregues después.
+1. Haz clic en el lápiz de la fila `404 → va al paso 5 · …` y luego en **Quitar la ruta**. O cámbiala por otra opción.
+2. Quita el paso con la **×** de su tarjeta. La confirmación muestra lo que se rompe; haz clic en **Quitar el paso**.
+3. Quita la ruta `done` del paso de arriba, en la pestaña **Éxito y rutas** de su panel, si quieres que el camino feliz siga hacia un paso que agregues después.
 </Steps>
 
-Si quitas primero el paso, la rama queda apuntando a nada. Luvin avisa **Otros pasos usaban lo que quitaste y quedaron sin ese dato: getSpecies.**, y el análisis dice **La acción "on404" apunta al paso inexistente "listPokemon".**
+Si quitas primero el paso, la confirmación avisa **Una ruta del paso 2 «…» va a este paso: quedará rota.** Si lo quitas igual, la fila dice **va a un paso que ya no está (listPokemon)** y [Por revisar](/es/design/review/) lo muestra.
 
-## Agrega más pasos después de un paso de rama
+## Agregar más pasos después de un paso de ruta
 
-Los pasos que están debajo del camino feliz son de las ramas. Tenlo en cuenta cuando agregues más:
+Los pasos que están debajo del camino feliz son de las rutas. Tenlo en cuenta al agregar más:
 
 | Cómo lo agregas | Dónde queda | ¿Se ejecuta en el camino feliz? |
 |---|---|---|
 | El **+** de la flecha justo debajo del paso con `done` | Entre los dos. `done` pasa al paso nuevo. | Sí |
-| El **+** de una fila de la paleta | Después del paso con `done`. `done` pasa al paso nuevo. | Sí |
-| Soltado justo debajo del paso con `done` | Después de él. `done` pasa al paso nuevo. | Sí |
-| Soltado abajo de todo, debajo de un paso de rama | Después de ese paso de rama | No: se ejecuta después de ese paso de rama |
+| **＋ Paso** sin ningún paso elegido | Después del paso con `done`. `done` pasa al paso nuevo. | Sí |
+| **＋ Paso** con el paso con `done` elegido, o soltado justo debajo de él | Después de él. `done` pasa al paso nuevo. | Sí |
+| **＋ Paso** con un paso de ruta elegido, o soltado debajo de un paso de ruta | Después de ese paso de ruta | No: se ejecuta después de ese paso de ruta |
 
-Mira [Insertar un paso](/es/design/insert-step/).
+Ver [Insertar un paso](/es/design/insert-step/).
 
 <Aside type="caution">
-Mover pasos con las flechas ↑ ↓ de una tarjeta, o arrastrándolos, no mueve `done`. Si subes el paso de rama por encima del fin del camino feliz, revisa el `onSuccess` de cada paso en la pestaña YAML.
+Mover un paso, con ⌥↑ ⌥↓, **Mover arriba**, **Mover abajo** o arrastrando su tarjeta, no mueve `done`. Si subes un paso de ruta por encima del final del camino feliz, revisa las rutas de éxito de cada paso.
 </Aside>
 
 ## Relacionado
 
 <CardGrid>
-  <LinkCard title="Ramas de error" href="/es/design/branches/" />
-  <LinkCard title="El menú de una rama" href="/es/design/branch-menu/" />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" />
   <LinkCard title="Insertar un paso" href="/es/design/insert-step/" />
   <LinkCard title="Reintenta, salta y termina ante errores" href="/es/recipes/error-branches/" />
 </CardGrid>

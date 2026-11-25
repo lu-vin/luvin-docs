@@ -25,7 +25,7 @@ Most APIs need a token before they answer. This recipe logs in, saves the token 
 3. On the collection home, press **Import Arazzo or contracts** and pick both downloaded files.
 4. In the sidebar, open the workflow `loginAndCarts`.
 5. In the run bar, choose **Real API**.
-6. Press **Run**. The results open at the bottom.
+6. Press **Run**. Each step shows its result on the canvas; **Results ▴**, in the result bar, opens the full results. See [Run on the canvas](/test/run-on-canvas/).
 
 </Steps>
 
@@ -105,6 +105,15 @@ workflows:
 
 The workflow outputs are `firstName` = Emily and `carts` = 1. Every step meets its criteria, so the case ends **Passed**.
 
+## The token in Luvin
+
+Open the workflow in the **Design** tab:
+
+- The `login` card shows **🔑 signs in**, and `getMe` shows **🔑**. Signing in does not modify data, so a run against the real API does not ask to confirm `login`.
+- Click `getMe` and open the **Authorization** tab of the panel. It says *Uses the token from «Log in and get a token» as Bearer in Authorization.* **See how it looks in the Arazzo** shows lines 33-35.
+
+To build the same thing without writing YAML, add the three operations to a workflow, click `getMe`, and in its **Authorization** tab choose **Token from «Log in and get a token» (accessToken)**. Luvin declares the output `token` in `login`, writes the `Authorization` parameter in `getMe` and sets `login` to **None**. This contract declares no `security`, so the action on the login step, which only reaches steps whose API asks for authorization, would connect nothing here: choose it in the step. See [Pass the login token to the next steps](/authorization/token-from-login/).
+
 ## Try this
 
 **Wrong password.** Change the input `password` to `wrong` and run again. DummyJSON answers 400 (*Invalid credentials*) to the login, `login` does not meet `$statusCode == 200` and fails, and the two later steps are skipped. The workflow ends **Failed**. To make a rejection the expected result, see [Prove the API rejects bad data](/recipes/expected-error/).
@@ -113,6 +122,7 @@ The workflow outputs are `firstName` = Emily and `carts` = 1. Every step meets i
 
 <CardGrid>
 <LinkCard title="Wire data between steps" description="How an output of one step becomes the input of the next." href="/design/wire-data/" />
+<LinkCard title="Pass the login token to the next steps" description="Every way to give the token of a login to the other steps." href="/authorization/token-from-login/" />
 <LinkCard title="Workflow authorization" description="Add a token without writing it in the steps." href="/authorization/workflow/" />
 <LinkCard title="Depends on" description="One workflow logs in and others reuse its token." href="/recipes/depends-on/" />
 </CardGrid>

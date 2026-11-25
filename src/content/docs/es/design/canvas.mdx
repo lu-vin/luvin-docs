@@ -1,0 +1,179 @@
+---
+title: El lienzo
+description: Qué muestra cada parte del lienzo del workflow, cómo leer la tarjeta de un paso, minimizar tarjetas, elegir cuándo se ven las líneas de datos, buscar, hacer zoom y usar el teclado.
+sidebar:
+  order: 1.7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+El lienzo es la pestaña **Diseño** de un workflow. Dibuja el workflow de arriba abajo: **Inicio**, una tarjeta por paso y **Fin del workflow**. Cada tarjeta muestra el paso completo, así que se lee qué envía, qué comprueba, qué entrega y qué pasa después sin abrir nada.
+
+## Ejemplo: Pokemon card
+
+Abre **Pokemon card** en el ejemplo de la Pokédex y haz clic en **Diseño**.
+
+- Arriba, el botón verde **▶ Inicio · 1 input**. El input es `pokemon`.
+- Después, cuatro tarjetas numeradas del **1** al **4**. La tarjeta **2**, «Consulta la especie», tiene el parámetro `idOrName` con el chip **← id · de 1**: el valor es el `id` que entrega el paso 1.
+- Abajo, **■ Fin del workflow · entrega 2 outputs**.
+- En una esquina, el minimapa muestra el workflow entero y la parte que estás mirando.
+
+![La pestaña Diseño de Pokemon card: la barra flotante con ＋ Paso, Ver arriba a la derecha, las tarjetas completas de los pasos, la barra de zoom y el minimapa](/media/es/design-canvas-overview.webp)
+
+## Las barras sobre el lienzo
+
+El lienzo ocupa toda la pestaña. Sus herramientas flotan encima.
+
+| Dónde | Qué tiene |
+|---|---|
+| Arriba a la izquierda | **↶** **Deshacer** y **↷** **Rehacer**, **Diseño** y **Ejecución** (lee [Resultados en el lienzo](/es/test/run-on-canvas/)), **＋ Paso**, **⌕** para buscar en el lienzo, el chip **⚠ por revisar**, el chip **Rutas probadas**, **\{ \} YAML** y **⋯** |
+| Arriba a la derecha | **Ver:** **Rutas ▾**, **Datos: al elegir un paso ▾**, **Tarjetas completas** o **Tarjetas minimizadas**, y **Autorización** cuando un paso usa el token de un login |
+| Abajo | El zoom: **−**, el porcentaje, **＋** y **⤢ Ajustar**. Al lado, el minimapa |
+
+- **＋ Paso** agrega un paso. Lee [Agregar pasos](/es/design/add-steps/).
+- El chip **⚠ por revisar** lista lo que Luvin encuentra al leer el Arazzo como lo ejecutaría. Lee [Por revisar](/es/design/review/).
+- **Rutas probadas** aparece cuando algo ya se ejecutó. Lee [Probar rutas y cobertura](/es/test/probe-routes/).
+- **\{ \} YAML** abre el archivo al lado del lienzo. Lee [El YAML al lado del lienzo](/es/design/yaml-side-by-side/).
+- **⋯** tiene **Copiar como Mermaid**, que copia el diagrama como texto Mermaid, y **Atajos de teclado**.
+
+Con el panel del paso abierto, los chips se acortan, y **Ver** baja a una segunda fila si no cabe.
+
+## Inicio
+
+**Inicio** es el botón verde de arriba. Dice cuántos inputs tiene el workflow y, si las tiene, cuántas reglas para todos los pasos: **▶ Inicio · 1 input · 1 regla**.
+
+Haz clic en él. El panel muestra:
+
+- **Inputs**, con **obligatorio** en cada uno y un campo para crear otro.
+- **Depende de**: los workflows que corren antes que este. Lee [Workflows que usan otros workflows](/es/design/dependencies/).
+- **Si falla cualquier paso**: las reglas para todos los pasos. Lee [El panel Rutas y las reglas para todos los pasos](/es/design/routes-panel/).
+- **Reutilizables**, si el archivo tiene. Lee [Reutilizables](/es/design/reusables/).
+
+Cuando los pasos usan valores fijos, **Inicio** también ofrece **Elegir datos variables…** para volverlos inputs. Lee [Parámetros y body](/es/design/parameters-and-body/).
+
+## La tarjeta de un paso
+
+Cada tarjeta muestra el paso completo de entrada.
+
+| Parte | Qué muestra |
+|---|---|
+| Encabezado | El número, el título y los controles de ventana. El título es la descripción del paso; si no tiene, el resumen de la operación. |
+| Bajo el título | El método y la ruta, y después el id del paso y la **fuente** con el contrato, por ejemplo `getPokemon · fuente pokeapi`. Un paso que llama a otro workflow dice **llama al workflow …**. |
+| Marcas | **modifica datos** (POST, PUT, PATCH, DELETE), **🔑 inicia sesión** (da su token a otros pasos), **🔑** (usa ese token), **🔑 sin autorización**, **obligatorios sin marcar** y **N error(es)**. |
+| **Parámetros** | Cada parámetro y campo del body con su valor. Un valor que viene de otro lado es un chip que nombra su origen, como **← id · de 1** o **← pokemon · Inicio**. Un valor obligatorio sin nada dice **sin origen**. |
+| **Criterios de éxito** | Cada criterio con su tipo: **simple**, **jsonpath**, **regex** o **xpath**. Un ⚠ marca un criterio que no se puede cumplir nunca. |
+| **Outputs** | Lo que el paso entrega a los siguientes. |
+| **Si pasa y se cumple** | En verde. Las rutas que se toman cuando el paso pasa y además se cumple una condición. |
+| **Si falla** | En rojo. Las rutas que se toman cuando el paso falla, y cada status que declara el contrato y que nada maneja. |
+
+Cada ruta es una fila, en el orden del Arazzo, con su flecha a la izquierda. [Rutas: qué pasa después de cada paso](/es/design/branches/) explica las filas y los colores.
+
+Una tarjeta con errores tiene el borde rojo, y sus errores se listan en su panel.
+
+### Los controles de ventana
+
+Cada tarjeta tiene en su encabezado los controles de una ventana.
+
+| Control | Qué hace |
+|---|---|
+| **–** **Minimizar** | Achica la tarjeta. En una tarjeta minimizada se vuelve **□** **Mostrar la tarjeta completa**. La tecla **M** hace lo mismo con la tarjeta elegida. |
+| **⤢** **Abrir en el panel** | Elige el paso y abre su panel. |
+| **×** **Quitar el paso** | Pregunta antes. Lee [Quita un paso](/es/design/organize/#quita-un-paso). |
+| **⏸** | Pausa la ejecución antes de este paso. Lee [Depurar un workflow](/es/test/debug/). |
+
+### Tarjetas minimizadas
+
+Una tarjeta minimizada conserva lo que hace falta para seguir el workflow:
+
+- el número, el título, el método y la ruta;
+- los chips de los datos que recibe, y sus outputs en un solo chip, como **→ id · mainType**;
+- **N obligatorio(s) sin valor** y **N error(es)**;
+- sus rutas como chips de color, como **404 → termina el workflow (Fin) como fallido**, y cada status sin ruta.
+
+Para minimizar o mostrar todas las tarjetas a la vez, haz clic en **Tarjetas completas**, en **Ver**. Cambia a **Tarjetas minimizadas**. Cada tarjeta se puede seguir abriendo o minimizando por su lado.
+
+Luvin recuerda qué tarjetas están minimizadas en este equipo, por workflow. Esto no se escribe en el Arazzo.
+
+![Pokemon card con todas las tarjetas minimizadas: número, título, método y ruta, chips de datos, outputs en un chip y las rutas como chips de color](/media/es/design-card-minimized.webp)
+
+## Fin del workflow
+
+La última tarjeta dice cuántos outputs entrega el workflow: **■ Fin del workflow · entrega 2 outputs**. Cada output muestra de dónde viene. Haz clic en ella para elegir qué entrega el workflow. Lee [Outputs](/es/design/outputs/).
+
+Las rutas que terminan el workflow llevan su flecha a esta tarjeta. Una ruta que sigue en otro workflow termina en un recuadro debajo, **↗ Sigue en «…»**.
+
+## Los datos y las rutas en el lienzo
+
+Los datos no se dibujan con una flecha por valor. Cada parámetro dice en su chip de dónde viene su valor, y las líneas se ven solo para el paso elegido o para el chip bajo el ratón. Las líneas de datos van a la derecha de las tarjetas. Las rutas van a la izquierda, con un color por escenario.
+
+**Ver** elige qué se dibuja:
+
+| Botón | Opciones |
+|---|---|
+| **Rutas ▾** | La leyenda de los colores y **Mostrar las rutas** |
+| **Datos ▾** | **Al elegir un paso** (solo las de ese paso), **Siempre** (todas, sin etiquetas) o **Nunca** (al pasar por un dato) |
+
+Los dos botones abren el mismo menú. La opción de los datos se recuerda en este equipo. Lee [Conectar datos entre pasos](/es/design/wire-data/) y [Rutas: qué pasa después de cada paso](/es/design/branches/).
+
+## Elige un paso
+
+Haz clic en una tarjeta. Su panel se abre encima del lado derecho del lienzo, con las pestañas **Datos**, **Éxito y rutas**, **Autorización** y **Respuesta**. Elegir un paso no cambia el zoom: si el panel tapa la tarjeta, el lienzo se corre lo justo para mostrarla.
+
+Para cerrar el panel, presiona **Esc**, haz clic en **×** en el panel o haz clic en una parte vacía del lienzo.
+
+Para elegir varios pasos, mantén **Shift** y haz clic. Lee [Copiar, duplicar y extraer pasos](/es/design/copy-and-extract/).
+
+## Muévete por el lienzo
+
+- Arrastra el fondo para moverte.
+- **−** y **＋** alejan y acercan. **⤢ Ajustar** muestra el workflow entero (**⇧1**).
+- Arrastra el recuadro del minimapa para ir a otra parte. El minimapa se ve cuando el workflow tiene más de un paso y no hay ningún panel abierto.
+- Arrastra una tarjeta hacia arriba o hacia abajo para cambiar el orden de los pasos. Lee [Organizar un workflow](/es/design/organize/).
+
+### Busca en el lienzo
+
+<Steps>
+1. Haz clic en **⌕** o presiona **⌘F** (Ctrl+F).
+2. Escribe parte de un título, un id de paso, una ruta o el nombre de un parámetro o de un output. Las tarjetas que coinciden se resaltan.
+3. Presiona Enter para elegir la primera y traerla a la vista. Esc cierra la búsqueda.
+</Steps>
+
+## Atajos de teclado
+
+Presiona **?**, o abre **⋯** › **Atajos de teclado**, para verlos en la app. No funcionan mientras el cursor está en un campo de texto.
+
+| Teclas | Qué hacen |
+|---|---|
+| ↑ ↓ | Moverse entre pasos |
+| Esc | Cerrar el panel o dejar de elegir |
+| / | Agregar un paso |
+| ⌘↵ | Ejecutar |
+| ⇧↵ | Ejecutar solo el paso elegido |
+| ⌘F | Buscar en el lienzo |
+| ⌘Z, ⇧⌘Z | Deshacer, rehacer |
+| ⌥↑, ⌥↓ | Mover el paso |
+| ⌘D | Duplicar el paso |
+| ⌫ | Quitar el paso |
+| F9 | Pausar antes del paso |
+| R | Agregar una ruta al paso |
+| M | Minimizar el paso |
+| ⇧ clic | Elegir varios pasos |
+| ⌘A | Elegir todos los pasos |
+| ⌘C, ⌘V | Copiar y pegar pasos |
+| ⇧1 | Ajustar el zoom |
+| ? | Ver estos atajos |
+
+En Windows y Linux, usa Ctrl en lugar de ⌘ y Alt en lugar de ⌥.
+
+## La interfaz Simple
+
+En la interfaz Simple, las tarjetas muestran la descripción del paso en lugar del método, y los criterios en palabras. Todo lo demás funciona igual. Lee [Preferencias](/es/get-started/preferences/).
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Agregar pasos" href="/es/design/add-steps/" />
+  <LinkCard title="Conectar datos entre pasos" href="/es/design/wire-data/" />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="Organizar un workflow" href="/es/design/organize/" />
+</CardGrid>

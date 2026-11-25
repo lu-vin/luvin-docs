@@ -9,7 +9,7 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 
 La autorización de la colección es la que usan todos los requests con **Heredar de la colección**. La configuras una vez y la cambias en un solo lugar.
 
-![La tarjeta Autorización de la colección con Bearer Token elegido](/media/es/collection-auth.webp)
+![La pestaña Autorización de la colección con Bearer Token elegido](/media/es/collection-auth.webp)
 
 ## Ejemplo
 
@@ -18,17 +18,17 @@ La API de tu tienda pide un bearer token en cada llamada.
 <Steps>
 
 1. Haz clic en el nombre de la colección en la barra lateral. Se abre el resumen de la colección.
-2. En la tarjeta **Autorización**, abre **Tipo** y elige **Bearer Token**.
+2. Haz clic en la pestaña **Autorización**, abre **Tipo** y elige **Bearer Token**.
 3. En **Token**, escribe `{{token}}`. Deja **Prefijo del header** en `Bearer`.
 4. Abre un request que esté en **Heredar de la colección**, pulsa **Enviar** y abre **Request enviado**. El header `Authorization` está ahí, acortado.
 
 </Steps>
 
-La tarjeta dice: *Para los requests sueltos: la usan los que tengan «Heredar de la colección». Los workflows eligen la suya por API, en su pestaña Autorización.*
+La pestaña dice: *Para los requests sueltos: la usan los que tengan «Heredar de la colección». Los workflows eligen la suya por API, en su pestaña Autorización.*
 
 ## Tipos
 
-La tarjeta ofrece los mismos tipos que un request, salvo **Heredar de la colección**: **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** y **Sin autorización**. Cada uno se explica en su página, por ejemplo [Bearer Token](/es/authorization/bearer/).
+La pestaña ofrece los mismos tipos que un request, salvo **Heredar de la colección**: **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** y **Sin autorización**. Cada uno se explica en su página, por ejemplo [Bearer Token](/es/authorization/bearer/).
 
 Una colección nueva empieza en **Sin autorización**, así que los requests que heredan salen sin autorización: *Los requests que heredan de la colección se envían sin autorización.*
 
@@ -50,7 +50,7 @@ Una colección nueva empieza en **Sin autorización**, así que los requests que
 
 ## OAuth 2.0 en la colección
 
-Con **OAuth 2.0**, la tarjeta tiene **Obtener token nuevo** y **Borrar token**. Todos los requests que heredan **comparten un mismo token**. Cambiar la autorización de la colección lo descarta. Mira [OAuth 2.0](/es/authorization/oauth2/).
+Con **OAuth 2.0**, la pestaña tiene **Obtener token nuevo** y **Borrar token**. Todos los requests que heredan **comparten un mismo token**. Cambiar la autorización de la colección lo descarta. Mira [OAuth 2.0](/es/authorization/oauth2/).
 
 ## Dónde se guarda
 

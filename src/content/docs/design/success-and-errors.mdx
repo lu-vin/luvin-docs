@@ -7,9 +7,9 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Every step needs two decisions: which response means it went well, and what to do when the API answers with an error. Luvin sets the first from the contract and leaves the second to you. Both are in the step panel, and the second is also on the card of the step.
+Every step needs two decisions: which response means it went well, and what to do when the API answers something else. Luvin sets the first from the contract and leaves the second to you. Both are in the **Success and routes** tab of the step panel, and the routes are also on the card of the step.
 
-This page is the overview. For how a run moves from step to step after each action, read [Error branches](/design/branches/).
+This page is the overview. For how a run moves from step to step after each route, read [Routes: what happens after each step](/design/branches/).
 
 ## Example: a Pokémon that does not exist
 
@@ -18,9 +18,7 @@ In **Pokemon card**, the first step ends the workflow when the API answers 404, 
 <Tabs>
   <TabItem label="In the app">
 
-  In the step panel of `getPokemon`, **It's a success if it responds** has **200** selected. Under **If it responds with an error**, the list next to **404** reads **End the workflow**. On the canvas, with **Actions by response** on, the card shows the row `404 → pokemonNotFound` **end ✕**.
-
-  ![The step panel with the outputs of a step and the action chosen for each documented error](/media/en/step-outputs.webp)
+  In the panel of `getPokemon`, the **Success and routes** tab shows **It succeeds if** with `$statusCode ==` **200** and a JSONPath criterion. Under **Routes**, **If it fails with 404** says *Ends the workflow (End) as failed.* On the card, **On failure** has the row `404 → ends the workflow (End) as failed`, with a red dashed arrow to **End of workflow**.
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -46,15 +44,16 @@ In **Pokemon card**, the first step ends the workflow when the API answers 404, 
 
 <Steps>
 1. In the **Design** tab, click a step.
-2. Find **It's a success if it responds**. It has one option per 2xx status the contract documents for the operation.
-3. Click the status you expect.
+2. In its panel, click the tab **Success and routes**.
+3. Under **It succeeds if**, open the list next to `$statusCode ==`. It has the 2xx statuses the contract documents for the operation.
+4. Choose the status you expect.
 </Steps>
 
-A new step starts with the lowest documented 2xx, or 200 if the contract documents none. In the file this is written as `$statusCode == 200`. Any other response makes the step fail.
+A new step starts with the lowest documented 2xx, or 200 if the contract documents none. In the file it is written as `$statusCode == 200`. Any other response makes the step fail.
 
 ### More than the status
 
-A step can also check the content of the response. These extra criteria are written in the [YAML tab](/design/arazzo-editor/). The panel lists them below the statuses with the link **Edit in the YAML**, and the card shows them under **Success criteria**. All the criteria must hold at once.
+A step can also check the content of the response. These extra criteria are written in the [YAML tab](/design/arazzo-editor/). The tab lists them below the status, each with its type (**simple**, **jsonpath**, **regex** or **xpath**) and the link **Edit in the YAML**. The card shows them under **Success criteria**. All the criteria must hold at once.
 
 In **Pokemon card**, the step `getSpecies` checks the status and a field:
 
@@ -64,49 +63,34 @@ successCriteria:
   - condition: $response.body#/capture_rate >= 0
 ```
 
-See [JSONPath and regex criteria](/recipes/criteria/) for runnable examples.
+![The Success and routes tab of getSpecies: It succeeds if with the status 200 and the criterion $response.body#/capture_rate >= 0, each with its type, and the link Edit in the YAML](/media/en/design-criteria-panel.webp)
 
-![The panel of getSpecies: the 200 status selected, the extra criterion $response.body#/capture_rate >= 0 and the link Edit in the YAML](/media/en/design-criteria-panel.webp)
+A JSONPath criterion written as a comparison, such as `$.capture_rate >= 0`, never holds. [To review](/design/review/#a-jsonpath-condition-that-never-holds) warns about it and rewrites it for you. See [Check more than the status](/recipes/criteria/) for runnable examples.
 
 ## What happens on each error
 
-**If it responds with an error** lists every error status the contract documents for the operation, with the contract's description. Each one has a list of actions.
+Without a route, a step that fails stops the workflow with a generic failure. A route says what to do instead.
 
-| Action | What the workflow does |
+| Option in the route editor | What the workflow does |
 |---|---|
-| **No action (the workflow fails)** | The default. The step fails and the workflow stops with a generic failure. |
-| **End the workflow** | Stops at this step as a known outcome, for example "the Pokémon does not exist". |
-| **Retry (up to 3 times)** | Calls the step again, up to 3 times, waiting 1 second before each try. If it still fails, the workflow fails. |
-| **Go to “step”** | Jumps to another step of the workflow and continues from there. |
-
-You can choose the action from the card on the canvas or from the step panel. Both write the same thing in the file.
-
-### From the card
-
-In the **Design** tab, each card has an **On failure** section with one row per error status the contract documents. **Actions by response**, above the canvas, must be on to see the rows. It is on by default.
-
-| The row shows | Button at the end of the row |
-|---|---|
-| `404 → no action` **fails** | **+**. Its tooltip says **What to do if it responds 404**. |
-| `404 → on404` **end ✕**, or another action | A pencil. Its tooltip says **Change what to do if it responds 404**. |
-
-Click the button and choose in the menu **If it responds 404**: **+ A new step…**, **Go to “Get weakness”** (only later steps), **End the workflow**, **Retry (up to 3 times)** or, when the status already has an action, **Remove the branch**. For a status the contract does not document, use **+ If it responds another status…** at the end of the section.
-
-Each option is explained in [The branch menu](/design/branch-menu/). Statuses such as 429 or 503 are in [Statuses the contract doesn't document](/design/branch-other-status/).
-
-### From the step panel
-
-<Steps>
-1. Click the step on the canvas. Its panel opens on the right.
-2. Under **If it responds with an error**, open the list next to the status, for example **404**.
-3. Choose the action.
-</Steps>
-
-![The section If it responds with an error of createOrder: 400 with no action, 401 End the workflow, 409 Go to “List products” and 429 Retry (up to 3 times)](/media/en/design-error-actions.webp)
+| **Retry** | Calls the step again, with a wait and a limit. For 429, 500 or 503. |
+| **Renew and retry** | Runs another workflow, such as the login, and calls the step again. For 401. |
+| **Go to another step** | Jumps to another step of the workflow, earlier or later, and goes on from there. |
+| **Continue in another workflow** | Hands control to another workflow. It does not come back. |
+| **End the workflow** | Stops at this step, with a known reason. The workflow ends as failed. |
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-errors.webp" src="/media/en/design-errors.mp4"></video>
 
-Luvin writes it in the file with the name `on404`:
+### Add a route for an error
+
+<Steps>
+1. On the card, click **＋ What to do if it fails**. Or, for a status the contract declares and nothing handles, click **Choose what to do** on its red row.
+2. In **If it responds**, type the status or click it next to **the contract says:**.
+3. Choose what to do and fill in what the option asks for.
+4. Check **How it looks in Arazzo (onFailure)** and click **Add**.
+</Steps>
+
+For a 404 that ends the workflow, Luvin writes:
 
 ```yaml
 onFailure:
@@ -116,47 +100,62 @@ onFailure:
       - condition: $statusCode == 404
 ```
 
-Every action you set also gives you a test: Luvin generates a case that simulates that response and checks that the action fires. See [Cases](/test/cases/).
+The same buttons are in the **Success and routes** tab. There, a status without a route also has **Ends** and **Retries**, which add the route in one click.
 
-<Aside type="tip" title="Change the retry limit">
-**Retry** writes `retryLimit: 3` and `retryAfter: 1` (seconds). To use other numbers, change them in the YAML tab, or save the action as a [reusable](/design/reusables/): its panel has both fields.
-</Aside>
+Each option is explained in [Add or change a route](/design/branch-menu/). Statuses the contract does not declare, such as 429 or 503, are in [A route for any status](/design/branch-other-status/). For a status that can come from any step, add a rule once in **Start**: see [Rules for every step](/design/routes-panel/#rules-for-every-step).
 
-Two more things can show in this section:
+Every route also gives you a test: Luvin generates a case that simulates that response and checks that the route fires. See [Cases](/test/cases/).
 
-- A **Reusables** group at the top of the list, when a saved action handles that status. Choosing it applies the reusable.
-- The line **There are 2 error action(s) with custom criteria.** with **Edit in the YAML**. Those actions do not depend on a single status, for example they depend on a field of the response. The panel does not edit them.
+### Detour when the step passes
 
-### A new step for an error
+A step that passes can also take a route, when a value of its response holds. For example, if the Pokémon is legendary, go to another step. Click **＋ Detour if it passes and a condition holds** on the card, choose an output, type its value next to **is**, and choose **Go to another step**, **Continue in another workflow** or **End successfully**. See [Add or change a route](/design/branch-menu/#if-it-passes-a-condition-on-a-value).
 
-Sometimes an error needs its own call, for example to list Pokémon when the species is not found. **+ A new step…**, in the menu of the card, opens a dialog with the palette, titled **New step if it responds 404**. The step you pick goes at the end of the workflow, the error jumps to it with an action `on404` of type `goto`, and the last step of the happy path gets an action on success named `done` that ends the run before the new step.
+### A new step for a route
 
-[A new step for an error](/design/branch-new-step/) shows the whole flow, the YAML before and after, several branch steps and how to undo it. To add a step in another place of the workflow, use the **+** on the arrows between steps: see [Insert a step](/design/insert-step/).
+Sometimes an error needs its own call, for example to list Pokémon when the species is not found. In the route editor, choose **Go to another step** and click **or a new step…**. The step you pick goes at the end of the workflow, the error jumps to it with a route `on404`, and the last step of the happy path gets a route on success named `done` that ends the run before the new step.
 
-Runnable examples: [Retry, jump and end on errors](/recipes/error-branches/) and [Prove the API rejects bad data](/recipes/expected-error/).
+[A new step for a route](/design/branch-new-step/) shows the whole flow, the YAML before and after, and how to undo it. To add a step in another place of the workflow, use the **+** on the arrows between steps: see [Insert a step](/design/insert-step/).
+
+Runnable examples: [Retry, jump and end on errors](/recipes/error-branches/) and [Expect an error](/recipes/expected-error/).
 
 ## Retries and slow calls
 
 ### What a retry does
 
-When a step does not succeed and its action is **Retry**, Luvin sends the step again. Each try appears in the results as, for example, **Retry 1 of 3 (action "on429")**. If the last try fails too, the results say **The 3 retries were exhausted** and the step fails.
+When a step does not pass and its route is a retry, Luvin sends the step again. Each try appears in the results as, for example, **Retry 1 of 3 (action "retry429")**. If the last try fails too, the results say **The 3 retries were exhausted** and the step fails.
 
 | Setting | Behaviour |
 |---|---|
-| How many times | `retryLimit`. If an action has none, Luvin retries once. |
-| How long to wait | `retryAfter`, in seconds, between tries. |
+| How many times | `retryLimit`. The route editor proposes 3. If a route written in the YAML has none, Luvin retries once. |
+| How long to wait | `retryAfter`, in seconds, between tries. The route editor proposes 2. |
 | Real API limit | <Badge text="Max 10 s" variant="caution" /> Luvin never waits more than 10 seconds between two tries, even if `retryAfter` is larger. |
 | Simulation | It does not wait at all. |
 | Where the wait comes from | Only from `retryAfter`. Luvin does not read a `Retry-After` header of the response. |
 
 ### Run another step or workflow before the retry
 
-A `retry` action can also name something to run first. Luvin runs it once, then calls the failed step again. Use it to renew a token: the call answers 401, a login runs, the call is tried again.
+A `retry` route can also name something to run first. Luvin runs it, then calls the failed step again. Use it to renew a token: the call answers 401, a login runs, the call is tried again.
 
 <Tabs>
+  <TabItem label="Workflow: workflowId">
+
+```yaml {4}
+onFailure:
+  - name: renew401
+    type: retry
+    workflowId: login
+    retryAfter: 0
+    retryLimit: 1
+    criteria:
+      - condition: $statusCode == 401
+```
+
+**Renew and retry**, in the route editor, writes this. Luvin runs the workflow, in this file or in another Arazzo file, and stores its outputs so the retried step can read them. On the card the row reads `401 ↻ runs «Login» and retries (up to 1)`.
+
+  </TabItem>
   <TabItem label="Step: stepId">
 
-```yaml title="retry-step.arazzo.yaml" {5-6}
+```yaml title="retry-step.arazzo.yaml" {4}
 onFailure:
   - name: loginAndRetry
     type: retry
@@ -166,27 +165,12 @@ onFailure:
       - condition: $statusCode == 401
 ```
 
-Luvin runs the step `login` of the same workflow. The step must exist: if not, the analysis says **Action "loginAndRetry" (retry) points to the non-existent step "login".**
-
-  </TabItem>
-  <TabItem label="Workflow: workflowId">
-
-```yaml {4}
-onFailure:
-  - name: renewToken
-    type: retry
-    workflowId: $sourceDescriptions.auth.login
-    retryLimit: 2
-    criteria:
-      - condition: $statusCode == 401
-```
-
-Luvin runs the workflow, in this file or in another Arazzo file, and stores its outputs so the retried step can read them.
+Luvin runs the step `login` of the same workflow first. The route editor does not write this form: write it in the [YAML tab](/design/arazzo-editor/). The card shows it as `401 ↻ runs step 2 and retries (up to 2)`. The step must exist: if not, the analysis says **Action "loginAndRetry" (retry) points to the non-existent step "login".**
 
   </TabItem>
 </Tabs>
 
-In the results, the try shows as **Retry 1 of 2: runs step "login" first (action "loginAndRetry")**. The step or workflow that runs first counts toward `retryLimit`, and Luvin waits `retryAfter` before each retry.
+In the results, the try shows as **Retry 1 of 2: runs step "login" first (action "loginAndRetry")**. Luvin waits `retryAfter` before each retry.
 
 Runnable example: [Log in again and retry](/recipes/retry-step/).
 
@@ -203,26 +187,19 @@ steps:
 
 See [Failure reasons](/reference/failure-reasons/) for how to read the message. For a step that waits for a message, `timeout` means something else: see [Messaging steps](/design/messaging/).
 
-## See the actions on the canvas
+## See the routes on the canvas
 
-Turn on **Actions by response**, next to **Show:** above the canvas. Each card gets a section, **On failure**, with one row per response:
+Each card lists its routes in **If it passes and matches** and **On failure**, one row per route, in the order they are checked. Each route has an arrow on the left side of the cards, in the color of its scenario: green when it passes and a condition holds, red dashed when it fails, blue for a retry and amber when it continues in another workflow. The arrow goes to its real target: a step, the same card for a retry, or **End of workflow**.
 
-| Row | Meaning |
-|---|---|
-| `404 → pokemonNotFound` **end ✕** | On a 404, the action `pokemonNotFound` ends the workflow. |
-| `429 → on429` **retries ×3** | On a 429, the step is tried again up to 3 times. |
-| `409 → on409` **go to getOrder** | On a 409, the run jumps to the step `getOrder`. |
-| `500 → no action` **fails** | The contract documents a 500 and nothing handles it. |
+![A card with its On failure section: the 409 row of createOrder goes to listProducts, and a red dashed arrow runs along the left of the cards up to that step](/media/en/design-jump-line.webp)
 
-A jump is also drawn as an orange dashed line that leaves the row, runs along the left of the cards and enters the target step. Its label is the status and the name of the action. In the legend, the orange dot is **jumps to another step**. To move a jump line away from other lines, drag its vertical part to the side; the pointer shows **Drag to move the line**. Data lines move the same way.
-
-Turn the switch off to hide the section and the jump lines when you want to read only the data.
-
-![The canvas with Actions by response on: the 409 row of createOrder jumps to listProducts and an orange dashed line runs along the left up to that step](/media/en/design-jump-line.webp)
+**View → Routes**, at the top right of the canvas, has the legend. Untick **Show the routes** to hide them when you want to read only the data. See [Routes: what happens after each step](/design/branches/#the-arrows).
 
 ## Check that every response is handled
 
-The **Overview** tab of the workflow has a section, **Response coverage**, that compares the contract with the workflow.
+Each status the contract declares and nothing handles is a red row on its card, `500 ✕ no route: the workflow fails`, and [To review](/design/review/) counts them as **without a route**.
+
+The **Overview** tab of the workflow also has a section, **Response coverage**, that compares the contract with the workflow.
 
 <Steps>
 1. Open the **Overview** tab.
@@ -234,27 +211,29 @@ The table has one row per step and documented status:
 | Handling in the Arazzo | Meaning |
 |---|---|
 | ✓ **Success** | The status is the one the step expects. |
-| ✓ **Action** | An action handles it. The name of the action follows. |
+| ✓ **Action** | A route handles it. The name of the route follows. |
 | ✕ **Unhandled** | Nothing handles it. If the API answers this, the workflow fails with a generic error. |
 
 You do not have to handle everything. Handle the errors your application treats differently, such as "not found" or "not approved".
 
 ![Response coverage with 7/11 handled: one row per step and status, with Success, Action or Unhandled](/media/en/design-coverage.webp)
 
-## Branches in depth
+## Routes in depth
 
 <CardGrid>
-  <LinkCard title="Error branches" href="/design/branches/" description="How a run continues after each kind of action." />
-  <LinkCard title="The branch menu" href="/design/branch-menu/" description="Each option of the menu on the card." />
-  <LinkCard title="Statuses the contract doesn't document" href="/design/branch-other-status/" description="429, 500, 503 and other statuses." />
-  <LinkCard title="A new step for an error" href="/design/branch-new-step/" description="A step that runs only for one response." />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" description="How a run continues after each kind of route." />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" description="Every option of the route editor." />
+  <LinkCard title="The Routes panel and rules for every step" href="/design/routes-panel/" description="Order, change and remove routes; rules in Start." />
+  <LinkCard title="A route for any status" href="/design/branch-other-status/" description="429, 500, 503 and other statuses." />
+  <LinkCard title="A new step for a route" href="/design/branch-new-step/" description="A step that runs only for one response." />
+  <LinkCard title="To review" href="/design/review/" description="What the schema does not see." />
 </CardGrid>
 
 ## Related
 
 <CardGrid>
   <LinkCard title="Reusables" href="/design/reusables/" />
-  <LinkCard title="Results" href="/test/results/" />
+  <LinkCard title="Read the results" href="/test/results/" />
   <LinkCard title="The YAML tab" href="/design/arazzo-editor/" />
   <LinkCard title="Retry, jump and end on errors" href="/recipes/error-branches/" />
   <LinkCard title="Log in again and retry" href="/recipes/retry-step/" />

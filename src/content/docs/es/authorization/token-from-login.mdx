@@ -1,0 +1,180 @@
+---
+title: Pasa el token del login a los pasos siguientes
+description: Un paso de login le da su token a los pasos de la misma API, escrito en Arazzo estándar. Luvin lo lee del script de Postman o Bruno y lo conecta mientras armas.
+sidebar:
+  order: 23
+---
+
+import { Steps, Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Casi todas las APIs privadas funcionan igual: un login devuelve un token, y las demás llamadas lo envían en el header `Authorization`. En un workflow, el login es un paso, y su token pasa a los pasos que vienen después. Úsalo cuando la API tiene su propia llamada de login, para que el workflow corra solo, con el ambiente vacío y sin pegar un token antes.
+
+Luvin lo escribe en el archivo Arazzo, como un parámetro de cada paso que usa el token. Otra herramienta de Arazzo ejecuta el archivo igual.
+
+## Ejemplo: una tienda con login
+
+La API de una tienda tiene un login que responde `{"accessToken": "eyJ…"}`, y los pasos **Listar productos** y **Crear pedido** necesitan `Authorization: Bearer <token>`. Así se guarda el workflow:
+
+```yaml title="tienda.arazzo.yaml"
+- stepId: login
+  outputs:
+    token: $response.body#/accessToken
+- stepId: listarProductos
+  parameters:
+    - name: Authorization
+      in: header
+      value: Bearer {$steps.login.outputs.token}
+- stepId: crearPedido
+  parameters:
+    - name: Authorization
+      in: header
+      value: Bearer {$steps.login.outputs.token}
+```
+
+| Línea | Qué hace |
+|---|---|
+| `token: $response.body#/accessToken` | El paso del login declara el token como su output `token`. |
+| `Bearer {$steps.login.outputs.token}` | Cada paso que lo usa lo envía en `Authorization`. Las llaves marcan una expresión dentro de un texto. |
+
+Si el contrato pide una API key, por ejemplo en el header `X-Shop-Key`, el token va en ese header sin `Bearer`: `value: $steps.login.outputs.token`.
+
+Nunca escribes estas líneas a mano. Las tres formas de abajo las escriben por ti.
+
+## De dónde sale la autorización de un paso
+
+Cada paso que llama a una API HTTP tiene una pestaña **Autorización** en su panel. Dice de dónde sale su autorización y deja cambiarla.
+
+<Steps>
+
+1. Abre el workflow en la pestaña **Diseño** y haz clic en un paso.
+2. En el panel, haz clic en la pestaña **Autorización**.
+3. Abre la lista y elige de dónde sale la autorización.
+
+</Steps>
+
+| Opción | Qué envía el paso |
+|---|---|
+| **Del workflow** | El valor por defecto. La autorización de esa API en la pestaña **Autorización** del workflow o, si no tiene, las credenciales del contrato en el ambiente. La pestaña dice cuál, por ejemplo *Usa Bearer Token &#123;&#123;accessToken&#125;&#125; · definida para todos los workflows.* |
+| **Token de «Iniciar sesión»** | El token de un paso anterior. Las opciones se agrupan por paso, con su título. También aparece un campo de la respuesta que todavía no es output: al elegirlo, se declara el output. |
+| **Token del workflow …** | El output de un workflow del que este depende (`dependsOn`). Se escribe como `$workflows.<id>.outputs.<nombre>`. |
+| **Ninguna** | Nada: ni la autorización del workflow ni las credenciales del contrato. |
+| **Valor fijo (escrito en el YAML)** | Solo aparece cuando alguien escribió el header a mano en el YAML. Luvin lo muestra y no lo pisa. |
+
+Con un token, la pestaña lo dice en palabras, por ejemplo *Usa el token de «Iniciar sesión» como Bearer en Authorization.*, y agrega que manda sobre la autorización del workflow. **Ver cómo queda en el Arazzo** despliega el parámetro completo, con **Copiar**.
+
+Cuando eliges el token de un paso, ese paso (el login) queda en **Ninguna**: su token todavía no existe cuando corre, y uno viejo podría hacer fallar el login. Lo puedes cambiar.
+
+Lo que elige el paso siempre gana: primero el paso, después la autorización de la API en el workflow y al final las credenciales del contrato.
+
+<Aside type="note">
+Arazzo no puede decir que un paso va sin autorización. **Ninguna** se guarda en `flow-auth.yaml`, junto con el resto de la autorización del workflow. Mira [Autorización de un workflow](/es/authorization/workflow/#ejemplo-la-configuración-de-paypal-como-se-guarda).
+</Aside>
+
+![La pestaña Autorización de 02 - Create order: Token de «01 - Login», la frase Usa el token de «01 - Login» como Bearer en Authorization, y Ver cómo queda en el Arazzo abierto](/media/es/auth-step-token.webp)
+
+## Dale el token a los pasos siguientes con una acción
+
+Desde el paso del login, una sola acción le pasa su token a todos los pasos posteriores que lo necesitan.
+
+<Steps>
+
+1. En el lienzo, haz clic en el paso del login.
+2. En la pestaña **Datos** del panel, busca los outputs (**Entrega**).
+3. Pulsa **🔑 Usar «token» como autorización en los pasos siguientes**.
+
+   Si más de un output podría ser el token, la línea dice **Usar como autorización en los pasos siguientes:** con un chip por output. Haz clic en el que es el token.
+
+</Steps>
+
+Un aviso dice qué pasos lo recibieron: *Ahora 2 paso(s) usan el token de «Iniciar sesión»: Listar productos, Crear pedido. «Iniciar sesión» va sin autorización (es el que lo da).* **Deshacer** lo revierte.
+
+El token llega a los pasos que:
+
+- vienen después del login;
+- llaman a una API que pide autorización: su contrato declara `security`, o la API tiene una autorización en el workflow (por ejemplo, la del request con el que se armó);
+- siguen en **Del workflow**.
+
+Los pasos en **Ninguna**, o con otro token elegido, no se tocan. Si ningún paso cumple, el aviso dice *Ningún paso después de «Iniciar sesión» pide autorización: no se conectó nada.* En ese caso elige el token en la pestaña **Autorización** de cada paso.
+
+Los pasos que agregues después del login reciben el token solos.
+
+El paso del login ahora dice *Inicia sesión: da su token a 2 paso(s) (Listar productos, Crear pedido).* **Dejar de usar como autorización** quita el token de esos pasos, que vuelven a **Del workflow**.
+
+![El paso de login después de Usar «token» como autorización: el aviso con Deshacer, y en Entrega la línea Inicia sesión: da su token a 2 paso(s)](/media/es/auth-token-share.webp)
+
+## Configúralo una vez para toda la API
+
+La pestaña **Autorización** del workflow también lo puede decir, una vez por API. Las dos formas escriben las mismas líneas.
+
+<Steps>
+
+1. Abre el workflow y haz clic en la pestaña **Autorización**.
+2. En la tarjeta de la API, elige **Solo este workflow**.
+3. En **Tipo**, elige **Token de un paso de este workflow**.
+4. En **Paso y token**, elige el login y su token, por ejemplo **Iniciar sesión › token**. El token que Luvin reconoció dice **· el token del login**.
+
+</Steps>
+
+La tarjeta muestra **Se usa: token de «Iniciar sesión» · definida en este workflow**, y debajo:
+
+- dónde va el token (con Bearer, `Authorization: Bearer token`);
+- qué pasos lo usan, con *Los pasos que agregues después lo reciben solos.*;
+- los pasos de esa API que usan otra autorización, si los hay;
+- *«Iniciar sesión» va sin autorización: es el que da el token.*
+
+Aquí el token va a todos los pasos de esa API que piden autorización, también a los que usaban otro token. Si eliges otro **Tipo**, se quita de esos pasos.
+
+Un paso existe solo en su workflow, así que en **Todos los workflows** este tipo no aparece. Para compartir un login entre workflows, pon el login en un workflow propio y haz que los demás dependan de él. Mira [Reutiliza un login con dependsOn](/es/recipes/depends-on/).
+
+![La pestaña Autorización del workflow: Solo este workflow, Tipo Token de un paso de este workflow, Paso y token Inicia sesión › token, y los pasos que lo usan](/media/es/auth-token-tab.webp)
+
+## Luvin lo conecta mientras armas
+
+Cuando armas un workflow con los requests de una colección de Postman o Bruno, por lo general no haces nada: Luvin reconoce el token y lo conecta. Funciona aunque nunca hayas enviado el login.
+
+Luvin lee el script del request de login. No lo ejecuta. Por ejemplo, un login con este script:
+
+```js
+const body = pm.response.json();
+pm.environment.set("accessToken", body.data.access_token);
+```
+
+y otros requests que usan `Bearer {{accessToken}}`. Luvin sigue la variable `accessToken` hasta el campo `data/access_token` de la respuesta. Cuando agregas el primer paso después del login que necesita autorización, el aviso dice *Luvin conectó el token de «01 - Login»: lo leyó del script del login (sin correrlo). Lo usan 1 paso(s): 02 - Instrument. «01 - Login» va sin autorización.* **Deshacer** lo revierte.
+
+Cómo reconoce Luvin el token, de más a menos seguro:
+
+1. **El script del login.** Lee `pm.environment.set`, `pm.collectionVariables.set`, `pm.globals.set`, `pm.variables.set`, `bru.setEnvVar` y `bru.setVar`, y sigue el valor por variables simples hasta la respuesta (`pm.response.json()`, `res.body`, `res.getBody()`, `JSON.parse(responseBody)`). Si los demás requests usan una variable en su autorización, solo cuenta el `set` de esa variable.
+2. **El nombre del campo**, cuando Luvin ya conoce la respuesta: `access_token`, `accessToken`, `token`, `jwt`, `id_token`, `authToken` y parecidos, a cualquier profundidad. Nunca `refresh_token`, `token_type` ni un vencimiento.
+
+Un script que no entiende se ignora. Si dos campos son igual de buenos, Luvin no elige: la pestaña **Autorización** del paso siguiente lo propone, por ejemplo *«Iniciar sesión» devuelve un token (access_token).*, con el botón **Usar el token de «Iniciar sesión» en este y los pasos siguientes**.
+
+<video controls muted playsinline preload="metadata" poster="/media/es/token-from-script.webp" src="/media/es/token-from-script.mp4"></video>
+
+## En el lienzo
+
+- La tarjeta del login muestra **🔑 inicia sesión**. Al pasar el mouse dice a cuántos pasos les da su token.
+- Cada paso que usa el token muestra **🔑**.
+- Las líneas del token se esconden para no tapar los datos. Aparecen al elegir el login, al pasar el mouse por una 🔑, o al pulsar **Autorización** en la barra **Ver**. El número de al lado cuenta los pasos que usan un token.
+- Un paso cuya API pide autorización y no tiene ninguna muestra **🔑 sin autorización**: ni el token de un paso, ni la del workflow, ni credenciales en el ambiente.
+
+![La tarjeta del login con 🔑 inicia sesión y sus líneas del token, y Autorización 2 encendido en Ver](/media/es/auth-token-canvas.webp)
+
+## Al ejecutar
+
+- **El login no pide confirmación.** Iniciar sesión no modifica datos, así que una ejecución contra la API real no pregunta por él. Los demás pasos `POST`, `PUT` y `DELETE` siguen preguntando.
+- **El caso Sin credenciales** no espera que el login te rechace: el login es público. Espera `401` o `403` del primer paso que usa autorización y que no inicia sesión ni está en **Ninguna**. Eso incluye los pasos armados con requests. Mira [Casos](/es/test/cases/).
+
+## Bueno saber
+
+- El output que Luvin declara para el token se llama `token`. Si `token` ya lo usa otro campo, se llama `accessToken`, o si no, un nombre que sale de la ruta del campo.
+- El token va donde lo pide la API: `Authorization` con `Bearer ` por defecto, o el header o el query de la API key que declara el contrato o que la API tiene en el workflow.
+- Cada ejecución usa el token que acaba de devolver su propio login, no uno guardado en el ambiente.
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Inicia sesión y usa el token" href="/es/recipes/login-token/" description="Una receta que puedes ejecutar contra DummyJSON." />
+  <LinkCard title="Armar desde requests guardados" href="/es/design/from-requests/" description="Cómo los requests se vuelven pasos y cómo se conectan sus datos." />
+  <LinkCard title="Autorización de un workflow" href="/es/authorization/workflow/" description="La pestaña Autorización, por API y por workflow." />
+  <LinkCard title="Reutiliza un login con dependsOn" href="/es/recipes/depends-on/" description="Un workflow de login para muchos workflows." />
+</CardGrid>

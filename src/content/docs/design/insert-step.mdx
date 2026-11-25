@@ -7,20 +7,20 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Dragging a step onto the canvas is quick, but it is easy to drop it one card too high or too low. The **+** in the middle of each arrow puts the new step exactly between the two cards that arrow joins.
+The **+** in the middle of each arrow of the canvas puts the new step exactly between the two cards that arrow joins. It is the surest way to place a step in the middle of a workflow.
 
 ## Example: list Pokémon before everything else
 
 <Steps>
 1. Open **Pokemon card** and click the **Design** tab.
 2. Point at the arrow that goes from **Start** to `getPokemon`. A **+** sits in its middle. Its tooltip says **Insert a step here**.
-3. Click the **+**. A dialog opens, titled **Insert a step**.
+3. Click the **+**. A floating menu opens, titled **Insert a step**.
 4. In the group **pokeapi**, click the row `GET /pokemon`.
 </Steps>
 
-![The + on the arrow between listProducts and getProduct, with the label Insert a step here](/media/en/design-insert-step.webp)
+![The + on the arrow between Start and getPokemon, with the label Insert a step here](/media/en/design-insert-step.webp)
 
-The dialog closes. `listPokemon` is now the first card, numbered **1**, and `getPokemon` becomes number **2**. The new step is selected and its panel is open.
+The menu closes. `listPokemon` is now the first card, numbered **1**, and `getPokemon` becomes number **2**. The new step is selected and its panel is open.
 
 <Tabs>
 <TabItem label="Before">
@@ -67,16 +67,18 @@ When the workflow depends on others, the box **Depends on** sits above **Start**
 
 The **+** only shows in the **Design** tab. The diagram of the **Overview** tab has none.
 
-## The dialog
+## The menu
 
-The dialog shows the help line *Choose the operation, request or workflow that goes here.* and the palette: the search box **Search operation…**, **Collection requests**, **Workflows in this Arazzo**, **From other Arazzo files** and one group per contract. It has no **Reusables**, because a reusable is applied to a step, not added as one.
+The **+** opens the same floating search as **＋ Step**, titled **Insert a step**, with the help line *Choose the operation, request or workflow that goes here.* It has the search box **Search operation…**, the suggestions, **Patterns · standard Arazzo**, **Collection requests**, the workflows and one group per contract. See [Add steps](/design/add-steps/).
 
 <Steps>
-1. Find what you want. Type in **Search operation…** to filter.
-2. Click its row. You can also focus the row with Tab and press Enter, or click the **+** at the end of the row, whose tooltip here is **Insert a step here**.
+1. Find what you want. Type in **Search operation…** to filter, or move with ↑ and ↓.
+2. Click its row, or press Enter.
 </Steps>
 
-To close without inserting, click **×**, press **Esc** or click outside the dialog.
+To close without inserting, press **Esc** or click outside the menu.
+
+**＋ Step** with a step selected opens the same menu and inserts right after that step.
 
 ## What the new step gets
 
@@ -91,7 +93,7 @@ A required parameter that nothing above can give becomes a new input of the work
 
 ## After the end of the happy path
 
-When a workflow has [a step for an error](/design/branch-new-step/), its happy path ends before the end of the list: the last step of the happy path has an action on success named `done`, and the branch steps sit below it.
+When a workflow has [a step for a route](/design/branch-new-step/), its happy path ends before the end of the list: the last step of the happy path has an action on success named `done`, and the branch steps sit below it.
 
 If you insert right below that step, Luvin moves `done` to the new step. The happy path gets longer by one step and still ends before the branch steps.
 
@@ -133,9 +135,9 @@ Starting from **Pokemon card** with `listPokemon` as the step for the 404 of `ge
 </TabItem>
 </Tabs>
 
-On the canvas, the row `success → done` **end ✓** moves from the card of `getAbility` to the card of `getEvolutionChain`.
+On the canvas, the row **success → ends successfully (End)** moves from the card of `getAbility` to the card of `getEvolutionChain`.
 
-The same happens when you click **+** on a palette row, or drop a step right below the step with `done`. Luvin only moves an action that is named `done`, of type `end` and without criteria. If the step above ends the happy path with an action you wrote by hand, with another name, Luvin leaves it there and the new step comes after the end. Move that action in the YAML tab.
+The same happens when you use **＋ Step** with no step selected, or drop a request right below the step with `done`. Luvin only moves an action that is named `done`, of type `end` and without criteria. If the step above ends the happy path with an action you wrote by hand, with another name, Luvin leaves it there and the new step comes after the end. Move that action in the YAML tab.
 
 ### Other positions after the end
 
@@ -144,21 +146,21 @@ The same happens when you click **+** on a palette row, or drop a step right bel
 | Between two branch steps | The new step runs after the branch step above it, only on that branch. If that step has its own `done`, it moves to the new step. |
 | The **+** above **End of workflow**, below the last branch step | The new step runs after that branch step, not on the happy path. |
 
-## Insert compared with dragging
+## Insert compared with the other ways
 
-| | **+** on an arrow | Drag onto the canvas | **+** on a palette row |
+| | **+** on an arrow | Drag a request onto the canvas | **＋ Step** with no step selected |
 |---|---|---|---|
 | Where it goes | Exactly between the two cards | Below the last card whose middle is above the drop point | Right after the step with `done`, at the end of the happy path. Without a `done`, at the end of the workflow |
 | Moves `done` | Yes, when inserted right below it | Yes, when dropped right below it | Yes |
-| Choose from | A dialog with the palette | The palette on the left | The palette on the left |
+| Choose from | The ＋ Step search | The requests of the sidebar tree | The ＋ Step search |
 
 ## Undo
 
-**Undo** above the canvas, or ⌘Z (Ctrl+Z), removes the inserted step. If `done` moved, the same Undo puts it back. For a saved request that moved `done`, press Undo twice: the first one puts `done` back, the second one removes the step.
+**↶** (**Undo**) above the canvas, or ⌘Z (Ctrl+Z), removes the inserted step. If `done` moved, the same Undo puts it back. For a saved request that moved `done`, press Undo twice: the first one puts `done` back, the second one removes the step.
 
 ## Troubleshooting
 
-**The new step never runs.** It is below the end of the happy path. In a run that goes well it shows **Not run: the workflow ended earlier due to an end/goto action.** Undo, and insert it with the **+** right below the step with `success → done`.
+**The new step never runs.** It is below the end of the happy path. In a run that goes well it shows **Not run: the workflow ended earlier due to an end/goto action.** Undo, and insert it with the **+** right below the step whose row says **success → ends successfully (End)**.
 
 **There is no + on the arrows.** You are in the **Overview** tab, or on the arrow that comes from **Depends on**. Open the **Design** tab.
 
@@ -168,7 +170,7 @@ The same happens when you click **+** on a palette row, or drop a step right bel
 
 <CardGrid>
   <LinkCard title="Add steps" href="/design/add-steps/" />
-  <LinkCard title="A new step for an error" href="/design/branch-new-step/" />
+  <LinkCard title="A new step for a route" href="/design/branch-new-step/" />
   <LinkCard title="Organize a workflow" href="/design/organize/" />
   <LinkCard title="Connect data between steps" href="/design/wire-data/" />
 </CardGrid>

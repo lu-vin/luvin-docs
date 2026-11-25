@@ -25,7 +25,7 @@ The workspace **Payments** has two collections, `checkout` and `refunds`, and yo
 <Steps>
 
 1. Both collections ask the same server for a token. In the **Environments** panel, under **Global environments**, click **+**, name it `intg`, and add `authHost` = `auth.intg.company.com`. Add a global `prod` with its own `authHost`.
-2. `checkout` uses version `v2` of the API in all its environments. In its overview, under **Collection variables**, add `apiVersion` = `v2`.
+2. `checkout` uses version `v2` of the API in all its environments. Open the collection, click its **Variables** tab and add `apiVersion` = `v2`. See [Collection variables](/workspaces/collection-overview/#collection-variables).
 3. The request **Create order** sends `POST {{baseUrl}}/{{apiVersion}}/orders/{{orderId}}`. Point at `{{orderId}}`, type `ORD-1001` in the card, and it becomes a variable of that request only.
 4. Choose `prod` in the collection environment: the global environment switches to `prod` too, so `authHost` takes the `prod` value.
 
@@ -42,6 +42,8 @@ When a name is in several places, the most specific one wins. From the one that 
 | 3 | The active collection environment (its variables, secrets and base URLs) | Always |
 | 4 | Collection variables | Always |
 | 5 | The active global environment | Always |
+
+A **current value** that a script saves (for example `pm.environment.set("token", …)`) does not change this order: it replaces, only on your computer, the file's value on its own level. See [Scripts](/requests/scripts/).
 
 In the [runner](/runner/open-and-environment/) and in load tests, the data row and the values saved during the run come on top of all of these. Workflow steps use levels 1, 3, 4 and 5: they are not saved requests, so they have no request variables.
 
@@ -60,7 +62,7 @@ Outside a request, for example in a workflow, press **Enter** to create it in th
 
 ## The Variables panel
 
-Click **{ }** in the tab bar to open the **Variables** panel on the right of any view.
+Click `{ }` in the tab bar to open the **Variables** panel on the right of any view.
 
 - **Request variables**, on top, are the ones of the open request. Type in the empty row to add one, and point at a row to see **−** and remove it.
 - **All variables**, below, shows each level with its letter, from the one that wins to the one that loses: saved values, the collection environment (with its base URLs and secrets), the collection variables and the global environment.

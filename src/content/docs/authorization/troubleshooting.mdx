@@ -21,6 +21,7 @@ Start by looking at what was really sent: open **Sent request** in the response 
 | You wrote an `Authorization` header | Yours wins over Basic, Bearer and OAuth 2.0. Delete the row in **Headers**. |
 | Wrong environment | Credentials are per environment. Check which one is active. |
 | In a workflow | Open the **Authorization** tab: **In use** tells where it comes from. With **From the contract**, check **Credentials** in the environment. |
+| A step of a workflow, but the request alone works | In **Design**, click the step and open its **Authorization** tab: it says what the step uses. A card marked **🔑 no authorization** has none. If the API has a login, give its token to the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/). |
 
 ## The API answers 403
 
@@ -34,7 +35,7 @@ Start by looking at what was really sent: open **Sent request** in the response 
 
 - With **OAuth 2.0**, Luvin renews the token by itself when it expires (with the refresh token, or by asking for a new one). Press **Clear token** and **Get new token** to force it.
 - With **Authorization Code** and no refresh token, sign in again: **Get new token**, or **Sign in** in a workflow.
-- With **Bearer Token** typed by hand, Luvin cannot renew it. Paste a new one, or use [OAuth 2.0](/authorization/oauth2/) or a [login step](/recipes/login-token/).
+- With **Bearer Token** typed by hand, Luvin cannot renew it. Paste a new one, or use [OAuth 2.0](/authorization/oauth2/) or a [login step](/authorization/token-from-login/).
 - Tokens are kept in memory only. When you close the collection or switch environments they are gone, and the next send asks for a new one.
 
 ## The token cannot be fetched

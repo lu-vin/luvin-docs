@@ -41,10 +41,10 @@ Si `pokeapi` hubiera mostrado ✕, el problema habría estado en el archivo, no 
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| La fila muestra ○ | Ningún archivo de workflow lista el contrato en `sourceDescriptions`. | Agrega una de sus operaciones desde la paleta **Operaciones** (grupo con la marca **nuevo**): Luvin lista el contrato por ti. O crea un archivo de workflow con **Nuevo Arazzo**, o agrégalo a `sourceDescriptions` en la pestaña YAML. Mira [Un contrato agregado después del archivo de workflow](/es/contracts/add/#un-contrato-agregado-después-del-archivo-de-workflow). |
+| La fila muestra ○ | Ningún archivo de workflow lista el contrato en `sourceDescriptions`. | Agrega una de sus operaciones con **＋ Paso** (grupo con la marca **nuevo**): Luvin lista el contrato por ti. O crea un archivo de workflow con **Nuevo Arazzo**, o agrégalo a `sourceDescriptions` en la pestaña YAML. Mira [Un contrato agregado después del archivo de workflow](/es/contracts/add/#un-contrato-agregado-después-del-archivo-de-workflow). |
 | La fila muestra el tipo `schemas` | El archivo no empieza con `openapi:` ni con `asyncapi:`. Muchas veces es un archivo de schemas compartidos, y está bien. A veces es un error de tipeo como `openApi:`. | Si es un contrato, corrige la primera clave. |
-| Sus operaciones no están en la paleta **Operaciones** | El contrato no cargó, o la búsqueda las filtra. | Revisa la marca en la lista y limpia la búsqueda. Mira [La paleta Operaciones](/es/contracts/operations-and-steps/#la-paleta-operaciones). |
-| La paleta dice *La colección no tiene contratos OpenAPI ni AsyncAPI. Agrega uno para ver sus operaciones aquí.* | No cargó ningún contrato OpenAPI ni AsyncAPI de la colección. | Agrega uno, o corrige el que no carga. |
+| Sus operaciones no están en **＋ Paso** | El contrato no cargó, o la búsqueda las filtra. | Revisa la marca en la lista y limpia la búsqueda. Mira [Dónde se listan las operaciones](/es/contracts/operations-and-steps/#dónde-se-listan-las-operaciones). |
+| **＋ Paso** dice *La colección no tiene contratos OpenAPI ni AsyncAPI. Agrega uno para ver sus operaciones aquí.* | No cargó ningún contrato OpenAPI ni AsyncAPI de la colección. | Agrega uno, o corrige el que no carga. |
 | Las **Credenciales** del ambiente no listan un esquema del contrato | Solo se listan credenciales para los esquemas que usa un paso de algún workflow. | Agrega un paso que llame a una operación protegida. Mira [Servidores y credenciales](/es/contracts/servers-and-credentials/#de-security-a-credenciales). |
 
 ## Al editar el contrato

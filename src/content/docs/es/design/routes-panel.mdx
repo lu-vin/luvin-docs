@@ -1,0 +1,171 @@
+---
+title: El panel Rutas y las reglas para todos los pasos
+description: Lee, ordena, cambia y quita las rutas de un paso en la pestaña Éxito y rutas, y define reglas que valen para todos los pasos desde Inicio.
+sidebar:
+  order: 7.3
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+La tarjeta muestra qué hace cada ruta. La pestaña **Éxito y rutas** del panel del paso es donde las manejas: qué cuenta como éxito, las rutas en el orden en que se revisan y las reglas que el paso hereda del workflow. Las reglas en sí están en el panel de **Inicio**.
+
+## Ejemplo: una ruta específica antes que una general
+
+`createOrder` tiene dos rutas de fallo: una para cualquier error y otra para el 409, que vuelve a la lista de productos. Arazzo toma la **primera** ruta que aplica, así que la general, que está primero, gana siempre y la ruta del 409 nunca se ejecuta.
+
+<Steps>
+1. Haz clic en la tarjeta de `createOrder`. Su panel se abre encima del lienzo.
+2. Haz clic en la pestaña **Éxito y rutas · 2**.
+3. En **Rutas**, busca **Si falla con 409**. Es la número 2.
+4. Haz clic en **↑**. Su tooltip dice **Revisarla antes**.
+</Steps>
+
+![La pestaña Éxito y rutas de createOrder: Rutas, en orden, con Si falla con 409, su frase, su línea de Arazzo y el aviso del bucle](/media/es/design-routes-panel.webp)
+
+La ruta del 409 ahora es la número 1, en la tarjeta y en el archivo.
+
+<Tabs>
+<TabItem label="Antes">
+
+```yaml
+onFailure:
+  - name: stop
+    type: end
+  - name: on409
+    type: goto
+    stepId: listProducts
+    criteria:
+      - condition: $statusCode == 409
+```
+
+</TabItem>
+<TabItem label="Después">
+
+```yaml
+onFailure:
+  - name: on409
+    type: goto
+    stepId: listProducts
+    criteria:
+      - condition: $statusCode == 409
+  - name: stop
+    type: end
+```
+
+</TabItem>
+</Tabs>
+
+## Abrir la pestaña
+
+<Steps>
+1. En la pestaña **Diseño**, haz clic en una tarjeta, o en el **⤢** de su encabezado (**Abrir en el panel**).
+2. Haz clic en **Éxito y rutas**. El número de al lado es cuántas rutas tiene el paso.
+</Steps>
+
+El panel se abre encima del lienzo, y el lienzo se corre lo justo para que la tarjeta siga a la vista. **Esc** o **×** lo cierran. Ir a un aviso de una ruta desde [Por revisar](/es/design/review/) abre esta pestaña por ti.
+
+## Es éxito si
+
+La primera sección, **Es éxito si** · **se cumplen todos**, muestra los criterios de éxito del paso, uno por fila, con su tipo: **simple**, **jsonpath**, **regex** o **xpath**.
+
+- La primera fila es el status: `$statusCode ==` y una lista con los status 2xx que documenta el contrato. Elige el que esperas. Un paso nuevo empieza con el más bajo, o con 200 si el contrato no documenta ninguno.
+- Las demás filas son los criterios escritos en el YAML, por ejemplo `$response.body#/capture_rate >= 0` o un JSONPath. **Editar en el YAML** te lleva ahí para cambiarlos. Ver [Comprueba más que el status](/es/recipes/criteria/).
+
+Un paso de mensajería no tiene status. Su fila explica qué cuenta como éxito para un mensaje, con **Editar en el YAML**. Ver [Pasos de mensajería](/es/design/messaging/).
+
+Si un criterio nunca se puede cumplir, arriba aparece un recuadro **Por revisar**, con **Cambiarla** cuando Luvin puede reescribirlo. Ver [Una condición JSONPath que nunca se cumple](/es/design/review/#una-condición-jsonpath-que-nunca-se-cumple).
+
+## Rutas
+
+La sección **Rutas** · **en orden; gana la primera que se cumple** muestra las rutas del paso, de éxito y de fallo, en el orden del Arazzo. Cada una tiene:
+
+| Parte | Ejemplo |
+|---|---|
+| Un número | Su lugar en su lista. |
+| Un título | **Si falla con 429**, **Si falla: otro error**, **Si pasa** o **Si pasa y se cumple** seguido de la condición. |
+| Qué hace, en una frase | *Reintenta hasta 3 · cada 2 s.* |
+| Su Arazzo, en una línea | `onFailure · type: retry · retryAfter: 2 · retryLimit: 3 · criteria: $statusCode == 429` |
+| Botones | **↑** (**Revisarla antes**), **↓** (**Revisarla después**), **✎** (**Cambiar la ruta**) y **✕** (**Quitar la ruta**). |
+
+Las rutas de éxito y las de fallo son listas distintas en Arazzo: ↑ y ↓ mueven una ruta solo dentro de su lista.
+
+**✎** abre el editor de rutas con esa ruta. **✕** la quita de inmediato y muestra **Ruta quitada.** con **Deshacer**. Ver [Agregar o cambiar una ruta](/es/design/branch-menu/).
+
+Cada ruta también tiene **▷ Probar**, que la hace ejecutarse sin llamar a la API, y una marca que dice si alguna ejecución ya la tomó. Ver [Probar rutas y cobertura](/es/test/probe-routes/).
+
+Cuando una ruta tiene un problema, como un paso destino que ya no está o un bucle sin límite, una línea **⚠** debajo dice qué pasa y qué hacer. Ver [Por revisar](/es/design/review/).
+
+### Todavía sin rutas
+
+Sin rutas propias, la sección dice *Sin rutas propias: si pasa, sigue al paso siguiente; si falla, se usan las reglas de Inicio y, si ninguna aplica, el workflow falla.*
+
+### Status sin ruta
+
+Debajo de las rutas, cada status que el contrato declara y que nada maneja tiene una fila con **Termina**, **Reintenta** y **Elegir qué hacer**. Ver [Status declarados sin ruta](/es/design/branch-other-status/#status-declarados-sin-ruta-un-clic).
+
+### Agregar una ruta
+
+Al final de la sección, **＋ Qué hacer si falla** y **＋ Desviar si pasa y se cumple una condición** abren el editor de rutas. Un paso de mensajería solo tiene el segundo.
+
+### Rutas reutilizables
+
+Una ruta puede ser un reutilizable del archivo, definido una vez y usado en varios pasos. Muestra **♻** y su nombre, con **Desvincular**, que le da al paso su propia copia. Una ruta de fallo para un solo status que no es reutilizable tiene **Guardar como reutilizable**. Ver [Reutilizables](/es/design/reusables/).
+
+## Del workflow
+
+Cuando el workflow tiene reglas, la pestaña termina con **Del workflow** · **para todos los pasos, después de las propias**. Cada regla muestra su status, qué hace y su línea de Arazzo.
+
+El paso las usa solo cuando ninguna de sus rutas propias aplica. Para manejar ese status distinto solo en este paso, haz clic en **Cambiarla solo para este paso**: Luvin copia la regla a las rutas del paso, donde la puedes cambiar.
+
+## Reglas para todos los pasos
+
+Algunas respuestas significan lo mismo en cualquier llamada de una API: un 429 cuando pasas el límite de uso, un 503 durante un mantenimiento. En vez de una ruta por paso, dale una regla al workflow.
+
+<Steps>
+1. Haz clic en **Inicio**, el botón verde de arriba del lienzo. Se abre su panel.
+2. Busca **Si cualquier paso falla**.
+3. Haz clic en **＋ Regla para todos los pasos**. Se abre el editor de rutas, con el título **Regla para todos los pasos**.
+4. Escribe el status, elige qué hacer y haz clic en **Agregar**.
+</Steps>
+
+![El panel de Inicio: en Si cualquier paso falla, la regla 401 → termina el workflow (Fin) como fallido, y ＋ Regla para todos los pasos](/media/es/design-start-rules.webp)
+
+El editor ofrece las mismas opciones que para un paso, menos **Ir a otro paso**: una regla es de todo el workflow, no de un lugar de él.
+
+<Tabs>
+<TabItem label="En la app">
+
+**Inicio** ahora dice **· 1 regla**. El panel muestra `429 ↻ reintenta hasta 3 · cada 2 s`, con **↑**, **↓**, **✎** y **✕**. En cada tarjeta, **Si falla** termina con **Si nada de esto aplica, usa las reglas de Inicio (429)**.
+
+</TabItem>
+<TabItem label="En el YAML">
+
+```yaml title="shop.arazzo.yaml" {3-9}
+workflows:
+  - workflowId: placeOrder
+    failureActions:
+      - name: retry429
+        type: retry
+        retryAfter: 2
+        retryLimit: 3
+        criteria:
+          - condition: $statusCode == 429
+    steps:
+      # …
+```
+
+</TabItem>
+</Tabs>
+
+Las reglas de éxito (`successActions`) escritas en el YAML aparecen en la misma lista, y las puedes ordenar, cambiar y quitar igual. Sin reglas, la sección dice **Sin reglas: cada paso decide por su cuenta.**
+
+El panel de **Inicio** también tiene los inputs del workflow, los workflows de los que depende y los reutilizables del archivo. Ver [Workflows que usan otros workflows](/es/design/dependencies/) y [Reutilizables](/es/design/reusables/).
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" />
+  <LinkCard title="Por revisar" href="/es/design/review/" />
+  <LinkCard title="Probar rutas" href="/es/test/probe-routes/" />
+</CardGrid>

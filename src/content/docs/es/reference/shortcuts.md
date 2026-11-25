@@ -61,10 +61,30 @@ Con un diálogo abierto, como **Preferencias** o un request nuevo, **⌘Enter** 
 
 ## Pestaña Diseño
 
+En el lienzo. Presiona **?**, o elige **Atajos de teclado** en **⋯**, para ver esta lista en la app.
+
 | Atajo | Qué hace |
 |---|---|
-| **⌘Z** (**Ctrl+Z**) | Deshace el último cambio del workflow. Igual que **Deshacer**. |
-| **⇧⌘Z** (**Ctrl+Shift+Z**) | Lo rehace. Igual que **Rehacer**. |
+| **↑ ↓** | Moverse entre pasos |
+| **Enter** | Abrir el paso |
+| **Esc** | Cerrar el panel o dejar de elegir |
+| **/** | Agregar un paso |
+| **⌘Enter (Ctrl+Enter)** | Ejecutar |
+| **⇧Enter (Shift+Enter)** | Ejecutar solo el paso elegido. Mira [Depurar](/es/test/debug/). |
+| **⌘F (Ctrl+F)** | Buscar en el lienzo |
+| **⌘Z (Ctrl+Z)** | Deshacer el último cambio del workflow. Igual que **Deshacer**. |
+| **⇧⌘Z (Ctrl+Shift+Z)** | Rehacerlo. Igual que **Rehacer**. |
+| **⌥↑ ⌥↓ (Alt+↑ Alt+↓)** | Mover el paso |
+| **⌘D (Ctrl+D)** | Duplicar el paso |
+| **⌫ (Supr)** | Quitar el paso |
+| **F9** | Pausar antes del paso. Mira [Depurar](/es/test/debug/). |
+| **R** | Rutas del paso |
+| **M** | Minimizar el paso |
+| **⇧ clic (Shift+clic)** | Elegir varios pasos |
+| **⌘A (Ctrl+A)** | Elegir todos los pasos |
+| **⌘C ⌘V (Ctrl+C Ctrl+V)** | Copiar y pegar pasos |
+| **⇧1 (Shift+1)** | Ajustar el zoom |
+| **?** | Ver estos atajos |
 
 Funcionan cuando el foco no está en un campo de texto. Dentro de un campo, **⌘Z** deshace el texto que escribiste, como en cualquier programa.
 
@@ -72,9 +92,7 @@ El historial de **Deshacer** se conserva cuando vas a otra pestaña del workflow
 
 | Tecla | Dónde | Qué hace |
 |---|---|---|
-| **Esc** | El menú de un **+** o de un lápiz en la tarjeta de un paso | Lo cierra. Mira [Éxito y errores](/es/design/success-and-errors/). |
-| **Enter** | El campo de **+ Si responde otro status…** | Igual que **Elegir**. |
-| **Esc** | Ese mismo campo | Lo cancela. |
+| **Esc** | El editor de rutas, o un menú en la tarjeta de un paso | Lo cierra. Mira [Agregar o cambiar una ruta](/es/design/branch-menu/). |
 
 ## Pestañas
 

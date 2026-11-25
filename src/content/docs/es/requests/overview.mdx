@@ -81,12 +81,12 @@ De arriba hacia abajo:
 
 - **Nombre.** Haz clic para renombrar el request. A su derecha ves el estado del guardado. El ambiente activo está arriba a la derecha de la ventana.
 - **Método, URL y Enviar.** Elige el método, escribe la URL y pulsa **Enviar** (⌘/Ctrl + Enter). Mientras el request va en camino, el botón pasa a ser **Cancelar**.
-- **Pestañas del request.** **Params**, **Autorización**, **Headers** y **Body**. A la derecha de las pestañas, **Cookies** abre el almacén de cookies y **Copiar como cURL** muestra el request como un comando de terminal.
-- **Respuesta.** El status, el tiempo y el tamaño, y las pestañas **Body**, **Headers**, **Cookies** y **Request enviado**, más **Comprobaciones** cuando el request tiene comprobaciones o guarda variables. **Request enviado** muestra lo que Luvin envió de verdad: la URL final, todos los headers y el body. Mira [Variables y comprobaciones](/es/requests/variables-and-checks/).
+- **Pestañas del request.** **Params**, **Autorización**, **Headers**, **Body**, **Variables**, **Comprobaciones** y **Scripts**. A la derecha de las pestañas, **Variables en el request** abre el panel Variables en las variables que usa este request (mira [Params, headers y body](/es/requests/params-headers-body/#variables-en-el-request)), **Cookies** abre el almacén de cookies y **Copiar como cURL** muestra el request como un comando de terminal.
+- **Respuesta.** El status, el tiempo y el tamaño, y las pestañas **Body**, **Headers**, **Cookies** y **Request enviado**, más **Comprobaciones** cuando el request tiene comprobaciones o guarda variables, y **Pruebas** y **Consola** cuando corrieron [scripts](/es/requests/scripts/). **Request enviado** muestra lo que Luvin envió de verdad: la URL final, todos los headers y el body. Mira [Variables y comprobaciones](/es/requests/variables-and-checks/).
 
 En la pestaña **Body** de la respuesta, **Pretty** da formato y color a la respuesta, **Raw** la muestra exactamente como la envió el servidor, y **Preview** muestra el JSON como una tabla que puedes expandir o dibuja una página HTML.
 
-Arrastra la línea entre el request y la respuesta para cambiar su tamaño. Haz doble clic en ella para volver al tamaño original.
+Arrastra la línea entre el request y la respuesta para cambiar su tamaño, como en Postman. Los editores del body y de los scripts crecen para llenar el espacio. Haz doble clic en la línea para volver al tamaño original. También puedes hacer clic en ella y usar ↑ y ↓. Luvin recuerda el tamaño en este equipo, para todos los requests.
 
 :::note
 Si el request no se puede completar, el área de la respuesta dice **No se pudo completar el request** y da el motivo. Mira [Ayuda de conexión](/es/dev-tools/connection-help/).
@@ -132,7 +132,7 @@ Abre el menú **⋯** del request en la barra lateral:
 
 ## Usar un request como paso de un workflow
 
-En la pestaña **Diseño** de un workflow, la paleta tiene un grupo **Requests de la colección**. Arrastra un request al lienzo y se convierte en un paso, que se envía exactamente como el request. Solo los requests HTTP con una URL pueden ser pasos. Mira [Workflows desde requests](/es/design/from-requests/).
+En la pestaña **Diseño** de un workflow, haz clic en **＋ Paso** (o pulsa `/`). Se abre el diálogo **Agregar un paso**: busca el request y elígelo. También puedes arrastrar un request desde el árbol de la colección al lienzo. De las dos formas se convierte en un paso, que se envía exactamente como el request. Solo los requests HTTP con una URL pueden ser pasos. Mira [Workflows desde requests](/es/design/from-requests/).
 
 ## Siguiente
 

@@ -17,12 +17,12 @@ El workflow envía los requests de verdad. Apunta el ambiente a un servidor de p
 
 1. Haz clic en **+** (**Crear o importar**) a la derecha de las pestañas abiertas, y luego en **Importar de Postman o Bruno**. Si no hay un workspace abierto, Luvin dice **Abre o crea un workspace para importar.** Abre uno primero.
 2. Para Postman, haz clic en **Elegir archivos .json** y elige la colección exportada. Elige también sus archivos de ambiente, para traer las variables. Para Bruno, haz clic en **Elegir carpeta** y elige la carpeta de la colección.
-3. Lee el resumen: requests, carpetas, ejemplos y ambientes, y cuántos tests se volvieron comprobaciones. Los tests de Postman y las líneas `pm.environment.set` se vuelven [variables y comprobaciones](/es/requests/variables-and-checks/); lo que no se puede convertir, como un bloque `if`, aparece en una advertencia.
-4. Cambia el nombre de la colección si quieres y haz clic en **Importar (N requests)**.
+3. Lee el resumen: requests, carpetas, ejemplos y ambientes, y cuántos scripts trae. Los scripts de Postman y Bruno se traen completos y corren como en el original: mira [Scripts](/es/requests/scripts/).
+4. Cambia el nombre de la colección si quieres y haz clic en **Importar (N requests)**. Si ya existe una colección con ese nombre, el resumen te deja importar una copia o reemplazarla: mira [Cuando la colección ya existe](/es/get-started/import/#cuando-la-colección-ya-existe).
 
 ![El diálogo Importar de Postman o Bruno con una tarjeta para Postman y otra para Bruno](/media/es/import-postman.webp)
 
-Luvin crea una colección nueva y la abre. Bruno no guarda el valor de sus secretos: si tu ambiente tiene alguno, llega vacío. Abre el ambiente en el panel **Ambientes** de la barra lateral y escríbelos. Mira [Trae tus propios archivos y requests](/es/get-started/import/).
+Luvin crea una colección nueva y la abre. Si tiene scripts, Luvin pregunta **¿Confías en esta colección?** Elige **Confiar** si sabes de dónde viene: mira [Confiar en una colección](/es/requests/scripts/#confiar-en-una-colección). Bruno no guarda el valor de sus secretos: si tu ambiente tiene alguno, llega vacío. Abre el ambiente en el panel **Ambientes** de la barra lateral y escríbelos. Mira [Trae tus propios archivos y requests](/es/get-started/import/).
 
 ## 2. Abre un request y envíalo
 
@@ -38,18 +38,30 @@ Esto también sirve después: Luvin recuerda la última respuesta que recibiste 
 
 1. Haz clic en **+** (**Crear o importar**) y elige **Nuevo Arazzo**.
 
-Luvin crea `new.arazzo.yaml` en la colección y abre su workflow, **Mi workflow**, en la pestaña **Diseño**. El lienzo dice **Arrastra aquí la primera operación**.
+Luvin crea `new.arazzo.yaml` en la colección y abre su workflow, **Mi workflow**, en la pestaña **Diseño**. El lienzo dice **Arma tu workflow**.
 
 2. Haz clic en el nombre, escribe `Order and read it` y pulsa Enter.
 
-## 4. Arrastra los requests guardados al lienzo
+## 4. Agrega los requests guardados
 
-1. En la paleta **Operaciones**, abre el grupo **Requests de la colección**. Lista los requests de la colección, por carpeta.
-2. Arrastra **Create order** al lienzo.
-3. Un diálogo pregunta **¿Qué exige la API en «Create order»?** Marca los campos que la API exige y haz clic en **Guardar**. La respuesta vale para todos los workflows que usen este request.
-4. Arrastra **Get order** debajo de **Create order**.
+1. Con el lienzo vacío, haz clic en **Armar con requests de la colección**. Se abre el diálogo **Agregar un paso** con los requests de la colección, por carpeta.
+2. Haz clic en **Create order** y luego en **Get order**. Cada uno va al final del workflow, en ese orden.
+3. Cierra el diálogo.
 
-Cada request es un paso, con su nombre: `createOrder` y `getOrder`. Un paso se envía exactamente como su request, con la misma URL, los mismos headers y el mismo body. `getOrder` todavía tiene `{{order_id}}` escrito a mano en su ruta: Luvin aún no sabe que `createOrder` devuelve ese valor. Mira [Armar desde requests guardados](/es/design/from-requests/).
+También puedes arrastrar un request desde el árbol de la colección, en la barra lateral, al lienzo.
+
+Cada request es un paso con su nombre como título, **Create order** y **Get order**, y con los ids `createOrder` y `getOrder`. Un paso se envía exactamente como su request, con la misma URL, los mismos headers y el mismo body.
+
+Mira la ruta de **Get order**:
+
+- Si el script de **Create order** guarda el id, por ejemplo con `pm.collectionVariables.set("order_id", …)`, Luvin ya lo conectó: `{{order_id}}` viene de `createOrder`. Luvin leyó el script sin ejecutarlo. En la parte 6 no habrá nada que aceptar.
+- Si no, `{{order_id}}` queda escrito a mano: Luvin aún no sabe que `createOrder` devuelve ese valor.
+
+Una barra sobre el lienzo dice que los pasos no tienen campos obligatorios marcados. Puedes hacer clic en **Marcar** ahora o después: solo importa para los casos negativos. Mira [Armar desde requests guardados](/es/design/from-requests/).
+
+:::tip[Si tu API necesita un login]
+Agrega primero el request de login. Si su script guarda el token (`pm.environment.set("accessToken", …)`) y los demás requests usan `Bearer {{accessToken}}`, Luvin conecta el token a los pasos siguientes por su cuenta y lo dice en un aviso. La tarjeta del login muestra **🔑 inicia sesión**. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
+:::
 
 ## 5. Ejecuta una vez para que Luvin aprenda las respuestas
 
@@ -68,17 +80,17 @@ En **Diseño**, haz clic en un paso. Si Luvin no conoce su respuesta, el panel o
 
 ## 6. Acepta las conexiones sugeridas
 
-1. Vuelve a la pestaña **Diseño**. Una barra sobre el lienzo dice **Luvin encontró 1 conexión(es) entre pasos**.
+1. Vuelve a la pestaña **Diseño**. Una barra sobre el lienzo dice **Luvin encontró 1 conexión(es) entre pasos**. Si no hay barra, Luvin ya conectó el id en la parte 4: sigue con la parte 7.
 2. Lee la línea: nombra el paso, el valor y de dónde vendría, por ejemplo la ruta de `getOrder` y el `id` de `createOrder`.
 3. Haz clic en **Conectar todas** (o en **Conectar** en esa línea).
 
-El paso `getOrder` ahora toma su id de `createOrder`, con una línea punteada en el lienzo. Luvin no conecta nada hasta que aceptas. **Deshacer** lo revierte. Ejecuta el workflow otra vez: `getOrder` lee la orden que `createOrder` acaba de crear. Mira [Conectar datos entre pasos](/es/design/wire-data/).
+El paso `getOrder` ahora toma su id de `createOrder`, y su tarjeta en el lienzo dice que ese valor viene de `createOrder`. Luvin no conecta nada hasta que aceptas. **Deshacer** lo revierte. Ejecuta el workflow otra vez: `getOrder` lee la orden que `createOrder` acaba de crear. Mira [Conectar datos entre pasos](/es/design/wire-data/).
 
 ## 7. Elige los datos para variar
 
 Los pasos conservan los valores de los requests, así que el workflow parte sin inputs, y un caso no tiene nada que cambiar.
 
-1. En la tarjeta **Inicio**, lee **Sin inputs: los pasos usan N valores fijos.** y haz clic en **Elegir datos variables…**.
+1. En la tarjeta **Inicio**, que dice **sin inputs**, haz clic en **Elegir datos variables…**.
 2. En **Datos para variar por caso**, marca los valores que quieres cambiar, por ejemplo el id del cliente en el body de **Create order**. Cada fila muestra dónde está y su valor actual.
 3. Haz clic en **Convertir en inputs (N)**.
 
@@ -101,7 +113,8 @@ Los casos con datos propios siempre se ejecutan contra la API real. Si la API re
 
 - Una colección de Postman o Bruno se importa como una colección de Luvin, sin contrato.
 - Los requests guardados se vuelven pasos que Luvin envía tal como son.
-- La primera ejecución contra la API real le enseña las respuestas a Luvin, y luego sugiere las conexiones. Tú decides.
+- Lo que guardan los scripts de Postman o Bruno, incluido el token del login, se conecta mientras armas, sin ejecutar los scripts.
+- La primera ejecución contra la API real le enseña las respuestas a Luvin, y luego sugiere el resto de las conexiones. Tú decides.
 - **Elegir datos variables…** convierte valores fijos en inputs, lo que habilita los casos generados y los propios.
 
 ## Siguiente

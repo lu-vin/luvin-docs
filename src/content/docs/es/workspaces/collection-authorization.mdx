@@ -9,7 +9,7 @@ import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components'
 
 La autorización de la colección son las credenciales que los requests de una colección usan por defecto. La defines una vez, y todo request con **Heredar de la colección** la envía. Úsala cuando la mayoría de los requests de una colección llaman a la misma API con el mismo token o clave.
 
-![La tarjeta Autorización de una colección, con Bearer Token elegido](/media/es/collection-auth.webp)
+![La pestaña Autorización de una colección, con Bearer Token elegido](/media/es/collection-auth.webp)
 
 ## Definirla
 
@@ -17,17 +17,17 @@ Ejemplo: todos los requests de una colección de tienda usan un bearer token, gu
 
 <Steps>
 
-1. Abre el resumen de la colección: haz clic en el nombre de la colección en la barra lateral.
-2. Busca la tarjeta **Autorización**. Su ayuda dice: **Para los requests sueltos: la usan los que tengan «Heredar de la colección».**
+1. Abre la colección: haz clic en su nombre en la barra lateral.
+2. Haz clic en la pestaña **Autorización**. Su ayuda dice: **Para los requests sueltos: la usan los que tengan «Heredar de la colección». Los workflows eligen la suya por API, en su pestaña Autorización.**
 3. En **Tipo**, elige **Bearer Token**.
 4. En **Token**, escribe `{{apiToken}}`.
 5. Deja el prefijo como `Bearer`, salvo que la API use otro.
 
 </Steps>
 
-No hay que guardar: Luvin lo guarda solo. Los otros tipos que puedes elegir son **Basic Auth**, **API Key**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **AWS Sig v4**, **Akamai EdgeGrid** y **Sin autorización**. Cada uno tiene sus propios campos: mira [Autorización de la colección](/es/authorization/collection/).
+No hay que guardar: Luvin lo guarda solo. Junto al nombre de la pestaña aparece un punto, así ves desde cualquier pestaña que la colección tiene autorización. Los otros tipos que puedes elegir son **Basic Auth**, **API Key**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **AWS Sig v4**, **Akamai EdgeGrid** y **Sin autorización**. Cada uno tiene sus propios campos: mira [Autorización de la colección](/es/authorization/collection/).
 
-Sin autorización, la tarjeta dice **Los requests que heredan de la colección se envían sin autorización.**
+Con **Sin autorización**, la pestaña dice **Los requests que heredan de la colección se envían sin autorización.**
 
 ## Qué requests la usan
 

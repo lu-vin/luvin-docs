@@ -9,7 +9,7 @@ import { Steps, Aside } from '@astrojs/starlight/components';
 
 The collection's authorization is the one authorization that every request set to **Inherit from collection** uses. Set it once, change it in one place.
 
-![The Authorization card of the collection with Bearer Token selected](/media/en/collection-auth.webp)
+![The Authorization tab of the collection with Bearer Token selected](/media/en/collection-auth.webp)
 
 ## Example
 
@@ -18,17 +18,17 @@ Your shop API takes a bearer token for every call.
 <Steps>
 
 1. Click the name of the collection in the sidebar. The collection overview opens.
-2. In the **Authorization** card, open **Type** and choose **Bearer Token**.
+2. Click the **Authorization** tab, open **Type** and choose **Bearer Token**.
 3. In **Token**, write `{{token}}`. Leave **Header prefix** on `Bearer`.
 4. Open a request that is on **Inherit from collection**, click **Send**, then open **Sent request**. The `Authorization` header is there, shortened.
 
 </Steps>
 
-The card says: *For standalone requests: used by those set to “Inherit from collection”. Workflows pick theirs per API, in their Authorization tab.*
+The tab says: *For standalone requests: used by those set to “Inherit from collection”. Workflows pick theirs per API, in their Authorization tab.*
 
 ## Types
 
-The card offers the same types as a request, except **Inherit from collection**: **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** and **No Auth**. Each is explained in its own page, for example [Bearer Token](/authorization/bearer/).
+The tab offers the same types as a request, except **Inherit from collection**: **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** and **No Auth**. Each is explained in its own page, for example [Bearer Token](/authorization/bearer/).
 
 A new collection starts with **No Auth**, so inheriting requests go without authorization: *Requests that inherit from the collection are sent without authorization.*
 
@@ -50,7 +50,7 @@ A new collection starts with **No Auth**, so inheriting requests go without auth
 
 ## OAuth 2.0 in the collection
 
-With **OAuth 2.0**, the card has **Get new token** and **Clear token**. All inheriting requests **share one token**. Changing the collection's authorization discards it. See [OAuth 2.0](/authorization/oauth2/).
+With **OAuth 2.0**, the tab has **Get new token** and **Clear token**. All inheriting requests **share one token**. Changing the collection's authorization discards it. See [OAuth 2.0](/authorization/oauth2/).
 
 ## Where it is saved
 

@@ -1,0 +1,179 @@
+---
+title: The canvas
+description: What each part of the workflow canvas shows, how to read a step card, minimize cards, choose when data lines show, search, zoom and use the keyboard.
+sidebar:
+  order: 1.7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The canvas is the **Design** tab of a workflow. It draws the workflow from top to bottom: **Start**, one card per step, and **End of workflow**. Each card shows the whole step, so you read what it sends, what it checks, what it gives and what happens after it without opening anything.
+
+## Example: Pokemon card
+
+Open **Pokemon card** in the Pokédex example and click **Design**.
+
+- At the top, the green **▶ Start · 1 input**. The input is `pokemon`.
+- Then four cards, numbered **1** to **4**. Card **2**, «Get the species», has the parameter `idOrName` with the chip **← id · from 1**: the value is the `id` that step 1 gives.
+- At the bottom, **■ End of workflow · gives 2 outputs**.
+- In a corner, the minimap shows the whole workflow and the part you are looking at.
+
+![The Design tab of Pokemon card: the floating toolbar with ＋ Step, View at the top right, the full step cards, the zoom bar and the minimap](/media/en/design-canvas-overview.webp)
+
+## The bars over the canvas
+
+The canvas uses the whole tab. Its tools float over it.
+
+| Where | What it has |
+|---|---|
+| Top left | **↶** **Undo** and **↷** **Redo**, **Design** and **Run** (see [Results on the canvas](/test/run-on-canvas/)), **＋ Step**, **⌕** to search the canvas, the **⚠ to review** chip, the **Routes tested** chip, **\{ \} YAML** and **⋯** |
+| Top right | **View:** **Routes ▾**, **Data: on select ▾**, **Full cards** or **Minimized cards**, and **Authorization** when a step uses the token of a login |
+| Bottom | Zoom: **−**, the percentage, **＋** and **⤢ Fit**. Next to it, the minimap |
+
+- **＋ Step** adds a step. See [Add steps](/design/add-steps/).
+- The **⚠ to review** chip lists what Luvin finds reading the Arazzo the way it would run it. See [To review](/design/review/).
+- **Routes tested** appears once something has run. See [Probe routes and coverage](/test/probe-routes/).
+- **\{ \} YAML** opens the file next to the canvas. See [The YAML next to the canvas](/design/yaml-side-by-side/).
+- **⋯** has **Copy as Mermaid**, which copies the diagram as Mermaid text, and **Keyboard shortcuts**.
+
+When the step panel is open, the chips get shorter, and **View** moves down to a second row if it does not fit.
+
+## Start
+
+**Start** is the green button at the top. It says how many inputs the workflow has and, if it has them, how many rules for every step: **▶ Start · 1 input · 1 rule**.
+
+Click it. The panel shows:
+
+- **Inputs**, with **required** for each one and a field to create a new one.
+- **Depends on**: the workflows that run before this one. See [Workflows that use other workflows](/design/dependencies/).
+- **If any step fails**: the rules for every step. See [The Routes panel and rules for every step](/design/routes-panel/).
+- **Reusables**, when the file has them. See [Reusables](/design/reusables/).
+
+When the steps use fixed values, **Start** also offers **Choose variable data…** to turn them into inputs. See [Parameters and body](/design/parameters-and-body/).
+
+## A step card
+
+Every card shows the full step by default.
+
+| Part | What it shows |
+|---|---|
+| Header | The number, the title and the window controls. The title is the step's description; without one, the summary of the operation. |
+| Under the title | The method and path, then the step id and **source** with the contract, for example `getPokemon · source pokeapi`. A step that calls another workflow says **calls workflow …**. |
+| Marks | **modifies data** (POST, PUT, PATCH, DELETE), **🔑 signs in** (it gives its token to other steps), **🔑** (it uses that token), **🔑 no authorization**, **required not marked** and **N error(s)**. |
+| **Parameters** | Each parameter and body field with its value. A value that comes from somewhere else is a chip that names its source, such as **← id · from 1** or **← pokemon · Start**. A required value with nothing says **no source**. |
+| **Success criteria** | Each criterion with its type: **simple**, **jsonpath**, **regex** or **xpath**. A ⚠ marks a criterion that can never be met. |
+| **Outputs** | What the step gives to the next ones. |
+| **If it passes and matches** | Green. The routes taken when the step passes and a condition holds. |
+| **On failure** | Red. The routes taken when the step fails, and each status the contract declares that nothing handles. |
+
+Each route is one row, in the order of the Arazzo, with its arrow on the left. [Routes: what happens after each step](/design/branches/) explains the rows and the colors.
+
+A card with errors has a red border, and its errors are listed in its panel.
+
+### Window controls
+
+Each card has the controls of a window in its header.
+
+| Control | What it does |
+|---|---|
+| **–** **Minimize** | Shrinks the card. On a minimized card it becomes **□** **Show the full card**. The **M** key does the same for the selected card. |
+| **⤢** **Open in the panel** | Selects the step and opens its panel. |
+| **×** **Remove the step** | Asks first. See [Remove a step](/design/organize/#remove-a-step). |
+| **⏸** | Pauses the run before this step. See [Debug a workflow](/test/debug/). |
+
+### Minimized cards
+
+A minimized card keeps what you need to follow the workflow:
+
+- the number, the title, the method and the path;
+- the data chips it receives, and its outputs in one chip, such as **→ id · mainType**;
+- **N required without a value** and **N error(s)**;
+- its routes as colored chips, such as **404 → ends the workflow (End) as failed**, and each status without a route.
+
+To minimize or show every card at once, click **Full cards** in **View**. It switches to **Minimized cards**. Each card can still be opened or minimized on its own.
+
+Luvin remembers which cards are minimized on this computer, for each workflow. This is not written in the Arazzo.
+
+![Pokemon card with every card minimized: number, title, method and path, data chips, outputs in one chip and the routes as colored chips](/media/en/design-card-minimized.webp)
+
+## End of workflow
+
+The last card says how many outputs the workflow gives: **■ End of workflow · gives 2 outputs**. Each output shows where it comes from. Click it to choose what the workflow gives. See [Outputs](/design/outputs/).
+
+Routes that end the workflow draw their arrow to this card. A route that continues in another workflow ends in a box below it, **↗ Continues in «…»**.
+
+## Data and routes on the canvas
+
+Data does not draw one arrow per value. Each parameter says in its chip where its value comes from, and the lines show only for the selected step or for the chip under the mouse. Data lines go on the right of the cards. Routes go on the left, one color per scenario.
+
+**View** chooses what to draw:
+
+| Button | Options |
+|---|---|
+| **Routes ▾** | The legend of the colors and **Show the routes** |
+| **Data ▾** | **When a step is selected** (only that step's lines), **Always** (all of them, without labels) or **Never** (only when hovering a value) |
+
+Both buttons open the same menu. The choice for data is remembered on this computer. See [Connect data between steps](/design/wire-data/) and [Routes: what happens after each step](/design/branches/).
+
+## Select a step
+
+Click a card. Its panel opens over the right side of the canvas, with the tabs **Data**, **Success and routes**, **Authorization** and **Response**. Selecting a step does not change the zoom: if the panel covers the card, the canvas moves just enough to show it.
+
+To close the panel, press **Esc**, click **×** in the panel or click an empty part of the canvas.
+
+To select several steps, hold **Shift** and click. See [Copy, duplicate and extract steps](/design/copy-and-extract/).
+
+## Move around
+
+- Drag the background to move.
+- **−** and **＋** zoom out and in. **⤢ Fit** shows the whole workflow (**⇧1**).
+- Drag the frame in the minimap to move to another part. The minimap shows when the workflow has more than one step and no panel is open.
+- Drag a card up or down to change the order of the steps. See [Organize a workflow](/design/organize/).
+
+### Search the canvas
+
+<Steps>
+1. Click **⌕**, or press **⌘F** (Ctrl+F).
+2. Type part of a title, a step id, a path, or the name of a parameter or an output. The matching cards are highlighted.
+3. Press Enter to select the first one and bring it into view. Esc closes the search.
+</Steps>
+
+## Keyboard shortcuts
+
+Press **?**, or open **⋯** › **Keyboard shortcuts**, to see them in the app. They do not work while the cursor is in a text field.
+
+| Keys | What they do |
+|---|---|
+| ↑ ↓ | Move between steps |
+| Esc | Close the panel or stop selecting |
+| / | Add a step |
+| ⌘↵ | Run |
+| ⇧↵ | Run only the selected step |
+| ⌘F | Search the canvas |
+| ⌘Z, ⇧⌘Z | Undo, redo |
+| ⌥↑, ⌥↓ | Move the step |
+| ⌘D | Duplicate the step |
+| ⌫ | Remove the step |
+| F9 | Pause before the step |
+| R | Add a route to the step |
+| M | Minimize the step |
+| ⇧ click | Select several steps |
+| ⌘A | Select every step |
+| ⌘C, ⌘V | Copy and paste steps |
+| ⇧1 | Fit the zoom |
+| ? | See these shortcuts |
+
+On Windows and Linux, use Ctrl instead of ⌘ and Alt instead of ⌥.
+
+## The Simple interface
+
+In the Simple interface, cards show the step's description instead of the method, and the criteria in words. Everything else works the same. See [Preferences](/get-started/preferences/).
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Add steps" href="/design/add-steps/" />
+  <LinkCard title="Connect data between steps" href="/design/wire-data/" />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="Organize a workflow" href="/design/organize/" />
+</CardGrid>

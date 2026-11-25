@@ -9,7 +9,9 @@ import { Steps } from '@astrojs/starlight/components';
 
 La pestaña **Autorización** de un workflow decide cómo se autoriza cada API que el workflow llama: con las credenciales del contrato, con OAuth 2.0, con una API key, etc. Úsala cuando pegar un token en el ambiente no alcanza, por ejemplo cuando el token vence y hay que pedirlo de nuevo.
 
-Arazzo no tiene un concepto de autorización. Esta configuración es de Luvin y el archivo Arazzo no se modifica.
+Arazzo no tiene un concepto de autorización. Esta configuración es de Luvin y no modifica el archivo Arazzo. La única excepción es **Token de un paso de este workflow**: el token de un paso de login se escribe en los pasos que lo usan.
+
+Si la API tiene su propia llamada de login, un paso de login le puede dar su token a los demás pasos. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
 
 ![La pestaña Autorización de un workflow, con una tarjeta por API](/media/es/workflow-auth.webp)
 
@@ -32,6 +34,15 @@ apis:
 
 La configuración de un solo workflow va bajo una segunda clave, `journeys`, por archivo Arazzo e id del workflow (`archivo.arazzo.yaml#workflowId`). Si renombras el archivo Arazzo en Luvin, la configuración lo sigue. El archivo se escribe solo cuando configuras algo.
 
+Un paso en **Ninguna**, en su propia pestaña **Autorización**, va bajo una tercera clave, `noAuth`, porque Arazzo no lo puede decir. Entonces el archivo empieza con `version: 3`:
+
+```yaml title="flow-auth.yaml"
+version: 3
+noAuth:
+  tienda.arazzo.yaml#hacerPedido:
+    - login
+```
+
 ## Abrir la pestaña
 
 <Steps>
@@ -41,7 +52,7 @@ La configuración de un solo workflow va bajo una segunda clave, `journeys`, por
 
 </Steps>
 
-Ves una tarjeta por cada API HTTP que llama el workflow. Si no llama a ninguna, muestra *Este workflow no llama APIs HTTP.* Cada tarjeta muestra qué se usa ahora y dónde se definió, por ejemplo **Se usa: OAuth 2.0 · definida para todos los workflows**. Los otros orígenes son *definida en este workflow*, *heredada de la colección* y *credenciales del ambiente*.
+Ves una tarjeta por cada API HTTP que llama el workflow. Los contratos que Luvin genera con tus requests guardados cuentan como una API por URL base: una tarjeta, con el nombre de la variable (`baseUrl`) o del host, aunque Luvin haya tenido que repartir los requests en varios contratos generados. Al pasar el mouse por la tarjeta se ven todos, y lo que elijas vale para todos. Si el workflow no llama a ninguna API HTTP, muestra *Este workflow no llama APIs HTTP.* Cada tarjeta muestra qué se usa ahora y dónde se definió, por ejemplo **Se usa: OAuth 2.0 · definida para todos los workflows**. Los otros orígenes son *definida en este workflow*, *heredada de la colección* y *credenciales del ambiente*.
 
 ## Dos niveles: todos los workflows o solo este
 
@@ -54,6 +65,8 @@ Cada tarjeta tiene un selector.
 
 Gana lo más específico: **Solo este workflow**, luego **Todos los workflows**, luego las credenciales del contrato. La tarjeta se abre en el nivel que decide hoy.
 
+Por encima de los dos niveles está el paso mismo. Un paso que toma el token de otro paso, o que está en **Ninguna**, en su propia pestaña **Autorización** de **Diseño**, no usa esta tarjeta. Mira [De dónde sale la autorización de un paso](/es/authorization/token-from-login/#de-dónde-sale-la-autorización-de-un-paso).
+
 ## Los tipos
 
 Bajo **Todos los workflows**, en **Tipo**:
@@ -65,7 +78,9 @@ Bajo **Todos los workflows**, en **Tipo**:
 | **AWS Sig v4**, **Basic Auth**, **Bearer Token**, **Digest Auth**, **NTLM Auth**, **OAuth 1.0**, **OAuth 2.0**, **WSSE Auth**, **API Key**, **Akamai EdgeGrid** | Luvin la aplica en cada paso de esa API. Mismos campos que en un request. |
 | **Sin autorización** | Las llamadas van sin autorización. |
 
-Bajo **Solo este workflow**, la primera opción es **Como en todos los workflows** (el valor por defecto), luego los mismos tipos y **Sin autorización**. **Editar para todos los workflows** cambia la tarjeta al otro nivel.
+Bajo **Solo este workflow**, la primera opción es **Como en todos los workflows** (el valor por defecto), luego los mismos tipos, **Sin autorización** y **Token de un paso de este workflow**. Esta última le pasa el token de un paso de login a todos los pasos de esta API: mira [Configúralo una vez para toda la API](/es/authorization/token-from-login/#configúralo-una-vez-para-toda-la-api). **Editar para todos los workflows** cambia la tarjeta al otro nivel.
+
+![La tarjeta de una API en Solo este workflow, con el tipo Token de un paso de este workflow y el token del login elegido](/media/es/auth-token-tab.webp)
 
 ## Configurarla
 
@@ -89,12 +104,13 @@ En la tarjeta, **Obtener token nuevo** hace lo mismo para una API. Con **Client 
 ## Bueno saber
 
 - Con cualquier opción distinta de **Del contrato**, los pasos de esa API dejan de usar las credenciales del contrato.
-- Los casos que prueban una llamada *sin credenciales* siguen yendo sin autorización.
+- Los casos que prueban una llamada *sin credenciales* siguen yendo sin autorización. Esperan el rechazo del primer paso protegido que no es el login.
 - Se aplica contra la API real. En [simulación](/es/test/simulation/) ninguna llamada sale de tu computadora.
 - Un secreto escrito tal cual no se escribe en `flow-auth.yaml`: se guarda cifrado en tu equipo. Usa `{{clientSecret}}` para compartir la configuración.
 
 ## Relacionado
 
+- [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/)
 - [OAuth 2.0](/es/authorization/oauth2/)
 - [Dónde se aplica la autorización](/es/authorization/where-it-applies/)
 - [Secretos](/es/authorization/secrets/)

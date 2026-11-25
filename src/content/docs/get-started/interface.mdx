@@ -13,11 +13,12 @@ This page names every part of the screen and says what it is for. Read it once a
 
 | Area | Where | What it is for |
 |---|---|---|
-| Top bar | Top edge | The open workspace, its save state and the active environment |
+| Top bar | Top edge | The open workspace, its save state and the active environments |
 | Sidebar | Left | Your collections, environments, history and mock servers |
 | Tabs | Above the main area | What you have open |
 | Run bar | Under the tabs, in a workflow | Where and how to run |
 | Results bar | Bottom of a workflow | The results of the last run |
+| Variables panel | Right, when you open it | Every variable you can use, and where each one lives |
 | Status bar | Bottom edge | Preferences, theme, tour, search and Dev Tools |
 
 ## Top bar
@@ -25,7 +26,13 @@ This page names every part of the screen and says what it is for. Read it once a
 - **Home** (the house icon) opens the workspace home, with its collections and quick actions.
 - **The workspace switcher** is the button with the workspace name. Its menu shows where the workspace is saved and offers **Rename workspace**, **Close and switch workspace**, **Delete workspace…** and **Show in Finder** (**Show in file explorer** on Windows).
 - **The save state**, on the right, reads **Saving…**, **✓ Saved** or **Save failed**. Every change is saved automatically. ⌘S (Ctrl+S) saves at once.
-- **The active environment**, at the top right: a pill with its name, in the color you chose for it, or in Luvin green if it has none. It shows whenever a collection is open, so you always know where your runs go, and it is the only place in the window that shows it. Click it to choose another environment, marked in a list. Its last option, **Configure environment…**, opens the environment tab. See [Environments](/environments/overview/).
+- **The active environments**, at the top right: one pill with two halves, as in Bruno. It shows whenever a collection is open, so you always know where your runs go, and it is the only place in the window that shows it.
+  - The left half, with a database icon, is the collection environment, in the color you chose for it, or in Luvin green if it has none. Click it to choose another one, marked in a list. Its last option, **Configure environment…**, opens the environment tab.
+  - The right half, with a globe, is the global environment of the workspace, or a gray **No global** when none is active. Click it to choose one, or **None**. **See all variables…** opens the Variables panel.
+
+  See [Environments](/environments/overview/) and [Global environments](/environments/variable-levels/#global-environments).
+
+  ![The environment pill at the top right, with the collection environment on the left and the global environment on the right, and the menu of the global environment open](/media/en/env-pill-split.webp)
 
 ## Sidebar
 
@@ -34,11 +41,11 @@ At the top of the sidebar, four icons switch between its panels. Luvin remembers
 | Panel | What it shows |
 |---|---|
 | **Collections** | Each collection. Click the arrow to unfold one, or its name to open the collection overview. Inside: the Arazzo files, their workflows, the steps of each workflow and the **Requests**. Below them, the **Contracts** of the open collection: ✓ loaded, ✕ not loaded, ○ not used by any workflow yet. |
-| **Environments** | The environments of the open collection. Click one to make it active and open it. |
+| **Environments** | The **Global environments** of the workspace, then the environments of the open collection, and **Collection variables**. Click an environment to make it active. |
 | **History** | The latest entries of the collection's history. **See all** opens the **History** tab. |
 | **Mock servers** | The mock servers of the collection. A green dot on the icon means one is running. |
 
-See [The sidebar](/get-started/sidebar/) for each panel. The dot next to a workflow tells how its last run went. Hover over it to read the state, for example **Passed**, **Failed** or **Not run**. Most rows have a ⋯ menu with actions such as **Rename** and **Delete**.
+Drag the right border of the sidebar to make it wider or narrower. See [The sidebar](/get-started/sidebar/) for each panel. The dot next to a workflow tells how its last run went. Hover over it to read the state, for example **Passed**, **Failed** or **Not run**. Most rows have a ⋯ menu with actions such as **Rename** and **Delete**.
 
 ## Tabs
 
@@ -47,13 +54,14 @@ Everything you open becomes a tab: a workflow, a request, a contract, an environ
 - **Preview tabs.** In a workspace, a single click opens a preview tab, with its name in italics. The next thing you open replaces it. To keep it, double-click the tab or the sidebar row, edit it, or run it.
 - **The + button** (**Create or import**), at the right end of the tab bar, opens a menu with **New workflow in this file**, **New Arazzo**, **New request**, **New OpenAPI contract**, **New AsyncAPI contract** and **Import from Postman or Bruno**. An item is off when it cannot apply, for example when there is no open collection. The **+** stays outside the tabs, so it is always visible.
 - **More tabs than fit.** When the tabs do not fit, three buttons appear next to the **+**. The arrows (**Show the tabs on the left**, **Show the tabs on the right**) scroll the tabs; an arrow is off when there is nothing more on that side. The chevron (**All open tabs**) lists every open tab, with a check on the current one. Choose one to open it.
+- **Variables** (the `{ }` button, next to the **+**) opens or closes the Variables panel on the right. See [The Variables panel](#the-variables-panel).
 - **Right-click a tab** for **New Arazzo**, **Close**, **Close Others**, **Close to the Left**, **Close to the Right** and **Close All**. An item is off when there is nothing to close. The tab **Home** cannot be closed.
 
 ## The tabs of a workflow
 
 | Tab | What it is for |
 |---|---|
-| **Design** | Build the workflow on a canvas by dragging operations |
+| **Design** | Build the workflow on a canvas: add steps, connect the data between them, and try it right there. See [Design workflows](/design/overview/) |
 | **Inputs** | The values every case starts from. A number means values are missing or invalid |
 | **Cases** | The generated cases and your own. The number is how many are ready to run |
 | **Authorization** | The authorization of each API the workflow calls |
@@ -68,7 +76,27 @@ From left to right: the workflow name and description (click either to edit it),
 
 ## Results bar
 
-**Result** is a thin bar at the bottom until you run. Then it opens on its own. Click its title to fold or unfold it. Its header has **Rerun**, **JSON** and **Report**, and a button to show the results on the right or below. In **Design** the results always go below.
+**Result** is a thin bar at the bottom until you run. Then it opens on its own. Click its title to fold or unfold it. Its header has **Rerun**, **JSON** and **Report**, and a button to show the results on the right or below. Drag the line between the results and the rest to resize them.
+
+In **Design**, a smaller result bar floats over the canvas instead, and its **Results** button opens the full results. See [Design workflows](/design/overview/).
+
+## The Variables panel
+
+Click `{ }` in the tab bar to open the **Variables** panel on the right of any view: a request, a workflow, the collection. It lists the variables of the open request on top and, below, every level from the one that wins to the one that loses. You edit values right there. Click `{ }` again, or its **×**, to close it. See [The Variables panel](/environments/variable-levels/#the-variables-panel).
+
+## Resize the panels
+
+As in Postman, you can drag the borders between the parts of the window. Luvin remembers each size on this computer.
+
+| Border | What it resizes | Double-click |
+|---|---|---|
+| The right border of the sidebar | The width of the sidebar, from 200 to 560 px | Back to its default width |
+| The left border of the Variables panel | The width of the panel, from 300 to 720 px | Back to its default width |
+| The line between a request and its response | How much of the height each one gets. The body and script editors fill the space | Back to the original split |
+| The line next to the results of a workflow | Their width, or their height when they are below | Back to the default width, when they are on the right |
+| The line next to the **Documentation** panel, on **Home** and in the collection overview | The width of the panel | No |
+
+All of them except the **Documentation** border also move with the arrow keys after you click them.
 
 ## Status bar
 
@@ -80,18 +108,22 @@ From left to right: the workflow name and description (click either to edit it),
 | **Tour** | Starts the [guided tour](/get-started/guided-tour/) |
 | **Search** | Opens the search |
 | **Dev Tools** | Opens Console, Network and Performance, plus a Terminal |
+| **Shortcuts** `?` | Lists the keyboard shortcuts of the canvas, while a workflow is open in **Design** |
+| The version | The version of Luvin you are using, such as `v0.2.0-beta.10` |
 
 ## Search with ⌘K
 
-Press ⌘K (Ctrl+K on Windows), type, and press Enter. The search finds workflows, steps, environments, contracts, requests and collections. Words can go in any order, and accents and capitals do not matter. Use ↑ and ↓ to move and Esc to close. Results appear in groups, at most 60 at a time:
+Press ⌘K (Ctrl+K on Windows), type, and press Enter. The search finds actions, workflows, steps, environments, contracts, requests, mock servers and collections. Words can go in any order, and accents and capitals do not matter. Use ↑ and ↓ to move and Esc to close. Results appear in groups, at most 60 at a time:
 
 | Group | What a row shows | What Enter does |
 |---|---|---|
+| **Actions** | **Run requests**, **Run workflows** (when the collection has workflows), **Open history**, **New request** and **New mock server**. | Does it. |
 | **Workflows** | The name of the workflow and, when the collection has several Arazzo files, the file it is in. Otherwise, its summary. | Opens the workflow. |
 | **Steps** | The step, with its HTTP method and the workflow it belongs to. | Opens that step in its workflow. |
 | **Environments** | The environment, with its color. The one in use says **active**. | Makes it the active environment and opens it. |
 | **Contracts** | The contract, with **API** or **ASYNC**, and its file. | Opens the contract. |
 | **Requests** | The saved request, with its method and URL. | Opens the request. |
+| **Mock servers** | The mock server, and its port when it is running. | Opens the mock server. |
 | **Collections** | The collection and its folder. | Opens the collection. |
 
 The method and the group name also count when Luvin matches your words, so `get pokemon` finds the `GET` steps with that name. When nothing matches, it says **Nothing matches your search.**

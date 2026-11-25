@@ -5,7 +5,47 @@ sidebar:
   order: 12
 ---
 
-Esta página lista qué puede hacer Luvin y cuándo llegó cada capacidad. Lo más nuevo va primero. La versión actual es la **0.1.5**.
+Esta página lista qué puede hacer Luvin y cuándo llegó cada capacidad. Lo más nuevo va primero. La versión actual es la **0.2.0-beta.10**.
+
+## 25 de noviembre de 2026 · versión 0.2.0-beta.10
+
+**El lienzo del workflow, rediseñado.**
+
+- **Tarjetas completas y un lienzo más amplio.** Cada paso se ve entero, con controles para minimizarlo; el workflow empieza en **Inicio** y termina en **Fin del workflow**, y una falla se ve en rojo. **＋ Paso** reemplaza la columna de la paleta, y el panel del paso se abre sobre el lienzo, con pestañas. Mira [Diseñar workflows](/es/design/overview/).
+- **Los datos en chips, sin flechas.** Cada dato que recibe un paso dice de dónde viene; la línea aparece solo al elegir o pasar sobre un paso. Mira [Conectar datos entre pasos](/es/design/wire-data/).
+- **Todas las rutas de Arazzo en el lienzo**, con un color por escenario, un selector para cada acción (`goto`, `retry`, `end`) y un panel **Rutas** para ordenarlas, editarlas y quitarlas.
+- **Por revisar** lee el Arazzo como lo haría la ejecución y marca lo que el esquema no ve, como una condición JSONPath escrita como comparación, que nunca se cumple.
+- **Ejecuta y depura sobre el lienzo.** Cada tarjeta muestra si pasó, con una comparación con la ejecución anterior. Pausa antes de un paso, cambia lo que recibe (también los campos del body JSON) y sigue; o ejecuta solo un paso, hasta un paso o desde un paso. Mira [Ejecutar sobre el lienzo](/es/test/run-on-canvas/) y [Depurar](/es/test/debug/).
+- **Prueba cada ruta sin tu API.** Luvin simula la respuesta que lleva a cada ruta, y la cobertura muestra cuáles faltan, qué hizo cada caso y qué errores no tienen ruta. Mira [Probar rutas y cobertura](/es/test/probe-routes/).
+- **Copia, pega, duplica y extrae pasos.** Los pasos elegidos se copian a otro workflow, y unos pasos seguidos se extraen a un workflow nuevo con una vista previa.
+- **Patrones de Arazzo desde ＋ Paso:** recorrer todas las páginas, esperar hasta que termine, e iniciar sesión y usar el token. También con los requests de una colección.
+- **El YAML al lado del lienzo**, y un minimapa.
+- **Corrección al armar desde requests:** los datos se conectan según lo que guardan los scripts de Postman, un id nunca se toma de un paso que habla de otra cosa, los datos generados como `{{$randomFirstName}}` se respetan, y un request que espera un error pasa con ese error. Mira [Armar desde requests guardados](/es/design/from-requests/).
+
+## 24 de noviembre de 2026 · versiones 0.2.0-beta.8 y 0.2.0-beta.9
+
+**El token del login pasa a los otros pasos, y un workflow que se lee de un vistazo.**
+
+- **El token del login, en los pasos siguientes.** Cada paso dice de dónde sale su autorización: del ambiente, del token de un paso o de ninguna. Luvin reconoce el token leyendo el script del login, sin ejecutarlo, y lo conecta al armar el workflow, escrito en Arazzo estándar. Mira [Autorización de un workflow](/es/authorization/workflow/).
+- **Pasos con el nombre que les diste.** Un paso armado desde un request se titula con el nombre del request y recibe un id corto y legible. Los contratos generados con la misma URL base son una sola API.
+- **Campos obligatorios sin ventanas.** Se marcan en el mismo panel del paso.
+- **La colección, en pestañas como Postman**, con la documentación de Luvin al lado. Mira [El resumen de la colección](/es/workspaces/collection-overview/).
+- **El runner lista los tests y comprobaciones de cada request**, como el runner de Postman.
+- **Una colección de Postman con variables secretas** corre como en Postman, y sus valores guardados se ven y se editan en las dos vistas de variables.
+- **Abrir una carpeta que no es un workspace** ya no crea uno sin avisar.
+
+## 23 de noviembre de 2026 · versiones 0.2.0-beta.5 y 0.2.0-beta.6
+
+**Variables en cuatro niveles, scripts de Postman y Bruno, y solo la app de escritorio.**
+
+- **Luvin es una app de escritorio para macOS y Windows.** Los ejemplos y el tour viven en la carpeta de datos de la app. Mira [Instalar y abrir Luvin](/es/get-started/install/).
+- **Cuatro niveles de variables, como Bruno:** ambiente global del workspace, ambiente de la colección, variable de la colección y variable del request, con un solo orden para resolverlas. El panel **Variables** las muestra todas, como "All variables" de Postman, y la tarjeta de una variable la crea o la mueve con **Agregar a**. Mira [Dónde vive una variable](/es/environments/variable-levels/).
+- **Los ambientes globales y el de la colección, juntos** en una píldora dividida, como en Bruno.
+- **Variables en el editor del body**, creadas con su valor; bodies JSON con comentarios; y un panel con las variables del request. Mira [Parámetros, headers y body](/es/requests/params-headers-body/).
+- **Scripts antes del request y después de la respuesta**, como en Postman: en el request, la carpeta o la colección, con la API `pm.*` y la de Bruno (`bru.*`), `pm.sendRequest` y las librerías de Postman, en un entorno aislado. También corren en el runner y en las pruebas de rendimiento. Los scripts de una colección que no escribiste esperan a que confíes en ella. Mira [Scripts](/es/requests/scripts/).
+- **Importar trae los scripts completos.** Los scripts de Postman y Bruno se guardan tal cual y corren como en el original, ya no se convierten. Cada variable llega a su nivel, y si la colección ya existe, Luvin pregunta si importar una copia o reemplazarla. Mira [Trae tus propios archivos y requests](/es/get-started/import/).
+- **Paneles que cambian de tamaño**, como en Postman: la división entre request y respuesta, la barra de colecciones y los paneles laterales.
+- **Otras mejoras:** renombrar un workspace renombra su carpeta; soltar un archivo de Postman o Bruno lo lleva al importador, aunque no haya una colección abierta; y ⌘Q guarda los cambios pendientes antes de cerrar.
 
 ## 19 de noviembre de 2026 · versiones 0.1.4 y 0.1.5
 

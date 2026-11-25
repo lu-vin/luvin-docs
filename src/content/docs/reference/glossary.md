@@ -20,6 +20,8 @@ sidebar:
 | **Workspace** | A folder that holds collections. |
 | **Request** | A single API call saved on its own, outside a workflow. |
 | **Simulation** | A run answered from the contract examples, with no network calls. |
+| **Script** | JavaScript that runs before a request is sent or after its response, as in Postman and Bruno. It can be in a request, a folder or the collection. See [Scripts](/requests/scripts/). |
+| **Current value** | The value a script (or you, by hand) gives a variable on this computer. It wins over the value in the file and never reaches git. |
 | **Secret** | A variable whose value is never written to the workspace files. Only its name is. |
 | **Real API** | A run mode that calls the API with the base URLs and credentials of the active environment. |
 | **Reusable** | A parameter or an action declared once in `components` and used by reference from several steps. |

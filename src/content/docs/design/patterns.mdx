@@ -1,0 +1,160 @@
+---
+title: Standard Arazzo patterns
+description: Add a step that goes through every page, waits until a job finishes, or signs in and gives its token to the next steps, written as plain Arazzo from ＋ Step.
+sidebar:
+  order: 6.5
+---
+
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Some chains repeat in almost every API: read a list page by page, wait for a job to finish, sign in and use the token. Arazzo can express them, but you need to know how. **＋ Step** has them ready under **Patterns · standard Arazzo**. You choose the pattern and the operation, and Luvin writes the step with its routes, its criteria and its outputs. Everything is standard Arazzo, without extensions.
+
+## Example: wait until an export finishes
+
+A shop API starts an export and gives you its `id`. `GET /exports/{id}` answers `"status": "pending"` until the file is ready, and then `"status": "done"`.
+
+<Steps>
+1. Select the step that starts the export, and click **＋ Step**.
+2. Under **Patterns · standard Arazzo**, click **Wait until it finishes**. A bar says **Wait until it finishes · choose the operation to apply it to**.
+3. Click `GET /exports/{id}`.
+</Steps>
+
+A notice above the canvas says **«Get the export» passes when «status» says «done» and retries every 2 s, up to 10 times, while it says «pending».**
+
+<Tabs>
+<TabItem label="On the canvas">
+
+The new card has two success criteria: `$statusCode == 200` and `$response.body#/status == "done"`. Its **On failure** section has a blue row, **retries up to 10 · every 2 s**, with a loop on the same card.
+
+</TabItem>
+<TabItem label="In the YAML">
+
+```yaml title="What Luvin writes" {5,7,9-14}
+- stepId: getExport
+  operationId: $sourceDescriptions.shop.getExport
+  successCriteria:
+    - condition: $statusCode == 200
+    - condition: $response.body#/status == "done"
+  outputs:
+    status: $response.body#/status
+  onFailure:
+    - name: mientrasPendiente
+      type: retry
+      retryAfter: 2
+      retryLimit: 10
+      criteria:
+        - condition: $response.body#/status == "pending"
+```
+
+</TabItem>
+</Tabs>
+
+![The notice of the pattern and the card of getExport: the criterion status == "done" and, under On failure, the blue row that retries while status is "pending"](/media/en/design-pattern-poll.webp)
+
+## Add a pattern
+
+<Steps>
+1. Click **＋ Step**, or press **/**. If a step is selected, the new step goes right after it; if not, at the end of the happy path.
+2. Under **Patterns · standard Arazzo**, click the pattern. You can also type part of its name and press Enter.
+3. The list now shows only HTTP operations and the collection's requests. Click the one to apply it to.
+</Steps>
+
+![The ＋ Step search after choosing Wait until it finishes: the bar choose the operation to apply it to, with ← Other steps, and the operations of the store contract](/media/en/design-patterns-menu.webp)
+
+To go back to the full list, click **← Other steps**.
+
+The new step is filled in like any other step, then the pattern adds its part. A notice says what it wrote. **↶ Undo** removes it.
+
+Patterns are not offered when you add a new step for a route. See [A new step for a route](/design/branch-new-step/).
+
+| Pattern | What it says in the list | Read |
+|---|---|---|
+| **Go through every page** | repeats the step while there is a next page | [Go through every page](#go-through-every-page) |
+| **Wait until it finishes** | retries while the status says «pending» | [Wait until it finishes](#wait-until-it-finishes) |
+| **Sign in and use the token** | the steps of that API use its token | [Sign in and use the token](#sign-in-and-use-the-token) |
+
+## Go through every page
+
+The step calls itself again while the response has a next page.
+
+Luvin looks for the next-page field among the top-level fields of the response: `next`, `nextCursor`, `next_cursor`, `nextPageToken`, `next_page_token`, `cursor` or `nextPage`. If the operation has a query parameter for the cursor (`cursor`, `next`, `pageToken`, `page_token`, `after`, `starting_after`, `nextToken`, `continuation` or `nextCursor`), each round sends it with the value the previous round gave. The first round goes without it.
+
+For `GET /products` of a shop that answers `nextCursor` and takes `cursor`:
+
+```yaml title="What Luvin writes" {4-6,9-10,11-16}
+- stepId: listProducts
+  operationId: $sourceDescriptions.shop.listProducts
+  parameters:
+    - name: cursor
+      in: query
+      value: $steps.listProducts.outputs.nextCursor
+  successCriteria:
+    - condition: $statusCode == 200
+  outputs:
+    nextCursor: $response.body#/nextCursor
+  onSuccess:
+    - name: siguientePagina
+      type: goto
+      stepId: listProducts
+      criteria:
+        - condition: $response.body#/nextCursor != null
+```
+
+The notice says **«List products» repeats while «nextCursor» has a value, and each round sends «cursor» with the page the previous one gave. If the API names the next page differently, change it in its routes.**
+
+On the card, the route is a green row in **If it passes and matches**, with an arrow back to the same step.
+
+### When it stops
+
+- When the next-page field is empty or missing, the condition does not hold and the workflow goes on to the next step.
+- The runner stops any loop at 200 executions of a workflow. A condition on the body is the normal way to go through pages in Arazzo, so **To review** does not flag it.
+
+<Aside type="caution" title="APIs that page by offset">
+Some APIs page with an offset: `skip` and `limit`, and a `total` to compare with, as DummyJSON does. Arazzo conditions cannot add numbers, so this pattern cannot write that loop. With such an API, Luvin does not find a next-page field, writes the condition on `next`, and the loop stops after the first page. The notice names the field it used. See [Page through a list](/recipes/pagination-query/) for a way to read a given page with `skip` and `limit`.
+
+If the API gives a next-page field but takes no cursor parameter, each round sends the same request. Check the parameter in the **Data** tab of the step.
+</Aside>
+
+## Wait until it finishes
+
+The step passes when the job is done, and retries while it is not.
+
+Luvin looks at the top-level fields of the response:
+
+| The response has | Success criterion added | Retries while |
+|---|---|---|
+| `status` or `state` | `$response.body#/status == "done"` | `$response.body#/status == "pending"` |
+| No `status` or `state`, but a yes/no field called `completed`, `done`, `finished`, `ready`, `isComplete` or `isDone` | `$response.body#/completed == true` | `$response.body#/completed == false` |
+
+The retry waits 2 seconds and tries up to 10 times. The field also becomes an output of the step.
+
+For the yes/no field, the notice says, for example, **«Get the task» passes when «completed» is true and retries every 2 s, up to 10 times, while it is false.**
+
+If your API uses other words than `done` and `pending`, or you want another wait or number of tries, change them in the [YAML tab](/design/arazzo-editor/). The route editor only writes routes on a status, so do not edit this route with its pencil.
+
+<Aside type="note">
+After the 10 tries, if the status still says `pending`, the step fails and the workflow follows its other routes, or fails. A status that is neither `done` nor `pending`, such as `failed`, fails the step without retrying.
+</Aside>
+
+## Sign in and use the token
+
+Choose the login operation. Luvin adds the step and recognizes which field of its response is the token. Then the steps of the same API after it use that token as their authorization, the same as choosing the token in the step panel. A notice says how many steps use it now, with **Undo**.
+
+If Luvin does not recognize the token field, the step is still added, and the notice says **«Sign in» was added, but Luvin does not recognize which of its fields is the token: choose it in its panel, under «Authorization».**
+
+See [Pass the login token to the next steps](/authorization/token-from-login/).
+
+## Patterns with collection requests
+
+Patterns also work with the requests of the collection, without a contract. Click the pattern, then a request under **Collection requests**. Luvin adds the request as a step, as [Build from saved requests](/design/from-requests/) does, and applies the pattern to it.
+
+The fields come from what Luvin knows of the request's response: its saved examples or its last response. If Luvin does not know the response yet, it uses `next` or `status`, and the notice names the field. Send the request once, or change the field in the YAML tab.
+
+## Related
+
+<CardGrid>
+  <LinkCard title="Add steps" href="/design/add-steps/" />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="To review" href="/design/review/" />
+  <LinkCard title="Page through a list" href="/recipes/pagination-query/" />
+</CardGrid>

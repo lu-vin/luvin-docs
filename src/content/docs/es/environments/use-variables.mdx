@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Una variable se escribe con su nombre entre llaves dobles, `{{nombre}}`. Cuando sale un request o un paso, Luvin la reemplaza por el valor del ambiente activo. Así el mismo request funciona en todos los ambientes.
+Una variable se escribe con su nombre entre llaves dobles, `{{nombre}}`. Cuando sale un request o un paso, Luvin la reemplaza por su valor, casi siempre del ambiente activo. Así el mismo request funciona en todos los ambientes. Una variable también puede vivir en el request, en la colección o en un ambiente global: mira [Dónde vive una variable](/es/environments/variable-levels/).
 
 ## Ejemplo: un request, tres tipos de valores
 
@@ -87,15 +87,20 @@ Luvin sigue hasta cinco niveles. Dos variables que se nombran entre sí se detie
 
 ## Qué valor manda
 
-El mismo nombre puede existir en varios lugares. Cuando pasa, manda el que está más abajo en esta tabla:
+El mismo nombre puede existir en varios lugares. Cuando pasa, manda el que está más arriba en esta tabla:
 
 | Origen | Ejemplo | Dura |
 |---|---|---|
-| Los generadores de Luvin | `{{email}}`, `{{uuid}}` | Siempre disponibles |
-| URLs base del ambiente activo | `{{baseUrl}}`, `{{pokeapi}}` | Mientras el ambiente está activo |
-| Variables y secretos del ambiente activo | `{{clientId}}` | Mientras el ambiente está activo |
-| Valores guardados por los requests (**Guardadas ahora**) | `{{token}}` guardado de la respuesta de un login | Hasta que cambias de ambiente, abres otra colección o haces clic en **Borrar todas** |
 | Columnas de un archivo de datos en el runner | `{{customerId}}` de un CSV | Durante esa ejecución |
+| Valores guardados por los requests (**Guardadas ahora**) | `{{token}}` guardado de la respuesta de un login | Hasta que cambias de ambiente, abres otra colección o haces clic en **Borrar todas** |
+| Variables del request | `{{orderId}}` en el request **Crear pedido** | Solo en ese request |
+| Variables y secretos del ambiente activo de la colección | `{{clientId}}` | Mientras el ambiente está activo |
+| URLs base del ambiente activo de la colección | `{{baseUrl}}`, `{{pokeapi}}` | Mientras el ambiente está activo |
+| Variables de la colección | `{{apiVersion}}` | Siempre |
+| El ambiente global activo | `{{authHost}}` | Mientras está activo |
+| Los generadores de Luvin | `{{email}}`, `{{uuid}}` | Siempre disponibles |
+
+Los niveles, y cómo crear una variable en cada uno, están en [Dónde vive una variable](/es/environments/variable-levels/).
 
 Algunas consecuencias:
 

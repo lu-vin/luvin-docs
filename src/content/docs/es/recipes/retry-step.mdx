@@ -68,6 +68,15 @@ steps:
 | 10-12 | Si `getMe` tiene éxito, el workflow termina aquí, así que `login` no corre una segunda vez. |
 | 14-19 | Ante un 401, ejecuta una vez el paso `login` y luego llama otra vez a `getMe`, hasta dos veces (`retryLimit: 2`). |
 
+## En el lienzo
+
+Abre el workflow en la pestaña **Diseño**. La tarjeta de `getMe` muestra las dos rutas:
+
+- En **Si pasa y se cumple**, la fila `éxito → termina con éxito (Fin)`, con una flecha verde hasta **Fin del workflow**.
+- En **Si falla**, la fila `401 ↻ ejecuta el paso 2 y reintenta (hasta 2)`, con un lazo azul que vuelve a la tarjeta.
+
+El editor de rutas ofrece **Renovar y reintentar**, que ejecuta un *workflow* antes del reintento (`retry` con `workflowId`). Esta receta, en cambio, ejecuta un *paso* del mismo workflow (`retry` con `stepId`), una forma que se escribe en la pestaña YAML. Para armarla con el editor, pon el login en su propio workflow y elígelo en **Antes, ejecutar**. Ver [Ejecutar otro paso o workflow antes del reintento](/es/design/success-and-errors/#ejecutar-otro-paso-o-workflow-antes-del-reintento).
+
 ## Qué obtienes
 
 | Intento | Paso | Status HTTP | Qué muestra Luvin |
@@ -80,7 +89,7 @@ El output del workflow `firstName` es `Emily`, y el veredicto es **Pasó**.
 
 ## Pruébalo
 
-- Cambia `retryLimit` en la pestaña YAML y ejecuta de nuevo. El resultado muestra el número que pusiste, como en *Reintento 1 de 3*.
+- Cambia `retryLimit` en la pestaña YAML y ejecuta de nuevo. El resultado muestra el número que pusiste, como en *Reintento 1 de 3*. Usa la pestaña YAML, no el lápiz de la ruta: el editor de rutas escribe los reintentos sin `stepId`, así que guardarla ahí quitaría el login.
 
 :::note
 El paso que corre primero cuenta para `retryLimit`, y Luvin espera `retryAfter` segundos antes de cada reintento. En **Simulación** no se espera.

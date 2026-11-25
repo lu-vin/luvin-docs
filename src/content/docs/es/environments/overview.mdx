@@ -70,12 +70,16 @@ Los ambientes son de la [colección](/es/reference/glossary/) abierta. Cada cole
 
 Luvin recuerda en este equipo el ambiente activo de cada colección. No se escribe en los archivos, así que cada persona del equipo puede tener uno distinto activo.
 
+### Ambientes globales
+
+Un workspace también puede tener ambientes globales, que usan todas sus colecciones, como en Bruno. Pon ahí lo que comparten varias colecciones, como la dirección de un servidor de login. Hay como máximo un ambiente global activo a la vez, y es opcional. Cuando eliges un ambiente de la colección, también se elige el ambiente global con el mismo nombre, si existe. Mira [Ambientes globales](/es/environments/variable-levels/#ambientes-globales).
+
 ## Dónde están los ambientes
 
 | Lugar | Qué encuentras |
 |---|---|
-| Barra superior | El ambiente activo, arriba a la derecha de la ventana: una pastilla de su color, o en el verde de Luvin si no tiene. Siempre se ve mientras hay una colección abierta. |
-| Barra lateral | El panel **Ambientes**: haz clic en el ícono **Ambientes** arriba de la barra lateral. Su título muestra el nombre de la colección abierta. El activo tiene su punto relleno. Una fila con variables dice cuántas tiene, por ejemplo **3 var.** |
+| Barra superior | Los ambientes activos, arriba a la derecha de la ventana, en una pastilla con dos mitades. A la izquierda, el ambiente de la colección, con un ícono de base de datos, de su color o en el verde de Luvin si no tiene. A la derecha, el ambiente global, con un globo, o un **Sin global** gris cuando no hay ninguno. Siempre se ve mientras hay una colección abierta. |
+| Barra lateral | El panel **Ambientes**: haz clic en el ícono **Ambientes** arriba de la barra lateral. Primero van los **Ambientes globales**, después los ambientes de la colección abierta, bajo un título con su nombre. El activo tiene su punto relleno. Una fila con variables dice cuántas tiene, por ejemplo **3 var.** |
 | La pestaña del ambiente | Con el título **Ambiente «nombre»**. Muestra el ambiente activo: sus URLs base, credenciales, variables y secretos, con una fila de todos los ambientes arriba. |
 | Runner | La lista **Ambiente**, arriba a la izquierda mientras configuras una ejecución. |
 | Búsqueda | Pulsa ⌘K (Ctrl+K) y escribe un nombre. El grupo **Ambientes** los lista, y el que está en uso dice **activo**. |
@@ -90,12 +94,16 @@ El ambiente activo es el que Luvin usa en cada ejecución, en cada request y en 
 
 <Steps>
 
-1. Haz clic en la pastilla de arriba a la derecha de la ventana.
+1. Haz clic en la mitad izquierda de la pastilla de arriba a la derecha de la ventana, la del ícono de base de datos.
 2. Elige un ambiente. El activo tiene una marca.
 
 </Steps>
 
 Su última opción, **Configurar ambiente…**, abre el ambiente activo en su pestaña. Usa la pastilla para cambiar sin dejar lo que estás haciendo.
+
+La mitad derecha abre la lista de ambientes globales, con **Ninguno** para no usar ninguno, y **Ver todas las variables…**, que abre el panel Variables. Si todavía no hay ambientes globales, ofrece **Crear ambiente global «local»**, con el nombre del ambiente activo de la colección.
+
+![La pastilla de dos mitades, con el menú del ambiente global abierto: local, Ninguno y Ver todas las variables](/media/es/env-pill-split.webp)
 
 </TabItem>
 <TabItem label="Barra lateral">

@@ -9,6 +9,8 @@ import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs
 
 Los resultados de una ejecución muestran, para cada caso, si hizo lo esperado y por qué. Se abren solos al ejecutar, abajo del workflow.
 
+En la pestaña **Diseño**, en cambio, la ejecución se dibuja en el lienzo, con una barra de resultado encima, y estos resultados completos se abren con **Resultados ▴**. Mira [Resultados en el lienzo](/es/test/run-on-canvas/).
+
 ## Ejemplo: Pokemon card
 
 Después de ejecutar **Pokemon card** en **Simulación**, los resultados muestran un resumen y una fila por caso.
@@ -48,7 +50,7 @@ Antes de la primera ejecución, la barra dice *Todavía no se ejecuta este workf
 
 | Elemento | Qué hace |
 |---|---|
-| **Resultado**, con una flecha | Pliega los resultados en una barra, o los muestra de nuevo. Se abren otra vez cada vez que ejecutas. |
+| **Resultado**, con una flecha | Pliega los resultados en una barra, o los muestra de nuevo. Se abren otra vez cada vez que ejecutas, salvo en la pestaña **Diseño**. |
 | ✓ ✕ ! ? con un número | Cuántos casos pasaron, no pasaron, terminaron en advertencia o fueron no concluyentes. |
 | *3 de 5 casos ejecutados.* | El avance de la ejecución. |
 | **Repetir** | Vuelve a ejecutar los casos seleccionados, igual que el botón **Ejecutar**. |
@@ -58,6 +60,8 @@ Antes de la primera ejecución, la barra dice *Todavía no se ejecuta este workf
 Arrastra el borde entre el workflow y los resultados para cambiar su tamaño.
 
 Cada workflow guarda los resultados de su última ejecución. Una ejecución nueva de ese workflow los reemplaza.
+
+Probar una ruta y una ejecución parcial (solo, hasta o desde un paso) agregan un caso más a la lista, con ▷ al inicio del nombre, por ejemplo **▷ Prueba: 404 → pokemonNotFound** o **▷ Solo el paso 2 · Camino feliz**. Los demás casos conservan sus resultados, y estas ejecuciones no se guardan en el historial. Mira [Probar rutas y cobertura](/es/test/probe-routes/) y [Depurar un workflow](/es/test/debug/).
 
 ## El resumen
 
@@ -147,6 +151,7 @@ En la interfaz **Simple (producto)**, los pasos muestran nombres legibles y las 
 ## Siguiente
 
 <CardGrid>
+  <LinkCard title="Resultados en el lienzo" description="La ejecución en la tarjeta de cada paso, y la comparación con la anterior." href="/es/test/run-on-canvas/" />
   <LinkCard title="Lee el resultado de un paso" description="Request, respuesta, criterios y fallas." href="/es/test/step-results/" />
   <LinkCard title="Reportes" description="Comparte los resultados." href="/es/test/reports/" />
 </CardGrid>

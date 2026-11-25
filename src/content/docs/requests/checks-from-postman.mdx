@@ -1,153 +1,35 @@
 ---
-title: Checks from Postman and Bruno
-description: How Luvin turns Postman tests and Bruno asserts and scripts into variables and checks when you import, what it skips and why, and how to finish by hand.
+title: Bruno asserts and Postman tests
+description: What becomes a variable or a check when you import from Bruno, where Postman tests and Bruno scripts go, and how to turn a script test into a check without code.
 sidebar:
   order: 13
 ---
 
-import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Luvin does not run scripts. When you import a Postman or Bruno collection, it reads the scripts that run after the response and turns the common lines (save a value, check the status, compare a field) into the **Variables** and **Checks** tabs of each request. What it cannot turn into a check is left out, and the import tells you how much. This page lists every conversion, so you know what to review.
+When you import a collection, its tests keep working. Postman tests and Bruno scripts come over whole, to the **Scripts** tab, and run as in the original once you trust the collection. Bruno's `vars:post-response` and `assert` blocks, which have no code, become the **Variables** and **Checks** tabs of each request.
 
-## What Luvin reads
+This page lists what becomes a check, and how to turn a script test into a check by hand if you prefer checks without code.
 
-| From | What is converted | What is not |
-|---|---|---|
-| Postman | The **Tests** script of each request | Pre-request scripts, and every script of a folder or of the collection |
-| Bruno | The `vars:post-response` and `assert` blocks, and the `tests` and `script:post-response` scripts of each request, from the folder of `.bru` files or from the `.json` export | `script:pre-request`, and the scripts of `folder.bru` and `collection.bru` |
+## Where each part goes
 
-## Example: a Postman test
+| From | Goes to |
+|---|---|
+| Postman: the **Pre-request** script of the collection, a folder or a request | The **Before request** script of the same level |
+| Postman: the **Tests** (post-response) script of the collection, a folder or a request | The **After response** script of the same level |
+| Bruno: `script:pre-request` of `collection.bru`, `folder.bru` or a request | The **Before request** script of the same level |
+| Bruno: `script:post-response` and `tests` | The **After response** script of the same level, the first one and then the other |
+| Bruno: `vars:post-response` of a request | The **Variables** tab of the request |
+| Bruno: `assert` of a request | The **Checks** tab of the request |
 
-```js
-const jsonData = pm.response.json();
-pm.environment.set("pokemonId", jsonData.id);
-pm.test("Status is 200", function () {
-  pm.response.to.have.status(200);
-});
-pm.test("It is Pikachu", function () {
-  pm.expect(jsonData.name).to.eql("pikachu");
-  pm.expect(jsonData.types).to.be.an("array");
-  pm.expect(pm.response.responseTime).to.be.below(1000);
-});
-if (jsonData.name !== "pikachu") {
-  postman.setNextRequest(null);
+This works from a folder of `.bru` files and from the `.json` Bruno exports. See [Scripts](/requests/scripts/) and [Import from Postman or Bruno](/get-started/import/#scripts-come-over-whole).
+
+## Bruno blocks that become variables and checks
+
+```
+vars:post-response {
+  token: res.body.token
 }
-```
-
-After the import, the request has:
-
-| Tab | Row |
-|---|---|
-| **Variables** | `pokemonId` ← `res.body.id` |
-| **Checks** | `res.status` **equals** `200` |
-| **Checks** | `res.body.name` **equals** `pikachu` |
-| **Checks** | `res.body.types` **is a list** |
-| **Checks** | `res.responseTime` **is less than** `1000` |
-
-The `if` block is skipped as a whole, and the import counts this script as having parts that could not be converted.
-
-## Import and review
-
-<Steps>
-
-1. Import the collection: see [Bring your own files and requests](/get-started/import/).
-2. Before you click to import, read the summary of each collection. It says how many variables and checks were converted, and how many scripts had parts that were not (see [How the import tells you](#how-the-import-tells-you)).
-3. After the import, open a request and look at its **Variables** and **Checks** tabs.
-4. Press **Send**. Check that the chip next to the status says what you expect.
-5. Add by hand what was skipped. See [Write by hand what was skipped](#write-by-hand-what-was-skipped).
-
-</Steps>
-
-## Saving variables
-
-| Script | Becomes |
-|---|---|
-| `pm.environment.set("x", …)` | A variable `x` |
-| `pm.collectionVariables.set("x", …)`, `pm.globals.set("x", …)`, `pm.variables.set("x", …)` | A variable `x` |
-| `bru.setVar("x", …)`, `bru.setEnvVar("x", …)` | A variable `x` |
-| Bruno `vars:post-response`: `token: res.body.token` | A variable `token` |
-
-The second argument must be something Luvin can read from the response (see the next table). If it is not, such as `jsonData.items.map(i => i.id)`, the line is skipped.
-
-<Aside type="note" title="Not written to the environment">
-In Postman, `pm.environment.set` changes the environment. In Luvin, the value is a saved value: it lives in memory while the collection is open (switching environments clears it) and wins over the environment variable with the same name. See [Save values from a response](/requests/save-variables/#where-the-saved-values-live).
-</Aside>
-
-## Reading the response
-
-| Script | Becomes |
-|---|---|
-| `pm.response.json().id`, `res.body.id`, `res.getBody().id` | `res.body.id` |
-| `jsonData.id`, after `const jsonData = pm.response.json()` (also with `var` or `let`, `res.getBody()`, `res.body`, or `JSON.parse(responseBody)`) | `res.body.id` |
-| `res("id")` (Bruno) | `res.body.id` |
-| `pm.response.json().items[0].id` | `res.body.items[0].id` |
-| `pm.response.json()["user-id"]` | `res.body["user-id"]` |
-| `pm.response.code`, `res.status`, `res.getStatus()` | `res.status` |
-| `pm.response.responseTime`, `res.responseTime`, `res.getResponseTime()` | `res.responseTime` |
-| `pm.response.headers.get("X-Id")`, `res.getHeader("X-Id")`, `res.headers.get("X-Id")`, `res.headers["X-Id"]` | `res.headers.x-id` |
-
-Header names become lower case. Negative indices (`[-1]`) and method calls (`.map()`, `.find()`, `.filter()`) are not converted.
-
-## Checking the response
-
-### Whole-response checks (Postman)
-
-| Script | Becomes |
-|---|---|
-| `pm.response.to.have.status(201)` | `res.status` **equals** `201` |
-| `pm.response.to.be.ok`, `pm.response.to.be.success` | Two checks: `res.status` **is at least** `200` and **is less than** `300` |
-| `pm.response.to.have.header("X-Id")` | `res.headers.x-id` **exists** |
-| `pm.response.to.be.json` | `res.headers.content-type` **contains** `json` |
-
-### expect
-
-`pm.expect(…)` (Postman) and `expect(…)` (Bruno) become one check each, when what is inside the parentheses is something Luvin can read from the response:
-
-| Chain | Check |
-|---|---|
-| `.to.eql(x)`, `.to.equal(x)`, `.to.eq(x)`, `.to.equals(x)`, `.to.deep.equal(x)` | **equals** |
-| `.to.not.eql(x)`, `.to.not.equal(x)` | **does not equal** |
-| `.to.be.above(x)`, `.to.be.greaterThan(x)`, `.to.be.gt(x)` | **is greater than** |
-| `.to.be.at.least(x)`, `.to.be.gte(x)` | **is at least** |
-| `.to.be.below(x)`, `.to.be.lessThan(x)`, `.to.be.lt(x)` | **is less than** |
-| `.to.be.at.most(x)`, `.to.be.lte(x)` | **is at most** |
-| `.to.include(x)`, `.to.contain(x)`, `.to.contains(x)`, `.to.have.string(x)` | **contains** |
-| `.to.not.include(x)`, `.to.not.contain(x)` | **does not contain** |
-| `.to.match(/…/)` | **matches (regex)**, with the pattern and its flags |
-| `.to.exist`, `.to.not.be.undefined` | **exists** |
-| `.to.be.ok` | **is truthy** |
-| `.to.not.exist`, `.to.be.undefined` | **does not exist** |
-| `.to.be.null` | **is null** |
-| `.to.be.empty` | **is empty** |
-| `.to.not.be.empty` | **is not empty** |
-| `.to.be.a("string")`, `.to.be.an("string")` | **is text** |
-| `.to.be.a("number")` | **is a number** |
-| `.to.be.a("boolean")` | **is true/false** |
-| `.to.be.an("array")` | **is a list** |
-| `.to.be.an("object")` | **is an object** |
-
-<Aside type="note">
-In Postman, `.to.be.ok` means "is truthy": not `0`, `""`, `false` or `null`. Luvin turns it into **is truthy**, which passes and fails with the same values. Only `pm.response.to.be.ok`, on the whole response, becomes the two status checks above.
-</Aside>
-
-### The expected value
-
-The `x` of the chain must be written as a value:
-
-| In the script | Expected value in Luvin |
-|---|---|
-| `200`, `-1`, `3.5` | `200`, `-1`, `3.5` |
-| `true`, `false`, `null` | `true`, `false`, `null` |
-| `"pikachu"`, `'pikachu'`, `` `pikachu` `` | `pikachu` |
-| `[1, 2]`, `{ 'id': 7 }` | `[1,2]`, `{"id":7}` |
-
-A variable or an expression as the expected value, such as `pm.environment.get("id")` or `` `order-${id}` ``, cannot be converted: the line is skipped. Write it in Luvin with a `{{variable}}`: `{{id}}`.
-
-### Bruno assert
-
-Each line of the `assert` block becomes a check. The name of the operator must be one of the [names in the file](/requests/check-operators/#all-the-checks) of Luvin, which are the same as Bruno's:
-
-```
 assert {
   res.status: eq 200
   res.body.name: isString
@@ -156,62 +38,99 @@ assert {
 }
 ```
 
-| Line | Becomes |
+After the import, the request has:
+
+| Tab | Row |
 |---|---|
-| `res.status: eq 200` | `res.status` **equals** `200` |
-| `res.body.name: isString` | `res.body.name` **is text** |
-| `res.body.types: isNotEmpty` | `res.body.types` **is not empty** |
-| `~res.body.order: gt 0` (turned off in Bruno) | `res.body.order` **is greater than** `0`, unticked |
+| **Variables** | `token` ← `res.body.token` |
+| **Checks** | `res.status` **equals** `200` |
+| **Checks** | `res.body.name` **is text** |
+| **Checks** | `res.body.types` **is not empty** |
+| **Checks** | `res.body.order` **is greater than** `0`, unticked (it was turned off in Bruno with `~`) |
 
-An operator Luvin does not have, such as `between`, is skipped.
+The operator of each `assert` line must be one of the [names in the file](/requests/check-operators/#all-the-checks) of Luvin, which are the same as Bruno's. A line with an operator Luvin does not have, such as `between`, is skipped.
 
-## What is skipped, and why
+The left side must be something Luvin can read from the response:
 
-| Skipped | Why |
+| In Bruno | In Luvin |
 |---|---|
-| Pre-request scripts | They run before the request and can change it. Luvin does not run code. Use [environment variables](/environments/variables-and-secrets/), [dynamic variables](/environments/dynamic-variables/) and the [authorization](/authorization/overview/) of the request instead. |
-| Scripts of a folder or of the collection | Luvin keeps checks per request. |
-| Everything inside `if`, `else`, `for`, `while`, `switch`, `try`, `catch`, `finally` or `do` | A check that only made sense under a condition ("if it is a 404, the error says…") would fail on every `200`. The whole block is skipped, also its closing lines. |
-| Lines Luvin does not recognize | For example `pm.expect(jsonData).to.have.property("id")`, `.to.have.lengthOf(3)`, `.to.be.true`, `.to.be.oneOf([200, 201])`, `postman.setNextRequest(…)`, `console.log(…)`, or code that signs or computes values. |
-| A message as second argument | `pm.expect(jsonData.id, "has an id")` is not converted. |
+| `res.body.id`, `res.getBody().id`, `res("id")` | `res.body.id` |
+| `res.body.items[0].id` | `res.body.items[0].id` |
+| `res.status`, `res.getStatus()` | `res.status` |
+| `res.responseTime`, `res.getResponseTime()` | `res.responseTime` |
+| `res.getHeader("X-Id")`, `res.headers["X-Id"]` | `res.headers.x-id` |
 
-Comments (`//` and `/* … */`) and the `pm.test("…", function () {` and `});` wrappers are ignored: they are not counted as skipped.
+### What the summary says
 
-## Write by hand what was skipped
+Before you import, the summary of the collection says *3 Bruno variable(s) and assertion(s) went to the Variables and Checks tabs of each request.* If a line was skipped, it warns: *Some Bruno assertions or response variables could not become Checks or Variables.* Write those lines by hand in the **Checks** tab, or as a test in the **After response** script.
 
-| In the script | In Luvin |
+## Turn a script test into a check
+
+A test in a script and a check in the **Checks** tab can say the same thing. Checks need no code, are easier to review and show next to the status. To move a test to the **Checks** tab, use these equivalences, and then delete the test from the script.
+
+```js
+const jsonData = pm.response.json();
+pm.test("It is Pikachu", function () {
+  pm.response.to.have.status(200);
+  pm.expect(jsonData.name).to.eql("pikachu");
+  pm.expect(jsonData.types).to.be.an("array");
+  pm.expect(pm.response.responseTime).to.be.below(1000);
+});
+```
+
+is the same as these checks:
+
+| From the response | Check | Expected value |
+|---|---|---|
+| `res.status` | **equals** | `200` |
+| `res.body.name` | **equals** | `pikachu` |
+| `res.body.types` | **is a list** | |
+| `res.responseTime` | **is less than** | `1000` |
+
+### What the script reads
+
+| In the script | From the response |
 |---|---|
+| `pm.response.json().id`, `jsonData.id` (after `const jsonData = pm.response.json()`) | `res.body.id` |
+| `pm.response.code` | `res.status` |
+| `pm.response.responseTime` | `res.responseTime` |
+| `pm.response.headers.get("X-Id")` | `res.headers.x-id` (header names in lower case) |
+
+### The chain
+
+| Chain | Check |
+|---|---|
+| `pm.response.to.have.status(201)` | `res.status` **equals** `201` |
+| `pm.response.to.be.ok`, `pm.response.to.be.success` | `res.status` **is at least** `200` and **is less than** `300` |
+| `pm.response.to.have.header("X-Id")` | `res.headers.x-id` **exists** |
+| `.to.eql(x)`, `.to.equal(x)` | **equals** |
+| `.to.not.eql(x)` | **does not equal** |
+| `.to.be.above(x)`, `.to.be.at.least(x)` | **is greater than**, **is at least** |
+| `.to.be.below(x)`, `.to.be.at.most(x)` | **is less than**, **is at most** |
+| `.to.include(x)`, `.to.not.include(x)` | **contains**, **does not contain** |
+| `.to.match(/…/)` | **matches (regex)** |
+| `.to.exist`, `.to.not.exist` | **exists**, **does not exist** |
+| `.to.be.null`, `.to.be.empty`, `.to.not.be.empty` | **is null**, **is empty**, **is not empty** |
+| `.to.be.ok` | **is truthy** |
+| `.to.be.a("string")`, `"number"`, `"boolean"`, `"array"`, `"object"` | **is text**, **is a number**, **is true/false**, **is a list**, **is an object** |
 | `pm.expect(jsonData).to.have.property("id")` | `res.body.id` **exists** |
 | `pm.expect(jsonData.items).to.have.lengthOf(3)` | `res.body.items.length` **equals** `3` |
-| `pm.expect(jsonData.active).to.be.true` | `res.body.active` **equals** `true` |
-| `pm.expect(pm.response.code).to.be.oneOf([200, 201])` | `res.status` **is at least** `200` and `res.status` **is at most** `201` |
 | `pm.expect(jsonData.id).to.eql(pm.environment.get("orderId"))` | `res.body.id` **equals** `{{orderId}}` |
-| A check inside `if (pm.response.code === 404)` | A separate request for that case, with `res.status` **equals** `404` and its own checks |
 
-## How the import tells you
+### What to keep as a script
 
-The summary of each collection, before you import, says:
+Keep it in the script when the test:
 
-- *N variable(s) and check(s) converted from the scripts (Variables and Checks tabs of each request).*
-- *N script(s) have parts that could not be converted (pre-request or JavaScript logic): they are not imported, because Luvin does not run scripts. The common parts (saving a variable, checking the status or a field) were converted.*
-
-![The review step of Import from Postman or Bruno for a Shop API collection: 3 requests, 1 folder, 0 examples, 1 environment, 8 variable(s) and check(s) converted from the scripts, and a warning that 2 script(s) have parts that could not be converted](/media/en/import-checks-summary.webp)
-
-The second number counts scripts, not lines:
-
-| Collection | What counts as one |
-|---|---|
-| Postman | Each pre-request script, each **Tests** script with at least one skipped line, and each script of a folder or of the collection |
-| Bruno, folder of `.bru` files | Each `script:pre-request`, each `tests` or `script:post-response` script with a skipped line, the `vars:post-response` and `assert` blocks of a request (once for both) when a line was skipped, and each script of `collection.bru` |
-| Bruno, `.json` export | Each request with a pre-request script or with a skipped line, once |
-
-Scripts in a Bruno `folder.bru` are neither converted nor counted.
+- only makes sense under a condition, such as `if (pm.response.code === 404)`;
+- loops over a list, such as every item of `jsonData.items`;
+- computes the expected value, such as a sum or a date;
+- saves a value that must stay after closing Luvin (`pm.environment.set`). The **Variables** tab keeps values only while the collection is open.
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="Bring your own files and requests" href="/get-started/import/" />
+  <LinkCard title="Scripts" href="/requests/scripts/" />
+  <LinkCard title="The script API" href="/requests/scripts-api/" />
   <LinkCard title="Check the response" href="/requests/checks/" />
   <LinkCard title="The checks, one by one" href="/requests/check-operators/" />
-  <LinkCard title="From a Postman or Bruno collection to a tested workflow" href="/tutorials/from-postman/" />
 </CardGrid>

@@ -21,6 +21,7 @@ Empieza por mirar qué se envió de verdad: abre **Request enviado** en la respu
 | Escribiste un header `Authorization` | El tuyo gana sobre Basic, Bearer y OAuth 2.0. Borra la fila en **Headers**. |
 | Ambiente equivocado | Las credenciales son por ambiente. Revisa cuál está activo. |
 | En un workflow | Abre la pestaña **Autorización**: **Se usa** dice de dónde viene. Con **Del contrato**, revisa **Credenciales** en el ambiente. |
+| En un paso de un workflow, pero el request solo funciona | En **Diseño**, haz clic en el paso y abre su pestaña **Autorización**: dice qué usa el paso. Una tarjeta con **🔑 sin autorización** no tiene ninguna. Si la API tiene un login, dale su token a los pasos siguientes. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/). |
 
 ## La API responde 403
 
@@ -34,7 +35,7 @@ Empieza por mirar qué se envió de verdad: abre **Request enviado** en la respu
 
 - Con **OAuth 2.0**, Luvin renueva el token solo cuando vence (con el refresh token, o pidiendo uno nuevo). Pulsa **Borrar token** y **Obtener token nuevo** para forzarlo.
 - Con **Authorization Code** y sin refresh token, inicia sesión de nuevo: **Obtener token nuevo**, o **Iniciar sesión** en un workflow.
-- Con un **Bearer Token** escrito a mano, Luvin no puede renovarlo. Pega uno nuevo, o usa [OAuth 2.0](/es/authorization/oauth2/) o un [paso de login](/es/recipes/login-token/).
+- Con un **Bearer Token** escrito a mano, Luvin no puede renovarlo. Pega uno nuevo, o usa [OAuth 2.0](/es/authorization/oauth2/) o un [paso de login](/es/authorization/token-from-login/).
 - Los tokens se guardan solo en memoria. Al cerrar la colección o cambiar de ambiente desaparecen, y el próximo envío pide uno nuevo.
 
 ## No se puede obtener el token

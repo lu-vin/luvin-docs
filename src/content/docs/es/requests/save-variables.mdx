@@ -124,6 +124,8 @@ Los valores guardados viven **en memoria** mientras la colección está abierta.
 - Se borran al cambiar de ambiente, así un token obtenido con `local` nunca se manda a `production`.
 - Son de la colección, no de un request: lo que guarda **Log in** lo ven todos los demás requests de la colección.
 
+Un [script](/es/requests/scripts/) que guarda con `pm.environment.set` o `pm.collectionVariables.set` funciona distinto: deja un valor actual en este equipo, que sobrevive al cierre de la app. Mira [Las variables que guarda un script](/es/requests/scripts/#las-variables-que-guarda-un-script).
+
 La pestaña **Variables** de cualquier request los lista en **Guardadas ahora**, con la nota **las de todos los requests de la colección**. Cada línea muestra `{{nombre}}` y su valor (apunta para leerlo completo, salvo los secretos). Haz clic en **Borrar todas** para olvidar todos los valores. La lista aparece solo cuando hay al menos un valor guardado.
 
 ![La pestaña Variables después de un envío: el recuadro Guardadas ahora, las de todos los requests de la colección, lista firstSku con SKU-100 y total con 10, con Borrar todas](/media/es/request-vars-runtime.webp)

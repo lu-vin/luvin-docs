@@ -7,20 +7,18 @@ sidebar:
 
 import { Steps, Tabs, TabItem, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Cada paso necesita dos decisiones: qué respuesta significa que salió bien, y qué hacer cuando la API responde con un error. Luvin define la primera a partir del contrato y deja la segunda a ti. Ambas están en el panel del paso, y la segunda también en la tarjeta del paso.
+Cada paso necesita dos decisiones: qué respuesta significa que salió bien, y qué hacer cuando la API responde otra cosa. Luvin toma la primera del contrato y la segunda te la deja a ti. Las dos están en la pestaña **Éxito y rutas** del panel del paso, y las rutas también están en la tarjeta del paso.
 
-Esta página es el resumen. Para ver cómo avanza una ejecución de un paso a otro después de cada acción, lee [Ramas de error](/es/design/branches/).
+Esta página es el resumen. Para ver cómo avanza una ejecución después de cada ruta, lee [Rutas: qué pasa después de cada paso](/es/design/branches/).
 
 ## Ejemplo: un Pokémon que no existe
 
-En **Pokemon card**, el primer paso termina el workflow cuando la API responde 404, así que «el Pokémon no existe» es un resultado conocido y no una falla inesperada.
+En **Pokemon card**, el primer paso termina el workflow cuando la API responde 404, así que "el Pokémon no existe" es un resultado conocido y no una caída.
 
 <Tabs>
   <TabItem label="En la app">
 
-  En el panel del paso `getPokemon`, **Es éxito si responde** tiene **200** seleccionado. Bajo **Si responde con error**, la lista junto a **404** dice **Terminar el workflow**. En el lienzo, con **Acciones según la respuesta** activado, la tarjeta muestra la fila `404 → pokemonNotFound` **fin ✕**.
-
-  ![El panel de un paso con los outputs y la acción elegida para cada error documentado](/media/es/step-outputs.webp)
+  En el panel de `getPokemon`, la pestaña **Éxito y rutas** muestra **Es éxito si** con `$statusCode ==` **200** y un criterio JSONPath. En **Rutas**, **Si falla con 404** dice *Termina el workflow (Fin) como fallido.* En la tarjeta, **Si falla** tiene la fila `404 → termina el workflow (Fin) como fallido`, con una flecha roja punteada hasta **Fin del workflow**.
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -46,17 +44,18 @@ En **Pokemon card**, el primer paso termina el workflow cuando la API responde 4
 
 <Steps>
 1. En la pestaña **Diseño**, haz clic en un paso.
-2. Busca **Es éxito si responde**. Tiene una opción por cada estado 2xx que el contrato documenta para la operación.
-3. Haz clic en el estado que esperas.
+2. En su panel, haz clic en la pestaña **Éxito y rutas**.
+3. En **Es éxito si**, abre la lista al lado de `$statusCode ==`. Tiene los status 2xx que el contrato documenta para la operación.
+4. Elige el status que esperas.
 </Steps>
 
-Un paso nuevo parte con el 2xx documentado más bajo, o 200 si el contrato no documenta ninguno. En el archivo se escribe como `$statusCode == 200`. Cualquier otra respuesta hace fallar el paso.
+Un paso nuevo empieza con el 2xx documentado más bajo, o con 200 si el contrato no documenta ninguno. En el archivo se escribe `$statusCode == 200`. Cualquier otra respuesta hace fallar el paso.
 
-### Más que el estado
+### Más que el status
 
-Un paso también puede revisar el contenido de la respuesta. Estos criterios adicionales se escriben en la [pestaña YAML](/es/design/arazzo-editor/). El panel los lista debajo de los estados con el enlace **Editar en el YAML**, y la tarjeta los muestra bajo **Criterios de éxito**. Todos los criterios deben cumplirse a la vez.
+Un paso también puede revisar el contenido de la respuesta. Esos criterios extra se escriben en la [pestaña YAML](/es/design/arazzo-editor/). La pestaña los muestra debajo del status, cada uno con su tipo (**simple**, **jsonpath**, **regex** o **xpath**) y el enlace **Editar en el YAML**. La tarjeta los muestra en **Criterios de éxito**. Se tienen que cumplir todos a la vez.
 
-En **Pokemon card**, el paso `getSpecies` revisa el estado y un campo:
+En **Pokemon card**, el paso `getSpecies` revisa el status y un campo:
 
 ```yaml title="pokemon.arazzo.yaml" {3}
 successCriteria:
@@ -64,49 +63,34 @@ successCriteria:
   - condition: $response.body#/capture_rate >= 0
 ```
 
-Mira [Criterios JSONPath y regex](/es/recipes/criteria/) para ejemplos ejecutables.
+![La pestaña Éxito y rutas de getSpecies: Es éxito si con el status 200 y el criterio $response.body#/capture_rate >= 0, cada uno con su tipo, y el enlace Editar en el YAML](/media/es/design-criteria-panel.webp)
 
-![El panel de getSpecies: el status 200 elegido, el criterio extra $response.body#/capture_rate >= 0 y el enlace Editar en el YAML](/media/es/design-criteria-panel.webp)
+Un criterio JSONPath escrito como comparación, como `$.capture_rate >= 0`, nunca se cumple. [Por revisar](/es/design/review/#una-condición-jsonpath-que-nunca-se-cumple) lo avisa y lo reescribe por ti. Ver [Comprueba más que el status](/es/recipes/criteria/) para ejemplos que se pueden ejecutar.
 
 ## Qué pasa ante cada error
 
-**Si responde con error** lista cada estado de error que el contrato documenta para la operación, con la descripción del contrato. Cada uno tiene una lista de acciones.
+Sin una ruta, un paso que falla detiene el workflow con un fallo genérico. Una ruta dice qué hacer en su lugar.
 
-| Acción | Qué hace el workflow |
+| Opción del editor de rutas | Qué hace el workflow |
 |---|---|
-| **Sin acción (el workflow falla)** | Es la predeterminada. El paso falla y el workflow se detiene con una falla genérica. |
-| **Terminar el workflow** | Se detiene en este paso como un resultado conocido, por ejemplo «el Pokémon no existe». |
-| **Reintentar (hasta 3 veces)** | Llama al paso otra vez, hasta 3 veces, esperando 1 segundo antes de cada intento. Si sigue fallando, el workflow falla. |
-| **Ir a «paso»** | Salta a otro paso del workflow y continúa desde ahí. |
-
-Puedes elegir la acción desde la tarjeta en el lienzo o desde el panel del paso. Las dos escriben lo mismo en el archivo.
-
-### Desde la tarjeta
-
-En la pestaña **Diseño**, cada tarjeta tiene una sección **Si falla** con una fila por cada estado de error que documenta el contrato. Para ver las filas, **Acciones según la respuesta**, sobre el lienzo, tiene que estar activado. Viene activado.
-
-| La fila muestra | Botón al final de la fila |
-|---|---|
-| `404 → sin acción` **falla** | **+**. Su tooltip dice **Qué hacer si responde 404**. |
-| `404 → on404` **fin ✕**, u otra acción | Un lápiz. Su tooltip dice **Cambiar qué hacer si responde 404**. |
-
-Haz clic en el botón y elige en el menú **Si responde 404**: **+ Un paso nuevo…**, **Ir a «Get weakness»** (solo pasos posteriores), **Terminar el workflow**, **Reintentar (hasta 3 veces)** o, cuando el estado ya tiene una acción, **Quitar la rama**. Para un estado que el contrato no documenta, usa **+ Si responde otro status…**, al final de la sección.
-
-Cada opción se explica en [El menú de una rama](/es/design/branch-menu/). Los estados como 429 o 503 están en [Estados que el contrato no documenta](/es/design/branch-other-status/).
-
-### Desde el panel del paso
-
-<Steps>
-1. Haz clic en el paso, en el lienzo. Su panel se abre a la derecha.
-2. Bajo **Si responde con error**, abre la lista junto al estado, por ejemplo **404**.
-3. Elige la acción.
-</Steps>
-
-![La sección Si responde con error de createOrder: 400 sin acción, 401 Terminar el workflow, 409 Ir a «List products» y 429 Reintentar (hasta 3 veces)](/media/es/design-error-actions.webp)
+| **Reintentar** | Vuelve a llamar al paso, con espera y un límite. Para 429, 500 o 503. |
+| **Renovar y reintentar** | Ejecuta otro workflow, como el login, y vuelve a llamar al paso. Para 401. |
+| **Ir a otro paso** | Salta a otro paso del workflow, anterior o posterior, y sigue desde ahí. |
+| **Seguir en otro workflow** | Pasa el control a otro workflow. No vuelve. |
+| **Terminar el workflow** | Se detiene en este paso, con un motivo conocido. El workflow queda como fallido. |
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-errors.webp" src="/media/es/design-errors.mp4"></video>
 
-Luvin la escribe en el archivo con el nombre `on404`:
+### Agregar una ruta para un error
+
+<Steps>
+1. En la tarjeta, haz clic en **＋ Qué hacer si falla**. O, para un status que el contrato declara y que nada maneja, haz clic en **Elegir qué hacer** en su fila roja.
+2. En **Si responde**, escribe el status o haz clic en él junto a **el contrato dice:**.
+3. Elige qué hacer y completa lo que pide la opción.
+4. Revisa **Así queda en Arazzo (onFailure)** y haz clic en **Agregar**.
+</Steps>
+
+Para un 404 que termina el workflow, Luvin escribe:
 
 ```yaml
 onFailure:
@@ -116,47 +100,62 @@ onFailure:
       - condition: $statusCode == 404
 ```
 
-Cada acción que defines también te da una prueba: Luvin genera un caso que simula esa respuesta y comprueba que la acción se active. Consulta [Casos](/es/test/cases/).
+Los mismos botones están en la pestaña **Éxito y rutas**. Ahí, un status sin ruta además tiene **Termina** y **Reintenta**, que agregan la ruta con un clic.
 
-<Aside type="tip" title="Cambia el límite de reintentos">
-**Reintentar** escribe `retryLimit: 3` y `retryAfter: 1` (segundos). Para usar otros números, cámbialos en la pestaña YAML, o guarda la acción como [reutilizable](/es/design/reusables/): su panel tiene ambos campos.
-</Aside>
+Cada opción se explica en [Agregar o cambiar una ruta](/es/design/branch-menu/). Los status que el contrato no declara, como 429 o 503, están en [Una ruta para cualquier status](/es/design/branch-other-status/). Para un status que puede venir de cualquier paso, agrega una regla una sola vez en **Inicio**: ver [Reglas para todos los pasos](/es/design/routes-panel/#reglas-para-todos-los-pasos).
 
-En esta sección pueden aparecer dos cosas más:
+Cada ruta también te da una prueba: Luvin genera un caso que simula esa respuesta y comprueba que la ruta se active. Ver [Casos](/es/test/cases/).
 
-- Un grupo **Reutilizables** al comienzo de la lista, cuando una acción guardada maneja ese estado. Al elegirlo se aplica el reutilizable.
-- La línea **Hay 2 acción(es) de error con criterios propios.** con **Editar en el YAML**. Esas acciones no dependen de un solo estado, por ejemplo dependen de un campo de la respuesta. El panel no las edita.
+### Desviar cuando el paso pasa
 
-### Un paso nuevo para un error
+Un paso que pasa también puede tomar una ruta, cuando se cumple un dato de su respuesta. Por ejemplo, si el Pokémon es legendario, ir a otro paso. Haz clic en **＋ Desviar si pasa y se cumple una condición** en la tarjeta, elige un output, escribe su valor al lado de **es** y elige **Ir a otro paso**, **Seguir en otro workflow** o **Terminar con éxito**. Ver [Agregar o cambiar una ruta](/es/design/branch-menu/#si-pasa-una-condición-sobre-un-dato).
 
-A veces un error necesita su propia llamada, por ejemplo para listar Pokémon cuando no se encuentra la especie. **+ Un paso nuevo…**, en el menú de la tarjeta, abre un diálogo con la paleta, con el título **Paso nuevo si responde 404**. El paso que eliges queda al final del workflow, el error salta a él con una acción `on404` de tipo `goto`, y el último paso del camino feliz recibe una acción de éxito llamada `done` que termina la ejecución antes del paso nuevo.
+### Un paso nuevo para una ruta
 
-[Un paso nuevo para un error](/es/design/branch-new-step/) muestra todo el recorrido, el YAML antes y después, varios pasos de rama y cómo deshacerlo. Para agregar un paso en otro lugar del workflow, usa el **+** de las flechas entre pasos: mira [Insertar un paso](/es/design/insert-step/).
+A veces un error necesita su propia llamada, por ejemplo listar Pokémon cuando no se encuentra la especie. En el editor de rutas, elige **Ir a otro paso** y haz clic en **o un paso nuevo…**. El paso que elijas va al final del workflow, el error salta a él con una ruta `on404`, y el último paso del camino feliz recibe una ruta de éxito llamada `done` que termina la ejecución antes del paso nuevo.
 
-Ejemplos ejecutables: [Reintenta, salta y termina ante errores](/es/recipes/error-branches/) y [Demostrar que la API rechaza datos inválidos](/es/recipes/expected-error/).
+[Un paso nuevo para una ruta](/es/design/branch-new-step/) muestra todo el recorrido, el YAML antes y después, y cómo deshacerlo. Para agregar un paso en otro lugar del workflow, usa el **+** de las flechas entre pasos: ver [Insertar un paso](/es/design/insert-step/).
+
+Ejemplos que se pueden ejecutar: [Reintenta, salta y termina ante errores](/es/recipes/error-branches/) y [Espera un error](/es/recipes/expected-error/).
 
 ## Reintentos y llamadas lentas
 
 ### Qué hace un reintento
 
-Cuando un paso no tiene éxito y su acción es **Reintentar**, Luvin envía el paso otra vez. Cada intento aparece en los resultados como, por ejemplo, **Reintento 1 de 3 (acción "on429")**. Si el último intento también falla, los resultados dicen **Se agotaron los 3 reintentos** y el paso falla.
+Cuando un paso no pasa y su ruta es un reintento, Luvin vuelve a enviar el paso. Cada intento aparece en los resultados como, por ejemplo, **Reintento 1 de 3 (acción "retry429")**. Si el último intento también falla, los resultados dicen **Se agotaron los 3 reintentos** y el paso falla.
 
 | Ajuste | Comportamiento |
 |---|---|
-| Cuántas veces | `retryLimit`. Si una acción no lo tiene, Luvin reintenta una vez. |
-| Cuánto esperar | `retryAfter`, en segundos, entre intentos. |
+| Cuántas veces | `retryLimit`. El editor de rutas propone 3. Si una ruta escrita en el YAML no lo tiene, Luvin reintenta una vez. |
+| Cuánto esperar | `retryAfter`, en segundos, entre intentos. El editor de rutas propone 2. |
 | Límite con la API real | <Badge text="Máx. 10 s" variant="caution" /> Luvin nunca espera más de 10 segundos entre dos intentos, aunque `retryAfter` sea mayor. |
 | Simulación | No espera nada. |
-| De dónde sale la espera | Solo de `retryAfter`. Luvin no lee un header `Retry-After` de la respuesta. |
+| De dónde sale la espera | Solo de `retryAfter`. Luvin no lee el header `Retry-After` de la respuesta. |
 
-### Ejecuta otro paso o workflow antes del reintento
+### Ejecutar otro paso o workflow antes del reintento
 
-Una acción `retry` también puede nombrar algo que se ejecuta primero. Luvin lo ejecuta una vez y luego llama otra vez al paso que falló. Sirve para renovar un token: la llamada responde 401, corre un login y se vuelve a intentar.
+Una ruta `retry` también puede nombrar algo que se ejecuta antes. Luvin lo ejecuta y después vuelve a llamar al paso que falló. Sirve para renovar un token: la llamada responde 401, se ejecuta un login y se vuelve a intentar la llamada.
 
 <Tabs>
+  <TabItem label="Workflow: workflowId">
+
+```yaml {4}
+onFailure:
+  - name: renew401
+    type: retry
+    workflowId: login
+    retryAfter: 0
+    retryLimit: 1
+    criteria:
+      - condition: $statusCode == 401
+```
+
+**Renovar y reintentar**, en el editor de rutas, escribe esto. Luvin ejecuta el workflow, de este archivo o de otro archivo Arazzo, y guarda sus outputs para que el paso que se reintenta los pueda leer. En la tarjeta, la fila dice `401 ↻ ejecuta «Login» y reintenta (hasta 1)`.
+
+  </TabItem>
   <TabItem label="Paso: stepId">
 
-```yaml title="retry-step.arazzo.yaml" {5-6}
+```yaml title="retry-step.arazzo.yaml" {4}
 onFailure:
   - name: loginAndRetry
     type: retry
@@ -166,31 +165,16 @@ onFailure:
       - condition: $statusCode == 401
 ```
 
-Luvin ejecuta el paso `login` del mismo workflow. El paso tiene que existir: si no, el análisis dice **La acción "loginAndRetry" (retry) apunta al paso inexistente "login".**
-
-  </TabItem>
-  <TabItem label="Workflow: workflowId">
-
-```yaml {4}
-onFailure:
-  - name: renewToken
-    type: retry
-    workflowId: $sourceDescriptions.auth.login
-    retryLimit: 2
-    criteria:
-      - condition: $statusCode == 401
-```
-
-Luvin ejecuta el workflow, de este archivo o de otro archivo Arazzo, y guarda sus outputs para que el paso reintentado los lea.
+Luvin ejecuta antes el paso `login` del mismo workflow. El editor de rutas no escribe esta forma: escríbela en la [pestaña YAML](/es/design/arazzo-editor/). La tarjeta la muestra como `401 ↻ ejecuta el paso 2 y reintenta (hasta 2)`. El paso tiene que existir: si no, el análisis dice **La acción "loginAndRetry" (retry) apunta al paso inexistente "login".**
 
   </TabItem>
 </Tabs>
 
-En los resultados, el intento aparece como **Reintento 1 de 2: antes corre el paso "login" (acción "loginAndRetry")**. El paso o workflow que corre primero cuenta para `retryLimit`, y Luvin espera `retryAfter` antes de cada reintento.
+En los resultados, el intento aparece como **Reintento 1 de 2: antes corre el paso "login" (acción "loginAndRetry")**. Luvin espera `retryAfter` antes de cada reintento.
 
-Ejemplo ejecutable: [Vuelve a iniciar sesión y reintenta](/es/recipes/retry-step/).
+Ejemplo que se puede ejecutar: [Vuelve a iniciar sesión y reintenta](/es/recipes/retry-step/).
 
-### Corta una llamada lenta con `timeout`
+### Cortar una llamada lenta con `timeout`
 
 Un paso puede llevar un `timeout`, en milisegundos. Si la API no responde en ese tiempo, Luvin corta la llamada y el paso falla con **La API no respondió en 3000 ms (timeout del paso).** El panel del paso no tiene un campo para esto. Escríbelo en la [pestaña YAML](/es/design/arazzo-editor/), dentro del paso:
 
@@ -201,61 +185,56 @@ steps:
     timeout: 3000
 ```
 
-Mira [Motivos de falla](/es/reference/failure-reasons/) para saber cómo leer el mensaje. Para un paso que espera un mensaje, `timeout` significa otra cosa: mira [Pasos de mensajería](/es/design/messaging/).
+Ver [Por qué falló un paso o un caso](/es/reference/failure-reasons/) para leer el mensaje. En un paso que espera un mensaje, `timeout` significa otra cosa: ver [Pasos de mensajería](/es/design/messaging/).
 
-## Mira las acciones en el lienzo
+## Ver las rutas en el lienzo
 
-Activa **Acciones según la respuesta**, junto a **Mostrar:** sobre el lienzo. Cada tarjeta recibe una sección, **Si falla**, con una fila por respuesta:
+Cada tarjeta muestra sus rutas en **Si pasa y se cumple** y **Si falla**, una fila por ruta, en el orden en que se revisan. Cada ruta tiene una flecha por el lado izquierdo de las tarjetas, del color de su escenario: verde cuando pasa y se cumple una condición, roja punteada cuando falla, azul para un reintento y ámbar cuando sigue en otro workflow. La flecha llega a su destino real: un paso, la misma tarjeta en un reintento, o **Fin del workflow**.
 
-| Fila | Significado |
-|---|---|
-| `404 → pokemonNotFound` **fin ✕** | Ante un 404, la acción `pokemonNotFound` termina el workflow. |
-| `429 → on429` **reintenta ×3** | Ante un 429, el paso se intenta de nuevo hasta 3 veces. |
-| `409 → on409` **ir a getOrder** | Ante un 409, la ejecución salta al paso `getOrder`. |
-| `500 → sin acción` **falla** | El contrato documenta un 500 y nada lo maneja. |
+![Una tarjeta con su sección Si falla: la fila 409 de createOrder va a listProducts, y una flecha roja punteada sube por la izquierda de las tarjetas hasta ese paso](/media/es/design-jump-line.webp)
 
-Un salto también se dibuja como una línea naranja punteada que sale de la fila, recorre el lado izquierdo de las tarjetas y entra al paso de destino. Su etiqueta es el estado y el nombre de la acción. En la leyenda, el punto naranja es **salta a otro paso**. Para apartar una línea de salto de las demás, arrastra su tramo vertical hacia un lado; el cursor muestra **Arrastra para mover la línea**. Las líneas de datos se mueven igual.
-
-Desactiva el interruptor para ocultar la sección y las líneas de salto cuando quieras leer solo los datos.
-
-![El lienzo con Acciones según la respuesta encendido: la fila 409 de createOrder salta a listProducts y una línea naranja punteada sube por la izquierda hasta ese paso](/media/es/design-jump-line.webp)
+**Ver → Rutas**, arriba a la derecha del lienzo, tiene la leyenda. Desmarca **Mostrar las rutas** para ocultarlas cuando quieras leer solo los datos. Ver [Rutas: qué pasa después de cada paso](/es/design/branches/#las-flechas).
 
 ## Comprueba que cada respuesta tiene manejo
 
-La pestaña **Resumen** del workflow tiene una sección, **Cobertura de respuestas**, que compara el contrato con el workflow.
+Cada status que el contrato declara y que nada maneja es una fila roja en su tarjeta, `500 ✕ sin ruta: el workflow falla`, y [Por revisar](/es/design/review/) los cuenta como **sin ruta**.
+
+La pestaña **Resumen** del workflow también tiene una sección, **Cobertura de respuestas**, que compara el contrato con el workflow.
 
 <Steps>
 1. Abre la pestaña **Resumen**.
 2. Abre **Cobertura de respuestas**. Su insignia dice, por ejemplo, **5/7 manejadas**.
 </Steps>
 
-La tabla tiene una fila por paso y estado documentado:
+La tabla tiene una fila por paso y status documentado:
 
 | Manejo en el Arazzo | Significado |
 |---|---|
-| ✓ **Éxito** | El estado es el que el paso espera. |
-| ✓ **Acción** | Una acción lo maneja. Sigue el nombre de la acción. |
+| ✓ **Éxito** | El status es el que el paso espera. |
+| ✓ **Acción** | Una ruta lo maneja. Sigue el nombre de la ruta. |
 | ✕ **Sin manejo** | Nada lo maneja. Si la API responde esto, el workflow falla con un error genérico. |
 
-No tienes que manejarlo todo. Maneja los errores que tu aplicación trata distinto, como «no encontrado» o «no aprobado».
+No tienes que manejarlo todo. Maneja los errores que tu aplicación trata distinto, como "no encontrado" o "no aprobado".
 
 ![Cobertura de respuestas con 7/11 manejadas: una fila por paso y status, con Éxito, Acción o Sin manejo](/media/es/design-coverage.webp)
 
-## Las ramas en detalle
+## Las rutas en detalle
 
 <CardGrid>
-  <LinkCard title="Ramas de error" href="/es/design/branches/" description="Cómo sigue una ejecución después de cada tipo de acción." />
-  <LinkCard title="El menú de una rama" href="/es/design/branch-menu/" description="Cada opción del menú de la tarjeta." />
-  <LinkCard title="Estados que el contrato no documenta" href="/es/design/branch-other-status/" description="429, 500, 503 y otros estados." />
-  <LinkCard title="Un paso nuevo para un error" href="/es/design/branch-new-step/" description="Un paso que se ejecuta solo ante una respuesta." />
+  <LinkCard title="Rutas: qué pasa después de cada paso" href="/es/design/branches/" description="Cómo sigue una ejecución después de cada tipo de ruta." />
+  <LinkCard title="Agregar o cambiar una ruta" href="/es/design/branch-menu/" description="Cada opción del editor de rutas." />
+  <LinkCard title="El panel Rutas y las reglas para todos los pasos" href="/es/design/routes-panel/" description="Ordenar, cambiar y quitar rutas; reglas en Inicio." />
+  <LinkCard title="Una ruta para cualquier status" href="/es/design/branch-other-status/" description="429, 500, 503 y otros status." />
+  <LinkCard title="Un paso nuevo para una ruta" href="/es/design/branch-new-step/" description="Un paso que se ejecuta solo ante una respuesta." />
+  <LinkCard title="Por revisar" href="/es/design/review/" description="Lo que el schema no ve." />
 </CardGrid>
 
 ## Relacionado
 
 <CardGrid>
   <LinkCard title="Reutilizables" href="/es/design/reusables/" />
-  <LinkCard title="Resultados" href="/es/test/results/" />
+  <LinkCard title="Lee los resultados" href="/es/test/results/" />
   <LinkCard title="La pestaña YAML" href="/es/design/arazzo-editor/" />
-  <LinkCard title="Reintentar, saltar y terminar ante errores" href="/es/recipes/error-branches/" />
+  <LinkCard title="Reintenta, salta y termina ante errores" href="/es/recipes/error-branches/" />
   <LinkCard title="Vuelve a iniciar sesión y reintenta" href="/es/recipes/retry-step/" />
 </CardGrid>

@@ -1,24 +1,28 @@
 ---
 title: Add steps
-description: Add operations from the palette or with a + on the canvas, and see what Luvin fills in for each new step.
+description: Add an operation, a request or a workflow with ＋ Step, the + on an arrow or by dragging a request, and see what Luvin fills in for each new step.
 sidebar:
   order: 3
 ---
 
-import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-A step is one call in the workflow. You add steps from the **Operations** palette, on the left of the **Design** tab. Each operation you add becomes a step that is already filled in from its contract.
+A step is one call in the workflow. You add steps with **＋ Step**, at the top left of the canvas. It opens a search with everything you can add: the operations of your contracts, the requests of the collection, other workflows and standard patterns. Each one you pick becomes a step that is already filled in.
 
 ## Example: add getPokemon
 
-Drag `GET /pokemon/{idOrName}` from the palette onto the empty canvas.
+<Steps>
+1. Open an empty workflow of the Pokédex collection. The canvas shows the card **Build your workflow**.
+2. Click **Add the first step**, or press **/**.
+3. Type `pokemon/{` and click the row `GET /pokemon/{idOrName}`.
+</Steps>
 
 <Tabs>
   <TabItem label="In the app">
 
-The canvas gets the card `getPokemon`, with a **GET** method and the path `/pokemon/{idOrName}`. Its panel opens on the right. **Start** now lists the input `idOrName`, and the parameter reads it.
+The canvas gets the card `getPokemon`, with a **GET** method and the path `/pokemon/{idOrName}`. Its panel opens on the right. **Start** now says **1 input**, and the parameter shows the chip **← idOrName · Start**.
 
-![The Design tab: operations palette, canvas with wired steps and step panel](/media/en/builder.webp)
+![The Design tab with the getPokemon card and its panel open over the canvas](/media/en/builder.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -39,44 +43,60 @@ The canvas gets the card `getPokemon`, with a **GET** method and the path `/poke
 
 ## Before you start
 
-The palette lists the operations of the OpenAPI contracts in your collection. If it says **The collection has no OpenAPI contracts. Add one to see its operations here.**, do one of these first:
+**＋ Step** lists the operations of the OpenAPI and AsyncAPI contracts of your collection, and its requests. If it says **The collection has no OpenAPI or AsyncAPI contracts. Add one to see its operations here.**, do one of these first:
 
 - Add a contract. See [Add a contract](/contracts/add/).
 - Use the requests you already have instead. See [Build from saved requests](/design/from-requests/).
 
-## Find an operation
+## The ＋ Step search
 
-The palette has one group per contract, named after it, with the number of operations it has. Each row shows the method, the path and the summary of the operation.
+Click **＋ Step**, or press **/** anywhere on the canvas. A floating menu opens with a search box, **Search operation…**, and these groups:
+
+| Group | What it has | When it shows |
+|---|---|---|
+| **Suggested · use data you already have** | Up to four operations with a parameter named like an output of a step that is already there. Each says why, for example **uses id from step 1**. | Before you type, when there are matches |
+| **Patterns · standard Arazzo** | **Go through every page**, **Wait until it finishes** and **Sign in and use the token**. See [Standard Arazzo patterns](/design/patterns/). | When there are operations or requests |
+| **Collection requests** | The saved requests, by folder. | When the collection has requests |
+| **Workflows in this Arazzo** | The other workflows of the same file, called as one step. | When the file has other workflows |
+| **From other Arazzo files** | The workflows of the other Arazzo files of the collection. | When there are other files |
+| One group per contract | Its operations, with method, path and summary. A contract that this Arazzo does not use yet is tagged **new**: adding one of its operations adds the contract to the file's sources. | Always |
+
+The search looks at the path, the operation id, the summary and the tags of each operation, and at the name and URL of each request.
 
 <Steps>
-1. Click a group's name to fold or unfold it.
-2. Type in **Search operation…** to filter. The search looks at the path, the operation id, the summary and the tags.
+1. Type to filter, or move with ↑ and ↓.
+2. Click a row, or press Enter. Enter in the search box adds the first match.
 </Steps>
 
-![The Operations palette of the Pokédex: the search box, the workflows of other Arazzo files and the operations of the pokeapi contract](/media/en/design-palette.webp)
+To close without adding, press **Esc** or click outside the menu. The foot of the menu reminds you: **↵ add the first one** and **Esc close**.
 
-## Add it to the workflow
+Operations of AsyncAPI contracts are in the same list, tagged **SEND** or **RECEIVE**. Adding one writes a messaging step. See [Messaging steps](/design/messaging/#add-a-messaging-step).
+
+![The ＋ Step search of the Pokédex: suggestions, the patterns, the workflows of other Arazzo files and the operations of the pokeapi contract](/media/en/design-palette.webp)
+
+## Where the new step goes
 
 | How | Where the step goes |
 |---|---|
-| Drag the operation onto the canvas | Below the step you drop it under. Dropped above the first step, it becomes the first one. |
-| Click **+** on its row | At the end of the happy path: right after the step that ends it with `done`, which moves to the new step. Without branch steps, that is the end of the workflow. |
-| Click the **+** on an arrow of the canvas, then the operation | Between the two cards that arrow joins. |
+| **＋ Step** with no step selected | At the end of the happy path: right after the step that ends it with `done`, which moves to the new step. Without steps for errors, that is the end of the workflow. The menu is titled **Add a step**. |
+| **＋ Step** with a step selected | Right after that step. The menu is titled **Insert a step**. With **Start** selected, it goes first. |
+| The **+** on an arrow of the canvas | Between the two cards that arrow joins. See [Insert a step](/design/insert-step/). |
+| Drag a request from the sidebar tree onto the canvas | Below the step you drop it under. Dropped above the first step, it becomes the first one. |
 
-After you add it, the new step is selected, its panel opens on the right and the canvas scrolls to keep it in view.
+After you add it, the new step is selected, its panel opens on the right and the canvas moves to keep it in view.
 
-### Insert a step between two others
+## An empty workflow
 
-Each arrow of the canvas, from **Start** down to **End of workflow**, has a **+** in the middle. Its tooltip says **Insert a step here**.
+An empty workflow shows the card **Build your workflow** in the middle of the canvas:
 
-<Steps>
-1. Click the **+** on the arrow where the step should go. A dialog opens, titled **Insert a step**, with the palette inside.
-2. Click an operation, a request or a workflow. The whole row is clickable.
-</Steps>
+| Option | What it does |
+|---|---|
+| **Add the first step** | Opens the ＋ Step search. |
+| **Build from the collection's requests** | Opens the search and keeps it open: each request you click is added at the end, in order, and Luvin proposes the connections. It shows when the collection has requests. See [Build from saved requests](/design/from-requests/). |
 
-The step goes between the two cards. The **+** under **Start** makes it the first step, the **+** above **End of workflow** the last one. If the step above ends the happy path with an action named `done`, `done` moves to the new step, so the new step still runs.
+Below them it says **You can also drag a request from the tree on the left.**
 
-[Insert a step](/design/insert-step/) has every position, the YAML before and after, and how inserting differs from dragging. A similar dialog opens when you send an error to a new step: see [A new step for an error](/design/branch-new-step/).
+![An empty workflow: the card Build your workflow with Add the first step and Build from the collection’s requests](/media/en/design-empty-workflow.webp)
 
 ## What a new step gets automatically
 
@@ -93,51 +113,39 @@ Luvin reads the contract and fills in the step by rules. Nothing is guessed by A
 Two things are **not** added for you:
 
 - **Outputs**, apart from the ones the connections need. See [Outputs](/design/outputs/).
-- **Actions on errors**. The step panel lists each documented error so you choose. See [Success and errors](/design/success-and-errors/).
+- **Routes**. The card lists, in red, each error status the contract documents and nothing handles, so you choose what to do. See [Success and errors](/design/success-and-errors/).
 
 ### An example
 
 Start with an empty workflow in the Pokédex collection.
 
 <Steps>
-1. Drag `GET /pokemon/{idOrName}` onto the canvas. You get the step `getPokemon`. Nothing provides `idOrName` yet, so **Start** now lists a new input, `idOrName`, and the step uses it.
-2. Drag `GET /pokemon-species/{idOrName}` below it. You get the step `getPokemonSpecies`. Its `idOrName` shows `? getPokemon › id`: Luvin connected it to the `id` the first step returns, and `getPokemon` now has an output called `id`.
+1. Click **＋ Step** and choose `GET /pokemon/{idOrName}`. You get the step `getPokemon`. Nothing provides `idOrName` yet, so **Start** now lists a new input, `idOrName`, and the step uses it.
+2. With `getPokemon` selected, click **＋ Step** and choose `GET /pokemon-species/{idOrName}`. You get the step `getPokemonSpecies`. Its `idOrName` shows the chip **← id · from 1** with a `?` in front: Luvin connected it to the `id` the first step returns, and `getPokemon` now has an output called `id`.
 </Steps>
 
 The `?` means Luvin is less sure about that connection. [Connect data between steps](/design/wire-data/) explains the rules and how to change a source.
 
-![The workflow after adding two operations: Start has the new input idOrName, getPokemon reads it and exposes id, and a data line goes down to getPokemonSpecies](/media/en/design-auto-wired.webp)
+![The workflow after adding two operations: Start has the new input idOrName, getPokemon reads it and gives id, and getPokemonSpecies shows the chip ← id · from 1](/media/en/design-auto-wired.webp)
 
 The panel of the new step opens at once. Its `idOrName` reads the output `id` of `getPokemon`:
 
-![The panel of getPokemonSpecies right after adding it: idOrName comes from id, success is 200 and the 404 has no action yet](/media/en/design-new-step-panel.webp)
+![The panel of getPokemonSpecies right after adding it, on the Data tab: idOrName comes from id of step 1](/media/en/design-new-step-panel.webp)
 
 ## Other things you can add
 
-The palette has three more groups when they apply. They are added the same way: drag, or **+**.
-
-| Group | What it adds | Read |
+| From | What it adds | Read |
 |---|---|---|
 | **Collection requests** | A saved request, sent exactly as it is. | [Build from saved requests](/design/from-requests/) |
-| **Workflows in this Arazzo** | Another workflow of the same file, called as one step. | [Workflows that use other workflows](/design/dependencies/) |
-| **Reusables** | An error action or a parameter saved to use in several steps. It is applied to a step, not added as one. | [Reusables](/design/reusables/) |
+| **Workflows in this Arazzo** or **From other Arazzo files** | Another workflow, called as one step. | [Workflows that use other workflows](/design/dependencies/) |
+| **Patterns · standard Arazzo** | A step with its routes already written: pages, polling or a login. | [Standard Arazzo patterns](/design/patterns/) |
+| Copy and paste | Steps copied from this workflow or another one. | [Copy, duplicate and extract steps](/design/copy-and-extract/) |
 
-Operations of AsyncAPI contracts are in the palette too, tagged **SEND** or **RECEIVE**. Adding one writes a messaging step. See [Messaging steps](/design/messaging/#add-a-messaging-step).
+Reusables are not added as steps: they are applied to a step. See [Reusables](/design/reusables/).
 
-![The palette of a shop workflow: Workflows in this Arazzo, From other Arazzo files and the operations of the store contract](/media/en/design-palette-workflows.webp)
+### Requests and their required fields
 
-### The question about required fields
-
-A saved request has no contract that says which of its fields the API requires. The first time you add a request to a workflow, a dialog asks **What does the API require in «…»?** with every field of the request.
-
-<Steps>
-1. Tick the fields the API requires. **Mark all** and **None** change them all at once. Path parameters are always required.
-2. Click **Save**, or **Not now** to decide later.
-</Steps>
-
-Your answer is saved in the request and applies to every workflow that uses it. Operations from a contract never show this dialog: the contract already says what is required.
-
-![The dialog What does the API require in «Create order»? with the body fields customer, ticked as required, and currency](/media/en/design-required-fields.webp)
+A saved request has no contract that says which of its fields the API requires. Adding one does not ask anything: its card shows **required not marked**, and a bar above the canvas gathers those steps, with **Mark**. See [Mark the required fields of a request](/design/required-fields/).
 
 ## If the canvas says the workflow is missing data
 

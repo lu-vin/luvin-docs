@@ -1,0 +1,57 @@
+---
+title: El YAML al lado del lienzo
+description: Abre el archivo Arazzo al lado del lienzo con { } YAML, mira las líneas del paso elegido y elige un paso desde sus líneas.
+sidebar:
+  order: 13.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Todo lo que armas en el lienzo es Arazzo estándar. **\{ \} YAML** muestra ese texto al lado del lienzo, así ves lo que escribe cada cambio sin salir del diagrama.
+
+## Ejemplo: mira lo que escribe una ruta
+
+<Steps>
+1. Abre **Pokemon card** y haz clic en **Diseño**.
+2. Haz clic en **\{ \} YAML**, arriba a la izquierda del lienzo. El archivo se abre a la derecha, con números de línea.
+3. Haz clic en la tarjeta del paso 2. Sus líneas se marcan y aparecen a la vista.
+4. Agrega una ruta al paso 2, por ejemplo **Reintentar** si responde 429. Lee [Agregar o cambiar una ruta](/es/design/branch-menu/).
+</Steps>
+
+El `onFailure` del paso 2 aparece en el YAML apenas haces clic en **Agregar**.
+
+![El YAML de pokemon.arazzo.yaml al lado del lienzo, con las líneas del paso 2 marcadas](/media/es/design-yaml-peek.webp)
+
+## Qué muestra el panel
+
+| Parte | Qué es |
+|---|---|
+| Encabezado | El nombre del archivo, la versión de Arazzo y **se actualiza con el lienzo**. **×** lo cierra. |
+| Cuerpo | El archivo completo, con números de línea. Las líneas del paso elegido se marcan. |
+| Pie | **Elige un paso y se marcan sus líneas; un clic en una línea elige su paso.** y **Editar en YAML** |
+
+Es el mismo texto que escribe el lienzo, no una copia: cada cambio en el lienzo se ve aquí al instante.
+
+## Ve del lienzo al YAML y de vuelta
+
+- **Elige un paso** en el lienzo: sus líneas se marcan y aparecen a la vista.
+- **Elige Inicio**: se marcan las reglas para todos los pasos (`successActions` y `failureActions`).
+- **Haz clic en una línea** dentro de un paso: ese paso queda elegido en el lienzo.
+
+## Edita el texto
+
+El panel es para leer. Para editar, haz clic en **Editar en YAML**: se abre la [pestaña YAML](/es/design/arazzo-editor/) con el mismo archivo, con validación y autocompletado. El lienzo dibuja los cambios cuando vuelves.
+
+## Ábrelo y ciérralo
+
+- **\{ \} YAML** lo abre y lo cierra. Mientras hay un panel abierto a la derecha, incluido este, el botón muestra solo **\{ \}**.
+- **Esc** o **×** lo cierran.
+
+El YAML ocupa el lugar del panel del paso: mientras está abierto, hacer clic en una tarjeta marca sus líneas en lugar de abrir su panel. Cierra el YAML para volver a ver el panel. Arrastra su borde izquierdo para hacerlo más ancho o más angosto.
+
+## Relacionado
+
+<CardGrid>
+  <LinkCard title="La pestaña YAML" href="/es/design/arazzo-editor/" />
+  <LinkCard title="El lienzo" href="/es/design/canvas/" />
+</CardGrid>

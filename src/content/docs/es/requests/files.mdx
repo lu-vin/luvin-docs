@@ -72,6 +72,8 @@ name: Customers
 
 Una subcarpeta que creas a mano en el disco también aparece en la barra lateral, aunque no tenga marcador. Su nombre es el de la carpeta.
 
+Cuando una carpeta tiene [scripts](/es/requests/scripts/), su marcador también los guarda, en `scripts`, y empieza con `version: 2`.
+
 ## Las claves
 
 Luvin omite toda clave vacía, así que un archivo solo tiene lo que usa el request.
@@ -90,6 +92,8 @@ Luvin omite toda clave vacía, así que un archivo solo tiene lo que usa el requ
 | `autoHeadersOff` | Los headers automáticos que desmarcaste, en minúsculas. |
 | `requiredFields` | Los campos que marcaste como obligatorios, como `query:bank` o `body:title`. |
 | `examples` | Las respuestas guardadas como ejemplos. |
+| `vars`, `asserts` | HTTP y GraphQL: las filas de las pestañas **Variables** y **Comprobaciones**. Mira [Variables y comprobaciones](/es/requests/variables-and-checks/#en-el-archivo-del-request). |
+| `scripts` | HTTP y GraphQL: el código de la pestaña **Scripts**, en `before` (**Antes del request**) y `after` (**Después de la respuesta**). Un archivo con scripts empieza con `version: 2`. Mira [Scripts](/es/requests/scripts/#cómo-se-guardan-los-scripts). |
 
 ### Las filas
 

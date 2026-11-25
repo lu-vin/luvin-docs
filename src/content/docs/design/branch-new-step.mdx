@@ -1,13 +1,13 @@
 ---
-title: A new step for an error
-description: Send an error to a step that runs only for that response, where Luvin puts it, why it adds an action named done, and how to undo it.
+title: A new step for a route
+description: Send a response to a step that runs only for it, where Luvin puts that step, why it adds an action named done and how to undo it.
 sidebar:
-  order: 7.4
+  order: 7.5
 ---
 
 import { Steps, Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Sometimes an error needs its own call. When the species of a Pokémon is not found, you may want to list Pokémon instead; when an order is rejected, you may want to read why. **+ A new step…** adds that step and connects it to the error in one go, without touching the steps of the happy path.
+Sometimes a response needs its own call. When the species of a Pokémon is not found, you may want to list Pokémon; when an order is rejected, you may want to read why. **or a new step…**, in the route editor, adds that step and connects it to the route in one go, without touching the steps of the happy path.
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-branch.webp" src="/media/en/design-branch.mp4"></video>
 
@@ -15,19 +15,20 @@ Sometimes an error needs its own call. When the species of a Pokémon is not fou
 
 <Steps>
 1. Open **Pokemon card** and click the **Design** tab.
-2. On the card of `getSpecies`, click the **+** of the row `404 → no action` **fails**. The menu **If it responds 404** opens.
-3. Click **+ A new step…**. A dialog opens, titled **New step if it responds 404**.
-4. In the group **pokeapi**, click the row `GET /pokemon`. The whole row is clickable.
+2. On the card of `getSpecies`, click **＋ What to do if it fails**. If the contract declares the 404 and nothing handles it yet, you can also click **Choose what to do** on its red row.
+3. In **If it responds**, type `404` or click it next to **the contract says:**.
+4. Click **Go to another step**.
+5. Next to **Go to step**, click **or a new step…**. The editor closes and a search opens, titled **New step if it responds 404**.
+6. Click the row `GET /pokemon`. The whole row is clickable.
 </Steps>
 
-The dialog closes. What you see:
+The search closes. What you see:
 
-- A new card at the bottom, `listPokemon`, selected and with its panel open on the right.
-- On the card of `getSpecies`, the row `404 → on404` **go to listPokemon**, and an orange dashed line down to `listPokemon`.
-- On the card of `getAbility`, a new row `success → done` **end ✓**.
-- When you select `getAbility`, its panel shows the note **This step uses things the canvas doesn’t edit (onSuccess).** with **Edit in the YAML**: the panel does not edit actions on success.
+- A new card at the bottom, `listPokemon`, selected and with its panel open.
+- On the card of `getSpecies`, the row `404 → goes to step 5 · …`, and a red dashed arrow that goes down the left side to `listPokemon`.
+- On the card of `getAbility`, a new row in **If it passes and matches**: `success → ends successfully (End)`, with a green arrow to **End of workflow**.
 
-![The canvas after adding the step: getProduct has 404 → on404 go to openTicket, with an orange dashed line down to the new card openTicket at the bottom, and createOrder, the last step of the happy path, has success → done end ✓](/media/en/design-branch-done.webp)
+![The canvas after adding the step: getSpecies has the 404 route to the new card at the bottom, with a red dashed arrow down the left side, and the last step of the happy path has the success route that ends the workflow, with a green arrow to End of workflow](/media/en/design-branch-done.webp)
 
 <Tabs>
 <TabItem label="Before">
@@ -86,43 +87,44 @@ steps:
 
 The description of `listPokemon` is the summary of the operation in the contract of the example.
 
-## The dialog
+## The search
 
-The dialog has a line of help, *Choose the operation, request or workflow. It goes at the end of the workflow, wired to this branch; the happy path ends before reaching it.*, and the palette below it.
+It is the same search as **＋ Step**, with a line of help: *Choose the operation, request or workflow. It goes at the end of the workflow, wired to this branch; the happy path ends before reaching it.*
 
-![The dialog New step if it responds 404 with its help line, Search operation… and the operations of the catalog and support contracts; the row POST /tickets Open a support ticket is highlighted](/media/en/design-branch-pick.webp)
+![The search New step if it responds 404 with its help line, Search operation… and the operations of the contracts of the collection](/media/en/design-branch-pick.webp)
 
 | Part | What it has |
 |---|---|
-| Search | **Search operation…**, the same as the palette on the left. |
+| **Search operation…** | Filters every group by path, operation id, summary or tag. |
+| **Suggested · use data you already have** | Operations that take a value an earlier step already gives. Only before you type. |
 | **Collection requests** | Your saved HTTP requests, when the collection has any. |
 | **Workflows in this Arazzo** | The other workflows of the file, called as one step. |
 | **From other Arazzo files** | Workflows of other Arazzo files of the collection. |
 | One group per contract | Its operations. |
-| **Reusables** | Not in the dialog: a reusable is applied to a step, it is not a step. |
+
+**Patterns · standard Arazzo** is not offered here: a pattern is added with **＋ Step**. See [Standard Arazzo patterns](/design/patterns/).
 
 How to pick:
 
-- Click anywhere on a row, or
-- Move to a row with Tab and press Enter or the space bar, or
-- Click the **+** at the end of the row. Its tooltip says **New step if it responds 404**.
+- Click anywhere on a row, or the **+** at its end. Its tooltip says **New step if it responds 404**.
+- Or move with ↑ ↓ and press Enter. Enter in the search box adds the first row that matches.
 
-Rows cannot be dragged from the dialog. To close it without adding anything, click **×**, press **Esc** or click outside it. Nothing changes.
+To close it without adding anything, press **Esc** or click outside it. Nothing changes.
 
 ## What Luvin does, in order
 
 <Steps>
 1. **Adds the step at the end of the workflow**, after the step that is last now. Luvin fills it in by the same rules as any new step: name, description, success criterion, required parameters and body. See [What a new step gets automatically](/design/add-steps/#what-a-new-step-gets-automatically).
-2. **Connects the branch.** The step that got the error gets an action `on404` of type `goto` that points to the new step. If it already had an `on404`, Luvin replaces it.
-3. **Ends the happy path before the new step.** The step right above the new one gets an action on success named `done`, of type `end`.
+2. **Connects the route.** The step that got the response gets a route `on404` of type `goto` that points to the new step. If it already had a route for 404, Luvin changes that one, in its place, and keeps its name.
+3. **Ends the happy path before the new step.** The step right above the new one gets a route on success named `done`, of type `end`.
 4. **Selects the new step** and opens its panel, so you can check its data.
 </Steps>
 
-If you picked a saved request that has never been used in a workflow, the dialog **What does the API require in «…»?** opens next. See [The question about required fields](/design/add-steps/#the-question-about-required-fields).
+If you picked a saved request, its card may show **required not marked**: say which fields the API requires when you want. See [Mark the required fields of a request](/design/required-fields/).
 
 ## Why `done`
 
-In Arazzo, after a step succeeds, the run goes on with the next step of the list. The new step is now the next one after `getAbility`. Without `done`, a run where everything goes well would go from `getAbility` into `listPokemon`, a step meant only for the 404.
+In Arazzo, after a step passes, the run goes on with the next step of the list. The new step is now the next one after `getAbility`. Without `done`, a run where everything goes well would go from `getAbility` into `listPokemon`, a step meant only for the 404.
 
 | Run | Without `done` | With `done` |
 |---|---|---|
@@ -131,11 +133,11 @@ In Arazzo, after a step succeeds, the run goes on with the next step of the list
 
 In a run that goes well, `listPokemon` shows **Not run: the workflow ended earlier due to an end/goto action.** That is expected.
 
-When the run takes the branch, `getSpecies` shows its 404 and **↪ Goes to step "listPokemon" (action "on404")**. `getWeakness` and `getAbility` do not run. After `listPokemon`, the workflow ends, because it is the last step.
+When the run takes the route, `getSpecies` shows its 404 and **Goes to step "listPokemon" (action "on404")**. `getWeakness` and `getAbility` do not run. After `listPokemon`, the workflow ends, because it is the last step.
 
 ### When Luvin does not add `done`
 
-Luvin leaves the step above as it is when it already leaves on success: when it has an action on success of type `end` or `goto` without criteria. For example, a step written like this keeps its own action and gets no `done`:
+Luvin leaves the step above as it is when it already leaves on success: when it has a route on success of type `end` or `goto` without conditions. For example, a step written like this keeps its own route and gets no `done`:
 
 ```yaml
 onSuccess:
@@ -143,9 +145,9 @@ onSuccess:
     type: end
 ```
 
-## Several branch steps
+## Several steps for routes
 
-Each new branch step goes at the end too, so the step that was last before it, which is the previous branch step, gets its own `done`.
+Each new step for a route goes at the end too, so the step that was last before it, which is the previous route step, gets its own `done`.
 
 Continuing the example, send the 404 of `getAbility` to `GET /pokemon` as well. Luvin names the new step `listPokemon2`, because `listPokemon` is taken:
 
@@ -170,60 +172,60 @@ Continuing the example, send the 404 of `getAbility` to `GET /pokemon` as well. 
     # …
 ```
 
-Each branch step ends the workflow when it succeeds, so one branch never runs into the next.
+Each of these steps ends the workflow when it passes, so one never runs into the next.
 
 ## Check the new step
 
 <Steps>
 1. Look at the panel of the new step. Each required parameter has a source.
-2. Check where each value comes from. Luvin may take data from any step above the new one, including steps the branch skips. In the example, `getWeakness` and `getAbility` never run when `getSpecies` answers 404, so their outputs are empty on that path.
-3. If a value comes from a skipped step, change its source to a step that runs before the error, or to an input. See [Connect data between steps](/design/wire-data/).
-4. Open the **Cases** tab. The generated case **getSpecies responds 404 → on404** simulates the 404 and checks that the run goes to `listPokemon`.
+2. Check where each value comes from. Luvin may take data from any step above the new one, including steps the route skips. In the example, `getWeakness` and `getAbility` never run when `getSpecies` answers 404, so their outputs are empty on that path.
+3. If a value comes from a skipped step, its chip turns amber with ⚠, and [To review](/design/review/) says which route skips it. Change its source to a step that runs before the route, or to an input. See [Connect data between steps](/design/wire-data/).
+4. Open the **Cases** tab. The generated case **getSpecies responds 404 → on404** simulates the 404 and checks that the run goes to `listPokemon`. To follow the path on the canvas without calling the API, use **▷ Probe** on the route: see [Probe routes and coverage](/test/probe-routes/).
 </Steps>
 
 ## Undo
 
 | What you picked | How to undo it all |
 |---|---|
-| An operation or a workflow | **Undo** once, or ⌘Z (Ctrl+Z). The step, the branch and `done` go away together. |
-| A saved request | **Undo** twice. The first one removes the branch and `done`, the second one the step. |
+| An operation or a workflow | **Undo** once, or ⌘Z (Ctrl+Z). The step, the route and `done` go away together. |
+| A saved request | **Undo** twice. The first one removes the route and `done`, the second one the step. |
 
 **Redo**, or ⇧⌘Z (Ctrl+Shift+Z), puts them back.
 
-### Remove a branch to a new step
+### Remove a route to a new step
 
-Later, when Undo is no longer an option, remove the three parts:
+Later, when Undo is no longer an option, remove the parts yourself:
 
 <Steps>
-1. Click the pencil of the row `404 → on404` and choose **Remove the branch**. Or choose another action.
-2. Select the branch step and remove it with **Remove the step** in its panel, or with the Delete key.
-3. In the YAML tab, delete the `done` action of the step above, if you want the happy path to go on to a step you add later.
+1. Click the pencil of the row `404 → goes to step 5 · …` and click **Remove the route**. Or change it to another option.
+2. Remove the step with **×** on its card. The confirmation lists what breaks; click **Remove the step**.
+3. Remove the `done` route of the step above, in the **Success and routes** tab of its panel, if you want the happy path to go on to a step you add later.
 </Steps>
 
-If you remove the step first, the branch is left pointing to nothing. Luvin warns **Other steps used what you removed and lost that data: getSpecies.**, and the analysis says **Action "on404" points to the non-existent step "listPokemon".**
+If you remove the step first, the confirmation warns **A route of step 2 «…» goes to this step: it will break.** If you remove it anyway, the row says **goes to a step that no longer exists (listPokemon)** and [To review](/design/review/) lists it.
 
-## Add more steps after a branch step
+## Add more steps after a route step
 
-The steps below the happy path belong to the branches. Keep that in mind when you add more:
+The steps below the happy path belong to the routes. Keep that in mind when you add more:
 
 | How you add it | Where it goes | Runs on the happy path? |
 |---|---|---|
 | The **+** on the arrow right below the step with `done` | Between them. `done` moves to the new step. | Yes |
-| The **+** of a palette row | After the step with `done`. `done` moves to the new step. | Yes |
-| Dropped right below the step with `done` | After it. `done` moves to the new step. | Yes |
-| Dropped at the bottom, below a branch step | After that branch step | No: it runs after that branch step |
+| **＋ Step** with no step selected | After the step with `done`. `done` moves to the new step. | Yes |
+| **＋ Step** with the step with `done` selected, or dropped right below it | After it. `done` moves to the new step. | Yes |
+| **＋ Step** with a route step selected, or dropped below a route step | After that route step | No: it runs after that route step |
 
 See [Insert a step](/design/insert-step/).
 
 <Aside type="caution">
-Moving steps with the arrows ↑ ↓ of a card, or by dragging them, does not move `done`. If you move the branch step above the end of the happy path, check the `onSuccess` of each step in the YAML tab.
+Moving a step, with ⌥↑ ⌥↓, **Move up**, **Move down** or by dragging its card, does not move `done`. If you move a route step above the end of the happy path, check the routes on success of each step.
 </Aside>
 
 ## Related
 
 <CardGrid>
-  <LinkCard title="Error branches" href="/design/branches/" />
-  <LinkCard title="The branch menu" href="/design/branch-menu/" />
+  <LinkCard title="Routes: what happens after each step" href="/design/branches/" />
+  <LinkCard title="Add or change a route" href="/design/branch-menu/" />
   <LinkCard title="Insert a step" href="/design/insert-step/" />
   <LinkCard title="Retry, jump and end on errors" href="/recipes/error-branches/" />
 </CardGrid>

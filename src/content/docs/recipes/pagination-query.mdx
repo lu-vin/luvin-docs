@@ -134,6 +134,20 @@ The workflow outputs are `total` = 194, `firstTitle`, `secondPageFirstTitle` and
 Arazzo expressions read values; they do not calculate. You cannot write `skip` = previous `skip` + `limit`. That is why `nextSkip` is an input: you decide where the next page starts. To walk a whole list you would repeat the step with a new `skip` each time.
 :::
 
+## Why this recipe doesn't use «Go through every page»
+
+In the **Design** tab, **＋ Step** has a pattern, **Go through every page**, under **Patterns · standard Arazzo**. It repeats a step while the response says there is a next page:
+
+- It looks in the response for a next-page field: `next`, `nextCursor`, `next_cursor`, `nextPageToken`, `next_page_token`, `cursor` or `nextPage`.
+- It writes a route on success that goes back to the same step while that field has a value, for example `$response.body#/next != null`.
+- If the operation has a cursor query parameter, such as `cursor`, `pageToken` or `after`, each round sends it with what the previous page gave.
+
+That is cursor pagination, and it is standard Arazzo. DummyJSON pages by offset instead: you send `skip` and `limit`, and the response has `total`, `skip` and `limit`, but no next-page field. The next `skip` would be `skip + limit`, and Arazzo conditions cannot add.
+
+If you apply the pattern to `GET /products` here, Luvin finds no next-page field and writes the condition on `next`. The notice says so: *«List products, one page at a time» repeats while «next» has a value. If the API names the next page differently, change it in its routes.* DummyJSON never returns `next`, so the condition does not hold and the step runs once: the loop stops on the first page.
+
+That is why this recipe reads each page with its own step and an input. With an API that returns a next-page field or cursor, use the pattern. See [Standard Arazzo patterns](/design/patterns/).
+
 ## Try this
 
 - **A page near the end.** Set `nextSkip` to `190` (the catalog has 194 products). `nextPage` still answers 200 and its `firstTitle` is now *Rolex Cellini Moonphase*.
@@ -146,4 +160,5 @@ Arazzo expressions read values; they do not calculate. You cannot write `skip` =
 <LinkCard title="Parameters and body" description="Where query, path and header values come from." href="/design/parameters-and-body/" />
 <LinkCard title="Success criteria" description="The conditions that decide if a step passed." href="/reference/criteria/" />
 <LinkCard title="Choose an item from a list" description="When the list feeds a later step." href="/recipes/list-pick/" />
+<LinkCard title="Standard Arazzo patterns" description="Go through every page with a cursor." href="/design/patterns/" />
 </CardGrid>

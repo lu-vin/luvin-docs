@@ -1,60 +1,105 @@
 ---
 title: Armar desde requests guardados
-description: Arma un workflow sin contratos arrastrando requests guardados al lienzo, y deja que Luvin sugiera cómo conectarlos.
+description: Arma un workflow sin contratos con tus requests guardados. Luvin conserva sus nombres, conecta los datos que pasan sus scripts de Postman o Bruno y sugiere el resto.
 sidebar:
   order: 11
 ---
 
-import { Steps, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-No necesitas un contrato OpenAPI para armar un workflow. Si tienes requests guardados, por ejemplo importados de Postman o Bruno, arrástralos al lienzo y cada uno se vuelve un paso. Úsalo cuando la API no tiene contrato, o cuando solo tienes una colección de requests.
+No necesitas un contrato OpenAPI para armar un workflow. Si tienes requests guardados, por ejemplo importados de Postman o Bruno, agrégalos al lienzo y cada uno se vuelve un paso. Úsalo cuando la API no tiene contrato, o cuando solo tienes una colección de requests.
 
 Un *request* es una llamada a una API guardada: un método, una URL, headers y un body. Consulta [Requests](/es/requests/overview/) e [Importar desde Postman o Bruno](/es/get-started/import/).
 
 ## Ejemplo: Create order y Get order
 
-Guardaste dos requests, **Create order** y **Get order**. Los arrastras al lienzo.
+Guardaste dos requests, **Create order** y **Get order**. El script de **Create order** guarda el id nuevo, como hacen muchas colecciones de Postman:
 
-| Arrastras | Luvin crea | Qué conserva |
-|---|---|---|
-| El request **Create order** | El paso `createOrder` | La misma URL, headers y body, con las `{{variables}}` del ambiente |
-| El request **Get order** | El paso `getOrder` | La ruta con `{{order_id}}` |
-
-Después de una ejecución, Luvin ve que **Create order** devuelve un `id` que usa **Get order**. Aparece una barra sobre el lienzo:
-
-```text
-Luvin encontró 1 conexión(es) entre pasos
+```js
+pm.collectionVariables.set("order_id", pm.response.json().id);
 ```
 
-Haz clic en **Conectar** y `{{order_id}}` pasa a ser el output del primer paso. Mira [Sugerencias de conexión](#acepta-las-conexiones-sugeridas).
+Agregas los dos requests al lienzo.
+
+| Agregas | Luvin crea | Qué conserva |
+|---|---|---|
+| El request **Create order** | Un paso con el título **Create order** y el id `createOrder` | La misma URL, headers y body, con las `{{variables}}` del ambiente |
+| El request **Get order** | Un paso con el título **Get order** y el id `getOrder` | La ruta, donde `{{order_id}}` ahora viene de `createOrder` |
+
+Luvin leyó el script sin ejecutarlo: el `{{order_id}}` de **Get order** es el `id` que devuelve **Create order**. El paso `getOrder` lo toma de ahí, y `createOrder` recibe un output nuevo, `order_id`. No tuviste que enviar nada antes.
+
+Sin ese script, Luvin aprende las respuestas en la primera ejecución y luego sugiere la conexión. Mira [Acepta las conexiones sugeridas](#acepta-las-conexiones-sugeridas).
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-from-requests.webp" src="/media/es/design-from-requests.mp4"></video>
 
+![El workflow armado con los requests de Postman Create order y Get order: el orderId de Get order muestra ← order_id · de 1, leído del script, sin enviar nada](/media/es/design-script-wiring.webp)
+
 ## Agrega un request como un paso
 
-<Steps>
-1. Abre el workflow y ve a la pestaña **Diseño**.
-2. En la paleta **Operaciones**, abre **Requests de la colección**. Lista los requests HTTP de la colección, agrupados por carpeta. Escribe en **Buscar operación…** para filtrar.
-3. Arrastra un request al lienzo, o haz clic en **+** de su fila para agregarlo al final.
-</Steps>
+Abre el workflow y ve a la pestaña **Diseño**. Hay tres formas:
 
-El paso se envía exactamente como el request: la misma URL, parámetros, headers y body, y se conservan las `{{variables}}` del ambiente. Los únicos valores que Luvin reemplaza son los que devuelve un paso anterior. Luvin no crea inputs, así que lo que no viene de un paso conserva el valor del request.
-
-El paso lleva el nombre del request: **Create order** se vuelve `createOrder`. Su criterio de éxito es el menor estado 2xx que Luvin conoce para él, o `$statusCode < 400` si no conoce ninguno.
+- **Con el lienzo vacío**, haz clic en **Armar con requests de la colección**. Se abre **Agregar un paso**. Haz clic en los requests en el orden que quieras: cada uno va al final del workflow. Ciérralo cuando termines.
+- **En cualquier momento**, haz clic en **＋ Paso** en la barra de herramientas, o pulsa `/`. En **Agregar un paso**, abre **Requests de la colección** (los requests de la colección, agrupados por carpeta) y haz clic en un request, o en **+** de su fila. Escribe en **Buscar operación…** para filtrar. El paso va después del paso elegido o, si no hay ninguno, al final.
+- **Desde la barra lateral**, arrastra un request del árbol de la colección al lienzo.
 
 Solo se pueden agregar requests HTTP con una URL. Para cualquier otro, Luvin dice **Solo los requests HTTP con URL se pueden agregar a un workflow.**
 
-![La paleta de una colección sin contratos: Requests de la colección con Crear pedido (POST) y Consultar pedido (GET)](/media/es/design-requests-palette.webp)
+![Agregar un paso en una colección sin contratos: Requests de la colección con Crear pedido (POST) y Consultar pedido (GET)](/media/es/design-requests-palette.webp)
 
-### La pregunta sobre los campos obligatorios
+## Qué conserva el paso
 
-La primera vez que agregas un request a un workflow, un diálogo pregunta qué campos exige la API. Respóndela una vez y vale para todos los workflows que usen ese request. Consulta [Agregar pasos](/es/design/add-steps/).
+El paso se envía exactamente como el request: la misma URL, parámetros, headers y body, y se conservan las `{{variables}}` del ambiente. Luvin no crea inputs: lo que no viene de un paso anterior conserva el valor del request.
+
+**Su título es el nombre del request.** El lienzo, la barra lateral, los resultados y los reportes muestran **01 - Login**, tal como lo nombraste en Postman.
+
+**Su id es corto y legible.** Luvin toma el nombre del request sin la numeración del principio (`01 - `, `1.`, `#3`), quita las palabras de relleno (*de*, *la*, *el*, *y*, *para*, *the*, *of*, *is*…) y deja hasta cuatro palabras en camelCase:
+
+| Request | Id del paso |
+|---|---|
+| **Create order** | `createOrder` |
+| **01 - Login** | `login` |
+| **02 - Instrument is inactive and canonical** | `instrumentInactiveCanonical` |
+
+Si el id ya existe, lleva un número al final: `login2`. El id aparece debajo del título en el panel del paso y en el YAML, porque las expresiones como `$steps.login.outputs.token` lo usan. Los ids que ya existen nunca cambian, aunque renombres el request.
+
+**Su criterio de éxito** sale del script del request cuando el script espera un solo status. Un request que verifica `pm.response.to.have.status(400)`, o `expect(res.status).to.equal(400)` en Bruno, recibe `$statusCode == 400`: el paso pasa cuando la API responde el error que espera. Mira [Espera un error](/es/recipes/expected-error/#desde-un-request-de-postman-que-espera-un-error). Si no, es el menor status 2xx que Luvin conoce para el request, o `$statusCode < 400` si no conoce ninguno.
+
+## Cómo conecta Luvin los datos
+
+Cuando agregas un request, Luvin mira los pasos anteriores y reemplaza los valores que vienen de ellos. No ejecuta nada.
+
+1. **Lo que guardan los scripts.** Si el script de un request anterior guarda un valor de su respuesta, una `{{variable}}` posterior con ese nombre viene de ese paso. Por ejemplo, **Products by category** tiene `pm.collectionVariables.set("productId", json.products[0].id)`, y **Product detail** usa `/products/{{productId}}`. Entonces el `productId` de **Product detail** viene de `products/0/id` del paso `productsByCategory`, con un output nuevo allí. Funciona antes de que Luvin conozca ninguna respuesta.
+2. **Lo que dicen las respuestas.** Cuando Luvin ya sabe qué responde un paso anterior, un valor toma un output o un campo de la respuesta con el mismo nombre, o uno compuesto: `customerId` toma `customer/id`.
+3. **Un id en la ruta.** Un parámetro de ruta como `orderId` puede tomar el `id` del paso justo anterior. Solo si ese paso trata de lo mismo: un `userId` nunca toma el id de un paso de productos.
+4. **Un input con el mismo nombre**, si el workflow ya tiene uno.
+
+Los datos generados nunca se reemplazan. Un `{{$randomFirstName}}`, `{{$randomEmail}}` o `{{$guid}}` queda como está, así cada ejecución envía un valor nuevo.
+
+El token del login se conecta de la misma forma: Luvin lee el script del login y pasa su token a los pasos siguientes. Mira [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/#luvin-lo-conecta-mientras-armas).
+
+<video controls muted playsinline preload="metadata" poster="/media/es/token-from-script.webp" src="/media/es/token-from-script.mp4"></video>
+
+## Marca los campos obligatorios
+
+Un request no dice qué campos exige la API. Luvin no pregunta mientras armas: una barra sobre el lienzo dice cuántos pasos no tienen ninguno marcado, por ejemplo *2 paso(s) sin campos obligatorios marcados: sin ellos no hay casos negativos de esos pasos.* Haz clic en **Marcar** para responder por todos en una sola lista, cuando quieras.
+
+En el panel de un paso, **Marcar campos obligatorios** (o **Campos obligatorios (n)** cuando ya los marcaste) abre la misma lista para ese request. La respuesta vale para todos los workflows que usan el request. Mira [Campos obligatorios](/es/design/required-fields/).
+
+![La barra 1 paso(s) sin campos obligatorios marcados, con Marcar, y la tarjeta del paso con obligatorios sin marcar](/media/es/design-required-bar.webp)
 
 ## Cómo arma Luvin un contrato por ti
 
 Un archivo Arazzo necesita un contrato al que apuntar. Luvin lo crea a partir de tus requests, uno por URL base, en la carpeta `requests/_contracts` de la colección. Cada request es una operación. La primera línea dice que está generado: no lo edites, porque Luvin lo reescribe cuando cambia un request.
 
-Un request no dice qué responde la API, así que el contrato parte sin respuestas. Sin ellas, Luvin todavía no puede ver qué valores vienen de pasos anteriores.
+Un contrato no admite dos operaciones con el mismo método y ruta. Si dos requests los comparten (por ejemplo, dos variantes de `GET /items`), Luvin pone el segundo en un contrato hermano, como `baseUrl2`. Para ti siguen siendo **una API por URL base**:
+
+- la pestaña **Autorización** del workflow muestra una tarjeta, `baseUrl`, y lo que elijas vale para todos sus contratos;
+- el ambiente tiene una sola URL base para ella;
+- en el lienzo, sus pasos dicen `fuente baseUrl`.
+
+Solo la pestaña **YAML** nombra cada contrato generado, con una nota que explica por qué.
+
+Un request no dice qué responde la API, así que el contrato parte sin respuestas.
 
 ## Luvin aprende las respuestas
 
@@ -72,7 +117,7 @@ También puedes enseñárselo sin ejecutar. Haz clic en el paso. El panel empiez
 
 ## Acepta las conexiones sugeridas
 
-Con las respuestas conocidas, Luvin puede ver que un valor que escribiste a mano viene de un paso anterior. Por ejemplo, la ruta de **Get order** tiene `{{order_id}}`, y **Create order** devuelve un `id`. Aparece una barra sobre el lienzo: **Luvin encontró 2 conexión(es) entre pasos**.
+Con las respuestas conocidas, Luvin puede ver que un valor que escribiste a mano viene de un paso anterior. Por ejemplo, la ruta de **Get order** tiene `{{order_id}}`, ningún script lo guarda, y **Create order** devuelve un `id`. Aparece una barra sobre el lienzo: **Luvin encontró 1 conexión(es) entre pasos**.
 
 | Botón | Qué hace |
 |---|---|
@@ -81,18 +126,18 @@ Con las respuestas conocidas, Luvin puede ver que un valor que escribiste a mano
 | **Ignorar** | Oculta esa. |
 | **Ocultar** / **Ver** | Pliega o despliega la lista. |
 
-Cada línea nombra el paso, el valor y de dónde vendría. Después de una ejecución, las otras pestañas muestran **Con la última ejecución, Luvin encontró 2 conexión(es) entre pasos.** con el enlace **Revisar en Diseño**.
+Cada línea nombra el paso, el valor y de dónde vendría. Después de una ejecución, las otras pestañas muestran **Con la última ejecución, Luvin encontró 1 conexión(es) entre pasos.** con el enlace **Revisar en Diseño**.
 
-Luvin no conecta nada hasta que aceptas. **Deshacer** lo revierte. [Conectar datos entre pasos](/es/design/wire-data/) explica el resultado.
+Luvin no conecta nada hasta que aceptas. **Deshacer** lo revierte. Los datos generados, como `{{$randomEmail}}`, nunca se sugieren. [Conectar datos entre pasos](/es/design/wire-data/) explica el resultado.
 
-![La barra Luvin encontró 1 conexión(es) entre pasos: el orderId del segundo paso, escrito como {{order_id}}, vendría del id del primero](/media/es/design-connections-bar.webp)
+![La barra Luvin encontró 1 conexión(es) entre pasos: el orderId del segundo paso, escrito como order_id, vendría del id del primero](/media/es/design-connections-bar.webp)
 
 ## Elige datos para variar
 
-Como los pasos conservan los valores de los requests, el workflow parte sin inputs, y un caso no tiene nada que cambiar. Elige los valores que quieres variar.
+Como los pasos conservan los valores de los requests, el workflow parte sin inputs (**▶ Inicio · sin inputs**), y un caso no tiene nada que cambiar. Elige los valores que quieres variar.
 
 <Steps>
-1. En la tarjeta **Inicio**, lee **Sin inputs: los pasos usan 5 valores fijos.** y haz clic en **Elegir datos variables…**.
+1. En la tarjeta **Inicio**, haz clic en **Elegir datos variables…**.
 2. En **Datos para variar por caso**, marca los valores. Cada fila muestra dónde está, por ejemplo `query · bank`, y su valor actual.
 3. Haz clic en **Convertir en inputs**. La cantidad de valores que marcaste está en el botón.
 </Steps>
@@ -106,6 +151,7 @@ El mismo diálogo se abre desde la pestaña **Casos**, con el botón **Elegir da
 ## Relacionado
 
 <CardGrid>
+  <LinkCard title="Pasa el token del login a los pasos siguientes" href="/es/authorization/token-from-login/" />
   <LinkCard title="Conectar datos entre pasos" href="/es/design/wire-data/" />
   <LinkCard title="Parámetros y body" href="/es/design/parameters-and-body/" />
   <LinkCard title="Inputs" href="/es/test/inputs/" />

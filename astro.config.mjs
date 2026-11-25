@@ -40,21 +40,22 @@ const sidebar = [
   ]),
   section('Tutorials', 'Tutoriales', 'tutorials', ['first-workflow', 'from-postman', 'oauth-payment', 'negative-cases', 'debug-failure', 'team-git']),
   section('Design workflows', 'Diseñar workflows', 'design', [
-    ['Basics', 'Lo básico', ['overview', 'common-situations', 'create', 'add-steps', 'insert-step', 'organize', 'arazzo-file']],
+    ['Basics', 'Lo básico', ['overview', 'common-situations', 'canvas', 'create', 'add-steps', 'insert-step', 'organize', 'copy-and-extract', 'arazzo-file']],
     ['Data between steps', 'Datos entre pasos', ['wire-data', 'parameters-and-body', 'outputs', 'complete-gaps', 'required-fields']],
     ['Control the flow', 'Controlar el recorrido', [
       'success-and-errors',
-      ['Error branches', 'Ramas de error', ['branches', 'branch-menu', 'branch-other-status', 'branch-new-step']],
+      ['Routes', 'Rutas', ['branches', 'branch-menu', 'routes-panel', 'branch-other-status', 'branch-new-step', 'review']],
+      'patterns',
       'dependencies',
       'reusables',
     ]],
     ['Other kinds of steps', 'Otros tipos de pasos', ['messaging', 'from-requests']],
-    ['The Arazzo file', 'El archivo Arazzo', ['arazzo-editor', 'broken-yaml']],
+    ['The Arazzo file', 'El archivo Arazzo', ['yaml-side-by-side', 'arazzo-editor', 'broken-yaml']],
   ]),
   section('Test workflows', 'Probar workflows', 'test', [
     ['Start here', 'Para empezar', ['overview', 'what-to-test']],
     ['Inputs and cases', 'Inputs y casos', ['inputs', 'cases', 'adjust-cases', 'custom-cases']],
-    ['Run', 'Ejecutar', ['run', 'lists', 'simulation']],
+    ['Run', 'Ejecutar', ['run', 'run-on-canvas', 'probe-routes', 'debug', 'lists', 'simulation']],
     ['Results', 'Resultados', ['results', 'step-results', 'overview-tab', 'reports']],
   ]),
   section('Runner', 'Runner', 'runner', [
@@ -74,6 +75,7 @@ const sidebar = [
   section('Send requests', 'Enviar requests', 'requests', [
     ['Basics', 'Lo básico', ['overview', 'http', 'params-headers-body', 'auto-headers', 'send-files', 'response-details', 'files', 'cookies-and-examples']],
     ['Variables and checks', 'Variables y comprobaciones', ['variables-and-checks', 'save-variables', 'checks', 'check-operators', 'check-expressions', 'check-results', 'checks-from-postman']],
+    ['Scripts', 'Scripts', ['scripts', 'scripts-api']],
     ['Other protocols', 'Otros protocolos', ['graphql', 'grpc', 'websocket']],
     ['Create requests faster', 'Crear requests más rápido', ['curl', 'generate-from-contract']],
   ]),
@@ -99,7 +101,7 @@ const sidebar = [
   section('Authorization', 'Autorización', 'authorization', [
     ['Start here', 'Empieza aquí', ['overview', 'where-it-applies', 'inherit-and-none']],
     ['Types', 'Tipos', ['api-key', 'basic', 'bearer', 'oauth2', 'oauth1', 'digest', 'ntlm', 'aws-sigv4', 'akamai', 'wsse']],
-    ['Collections and workflows', 'Colecciones y workflows', ['contract-credentials', 'collection', 'workflow']],
+    ['Collections and workflows', 'Colecciones y workflows', ['contract-credentials', 'collection', 'workflow', 'token-from-login']],
     ['Security and problems', 'Seguridad y problemas', ['secrets', 'troubleshooting']],
   ]),
   section('Workspaces', 'Workspaces', 'workspaces', [

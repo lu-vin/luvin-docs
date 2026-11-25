@@ -1,6 +1,6 @@
 ---
 title: Arma tu primer workflow desde el contrato
-description: Crea un workflow en el ejemplo de la Pokédex arrastrando dos operaciones al lienzo, ejecútalo en Simulación y contra la API real, y lee el archivo Arazzo que escribió Luvin.
+description: Crea un workflow en el ejemplo de la Pokédex agregando operaciones al lienzo, ejecútalo en Simulación y contra la API real, y lee el archivo Arazzo que escribió Luvin.
 sidebar:
   order: 1
 ---
@@ -19,9 +19,9 @@ Si todavía no ejecutaste el ejemplo, el [Inicio rápido](/es/get-started/quick-
 ## 2. Crea un workflow nuevo
 
 1. En la barra lateral, haz clic en **Pokemon card** y abre la pestaña **Diseño**.
-2. Haz clic en **+ Workflow** en la barra de herramientas sobre el lienzo.
+2. Haz clic en **+** (**Crear o importar**) a la derecha de las pestañas abiertas y elige **Nuevo workflow en este archivo**.
 
-Se agrega un workflow llamado **Nuevo workflow** al mismo archivo y se abre en **Diseño**. El lienzo dice **Arrastra aquí la primera operación**.
+Se agrega un workflow llamado **Nuevo workflow** al mismo archivo y se abre en **Diseño**. El lienzo muestra la tarjeta **Arma tu workflow**.
 
 3. Haz clic en el nombre, escribe `Species lookup` y pulsa Enter. Una línea debajo del campo muestra **id en el Arazzo:** `speciesLookup`.
 
@@ -29,28 +29,27 @@ Mira [Crear un workflow](/es/design/create/) para saber más sobre nombres y des
 
 ## 3. Agrega el primer paso
 
-La paleta **Operaciones**, a la izquierda, lista las operaciones del contrato `pokeapi`.
+El lienzo vacío muestra la tarjeta **Arma tu workflow**.
 
-1. Escribe `pokemon` en **Buscar operación…**.
-2. Arrastra `GET /pokemon/{idOrName}` al lienzo.
+1. Haz clic en **Agregar el primer paso**, o en **＋ Paso**, arriba a la izquierda. Se abre una búsqueda con las operaciones del contrato `pokeapi`.
+2. Escribe `pokemon/{` en **Buscar operación…** y haz clic en `GET /pokemon/{idOrName}`.
 
-El lienzo muestra un paso llamado `getPokemon`. Nada en el workflow provee el valor `idOrName`, así que Luvin creó un input con ese nombre. La tarjeta **Inicio** ahora lista `idOrName`, y el paso lo usa. Un *input* es un valor que entregas al ejecutar.
+El lienzo muestra un paso llamado `getPokemon`. Nada en el workflow provee el valor `idOrName`, así que Luvin creó un input con ese nombre. **Inicio** ahora dice **1 input**, y el paso muestra el chip **← idOrName · Inicio**. Un *input* es un valor que entregas al ejecutar.
 
-![La pestaña Diseño: la paleta de operaciones, el lienzo con pasos conectados y el panel de un paso](/media/es/builder.webp)
+![La pestaña Diseño: el lienzo con las tarjetas de los pasos y el panel de un paso abierto sobre el lado derecho](/media/es/builder.webp)
 
 ## 4. Agrega el segundo paso y mira la conexión
 
-1. Busca `species` y arrastra `GET /pokemon-species/{idOrName}` debajo de `getPokemon`.
-2. Haz clic en el paso nuevo, `getPokemonSpecies`. Su panel se abre a la derecha.
-3. En **Parámetros**, mira **Ruta**. El valor `idOrName` dice `? getPokemon › id`.
+1. Con `getPokemon` elegido, haz clic en **＋ Paso**, escribe `species` y haz clic en `GET /pokemon-species/{idOrName}`. El paso queda justo después de `getPokemon`.
+2. Mira la tarjeta del paso nuevo, `getPokemonSpecies`. En **Parámetros**, `idOrName` muestra el chip **← id · de 1**, con una `?` delante.
 
-Luvin conectó el `id` que devuelve `getPokemon` con la ruta del segundo paso, y agregó el output `id` a `getPokemon`. La línea punteada del lienzo es ese dato viajando. La `?` significa que Luvin está menos seguro de esa regla. Aquí acierta. [Conectar datos entre pasos](/es/design/wire-data/) lista las reglas.
+Luvin conectó el `id` que devuelve `getPokemon` con la ruta del segundo paso, y agregó el output `id` a `getPokemon`. Con el paso elegido, una línea a la derecha de las tarjetas va de ese output al parámetro. La `?` significa que Luvin está menos seguro de esa regla. Aquí acierta. [Conectar datos entre pasos](/es/design/wire-data/) lista las reglas.
 
 ## 5. Agrega un paso que necesita una elección
 
-1. Busca `type` y arrastra `GET /type/{idOrName}` debajo de `getPokemonSpecies`.
-2. Haz clic en el paso nuevo, `getType`. Su `idOrName` dice `? getPokemonSpecies › id`. Eso está mal: un tipo no es el id de una especie.
-3. Abre la lista bajo `idOrName` (**Origen**) y elige `types/type/name (de una lista: eliges cuál al ejecutar)`, bajo `getPokemon`.
+1. Con `getPokemonSpecies` elegido, haz clic en **＋ Paso**, escribe `type` y haz clic en `GET /type/{idOrName}`.
+2. Haz clic en el paso nuevo, `getType`. Su `idOrName` muestra **← id · de 2**, con una `?`. Eso está mal: un tipo no es el id de una especie.
+3. En la pestaña **Datos** de su panel, abre la lista bajo `idOrName` (**Origen**) y elige `types/type/name (de una lista: eliges cuál al ejecutar)`, bajo `getPokemon`.
 
 La `?` desaparece. Un Pokémon puede tener varios tipos, así que Luvin no puede elegir uno por ti: te preguntará cuando ejecutes.
 
@@ -95,7 +94,7 @@ La ejecución sigue. Mira [Elegir un elemento de una lista](/es/test/lists/) par
 
 1. Haz clic en la pestaña **YAML**.
 
-Este es el archivo que Luvin fue escribiendo mientras arrastrabas. Es [Arazzo](https://spec.openapis.org/arazzo/latest.html) estándar. La parte de tus dos primeros pasos se ve así:
+Este es el archivo que Luvin fue escribiendo mientras agregabas los pasos. Es [Arazzo](https://spec.openapis.org/arazzo/latest.html) estándar. La parte de tus dos primeros pasos se ve así:
 
 ```yaml
 - workflowId: speciesLookup
@@ -135,7 +134,7 @@ La Pokédex es un ejemplo guardado dentro de Luvin. Para tener tus propios workf
 
 ## Qué aprendiste
 
-- Arrastrar una operación crea un paso que ya viene completado desde el contrato.
+- Agregar una operación crea un paso que ya viene completado desde el contrato.
 - Luvin conecta los datos entre pasos con reglas y marca con `?` la que le da menos seguridad.
 - Un valor que nadie provee se vuelve un input.
 - **Simulación** responde desde el contrato. **API real** llama al servicio y se pausa para preguntarte cuando un paso devuelve una lista que usan los pasos siguientes.
