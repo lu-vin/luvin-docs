@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-El lienzo es la pestaña **Diseño** de un workflow. Dibuja el workflow de arriba abajo: **Inicio**, una tarjeta por paso y **Fin del workflow**. Cada tarjeta muestra el paso completo, así que se lee qué envía, qué comprueba, qué entrega y qué pasa después sin abrir nada.
+El lienzo es la pestaña **Diseño** de un workflow. Dibuja el workflow de arriba abajo: **Inicio**, una tarjeta por paso y **Fin del workflow**. También se puede ver de izquierda a derecha: mira [Vertical u horizontal](#vertical-u-horizontal). Cada tarjeta muestra el paso completo, así que se lee qué envía, qué comprueba, qué entrega y qué pasa después sin abrir nada.
 
 ## Ejemplo: Pokemon card
 
@@ -34,9 +34,41 @@ El lienzo ocupa toda la pestaña. Sus herramientas flotan encima.
 - El chip **⚠ por revisar** lista lo que Luvin encuentra al leer el Arazzo como lo ejecutaría. Lee [Por revisar](/es/design/review/).
 - **Rutas probadas** aparece cuando algo ya se ejecutó. Lee [Probar rutas y cobertura](/es/test/probe-routes/).
 - **\{ \} YAML** abre el archivo al lado del lienzo. Lee [El YAML al lado del lienzo](/es/design/yaml-side-by-side/).
-- **⋯** tiene **Copiar como Mermaid**, que copia el diagrama como texto Mermaid, y **Atajos de teclado**.
+- **⋯** tiene **Disposición** (**Vertical** u **Horizontal**, mira [Vertical u horizontal](#vertical-u-horizontal)), **Exportar** (**Imagen PNG**, **SVG** y **Copiar como Mermaid**, mira [Exportar una imagen](#exportar-una-imagen)) y **Atajos de teclado**.
 
 Con el panel del paso abierto, los chips se acortan, y **Ver** baja a una segunda fila si no cabe.
+
+![El menú ⋯ del lienzo: Disposición con ✓ Vertical y Horizontal, Exportar con Imagen PNG, SVG y Copiar como Mermaid, y Atajos de teclado](/media/es/canvas-more-menu.webp)
+
+## Vertical u horizontal
+
+En **⋯**, bajo **Disposición**, elige **Vertical** (la de siempre) u **Horizontal**. La ✓ marca la que está en uso. Luvin la recuerda en este equipo para todos los workflows. No se escribe en el archivo Arazzo.
+
+En **Horizontal**, el workflow se lee como una línea de tiempo:
+
+- **Inicio** queda a la izquierda, los pasos siguen en fila en el orden del Arazzo y **Fin del workflow** queda a la derecha. El **＋** entre ellos inserta un paso, como en vertical.
+- **Las rutas** van por una línea encima de las tarjetas y entran a su destino por arriba. Un reintento vuelve a su propia tarjeta.
+- **Las líneas de datos** van por debajo de las tarjetas y entran por la derecha al parámetro que recibe el valor. Cuándo se ven lo decide **Ver**, como en vertical.
+- Las tarjetas son las mismas, completas o minimizadas. Si el workflow no cabe, desplázate a lo ancho; **⤢ Ajustar** lo muestra entero.
+- **←** y **→** recorren los pasos, y **⌥←** y **⌥→** mueven el paso elegido.
+
+El diagrama de la pestaña **Resumen** usa la misma disposición, y también la imagen que exportes.
+
+![Pokemon card en la disposición horizontal: Inicio a la izquierda, los pasos en fila y la ruta del 404 por una línea encima de las tarjetas](/media/es/canvas-horizontal.webp)
+
+## Exportar una imagen
+
+En **⋯**, bajo **Exportar**:
+
+| Opción | Qué hace |
+|---|---|
+| **Imagen PNG** | Guarda el workflow entero como PNG, al doble de resolución, listo para un README, un pull request o una presentación |
+| **SVG** | Guarda el workflow entero como SVG. Se abre en navegadores, en GitHub y en páginas de documentación. Algunos editores de vectores no muestran su contenido: para esos, usa el PNG |
+| **Copiar como Mermaid** | Copia el diagrama como texto Mermaid, para pegarlo en Markdown |
+
+La imagen trae el workflow entero, también lo que no entra en la ventana, como lo ves: la disposición, el tema, lo que muestra **Ver** y el resultado de la última ejecución. Deja fuera las barras, el zoom, el minimapa y el **＋** entre pasos.
+
+Luvin pregunta dónde guardarla. El nombre sugerido sale del id del workflow: `pokemon-card.png` para **Pokemon card**.
 
 ## Inicio
 
@@ -144,14 +176,14 @@ Presiona **?**, o abre **⋯** › **Atajos de teclado**, para verlos en la app.
 
 | Teclas | Qué hacen |
 |---|---|
-| ↑ ↓ | Moverse entre pasos |
+| ↑ ↓ (← → en horizontal) | Moverse entre pasos |
 | Esc | Cerrar el panel o dejar de elegir |
 | / | Agregar un paso |
 | ⌘↵ | Ejecutar |
 | ⇧↵ | Ejecutar solo el paso elegido |
 | ⌘F | Buscar en el lienzo |
 | ⌘Z, ⇧⌘Z | Deshacer, rehacer |
-| ⌥↑, ⌥↓ | Mover el paso |
+| ⌥↑, ⌥↓ (⌥←, ⌥→ en horizontal) | Mover el paso |
 | ⌘D | Duplicar el paso |
 | ⌫ | Quitar el paso |
 | F9 | Pausar antes del paso |

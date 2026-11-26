@@ -7,7 +7,7 @@ sidebar:
 
 import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The canvas is the **Design** tab of a workflow. It draws the workflow from top to bottom: **Start**, one card per step, and **End of workflow**. Each card shows the whole step, so you read what it sends, what it checks, what it gives and what happens after it without opening anything.
+The canvas is the **Design** tab of a workflow. It draws the workflow from top to bottom: **Start**, one card per step, and **End of workflow**. You can also see it from left to right: see [Vertical or horizontal](#vertical-or-horizontal). Each card shows the whole step, so you read what it sends, what it checks, what it gives and what happens after it without opening anything.
 
 ## Example: Pokemon card
 
@@ -34,9 +34,41 @@ The canvas uses the whole tab. Its tools float over it.
 - The **⚠ to review** chip lists what Luvin finds reading the Arazzo the way it would run it. See [To review](/design/review/).
 - **Routes tested** appears once something has run. See [Probe routes and coverage](/test/probe-routes/).
 - **\{ \} YAML** opens the file next to the canvas. See [The YAML next to the canvas](/design/yaml-side-by-side/).
-- **⋯** has **Copy as Mermaid**, which copies the diagram as Mermaid text, and **Keyboard shortcuts**.
+- **⋯** has **Layout** (**Vertical** or **Horizontal**, see [Vertical or horizontal](#vertical-or-horizontal)), **Export** (**PNG image**, **SVG** and **Copy as Mermaid**, see [Export an image](#export-an-image)) and **Keyboard shortcuts**.
 
 When the step panel is open, the chips get shorter, and **View** moves down to a second row if it does not fit.
+
+![The ⋯ menu of the canvas: Layout with ✓ Vertical and Horizontal, Export with PNG image, SVG and Copy as Mermaid, and Keyboard shortcuts](/media/en/canvas-more-menu.webp)
+
+## Vertical or horizontal
+
+In **⋯**, under **Layout**, choose **Vertical** (the default) or **Horizontal**. The ✓ marks the one in use. Luvin remembers it on this computer for every workflow. It is not written in the Arazzo file.
+
+In **Horizontal**, the workflow reads like a timeline:
+
+- **Start** is on the left, the steps follow in a row in the order of the Arazzo, and **End of workflow** is on the right. The **＋** between them inserts a step, as in vertical.
+- **Routes** run on a line above the cards and enter their target from the top. A retry goes back to its own card.
+- **Data lines** run below the cards and enter the parameter that receives the value from the right. When they show follows **View**, as in vertical.
+- The cards are the same, full or minimized. When the workflow does not fit, scroll sideways; **⤢ Fit** shows all of it.
+- **←** and **→** move between steps, and **⌥←** and **⌥→** move the selected step.
+
+The diagram in the **Overview** tab uses the same layout, and so does an exported image.
+
+![Pokemon card in the horizontal layout: Start on the left, the steps in a row and the route of the 404 on a line above the cards](/media/en/canvas-horizontal.webp)
+
+## Export an image
+
+In **⋯**, under **Export**:
+
+| Option | What it does |
+|---|---|
+| **PNG image** | Saves the whole workflow as a PNG at double resolution, ready for a README, a pull request or a presentation |
+| **SVG** | Saves the whole workflow as an SVG. It opens in browsers, on GitHub and in documentation pages. Some vector editors do not show its content: for those, use the PNG |
+| **Copy as Mermaid** | Copies the diagram as Mermaid text, to paste in Markdown |
+
+The image has the whole workflow, even the part that does not fit in the window, as you see it: the layout, the theme, what **View** shows and the result of the last run. It leaves out the toolbars, the zoom, the minimap and the **＋** between steps.
+
+Luvin asks where to save it. The suggested name comes from the workflow id: `pokemon-card.png` for **Pokemon card**.
 
 ## Start
 
@@ -144,14 +176,14 @@ Press **?**, or open **⋯** › **Keyboard shortcuts**, to see them in the app.
 
 | Keys | What they do |
 |---|---|
-| ↑ ↓ | Move between steps |
+| ↑ ↓ (← → in horizontal) | Move between steps |
 | Esc | Close the panel or stop selecting |
 | / | Add a step |
 | ⌘↵ | Run |
 | ⇧↵ | Run only the selected step |
 | ⌘F | Search the canvas |
 | ⌘Z, ⇧⌘Z | Undo, redo |
-| ⌥↑, ⌥↓ | Move the step |
+| ⌥↑, ⌥↓ (⌥←, ⌥→ in horizontal) | Move the step |
 | ⌘D | Duplicate the step |
 | ⌫ | Remove the step |
 | F9 | Pause before the step |
