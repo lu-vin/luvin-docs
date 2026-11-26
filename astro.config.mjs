@@ -108,7 +108,7 @@ const sidebar = [
     ['Workspaces and collections', 'Workspaces y colecciones', ['overview', 'create-and-open', 'collections', 'collection-authorization', 'collection-overview']],
     ['History', 'Historial', ['history', 'history-requests', 'history-runs', 'history-settings']],
     ['Documentation', 'Documentación', ['documentation']],
-    ['Files and teams', 'Archivos y equipos', ['files', 'git', 'without-workspace']],
+    ['Files and teams', 'Archivos y equipos', ['files', 'export-import', 'git', 'without-workspace']],
   ]),
   section('Dev Tools', 'Dev Tools', 'dev-tools', ['overview', 'network', 'console-and-performance', 'terminal', 'connection-help']),
   section('Reference', 'Referencia', 'reference', [

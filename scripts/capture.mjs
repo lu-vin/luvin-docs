@@ -27,8 +27,8 @@ requireBuild()
 const OUT = path.resolve(outArg ?? path.join(here, '..', '.media', locale))
 mkdirSync(OUT, { recursive: true })
 const T = ES
-  ? { createWs: 'Crear un workspace', createWsGo: 'Crear workspace', newCol: 'Nueva colección', create: 'Crear', importFiles: 'Importar Arazzo', newRequest: 'Nuevo request', imp: 'Importar', prefs: 'Preferencias', more: 'Ver más ejemplos', importPm: 'Importar de Postman', runAnyway: 'Ejecutar igual', report: 'Reporte', del: 'Eliminar contrato' }
-  : { createWs: 'Create a workspace', createWsGo: 'Create workspace', newCol: 'New collection', create: 'Create', importFiles: 'Import Arazzo', newRequest: 'New request', imp: 'Import', prefs: 'Preferences', more: 'See more examples', importPm: 'Import from Postman', runAnyway: 'Run anyway', report: 'Report', del: 'Delete contract' }
+  ? { createWs: 'Crear un workspace', createWsGo: 'Crear workspace', newCol: 'Nueva colección', create: 'Crear', importFiles: 'Importar Arazzo', newRequest: 'Nuevo request', imp: 'Importar', prefs: 'Preferencias', more: 'Ver más ejemplos', importPm: 'Importar colección', runAnyway: 'Ejecutar igual', report: 'Reporte', del: 'Eliminar contrato' }
+  : { createWs: 'Create a workspace', createWsGo: 'Create workspace', newCol: 'New collection', create: 'Create', importFiles: 'Import Arazzo', newRequest: 'New request', imp: 'Import', prefs: 'Preferences', more: 'See more examples', importPm: 'Import collection', runAnyway: 'Run anyway', report: 'Report', del: 'Delete contract' }
 
 // --- API local de prueba (una tienda) ---
 const NAMES = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew', 'Kiwi', 'Lemon']
@@ -969,7 +969,7 @@ if (existsSync(sceneDir))
       console.log(`  ✕ ${f} no carga: ${String(e.message ?? e).split('\n')[0]}`)
     })
     if (!mod?.default) continue
-    Object.assign(scenes, mod.default({ ES, locale, T, OUT, tmp, root, API, VIEW, V, path, writeFileSync, freshPage, done, viewport, resize, capture, download, showFile, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, openShop, focusStep, run, untilDone }))
+    Object.assign(scenes, mod.default({ ES, locale, T, OUT, tmp, root, API, VIEW, V, path, writeFileSync, appHome: () => current?.home, freshPage, done, viewport, resize, capture, download, showFile, moveTo, go, say, saveClip, shot, clip, settle, tab, openPokedex, openPaypal, openShop, focusStep, run, untilDone }))
   }
 
 console.log(`Capturas (${locale}) → ${OUT}`)

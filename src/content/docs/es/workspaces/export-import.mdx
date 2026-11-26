@@ -1,0 +1,127 @@
+---
+title: Exportar e importar una colección
+description: Guarda una colección en un solo archivo .luvin.json, sin sus secretos, para pasársela a un compañero o llevarla a otra computadora, e impórtala allá.
+sidebar:
+  order: 7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Para pasarle una colección a alguien que no usa git, o para llevarla a otra computadora, expórtala a **un solo archivo** e importa ese archivo del otro lado. El archivo es un `.luvin.json` con los archivos de la colección adentro, tal cual están en el disco. Los valores secretos nunca van en él: quien importa la colección los escribe en su propio ambiente.
+
+## Ejemplo: qué lleva el archivo
+
+Exportar la colección Pokédex guarda `Pokédex.luvin.json`:
+
+```json title="Pokédex.luvin.json"
+{
+  "luvinCollection": 1,
+  "exportedWith": "0.2.0-beta.12",
+  "exportedAt": "2026-11-26T15:04:05.000Z",
+  "name": "Pokédex",
+  "files": [
+    { "path": "collection.yaml", "text": "version: 1\nname: Pokédex\n…" },
+    { "path": "environments/local.yaml", "text": "name: local\n…\nsecrets:\n  - apiKey\n…" },
+    { "path": "pokemon.arazzo.yaml", "text": "arazzo: 1.0.1\n…" }
+  ]
+}
+```
+
+Cada entrada es un archivo de la carpeta de la colección. El ambiente dice que `apiKey` es un secreto, pero no su valor. Puedes abrir el archivo con cualquier editor para revisar qué lleva antes de mandarlo.
+
+## Exportar una colección
+
+<Steps>
+
+1. En la barra lateral, abre el menú **⋯** de la colección y haz clic en **Exportar colección…**. El mismo botón está arriba en el [resumen de la colección](/es/workspaces/collection-overview/).
+2. Lee qué va en el archivo y qué no (más abajo). Si Luvin encontró valores que parecen secretos, decide qué hacer con cada uno.
+3. Haz clic en **Guardar…** y elige una carpeta y un nombre. El nombre sugerido es el de la colección, por ejemplo `Pokédex.luvin.json`.
+
+</Steps>
+
+Después, el diálogo dice dónde se guardó el archivo. Mándalo por correo, chat, una carpeta compartida o git.
+
+![El diálogo Exportar: qué va en el archivo, qué no y dos valores que parecen secretos](/media/es/export-collection.webp)
+
+### Qué va en el archivo
+
+Todos los archivos que Luvin lee de la carpeta de la colección, tal cual están en el disco:
+
+| Va | No va |
+|---|---|
+| `collection.yaml`, con la autorización de la colección (sin sus secretos) y sus scripts | Los **valores de los secretos**: las variables secretas de los ambientes y la autorización guardada como secreta. Quedan cifrados en este equipo |
+| Los requests y sus carpetas (`requests/`), con sus scripts y ejemplos guardados | Los **valores que guardan los scripts** con `pm.environment.set` y parecidos (valores actuales) |
+| Los archivos Arazzo, los contratos OpenAPI y AsyncAPI, los mocks y los archivos `.proto` | El ambiente elegido, en qué colecciones confías, los resultados y el historial |
+| Los ambientes (`environments/`), con los **nombres** de sus variables secretas | **Los archivos que manda un request** (un body de archivo): el request conserva su nombre, y quien importa elige el archivo de nuevo |
+| Los casos de cada workflow (`scenarios/`), `flow-auth.yaml`, `README.md` y las variables de `.luvin/` | Los archivos de la carpeta que Luvin no lee, como imágenes. El diálogo los nombra |
+| Las URLs de los contratos que vienen de una URL, para volver a descargarlos | |
+
+Si la colección usa variables del **ambiente global** activo que no define ella misma, una casilla ofrece llevarlas, marcada. Las secretas van sin valor. Mira [Dónde vive una variable](/es/environments/variable-levels/).
+
+### Valores que parecen secretos
+
+Un token pegado en un header, una contraseña en un body o una API key en una variable normal no están guardados como secretos, así que irían en el archivo. Antes de guardar, Luvin los lista en **Revisa N valor(es) que parecen secretos**. Los reconoce:
+
+- **por el nombre de dónde están**: un header `Authorization`, `Cookie` o `X-API-Key`, o un campo o variable que se llama como `password`, `token`, `apiKey` o `secret`;
+- **por su forma**, en cualquier lugar: un JWT, `Bearer` seguido de un valor fijo, o llaves que empiezan con `sk_live_`, `sk_test_`, `ghp_`, `github_pat_`, `AKIA` o `AIza`.
+
+Una `{{variable}}`, una expresión de Arazzo como `{$steps.login.outputs.token}` o una URL nunca cuentan.
+
+Cada valor se muestra tapado (`eyJh…aW4`) con **Vaciar en el archivo** marcado. Marcado, el valor va vacío en el archivo exportado: tu colección en el disco no cambia. De `Bearer …` se vacía solo el token. Desmárcalo para mandar el valor tal cual.
+
+Un valor dentro de un **script** solo se avisa, con su línea: vaciarlo rompería el código. Cambia tú el script antes de exportar si no debe ir.
+
+<Aside type="tip">
+Para no pegar tokens, guárdalos como secretos: una variable secreta en el ambiente, o el [token del login en los pasos siguientes](/es/authorization/token-from-login/). Los secretos nunca van en el archivo.
+</Aside>
+
+## Importar una colección
+
+Necesitas un workspace abierto. Mira [Crear y abrir un workspace](/es/workspaces/create-and-open/).
+
+<Steps>
+
+1. Haz clic en **Importar colección (Luvin, Postman o Bruno)**. Está en **Acciones rápidas** del **Inicio**, en el menú **⋯** de **Colecciones** en la barra lateral y en el menú **+** de las pestañas. Luego haz clic en **Elegir .luvin.json**. También puedes soltar el archivo en cualquier parte de la ventana, incluso con una colección abierta: un `.luvin.json` siempre abre el diálogo de importar.
+2. Lee el resumen: con qué versión de Luvin se exportó y cuándo, qué trae, qué secretos llegan sin valor y si trae scripts.
+3. Cambia el nombre si quieres. Si el workspace ya tiene una colección con ese nombre, elige **Importar como copia** (por defecto, por ejemplo `Pokédex_v1`) o **Reemplazar el contenido de «Pokédex»**. Reemplazar manda la carpeta actual a la Papelera, donde la puedes recuperar, y queda la colección del archivo, completa.
+4. Haz clic en **Importar**.
+
+</Steps>
+
+![El diálogo Importar colección con un archivo de Luvin: una copia llamada Pokédex_v1, un secreto sin valor y scripts](/media/es/import-luvin.webp)
+
+### Después de importar
+
+Si llegaron secretos sin valor, un aviso los lista: **Faltan 1 secreto(s) de «Pokédex_v1»: apiKey.** Haz clic en **Completarlos** para abrir el ambiente y escribirlos.
+
+![El aviso después de importar, con el secreto que falta y el botón Completarlos](/media/es/import-missing-secrets.webp)
+
+Una colección importada nunca llega confiada, aunque confiaras en ella en la otra computadora. Sus scripts no corren hasta que lo digas: Luvin pregunta **¿Confías en esta colección?** antes de correr uno, como con las colecciones de Postman y Bruno. Mira [Scripts](/es/requests/scripts/).
+
+Las variables de un ambiente global que venían en el archivo se suman al global del mismo nombre. Una variable que ya existe nunca se pisa.
+
+### Cuando no se importa nada
+
+Luvin revisa todo el archivo primero. Si alguna parte no cumple, no importa nada y dice por qué:
+
+| Mensaje | Qué pasó |
+|---|---|
+| **El archivo trae una ruta que no se puede importar («…»). No se importó nada.** | Un archivo de adentro quedaría fuera de la carpeta de la colección (`../`, una ruta absoluta), en una carpeta oculta, o no es de un tipo que Luvin lee. El archivo se cambió a mano o no viene de Luvin |
+| **Este archivo es de una versión más nueva de Luvin (…). Actualiza Luvin para importarlo.** | Se exportó con un Luvin más nuevo. Actualiza y después importa |
+| **El archivo trae «…» con un formato más nuevo de Luvin. Actualiza Luvin para importarlo.** | Lo mismo, para un archivo de adentro |
+
+## ¿Exportar o git?
+
+Los dos comparten los mismos archivos. Usa el que te sirva:
+
+| Exportar e importar | Git |
+|---|---|
+| Una entrega puntual: a un compañero, un estudiante, un cliente, otra computadora | Un equipo que trabaja en la misma colección en el tiempo |
+| Sin cuentas ni herramientas | Cada cambio se revisa en un pull request y tiene historia |
+| Cada importación es una copia (o un reemplazo), nunca una mezcla | Los cambios de varias personas se combinan |
+
+<CardGrid>
+  <LinkCard title="Llevar un workspace en git" href="/es/workspaces/git/" />
+  <LinkCard title="Qué hay en el disco" href="/es/workspaces/files/" />
+  <LinkCard title="Trae tus propios archivos y requests" href="/es/get-started/import/" />
+</CardGrid>

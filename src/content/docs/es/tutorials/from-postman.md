@@ -15,12 +15,12 @@ El workflow envía los requests de verdad. Apunta el ambiente a un servidor de p
 
 ## 1. Importa la colección
 
-1. Haz clic en **+** (**Crear o importar**) a la derecha de las pestañas abiertas, y luego en **Importar de Postman o Bruno**. Si no hay un workspace abierto, Luvin dice **Abre o crea un workspace para importar.** Abre uno primero.
+1. Haz clic en **+** (**Crear o importar**) a la derecha de las pestañas abiertas, y luego en **Importar colección (Luvin, Postman o Bruno)**. Si no hay un workspace abierto, Luvin dice **Abre o crea un workspace para importar.** Abre uno primero.
 2. Para Postman, haz clic en **Elegir archivos .json** y elige la colección exportada. Elige también sus archivos de ambiente, para traer las variables. Para Bruno, haz clic en **Elegir carpeta** y elige la carpeta de la colección.
 3. Lee el resumen: requests, carpetas, ejemplos y ambientes, y cuántos scripts trae. Los scripts de Postman y Bruno se traen completos y corren como en el original: mira [Scripts](/es/requests/scripts/).
 4. Cambia el nombre de la colección si quieres y haz clic en **Importar (N requests)**. Si ya existe una colección con ese nombre, el resumen te deja importar una copia o reemplazarla: mira [Cuando la colección ya existe](/es/get-started/import/#cuando-la-colección-ya-existe).
 
-![El diálogo Importar de Postman o Bruno con una tarjeta para Postman y otra para Bruno](/media/es/import-postman.webp)
+![El diálogo Importar colección con una tarjeta para Luvin, otra para Postman y otra para Bruno](/media/es/import-postman.webp)
 
 Luvin crea una colección nueva y la abre. Si tiene scripts, Luvin pregunta **¿Confías en esta colección?** Elige **Confiar** si sabes de dónde viene: mira [Confiar en una colección](/es/requests/scripts/#confiar-en-una-colección). Bruno no guarda el valor de sus secretos: si tu ambiente tiene alguno, llega vacío. Abre el ambiente en el panel **Ambientes** de la barra lateral y escríbelos. Mira [Trae tus propios archivos y requests](/es/get-started/import/).
 

@@ -76,7 +76,7 @@ Each Postman or Bruno collection becomes a new Luvin collection, with its folder
 
 <Steps>
 
-1. Click **Import from Postman or Bruno**. It is under **Quick actions** on **Home**, and in the **⋯** menu of **Collections** in the sidebar.
+1. Click **Import collection (Luvin, Postman or Bruno)**. It is under **Quick actions** on **Home**, and in the **⋯** menu of **Collections** in the sidebar.
 2. For Postman, click **Choose .json files** and pick the collection export (v2.0 or v2.1). Pick the environment files too if you want their variables.
 3. For Bruno, click **Choose folder** and pick the folder of the collection, or click **Choose .json**. You can also drop the files on the dialog.
 4. Read the summary: requests, folders, examples and environments, plus warnings. Change the **Collection name** if you want.
@@ -84,7 +84,9 @@ Each Postman or Bruno collection becomes a new Luvin collection, with its folder
 
 </Steps>
 
-![The dialog to import from Postman or Bruno](/media/en/import-postman.webp)
+![The Import collection dialog with a card for Luvin, one for Postman and one for Bruno](/media/en/import-postman.webp)
+
+The same dialog imports a collection exported from Luvin (a `.luvin.json` file). See [Export and import a collection](/workspaces/export-import/).
 
 Scripts come over as they were, in the **Scripts** tab of the collection, of each folder and of each request, and run once you trust the collection. An authorization or body type without an equivalent is left empty. The warnings in the dialog say which. The full walkthrough is in [Import](/get-started/import/) and [From Postman](/tutorials/from-postman/).
 

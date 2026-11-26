@@ -15,12 +15,12 @@ The workflow sends the requests for real. Point the environment at a test server
 
 ## 1. Import the collection
 
-1. Click **+** (**Create or import**) to the right of the open tabs, then **Import from Postman or Bruno**. If no workspace is open, Luvin says **Open or create a workspace to import.** Open one first.
+1. Click **+** (**Create or import**) to the right of the open tabs, then **Import collection (Luvin, Postman or Bruno)**. If no workspace is open, Luvin says **Open or create a workspace to import.** Open one first.
 2. For Postman, click **Choose .json files** and pick the exported collection. Pick its environment files too, to bring the variables. For Bruno, click **Choose folder** and pick the collection folder.
 3. Read the summary: requests, folders, examples and environments, and how many scripts come over. Postman and Bruno scripts come over whole and run as in the original: see [Scripts](/requests/scripts/).
 4. Change the collection name if you want, then click **Import (N requests)**. If a collection with that name already exists, the summary lets you import a copy or replace it: see [When the collection already exists](/get-started/import/#when-the-collection-already-exists).
 
-![The Import from Postman or Bruno dialog with a card for Postman and a card for Bruno](/media/en/import-postman.webp)
+![The Import collection dialog with a card for Luvin, one for Postman and one for Bruno](/media/en/import-postman.webp)
 
 Luvin creates a new collection and opens it. If it has scripts, Luvin asks **Do you trust this collection?** Choose **Trust** if you know where it comes from: see [Trust a collection](/requests/scripts/#trust-a-collection). Bruno does not save the value of its secrets: if your environment has some, they arrive empty. Open the environment in the **Environments** panel of the sidebar and type them. See [Import your existing work](/get-started/import/).
 
