@@ -56,7 +56,7 @@ Import it with an environment file that defines `baseUrl`, and Luvin creates a c
 
 In the sidebar, **Customers** is a folder and **Get customer** a request that sends `GET {{baseUrl}}/customers/42`. The variables of the Postman environment arrive in a Luvin environment. See [What is on disk](/workspaces/files/).
 
-![The Import from Postman or Bruno dialog with a card for Postman and a card for Bruno](/media/en/import-postman.webp)
+![The Import collection dialog with a card for Luvin, one for Postman and one for Bruno](/media/en/import-postman.webp)
 
 ### Import it
 
@@ -64,11 +64,12 @@ You need a workspace open. If none is, Luvin says **Open or create a workspace t
 
 <Steps>
 
-1. Click **+** in the tabs (**Create or import**), then **Import from Postman or Bruno**. The same action is in the ⋯ menu of **Collections** in the sidebar and on the workspace home under **Quick actions**.
+1. Click **+** in the tabs (**Create or import**), then **Import collection (Luvin, Postman or Bruno)**. The same action is in the ⋯ menu of **Collections** in the sidebar and on the workspace home under **Quick actions**.
 2. Choose what to import:
 
    | Tool | What to choose |
    |---|---|
+   | Luvin | **Choose .luvin.json**: a collection exported from Luvin. See [Export and import a collection](/workspaces/export-import/) |
    | Postman | **Choose .json files**: the exported collection (v2.0 or v2.1). Choose the environment files too, to bring their variables |
    | Bruno | **Choose folder**: the collection folder as Bruno keeps it in git (with `.bru` files). Or **Choose .json** for the file Bruno exports |
 

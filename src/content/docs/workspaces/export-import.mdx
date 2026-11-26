@@ -1,0 +1,127 @@
+---
+title: Export and import a collection
+description: Save a collection in one .luvin.json file, without its secrets, to hand it to a teammate or move it to another computer, and import it there.
+sidebar:
+  order: 7
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+To give a collection to someone who does not use git, or to move it to another computer, export it to **one file** and import that file on the other side. The file is a `.luvin.json` with the files of the collection inside, as they are on disk. Secret values never go in it: the person who imports the collection types them in their own environment.
+
+## Example: what the file holds
+
+Exporting the Pokédex collection saves `Pokédex.luvin.json`:
+
+```json title="Pokédex.luvin.json"
+{
+  "luvinCollection": 1,
+  "exportedWith": "0.2.0-beta.12",
+  "exportedAt": "2026-11-26T15:04:05.000Z",
+  "name": "Pokédex",
+  "files": [
+    { "path": "collection.yaml", "text": "version: 1\nname: Pokédex\n…" },
+    { "path": "environments/local.yaml", "text": "name: local\n…\nsecrets:\n  - apiKey\n…" },
+    { "path": "pokemon.arazzo.yaml", "text": "arazzo: 1.0.1\n…" }
+  ]
+}
+```
+
+Each entry is one file of the collection folder. The environment says that `apiKey` is a secret, but not its value. You can open the file with any editor to check what it carries before you send it.
+
+## Export a collection
+
+<Steps>
+
+1. In the sidebar, open the **⋯** menu of the collection and click **Export collection…**. The same button is at the top of the [collection overview](/workspaces/collection-overview/).
+2. Read what goes in the file and what does not (see below). If Luvin found values that look like secrets, decide what to do with each one.
+3. Click **Save…**, choose a folder and a name. The suggested name is the collection name, for example `Pokédex.luvin.json`.
+
+</Steps>
+
+The dialog then says where the file was saved. Send it by email, chat, a shared drive or git.
+
+![The Export dialog: what goes in the file, what does not, and two values that look like secrets](/media/en/export-collection.webp)
+
+### What goes in the file
+
+Every file Luvin reads from the collection folder, as it is on disk:
+
+| Goes | Does not go |
+|---|---|
+| `collection.yaml`, with the collection authorization (without its secrets) and scripts | The **values of secrets**: secret environment variables and the authorization saved as secret. They stay encrypted on this computer |
+| Requests and folders (`requests/`), with their scripts and saved examples | The **values scripts save** with `pm.environment.set` and similar (current values) |
+| Arazzo files, OpenAPI and AsyncAPI contracts, mocks and `.proto` files | The chosen environment, which collection you trust, results and history |
+| Environments (`environments/`), with the **names** of their secret variables | **Files a request sends** (a body file): the request keeps its name, and whoever imports chooses the file again |
+| Cases of each workflow (`scenarios/`), `flow-auth.yaml`, `README.md` and the variables in `.luvin/` | Files in the folder that Luvin does not read, like images. The dialog names them |
+| The URLs of contracts that come from a URL, to download them again | |
+
+If the collection uses variables of the active **global environment** that it does not define itself, a box offers to take them along, checked. Secret ones go without a value. See [Where a variable lives](/environments/variable-levels/).
+
+### Values that look like secrets
+
+A token pasted in a header, a password in a body or an API key in a normal variable is not stored as a secret, so it would go in the file. Before you save, Luvin lists those values under **Review N value(s) that look like secrets**. It recognizes them:
+
+- **by the name of where they are**: a header `Authorization`, `Cookie` or `X-API-Key`, or a field or variable called like `password`, `token`, `apiKey` or `secret`;
+- **by their form**, anywhere: a JWT, `Bearer` followed by a fixed value, or keys that start with `sk_live_`, `sk_test_`, `ghp_`, `github_pat_`, `AKIA` or `AIza`.
+
+A `{{variable}}`, an Arazzo expression like `{$steps.login.outputs.token}` or a URL never counts.
+
+Each value is shown masked (`eyJh…aW4`) with **Empty in the file** checked. Checked, the value goes empty in the exported file: your collection on disk does not change. From `Bearer …`, only the token is emptied. Uncheck it to send the value as it is.
+
+A value inside a **script** is only pointed out, with its line: emptying it would break the code. Change the script yourself before exporting if it must not go.
+
+<Aside type="tip">
+To stop pasting tokens, keep them as secrets: a secret variable in the environment, or the [login token passed to later steps](/authorization/token-from-login/). Secrets never go in the file.
+</Aside>
+
+## Import a collection
+
+You need a workspace open. See [Create and open a workspace](/workspaces/create-and-open/).
+
+<Steps>
+
+1. Click **Import collection (Luvin, Postman or Bruno)**. It is under **Quick actions** on **Home**, in the **⋯** menu of **Collections** in the sidebar, and in the **+** menu of the tabs. Then click **Choose .luvin.json**. You can also drop the file anywhere on the window, even with a collection open: a `.luvin.json` always opens the import dialog.
+2. Read the summary: the Luvin version and date it was exported with, what it brings, the secrets that arrive without a value and whether it brings scripts.
+3. Change the name if you want. If the workspace already has a collection with that name, choose **Import as a copy** (the default, for example `Pokédex_v1`) or **Replace the content of «Pokédex»**. Replacing moves the current folder to the Trash, where you can recover it, and the file's collection takes its place, complete.
+4. Click **Import**.
+
+</Steps>
+
+![The Import collection dialog with a Luvin file: a copy named Pokédex_v1, one secret without a value and scripts](/media/en/import-luvin.webp)
+
+### After importing
+
+If secrets arrived without a value, a notice lists them: **1 secret(s) of «Pokédex_v1» are missing: apiKey.** Click **Fill them in** to open the environment and type them.
+
+![The notice after importing, with the missing secret and the Fill them in button](/media/en/import-missing-secrets.webp)
+
+An imported collection is never trusted, even if you trusted it on the other computer. Its scripts do not run until you say so: Luvin asks **Do you trust this collection?** before running one, as with collections from Postman and Bruno. See [Scripts](/requests/scripts/).
+
+The variables of a global environment that came in the file join the global with the same name. A variable that already exists is never overwritten.
+
+### When nothing is imported
+
+Luvin checks the whole file first. If any part is wrong, it imports nothing and says why:
+
+| Message | What happened |
+|---|---|
+| **The file brings a path that can't be imported («…»). Nothing was imported.** | A file inside would land outside the collection folder (`../`, an absolute path), in a hidden folder, or is not a type Luvin reads. The file was changed by hand or does not come from Luvin |
+| **This file comes from a newer version of Luvin (…). Update Luvin to import it.** | It was exported with a newer Luvin. Update, then import |
+| **The file brings «…» in a newer Luvin format. Update Luvin to import it.** | Same, for one file inside |
+
+## Export or git?
+
+Both share the same files. Use what fits:
+
+| Export and import | Git |
+|---|---|
+| A one-time handoff: to a teammate, a student, a client, another computer | A team working on the same collection over time |
+| No account or tool needed | Each change is reviewed in a pull request and has history |
+| Each import is a copy (or a replacement), never a merge | Changes from several people merge |
+
+<CardGrid>
+  <LinkCard title="Keep a workspace in git" href="/workspaces/git/" />
+  <LinkCard title="What is on disk" href="/workspaces/files/" />
+  <LinkCard title="Bring your own files and requests" href="/get-started/import/" />
+</CardGrid>
