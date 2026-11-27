@@ -1,0 +1,115 @@
+---
+title: Copiar o mover a otra colección
+description: Copia o mueve un request, una carpeta de requests o un archivo Arazzo a otra colección del workspace. Llega con lo que necesita, y un diálogo dice qué va y qué revisar antes.
+sidebar:
+  order: 3.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Puedes copiar o mover un request, una carpeta de requests o un archivo Arazzo a otra colección del mismo workspace. Llega con lo que necesita: un request conserva sus variables y sus secretos, y un workflow conserva sus casos, su autorización y sus contratos. Antes de escribir nada, un diálogo dice qué va, qué se queda y qué revisar.
+
+![El menú ⋯ de un archivo Arazzo con Copiar a otra colección abierto y las colecciones del workspace](/media/es/transfer-menu.webp)
+
+| Puedes copiar o mover | Desde |
+|---|---|
+| Un request | Su menú **⋯**, o arrastrándolo |
+| Una carpeta de requests, con todo lo que tiene | Su menú **⋯**, o arrastrándola |
+| Un archivo Arazzo, con todos sus workflows | Su menú **⋯**, o arrastrándolo |
+
+Para llevar una colección a otro workspace o a otro equipo, usa [Exportar e importar una colección](/es/workspaces/export-import/).
+
+## Desde el menú
+
+<Steps>
+
+1. En la barra lateral, abre el menú **⋯** del request, de la carpeta o del archivo Arazzo.
+2. Elige **Copiar a otra colección** o **Mover a otra colección**. Se abre la lista de las otras colecciones del workspace, bajo **Colecciones de «Demo»**.
+3. Haz clic en la colección. Se abre el diálogo.
+4. Léelo y haz clic en **Copiar a Partners** (o **Mover a Partners**).
+5. Al terminar, el diálogo dice **✓ «shop.arazzo.yaml» se copió a «Partners».** Haz clic en **Abrir «Partners»** para verlo allá, o en **Cerrar** para quedarte donde estás.
+
+</Steps>
+
+Las opciones solo aparecen cuando el workspace tiene más de una colección.
+
+## Arrastrando
+
+Arrastra el request, la carpeta o el archivo Arazzo sobre el nombre de otra colección en la barra lateral. La fila se marca mientras estás encima.
+
+- Al soltar, se **mueve**, como entre carpetas.
+- Mantén **⌥** (**Alt** en Windows) al soltar para **copiarlo**.
+
+Antes de cambiar nada se abre el mismo diálogo.
+
+## El diálogo
+
+![El diálogo Copiar «shop.arazzo.yaml» a «Partners» con Va, Se queda en «Shop» y Revisa](/media/es/transfer-dialog.webp)
+
+Tiene tres partes:
+
+- **Va**: lo que se copia o se mueve.
+- **Se queda en «Shop»**: lo que no viaja. Al copiar, el original se queda. Los resultados y el historial se quedan siempre.
+- **Revisa**: lo que cambia en la otra colección. Solo aparece cuando hay algo que revisar.
+
+| Lees en **Revisa** | Qué significa |
+|---|---|
+| **«Perfil» heredaba la autorización de «Shop» (OAuth 2.0). En «Partners» usará la de esa colección: ninguna.** | El request tenía **Heredar de la colección**. En la otra colección usa la autorización de esa colección. |
+| **Deja de correr los scripts de la carpeta «currencies».** | Un request que sale de su carpeta ya no corre los scripts de la carpeta (ni los de la colección). |
+| **«Partners» no tiene 2 variables que usa: currencies_url, client_id.** | Agrégalas a un ambiente de la otra colección antes de ejecutarlo. |
+| **Copiar también la variable de colección base** (marcada) | Una variable que el origen define como variable de colección también se copia. Desmárcala para dejarla afuera. |
+| **Los ambientes de «Partners» no tienen la URL de: shop.** | Los ambientes de la otra colección no tienen URL base para esa API. Agrégala en un ambiente; si no, se usa la del contrato. |
+| **Lo usan estos workflows de «Shop»: «View product». Si lo mueves, sus pasos quedan sin su request.** | Mover rompería un workflow del origen. Ver [más abajo](#cuando-lo-usa-un-workflow-del-origen). |
+| **Trae scripts de una colección en la que no confiaste. En «Partners» no corren hasta que confirmes que confías.** | La otra colección vuelve a preguntar si confías. |
+| **El token que ya tenías no viaja: en «Partners» se pide de nuevo.** | Con OAuth 2.0, inicia sesión de nuevo en la otra colección. Su configuración y sus secretos sí viajan. |
+| **«Partners» ya tiene «get-segment.request.yaml»: llega como «get-segment-2.request.yaml».** | No se pisa nada. Un request copiado se ve como «get segment (2)». |
+
+## Qué viaja
+
+**Un request o una carpeta:**
+
+| Qué | ¿Viaja? |
+|---|---|
+| El request, sus ejemplos guardados y su autorización | Sí |
+| Sus variables de request | Sí |
+| Los secretos de su autorización | Sí. Es el mismo equipo: no los vuelves a escribir. |
+| Los scripts de una carpeta, y todo lo que hay dentro de la carpeta | Sí |
+| La autorización, los scripts y las variables de la colección | No: son de la colección. El diálogo dice qué cambia y ofrece las variables de colección que faltan. |
+| Las variables de los ambientes | No: cada colección tiene sus ambientes. El diálogo nombra las que faltan. |
+
+Un request o una carpeta queda arriba de **REQUESTS** en la otra colección. Una copia tiene su propia identidad, como con **Duplicar**. Un request movido conserva la suya.
+
+**Un archivo Arazzo:**
+
+| Qué | ¿Viaja? |
+|---|---|
+| El archivo, con todos sus workflows | Sí |
+| Sus casos y sus valores de inputs | Sí |
+| Su autorización (por workflow, por paso, y la que usaba de su API o de su colección) | Sí, con sus secretos. Si la otra colección resolvería otra cosa, llega como autorización propia del workflow, así los otros workflows de allá no cambian. |
+| Sus contratos | Sí. Si la otra colección ya tiene el mismo archivo, se usa ese. Si tiene uno distinto con ese nombre, el contrato llega con otro nombre y el archivo Arazzo apunta a él. |
+| Los requests que usan sus pasos, cuando vienen de [requests](/es/design/from-requests/) | Sí, copiados (también al mover el workflow). |
+| Contratos de una URL | Viaja la URL, y la otra colección los descarga. |
+| Otros archivos Arazzo que llama (sub-workflows) | Sí |
+
+Al **mover** un archivo Arazzo, sus contratos y los requests que usan sus pasos también se quedan en el origen, porque otros workflows pueden usarlos. El diálogo lo dice.
+
+## Cuando lo usa un workflow del origen
+
+Si mueves un request (o una carpeta, o un archivo Arazzo que otro usa) que usa un workflow de la colección de origen, el diálogo te avisa y el botón principal cambia:
+
+- **Copiar en su lugar** (el botón principal) lo copia, y nada se rompe.
+- **Mover igual** lo mueve. Los pasos que lo usaban quedan marcados de inmediato, en la barra lateral y en el lienzo. La pestaña **Resumen** del workflow dice **El request de este paso ya no está en la colección (se borró o se movió a otra)**.
+
+Borrar un request que usa un workflow marca sus pasos de la misma forma.
+
+<Aside>
+Nada sale del origen hasta que todo está escrito en la otra colección. Si algo falla a mitad de camino, en el peor caso queda una copia en las dos, nunca en ninguna.
+</Aside>
+
+## Siguiente
+
+<CardGrid>
+  <LinkCard title="Colecciones" href="/es/workspaces/collections/" description="Crear, renombrar, quitar o eliminar una colección." />
+  <LinkCard title="Exportar e importar una colección" href="/es/workspaces/export-import/" description="Llevar una colección a otro equipo." />
+  <LinkCard title="Workflows desde requests" href="/es/design/from-requests/" description="Cómo los requests se vuelven pasos." />
+</CardGrid>

@@ -1,0 +1,115 @@
+---
+title: Copy or move to another collection
+description: Copy or move a request, a folder of requests or an Arazzo file to another collection of the workspace. It arrives with what it needs, and a dialog says what goes and what to check first.
+sidebar:
+  order: 3.5
+---
+
+import { Steps, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+You can copy or move a request, a folder of requests or an Arazzo file to another collection of the same workspace. It arrives with what it needs: a request keeps its variables and its secrets, and a workflow keeps its cases, its authorization and its contracts. Before anything is written, a dialog says what goes, what stays and what to check.
+
+![The ⋯ menu of an Arazzo file with Copy to another collection open and the collections of the workspace](/media/en/transfer-menu.webp)
+
+| You can copy or move | From |
+|---|---|
+| A request | Its **⋯** menu, or drag it |
+| A folder of requests, with everything inside | Its **⋯** menu, or drag it |
+| An Arazzo file, with all its workflows | Its **⋯** menu, or drag it |
+
+To take a collection to another workspace or another computer, use [Export and import a collection](/workspaces/export-import/).
+
+## From the menu
+
+<Steps>
+
+1. In the sidebar, open the **⋯** menu of the request, the folder or the Arazzo file.
+2. Choose **Copy to another collection** or **Move to another collection**. The list of the other collections of the workspace opens, under **Collections in «Demo»**.
+3. Click the collection. The dialog opens.
+4. Read it and click **Copy to Partners** (or **Move to Partners**).
+5. When it is done, the dialog says **✓ «shop.arazzo.yaml» was copied to «Partners».** Click **Open «Partners»** to see it there, or **Close** to stay where you are.
+
+</Steps>
+
+The options only show when the workspace has more than one collection.
+
+## By dragging
+
+Drag the request, the folder or the Arazzo file onto the name of another collection in the sidebar. The row is highlighted while you are over it.
+
+- Dropping **moves** it, as it does between folders.
+- Hold **⌥** (**Alt** on Windows) while you drop to **copy** it.
+
+The same dialog opens before anything changes.
+
+## The dialog
+
+![The dialog Copy «shop.arazzo.yaml» to «Partners» with Goes, Stays in «Shop» and Check](/media/en/transfer-dialog.webp)
+
+It has three parts:
+
+- **Goes**: what is copied or moved.
+- **Stays in «Shop»**: what does not travel. When you copy, the original stays. Results and history always stay.
+- **Check**: what changes in the other collection. It only shows when there is something to check.
+
+| You read under **Check** | What it means |
+|---|---|
+| **«Perfil» inherited the authorization of «Shop» (OAuth 2.0). In «Partners» it will use that collection's: none.** | The request had **Inherit from the collection**. In the other collection it uses that collection's authorization. |
+| **The scripts of the folder «currencies» stop running for it.** | A request moved out of its folder no longer runs the folder's scripts (or the collection's). |
+| **«Partners» does not have 2 variables it uses: currencies_url, client_id.** | Add them to an environment of the other collection before you run it. |
+| **Also copy the collection variable base** (checked) | A variable the source defines as a collection variable is copied too. Uncheck it to leave it out. |
+| **The environments of «Partners» have no URL for: shop.** | The other collection's environments have no base URL for that API. Add one in an environment, or the contract's URL is used. |
+| **These workflows of «Shop» use it: «View product». If you move it, their steps lose their request.** | Moving would break a workflow of the source. See [below](#when-a-workflow-of-the-source-uses-it). |
+| **It brings scripts from a collection you did not trust. In «Partners» they do not run until you confirm you trust them.** | The other collection asks for trust again. |
+| **The token you already had does not travel: «Partners» asks for it again.** | With OAuth 2.0, sign in again in the other collection. Its configuration and secrets do travel. |
+| **«Partners» already has «get-segment.request.yaml»: it arrives as «get-segment-2.request.yaml».** | Nothing is overwritten. A copied request is shown as «get segment (2)». |
+
+## What travels
+
+**A request or a folder:**
+
+| What | Travels? |
+|---|---|
+| The request, its saved examples and its authorization | Yes |
+| Its request variables | Yes |
+| The secrets of its authorization | Yes. It is the same computer, so you do not type them again. |
+| A folder's scripts, and everything inside the folder | Yes |
+| The collection's authorization, scripts and variables | No: they belong to the collection. The dialog says what changes, and offers the missing collection variables. |
+| Environment variables | No: each collection has its environments. The dialog names the missing ones. |
+
+A request or a folder lands at the top of **REQUESTS** in the other collection. A copy gets its own identity, like **Duplicate**. A moved request keeps it.
+
+**An Arazzo file:**
+
+| What | Travels? |
+|---|---|
+| The file, with all its workflows | Yes |
+| Its cases and input values | Yes |
+| Its authorization (per workflow, per step, and the one it used from its API or its collection) | Yes, with its secrets. If the other collection would resolve something else, it arrives as the workflow's own authorization, so the other workflows there do not change. |
+| Its contracts | Yes. If the other collection already has the same file, that one is used. If it has a different file with that name, the contract arrives with another name and the Arazzo file points to it. |
+| The requests its steps use, when they come from [requests](/design/from-requests/) | Yes, copied (also when you move the workflow). |
+| Contracts from a URL | The URL travels, and the other collection downloads them. |
+| Other Arazzo files it calls (sub-workflows) | Yes |
+
+When you **move** an Arazzo file, its contracts and the requests its steps use stay in the source too, because other workflows may use them. The dialog says so.
+
+## When a workflow of the source uses it
+
+If you move a request (or a folder, or an Arazzo file used by another) that a workflow of the source collection uses, the dialog warns you and the main button changes:
+
+- **Copy instead** (the main button) copies it, and nothing breaks.
+- **Move anyway** moves it. The steps that used it are marked at once, in the sidebar and on the canvas. The **Overview** tab of the workflow says **This step's request is no longer in the collection (it was deleted or moved to another one)**.
+
+Deleting a request that a workflow uses marks its steps the same way.
+
+<Aside>
+Nothing is removed from the source until everything is written in the other collection. If something fails halfway, at worst you have a copy in both, never in neither.
+</Aside>
+
+## Next
+
+<CardGrid>
+  <LinkCard title="Collections" href="/workspaces/collections/" description="Create, rename, remove or delete a collection." />
+  <LinkCard title="Export and import a collection" href="/workspaces/export-import/" description="Take a collection to another computer." />
+  <LinkCard title="Workflows from requests" href="/design/from-requests/" description="How requests become steps." />
+</CardGrid>
