@@ -79,7 +79,7 @@ Desde el paso del login, una sola acción le pasa su token a todos los pasos pos
 <Steps>
 
 1. En el lienzo, haz clic en el paso del login.
-2. En la pestaña **Datos** del panel, busca los outputs (**Entrega**).
+2. En la pestaña **Autorización** del panel, busca **Token para los pasos siguientes**.
 3. Pulsa **🔑 Usar «token» como autorización en los pasos siguientes**.
 
    Si más de un output podría ser el token, la línea dice **Usar como autorización en los pasos siguientes:** con un chip por output. Haz clic en el que es el token.
@@ -98,9 +98,9 @@ Los pasos en **Ninguna**, o con otro token elegido, no se tocan. Si ningún paso
 
 Los pasos que agregues después del login reciben el token solos.
 
-El paso del login ahora dice *Inicia sesión: da su token a 2 paso(s) (Listar productos, Crear pedido).* **Dejar de usar como autorización** quita el token de esos pasos, que vuelven a **Del workflow**.
+La pestaña **Autorización** del paso del login ahora dice *Inicia sesión: da su token a 2 paso(s) (Listar productos, Crear pedido).* **Dejar de usar como autorización** quita el token de esos pasos, que vuelven a **Del workflow**.
 
-![El paso de login después de Usar «token» como autorización: el aviso con Deshacer, y en Entrega la línea Inicia sesión: da su token a 2 paso(s)](/media/es/auth-token-share.webp)
+![El paso de login después de Usar «token» como autorización: el aviso con Deshacer, y en su pestaña Autorización la línea Inicia sesión: da su token a 2 paso(s)](/media/es/auth-token-share.webp)
 
 ## Configúralo una vez para toda la API
 

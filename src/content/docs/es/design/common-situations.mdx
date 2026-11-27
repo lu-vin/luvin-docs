@@ -21,7 +21,7 @@ Casi todo se hace en el lienzo. Unas pocas cosas, como los criterios sobre el bo
 
 El login devuelve `accessToken`, y las llamadas siguientes lo necesitan como autorización.
 
-Cuando Luvin reconoce el token en la respuesta del login, o en el script de un request de Postman o Bruno, lo conecta a medida que agregas los pasos. Un aviso dice cuántos pasos lo usan, con **Deshacer**. Si no, haz clic en el paso del login y, en **Entrega**, elige el campo que se usa como autorización en los pasos siguientes.
+Cuando Luvin reconoce el token en la respuesta del login, o en el script de un request de Postman o Bruno, lo conecta a medida que agregas los pasos. Un aviso dice cuántos pasos lo usan, con **Deshacer**. Si no, haz clic en el paso del login y, en **Outputs**, elige el campo que se usa como autorización en los pasos siguientes.
 
 La tarjeta del login muestra **🔑 inicia sesión**, y cada paso que usa el token muestra **🔑**. El header está en la pestaña **Autorización** de cada paso, no en **Headers**.
 
@@ -389,7 +389,7 @@ Detalle: [Patrones de Arazzo estándar](/es/design/patterns/#esperar-hasta-que-t
 ### Outputs de un paso y outputs del workflow
 
 <Steps>
-1. Haz clic en el paso. En la pestaña **Datos**, en **Entrega**, haz clic en **＋ Output**, marca los campos de la respuesta que quieres y haz clic en **Listo**. Cada uno aparece en **Outputs** en la tarjeta.
+1. Haz clic en el paso. En la pestaña **Datos**, en **Outputs**, haz clic en **＋ Output**, marca los campos de la respuesta que quieres y haz clic en **Listo**. Cada uno aparece en **Outputs** en la tarjeta.
 2. Haz clic en **Fin del workflow** y, en **Outputs del workflow**, marca lo que devuelve el workflow. Haz clic en un nombre para cambiarlo.
 </Steps>
 

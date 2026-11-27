@@ -16,9 +16,9 @@ In **Pokemon card**, `getPokemon` keeps five values. Later steps read `id`, `mai
 <Tabs>
   <TabItem label="In the app">
 
-In the step panel, in the **Data** tab, **Gives · 5** lists the five outputs. Each row says who uses it, for example `id` **→ step 2**. On the card, each output has a row under **Outputs**, with a dot you can drag to a later parameter.
+In the step panel, in the **Data** tab, **Outputs · 5** lists the five outputs. Each row says who uses it, for example `id` **→ step 2**. On the card, each output has a row under **Outputs**, with a dot you can drag to a later parameter.
 
-![The Data tab of getPokemon: the Gives section with its outputs and the steps that use each one](/media/en/step-outputs.webp)
+![The Data tab of getPokemon: the Outputs section with its outputs and the steps that use each one](/media/en/step-outputs.webp)
 
   </TabItem>
   <TabItem label="In the YAML">
@@ -45,7 +45,7 @@ Add one by hand when you want the workflow to return the value at the end, or to
 
 <Steps>
 1. In the **Design** tab, click the step.
-2. In the **Data** tab, go to **Gives**, below **Receives**. The number is how many outputs the step has.
+2. In the **Data** tab, go to **Outputs**, below **Receives**. The number is how many outputs the step has.
 </Steps>
 
 Each row shows:
@@ -63,14 +63,14 @@ If the step has none yet, the section says **It gives no data yet.**
 ## Add an output
 
 <Steps>
-1. Click the step and, in **Gives**, click **＋ Output**. The fields of the response appear under **What this step exposes to the next ones (from its response).**
+1. Click the step and, in **Outputs**, click **＋ Output**. The fields of the response appear under **What this step exposes to the next ones (from its response).**
 2. Tick a field.
 3. Click **Done** to close the list.
 </Steps>
 
 <video controls muted playsinline preload="metadata" poster="/media/en/design-outputs.webp" src="/media/en/design-outputs.mp4"></video>
 
-The output appears in **Gives** and on the card, under **Outputs**, with a dot on its right that you can drag to a parameter of a later step. Untick the field, or click ✕ on its row, to remove the output.
+The output appears in **Outputs** and on the card, under **Outputs**, with a dot on its right that you can drag to a parameter of a later step. Untick the field, or click ✕ on its row, to remove the output.
 
 The list shows the fields of the success response the contract documents: lists first, then simple values such as texts, numbers and yes/no. The name of the output comes from the path of the field:
 
@@ -86,7 +86,7 @@ If the list says **The contract doesn't document the response: add outputs in th
 If you remove an output that a later step uses, that step loses its value: its chip turns red with **missing**. Give it another source, or click ↶ (**Undo**).
 </Aside>
 
-A step that signs in shows one more line in **Gives**, to use its token in the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/).
+A step that signs in shows one more line in **Outputs**, to use its token in the next steps. See [Pass the login token to the next steps](/authorization/token-from-login/).
 
 ## Fields that are lists
 
@@ -116,7 +116,7 @@ outputs:
     type: jsonpath
 ```
 
-An output like this appears in **Gives** like any other. While **＋ Output** is open, it is listed below the fields with its name, its expression and **Delete**. Later steps can use it, and it has a dot on the card.
+An output like this appears in **Outputs** like any other. While **＋ Output** is open, it is listed below the fields with its name, its expression and **Delete**. Later steps can use it, and it has a dot on the card.
 
 ## What the workflow returns
 

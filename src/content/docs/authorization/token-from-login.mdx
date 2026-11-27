@@ -79,7 +79,7 @@ From the login step, one action passes its token to every step after it that nee
 <Steps>
 
 1. On the canvas, click the login step.
-2. In the **Data** tab of the panel, find the outputs (**Gives**).
+2. In the **Authorization** tab of the panel, find **Token for the next steps**.
 3. Press **🔑 Use «token» as authorization in the following steps**.
 
    If more than one output could be the token, the line says **Use as authorization in the next steps:** with one chip per output. Click the one that is the token.
@@ -98,9 +98,9 @@ Steps on **None**, or with another token chosen, are not touched. If no step qua
 
 Steps you add later, after the login, get the token by themselves.
 
-The login step now says *Signs in: gives its token to 2 step(s) (List products, Create order).* **Stop using as authorization** takes the token out of those steps, and they go back to **From the workflow**.
+The **Authorization** tab of the login step now says *Signs in: gives its token to 2 step(s) (List products, Create order).* **Stop using as authorization** takes the token out of those steps, and they go back to **From the workflow**.
 
-![The login step after Use «token» as authorization: the notice with Undo, and under Gives the line Signs in: gives its token to 2 step(s)](/media/en/auth-token-share.webp)
+![The login step after Use «token» as authorization: the notice with Undo, and in its Authorization tab the line Signs in: gives its token to 2 step(s)](/media/en/auth-token-share.webp)
 
 ## Set it once for the whole API
 

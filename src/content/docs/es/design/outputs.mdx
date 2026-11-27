@@ -16,9 +16,9 @@ En **Pokemon card**, `getPokemon` guarda cinco valores. Los pasos siguientes lee
 <Tabs>
   <TabItem label="En la app">
 
-En el panel del paso, en la pestaña **Datos**, **Entrega · 5** lista los cinco outputs. Cada fila dice quién lo usa, por ejemplo `id` **→ paso 2**. En la tarjeta, cada output tiene una fila en **Outputs**, con un punto que puedes arrastrar hasta un parámetro posterior.
+En el panel del paso, en la pestaña **Datos**, **Outputs · 5** lista los cinco outputs. Cada fila dice quién lo usa, por ejemplo `id` **→ paso 2**. En la tarjeta, cada output tiene una fila en **Outputs**, con un punto que puedes arrastrar hasta un parámetro posterior.
 
-![La pestaña Datos de getPokemon: la sección Entrega con sus outputs y los pasos que usan cada uno](/media/es/step-outputs.webp)
+![La pestaña Datos de getPokemon: la sección Outputs con sus outputs y los pasos que usan cada uno](/media/es/step-outputs.webp)
 
   </TabItem>
   <TabItem label="En el YAML">
@@ -45,7 +45,7 @@ Agrégalo a mano cuando quieras que el workflow devuelva el valor al final, o pa
 
 <Steps>
 1. En la pestaña **Diseño**, haz clic en el paso.
-2. En la pestaña **Datos**, ve a **Entrega**, debajo de **Recibe**. El número es cuántos outputs tiene el paso.
+2. En la pestaña **Datos**, ve a **Outputs**, debajo de **Recibe**. El número es cuántos outputs tiene el paso.
 </Steps>
 
 Cada fila muestra:
@@ -63,14 +63,14 @@ Si el paso todavía no tiene ninguno, la sección dice **No entrega datos todav�
 ## Agregar un output
 
 <Steps>
-1. Haz clic en el paso y, en **Entrega**, haz clic en **＋ Output**. Aparecen los campos de la respuesta, bajo **Lo que este paso expone para los siguientes (de su respuesta).**
+1. Haz clic en el paso y, en **Outputs**, haz clic en **＋ Output**. Aparecen los campos de la respuesta, bajo **Lo que este paso expone para los siguientes (de su respuesta).**
 2. Marca un campo.
 3. Haz clic en **Listo** para cerrar la lista.
 </Steps>
 
 <video controls muted playsinline preload="metadata" poster="/media/es/design-outputs.webp" src="/media/es/design-outputs.mp4"></video>
 
-El output aparece en **Entrega** y en la tarjeta, en **Outputs**, con un punto a la derecha que puedes arrastrar hasta un parámetro de un paso posterior. Desmarca el campo, o haz clic en ✕ en su fila, para quitar el output.
+El output aparece en **Outputs** y en la tarjeta, en **Outputs**, con un punto a la derecha que puedes arrastrar hasta un parámetro de un paso posterior. Desmarca el campo, o haz clic en ✕ en su fila, para quitar el output.
 
 La lista muestra los campos de la respuesta de éxito que documenta el contrato: primero las listas y luego los valores simples, como textos, números y sí o no. El nombre del output sale del camino del campo:
 
@@ -86,7 +86,7 @@ Si la lista dice **El contrato no documenta la respuesta: agrega outputs en el Y
 Si quitas un output que usa un paso posterior, ese paso se queda sin su valor: su chip pasa a rojo con **falta**. Dale otro origen o haz clic en ↶ (**Deshacer**).
 </Aside>
 
-Un paso que inicia sesión muestra una línea más en **Entrega**, para usar su token en los pasos siguientes. Lee [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
+Un paso que inicia sesión muestra una línea más en **Outputs**, para usar su token en los pasos siguientes. Lee [Pasa el token del login a los pasos siguientes](/es/authorization/token-from-login/).
 
 ## Campos que son listas
 
@@ -116,7 +116,7 @@ outputs:
     type: jsonpath
 ```
 
-Un output así aparece en **Entrega** como cualquier otro. Con **＋ Output** abierto, se lista debajo de los campos con su nombre, su expresión y **Eliminar**. Los pasos siguientes pueden usarlo, y tiene su punto en la tarjeta.
+Un output así aparece en **Outputs** como cualquier otro. Con **＋ Output** abierto, se lista debajo de los campos con su nombre, su expresión y **Eliminar**. Los pasos siguientes pueden usarlo, y tiene su punto en la tarjeta.
 
 ## Lo que devuelve el workflow
 
