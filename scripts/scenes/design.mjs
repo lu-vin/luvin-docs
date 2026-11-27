@@ -810,6 +810,8 @@ workflows:
     await openStore(page)
     await design(page, 'quickOrder')
     await select(page, 'login')
+    // El token del login está en la pestaña Autorización del paso (no en sus outputs).
+    await side(page).getByRole('tab', { name: ES ? /Autorización/ : /Authorization/ }).click()
     await panelScroll(page, side(page).locator('.bl-signin').first())
     await side(page).locator('.bl-signin button').first().click()
     await page.locator('.bl-token-notice').waitFor()
